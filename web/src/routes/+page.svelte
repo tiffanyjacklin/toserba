@@ -1,8 +1,5 @@
 <script>
-	import Counter from './Counter.svelte';
-	import Button from './Button.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+
 </script>
 
 <svelte:head>
@@ -38,7 +35,7 @@
 					<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
 				</svg>
 				</span>
-				<input type="text" name="username" id="username" autocomplete="username" class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="janesmith">
+				<input type="text" name="username" id="username" autocomplete="username" class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
 			</div>
 			</div>
 
@@ -53,11 +50,13 @@
 				<input type="password" name="password" id="password" autocomplete="current-password" class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
 			</div>
 			<div class="">
-			Forgot Password?
+				<a href="/forgot-password">Forgot Password?</a>
+				
 			</div>
 			</div>
 			<button type="submit" class="inline-flex items-center rounded-md bg-f2b082 px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-				Login 
+				<a href="/about">Login</a>
+				 
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
 				</svg>
@@ -82,6 +81,7 @@
 		width: 90% !important;
 		height: 90% !important;
 		flex: 1;
+		
 	}
 
 	section {
