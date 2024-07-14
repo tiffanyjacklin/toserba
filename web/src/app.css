@@ -22,17 +22,34 @@
 	font-family: var(--font-body);
 	color: var(--color-text);
 }
+.bg-3d4c52 {
+    color: #f7d4b2;
+	background-color: #3d4c52;
+}
 .bg-f7d4b2 {
     background-color: #f7d4b2;
+	color: #3d4c52;
+}
+.bg-f7d4b2:hover {
+    background-color: #f2b082;
+	color: #3d4c52;
 }
 .bg-f2b082 {
     background-color: #f2b082;
+	color: #3d4c52;
+}
+.bg-f2b082:hover {
+    background-color: #f7d4b2;
+	color: #3d4c52;
 }
 body {
 	min-height: 100vh;
 	margin: 0;
-	background: 
-		linear-gradient(45deg, #3d4c52 0%, #3d4c52 40%, #f7d4b2 40%, #f7d4b2 100%);
+	background: linear-gradient(45deg, #3d4c52 0%, #3d4c52 40%, #f7d4b2 40%, #f7d4b2 100%);
+    background-attachment: fixed;
+    background-size: cover;
+	/* background: 
+		linear-gradient(45deg, #3d4c52 0%, #3d4c52 40%, #f7d4b2 40%, #f7d4b2 100%); */
 
 	/* background-color: var(--color-bg-3); */
 	/* background-attachment: fixed;
@@ -121,3 +138,22 @@ button:focus:not(:focus-visible) {
 	width: 1px;
 	white-space: nowrap;
 }
+@media (min-width: 640px) {
+	.sm\:col-span-4 {
+	  grid-column: span 4 / span 4;
+	}
+  
+	.sm\:max-w-xs {
+	  max-width: 20rem;
+	}
+  
+	.sm\:text-sm {
+	  font-size: 0.875rem;
+	  line-height: 1.25rem;
+	}
+  
+	.sm\:leading-6 {
+	  line-height: 1.5rem;
+	}
+  }
+  

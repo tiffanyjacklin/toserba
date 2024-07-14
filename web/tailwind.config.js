@@ -7,6 +7,10 @@ export default {
         peach: '#F6D2A0', // Customize this color
         darkGray: '#394046', // Customize this color
       },
+      fontFamily: {
+        
+        body: ['Helvetica', 'Arial', 'sans-serif'],
+      },
     },
   },
   plugins: [],

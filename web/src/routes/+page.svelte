@@ -1,116 +1,177 @@
-<script>
-
-</script>
-
 <svelte:head>
 	<title>Home</title>
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
-
-<div class="outerbox">
-	<div class="col-span-2">
-		<div class="">
+<figure class="shadow-xl container bg-slate-100 rounded-xl p-4 sm:p-8 dark:bg-slate-800">
+    <div class="flex flex-col sm:flex-row">
+        <div class="welkombek flex-none w-full sm:w-1/2 relative hidden sm:block">
+			<div class="flex flex-col h-full w-full">
+				<div class="package-top h-1/2 w-full relative">
+					<div class="seal h-4/5 w-1/6 absolute top-0 left-0"></div>
+					<div class="welcome-text text-6xl tracking-wider absolute bottom-0 left-0">Welcome</div>
+				</div>
+				<div class="package-bottom h-1/2 w-full text-8xl">Back.</div>
+			</div>
 		</div>
-		<div class="">
-		</div>
-
-	</div>
-	<div class="col-span-2">
-		<div class="title-login">LOGIN</div>
-		<div class="sm:col-span-4">
-			<select id="country" name="country" autocomplete="country-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
-			<option>Cashier</option>
-			<option>Store Employee</option>
-			<option>Warehouse Employee</option>
-			<option>Warehouse Operational</option>
-			<option>Admin</option>
-			<option>Owner</option>
-			</select>
-		</div>
-		<div class="sm:col-span-4 relative">
-  			<label for="username" class="block text-sm font-medium leading-6 text-gray-900">Username</label>
-			<div class="mt-2 relative">
-				<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5 text-gray-400">
-					<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+		<form class="flex-auto p-4 sm:p-6 w-full sm:w-1/2 flex flex-col space-y-1">
+            <div>
+                <h1 class="login-text text-6xl uppercase text-shadow-inner font-semibold text-slate-900 mb-6">Login</h1>
+            </div>
+            <div class="relative">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="icon absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
 				</svg>
-				</span>
-				<input type="text" name="username" id="username" autocomplete="username" class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+				<select id="role" name="role" autocomplete="off" class="focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none w-full pl-10 pr-8 text-sm leading-6 text-slate-900 placeholder-slate-400 rounded-md py-2 ring-1 ring-slate-200 shadow-sm">
+					<option>Cashier</option>
+					<option>Store Employee</option>
+					<option>Warehouse Employee</option>
+					<option>Warehouse Operational</option>
+					<option>Admin</option>
+					<option>Owner</option>
+				</select>
 			</div>
-			</div>
-
-			<div class="sm:col-span-4 relative">
-			<label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password</label>
-			<div class="mt-2 relative">
-				<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5 text-gray-400">
-					<path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-				</svg>
-				</span>
-				<input type="password" name="password" id="password" autocomplete="current-password" class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-			</div>
-			<div class="">
-				<a href="/forgot-password">Forgot Password?</a>
-				
-			</div>
-			</div>
-			<button type="submit" class="inline-flex items-center rounded-md bg-f2b082 px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-				<a href="/components/Home.svelte">Login</a>
-				 
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+			
+            <div class="w-full">
+                <label for="username" class="forgot-text block text-sm font-medium leading-6 text-gray-900">Username</label>
+                <div class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="icon absolute h-5 w-5 top-2 left-3 text-gray-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                    <input id="username" name="username" type="text" placeholder="Username" class="focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none block w-full px-10 py-2 text-sm leading-6 text-slate-900 placeholder-slate-400 rounded-md ring-1 ring-slate-200 shadow-sm">
+                </div>
+            </div>
+            <div class="w-full">
+                <label for="password" class="forgot-text block text-sm font-medium leading-6 text-gray-900">Password</label>
+                <div class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="icon absolute h-5 w-5 top-2 left-3 text-gray-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    </svg>
+                    <input id="password" name="password" type="password" placeholder="Password" class="focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none block w-full px-10 py-2 text-sm leading-6 text-slate-900 placeholder-slate-400 rounded-md ring-1 ring-slate-200 shadow-sm">
+                </div>
+            </div>
+            <div>
+                <p class="text-sm text-slate-700 text-right mb-6"><a href="/forgot-password" class="forgot-text">Forgot Password?</a></p>
+            </div>
+            <button class="h-10 px-6 inline-flex items-center justify-center font-semibold rounded-md bg-f2b082 text-white hover:shadow-2xl">
+				<span class="icon">Login</span>
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-1">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
 				</svg>
 			</button>
-
-	</div>
-</div>
-<div class="">
-</div>
-
+        </form>
+    </div>
+</figure>
 
 <style lang="postcss">
-	.title-login{
-
+	input, select {
+		box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
 	}
-	.outerbox {
-		border-radius: 10px;
-		background-color: #3d4c52;
+    .container {
+        background-color: #3d4c52;
+		width: 90%; /* Adjust container width as desired */
+		max-width: 800px; /* Example max-width for responsiveness */
+		margin: auto; /* Center container horizontally */
+    }
+
+    .welkombek {
+        display: flex;
+        min-height: 40vh; /* Minimum height of 40% of viewport height */
+        align-items: center; /* Center content vertically */
+    }
+
+	.flex {
 		display: flex;
-		justify-content: center;
-		align-items: center;
-		width: 90% !important;
-		height: 90% !important;
-		flex: 1;
-		
+		height: 100%; /* Ensure the flex container takes full height */
 	}
 
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.9;
-		background-color: #3d4c52;
-		border-radius: 10px;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
+	.package-top {
+		background-color: var(--color-bg-4);
+		padding: 20px;
+		text-align: center;
+		border-top-left-radius: 20px;
 		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
+		margin-bottom: 10px; 
+		width: 100%; /* Ensure full width for responsiveness */
 	}
 
-	.welcome img {
+	.seal {
+		background-color: #f8be7f;
+		/* height: 80px; */
+		/* width: 40px;  */
 		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1; 
+	}
+
+	.welcome-text {
+		position: absolute;
+		bottom: 10px;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 2;
+		font-family: 'Helvetica', sans-serif;
+		font-weight: 700;
+		color: #3d4c52; 
+		font-stretch: ultra-condensed;	
+	}
+
+	.package-bottom {
+		background-color: var(--color-bg-5);
+		padding: 20px;
+		text-align: center;
+		color: #3d4c52; 
+		border-bottom-left-radius: 20px;
+		margin-top: 10px; 
+		font-weight: 800;
+		font-family: 'Helvetica', sans-serif;
+		font-stretch: condensed;	
+	}
+
+    .login-text {
+		position: relative; /* Ensure relative positioning for pseudo-element */
+		color: var(--color-bg-4);
+		font-weight: 800;
+		font-family: 'Helvetica', sans-serif;
+		font-stretch: condensed;
+	}
+
+	.login-text::before {
+		content: ''; /* Required for pseudo-element */
+		position: absolute;
+		top: 0;
+		left: 0;
 		width: 100%;
 		height: 100%;
-		top: 0;
-		display: block;
+		z-index: -1; /* Behind the text */
+		box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); /* Inner shadow effect */
+		border-radius: 5px; /* Adjust as needed */
 	}
+
+    .forgot-text {
+        color: white;
+        display: block;
+        text-decoration: none;
+        font-stretch: ultra-condensed;
+        margin-top: 5px;
+		font-weight: 600;
+    }
+
+    .icon {
+        color: var(--color-bg-3);
+		
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .welkombek {
+            display: none; /* Hide welkombek on smaller screens */
+        }
+
+        .container {
+            width: 100%; /* Full width on smaller screens */
+            padding: 20px; /* Example padding adjustment */
+        }
+    }
 </style>
