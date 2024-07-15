@@ -29,7 +29,7 @@
     function checkCredentials(username, password, selectedRole) {
         const user = json.toserba.users.find(user => user.username === username && user.user_password === password);
         if (user) {
-            const userRole = json.toserba.user_roles.find(ur => ur.user_id === user.user_id && json.toserba.roles.find(role => role.roles_id === ur.roles_id).roles_name === selectedRole);
+			const userRole = json.toserba.user_roles.find(ur => ur.user_id === user.user_id && ur.roles_id === selectedRole)
             return !!userRole;
         }
         return false;
@@ -48,10 +48,17 @@
 
 		if (user && checkCredentials(username, password, selectedRole)) {
 			const userId = user.user_id;
+			const user_fullname = user.user_fullname;
+			const user_photo_profile = user.user_photo_profile;
+			const user_role = selectedRole;
 
+			// alert("SUKSES");
 			window.location.href = '/dashboard';
 
 			localStorage.setItem('userId', userId);
+			localStorage.setItem('user_fullname', user_fullname);
+			localStorage.setItem('user_photo_profile', user_photo_profile);
+			localStorage.setItem('user_role', user_role);
 		} else {
 			alert('Invalid username, password, or role');
 		}
@@ -99,7 +106,7 @@
 				<select id="role" autocomplete="Select Your Role" name="role" bind:value={selectedRole} class="capitalize focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none w-full pl-10 pr-8 text-sm leading-6 text-slate-900 placeholder-slate-400 rounded-md py-2 ring-1 ring-slate-200 shadow-sm">
 					<option disabled selected >Select Your Role</option>
 					{#each roles as role, index}
-						<option class="capitalize" value={role.roles_name}>{role.roles_name}</option>
+						<option class="capitalize" value={role.roles_id}>{role.roles_name}</option>
 					{/each}
 				</select>
 			</div>
@@ -136,6 +143,7 @@
 </figure>
 
 <style lang="postcss">
+	
 	input, select {
 		box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
 	}

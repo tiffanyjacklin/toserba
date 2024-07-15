@@ -1,6 +1,82 @@
+<script>
+   import { onMount } from 'svelte';
+   let json;
+
+   let user = '';
+   let user_role = '';
+   let user_fullname = '';
+   let userId = localStorage.getItem('userId');
+   let user_role_id = localStorage.getItem('user_role');
+
+   let privileges = [];
+   let privilegeNames = [];
+   let transformedPrivilegeNames = [];
+
+   async function fetchJson() {
+        const response = await fetch('/data_dummy.json');
+        if (response.ok) {
+            const jsonData = await response.json();
+            return jsonData;
+        } else {
+            throw new Error('Failed to fetch JSON');
+        }
+    }
+   function mapPrivileges(privileges, allPrivileges) {
+      return privileges.map(p => {
+         const privilegeDetail = allPrivileges.find(ap => ap.privileges_id === p.privileges_id);
+         return privilegeDetail ? privilegeDetail.privileges_name : 'Unknown';
+      });
+   }
+ 
+
+   onMount(async () => {
+      try {
+            json = await fetchJson();
+
+            user = json.toserba.users.find(user => user.user_id == userId);
+            user_role = json.toserba.roles.find(roles => roles.roles_id == user_role_id).roles_name;
+            user_fullname = user.user_fullname;
+
+            privileges = json.toserba.user_privileges.find(up => up.user_id == userId);
+            
+            if (privileges) {
+               // const userId = userId; 
+               privileges = json.toserba.user_privileges.filter(up => up.user_id == userId);
+            } else {
+               const userRoleId = user_role_id; 
+               privileges = json.toserba.roles_default.filter(rd => rd.roles_id == userRoleId);
+            }
+            privilegeNames = mapPrivileges(privileges, json.toserba.privileges);
+            
+            console.log('Privileges name:', privilegeNames)
+            
+      } catch (error) {
+            console.error('Error fetching JSON:', error);
+      }
+   });
+   function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+   }
+   function transformPrivilegeName(name) {
+      return name.split('_')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
+   }
+   function handleLogout() {
+      localStorage.removeItem('userId');
+      localStorage.removeItem('user_fullname');
+      localStorage.removeItem('user_photo_profile');
+      localStorage.removeItem('user_role');
+
+      window.location.href = '/';
+}
+
+</script>
+
+
 <svelte:head>
 	<title>Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />  
 </svelte:head>
 
 <nav class="fixed top-0 z-40 w-full bg-peach">
@@ -50,39 +126,30 @@
         </div>
 
         <div class="flex items-center justify-center text-white my-2">
-            <p>Logged in as nama user</p>
+            <p>Logged in as {user.user_fullname}</p>
+           
         </div>
         
         <div class="flex items-center justify-center text-gray-400 pb-2 border-b-4 border-gray-50">
-            <p>Role User</p>
-        </div>
-            
-        <ul class="space-y-2 font-medium mt-5">
-           <li>
-              <a href="#" class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
-                 <span class="ms-3 font-medium">Session</span>
-              </a>
-           </li>
-           <li>
-              <a href="#" class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
-                 <span class="ms-3">Session History</span>
-              </a>
-           </li>
-           <li>
-              <a href="#" class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
-                 <span class="ms-3">Order History</span>
-              </a>
-           </li>
-           <li>
-              <a href="#" class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
-                 <span class="ms-5">Members</span>
-              </a>
-           </li>
-        </ul>
-        <div class="absolute bottom-10 left-0 right-0 px-3 ms-8">
-            <i class="fa-solid fa-arrow-right-from-bracket" style="color: #64748b;"></i>
-            <span class="font-semibold text-gray-500">Log Out</span>
-        </div>
+         <p>Role: {user_role ? capitalizeFirstLetter(user_role) : 'Loading...'}</p>
+      </div>
+      <ul class="space-y-2 font-medium mt-5">
+         {#each privilegeNames as privilege}
+            <li>
+               <a href={`/${privilege}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
+                  <p style="text-transform: capitalize;">{transformPrivilegeName(privilege)}</p>
+               </a>
+            </li>
+         {/each}
+      </ul> 
+      <div class="bg-transparent hover:text-white text-[#64748b] font-bold py-2 ml-12 mt-10 px-4 rounded flex items-center cursor-pointer" on:click={handleLogout}>
+         <i class="fa-solid fa-arrow-right-from-bracket text-[#64748b]" style="color: #64748b;"></i>
+         <span class="ml-2">Logout</span>
+     </div>
+      <!-- <div class="bottom-10 left-0 right-0 px-3 ml-10 mt-10 ">
+         <i class="fa-solid fa-arrow-right-from-bracket " style="color: #64748b;"></i>
+         <span class="font-semibold text-gray-500">Log Out</span>
+      </div> -->
      </div>
   </aside>
   
