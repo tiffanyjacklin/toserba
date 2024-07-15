@@ -43,11 +43,11 @@
 	color: #3d4c52;
 }
 body {
-	min-height: 100vh;
+	/* min-height: 100vh;
 	margin: 0;
 	background: linear-gradient(45deg, #3d4c52 0%, #3d4c52 40%, #f7d4b2 40%, #f7d4b2 100%);
     background-attachment: fixed;
-    background-size: cover;
+    background-size: cover; */
 	/* background: 
 		linear-gradient(45deg, #3d4c52 0%, #3d4c52 40%, #f7d4b2 40%, #f7d4b2 100%); */
 
@@ -79,7 +79,7 @@ a {
 }
 
 a:hover {
-	text-decoration: underline;
+	/* text-decoration: underline; */
 }
 
 h1 {

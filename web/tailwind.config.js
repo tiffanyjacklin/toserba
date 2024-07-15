@@ -4,8 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        peach: '#F6D2A0', // Customize this color
-        darkGray: '#394046', // Customize this color
+        peach: '#FACFAD',
+        peach2: '#F2AA7E',
+        darkGray: '#364445',
+        coklat_hover:'#5E554A'
       },
       fontFamily: {
         
