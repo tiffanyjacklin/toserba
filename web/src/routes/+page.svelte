@@ -2,8 +2,8 @@
     import { onMount } from 'svelte';
 
     let json;
-    let roles = [];
-    let selectedRole = '';
+    // let roles = [];
+    // let selectedRole = '';
 
     async function fetchJson() {
         const response = await fetch('/data_dummy.json');
@@ -18,22 +18,22 @@
 	onMount(async () => {
         try {
             json = await fetchJson();
-            roles = json.toserba.roles || []; 
-            console.log('Roles:', roles); 
-            selectedRole = 'Select Your Role'; 
+            // roles = json.toserba.roles || []; 
+            // console.log('Roles:', roles); 
+            // selectedRole = 'Select Your Role'; 
         } catch (error) {
             console.error('Error fetching JSON:', error);
         }
     });
 
-    function checkCredentials(username, password, selectedRole) {
-        const user = json.toserba.users.find(user => user.username === username && user.user_password === password);
-        if (user) {
-			const userRole = json.toserba.user_roles.find(ur => ur.user_id === user.user_id && ur.roles_id === selectedRole)
-            return !!userRole;
-        }
-        return false;
-    }
+    // function checkCredentials(username, password,selectedRole) {
+    //     const user = json.toserba.users.find(user => user.username === username && user.user_password === password);
+	// 	if (user) {
+	// 		const userRole = json.toserba.user_roles.find(ur => ur.user_id === user.user_id && ur.roles_id === selectedRole)
+    //         return !!userRole;
+    //     }
+    //     return false;
+    // }
 
 	function handleSubmit(event) {
 		event.preventDefault();
@@ -46,19 +46,19 @@
 			user.user_password === password
 		);
 
-		if (user && checkCredentials(username, password, selectedRole)) {
+		if (user) {
 			const userId = user.user_id;
 			const user_fullname = user.user_fullname;
 			const user_photo_profile = user.user_photo_profile;
-			const user_role = selectedRole;
+			// const user_role = selectedRole;
 
 			// alert("SUKSES");
-			window.location.href = '/dashboard';
+			window.location.href = '/pilih_role';
 
 			localStorage.setItem('userId', userId);
 			localStorage.setItem('user_fullname', user_fullname);
 			localStorage.setItem('user_photo_profile', user_photo_profile);
-			localStorage.setItem('user_role', user_role);
+			// localStorage.setItem('user_role', user_role);
 		} else {
 			alert('Invalid username, password, or role');
 		}
@@ -99,7 +99,7 @@
             <div>
                 <h1 class="login-text text-6xl uppercase text-shadow-inner font-semibold text-slate-900 mb-6">Login</h1>
             </div>
-			<div class="relative">
+			<!-- <div class="relative">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="icon absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
 				</svg>
@@ -109,7 +109,7 @@
 						<option class="capitalize" value={role.roles_id}>{role.roles_name}</option>
 					{/each}
 				</select>
-			</div>
+			</div> -->
 			
             <div class="w-full">
                 <label for="username" class="forgot-text block text-sm font-medium leading-6 text-gray-900">Username</label>
