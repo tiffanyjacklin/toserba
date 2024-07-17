@@ -7,10 +7,11 @@
    let user_fullname = '';
    let userId = localStorage.getItem('userId');
    let user_role_id = localStorage.getItem('user_role');
-
+   // console.log(user_role_id)
    let privileges = [];
    let privilegeNames = [];
    let transformedPrivilegeNames = [];
+   let custom = '';
 
    async function fetchJson() {
         const response = await fetch('/data_dummy.json');
@@ -34,17 +35,23 @@
             json = await fetchJson();
 
             user = json.toserba.users.find(user => user.user_id == userId);
-            user_role = json.toserba.roles.find(roles => roles.roles_id == user_role_id).roles_name;
+            // console.log(user)
+            user_role = json.toserba.roles.find(roles => roles.roles_id == user_role_id);
             user_fullname = user.user_fullname;
-
-            privileges = json.toserba.user_privileges.find(up => up.user_id == userId);
-            
-            if (privileges) {
+            // console.log(user_role)
+            custom = json.toserba.user_roles.find(ur => ur.user_roles_id == user_role_id).custom;
+            // console.log(custom)
+            if (custom == 1) {
                // const userId = userId; 
                privileges = json.toserba.user_privileges.filter(up => up.user_id == userId);
+               console.log('user_priv')
+               console.log('Privileges name 1:', privilegeNames)
+
             } else {
-               const userRoleId = user_role_id; 
-               privileges = json.toserba.roles_default.filter(rd => rd.roles_id == userRoleId);
+               privileges = json.toserba.roles_default.filter(rd => rd.roles_id == user_role.roles_id);
+               console.log('default')
+               
+               console.log('Privileges name 2:', privilegeNames)
             }
             privilegeNames = mapPrivileges(privileges, json.toserba.privileges);
             
@@ -131,7 +138,7 @@
         </div>
         
         <div class="flex items-center justify-center text-gray-400 pb-2 border-b-4 border-gray-50">
-         <p>Role: {user_role ? capitalizeFirstLetter(user_role) : 'Loading...'}</p>
+         <p>Role: {user_role.roles_name ? capitalizeFirstLetter(user_role.roles_name) : 'Loading...'}</p>
       </div>
       <ul class="space-y-2 font-medium mt-5">
          {#each privilegeNames as privilege}
