@@ -39,19 +39,20 @@
             user_role = json.toserba.roles.find(roles => roles.roles_id == user_role_id);
             user_fullname = user.user_fullname;
             // console.log(user_role)
-            custom = json.toserba.user_roles.find(ur => ur.user_roles_id == user_role_id).custom;
+            custom = json.toserba.user_roles.find(ur => ur.user_roles_id == user_role_id);
             // console.log(custom)
             if (custom == 1) {
                // const userId = userId; 
                privileges = json.toserba.user_privileges.filter(up => up.user_id == userId);
                console.log('user_priv')
-               console.log('Privileges name 1:', privilegeNames)
+               console.log('Privileges name 1:', privileges)
 
             } else {
                privileges = json.toserba.roles_default.filter(rd => rd.roles_id == user_role.roles_id);
+               console.log('test',user_role.roles_id)
                console.log('default')
-               
-               console.log('Privileges name 2:', privilegeNames)
+
+               console.log('Privileges name 2 test:', privileges)
             }
             privilegeNames = mapPrivileges(privileges, json.toserba.privileges);
             
