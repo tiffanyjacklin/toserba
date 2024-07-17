@@ -97,12 +97,12 @@
                  <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
               </svg>
            </button> -->
-            <span class="self-center text-xl font-bold sm:text-2xl whitespace-nowrap text-darkGray">TOSERBA</span>
+            <span class="self-center text-xl font-extrabold sm:text-2xl whitespace-nowrap text-darkGray">TOSERBA</span>
         </div>
     </div>
   </nav>
   
-  <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full bg-darkGray sm:translate-x-0 border-r-8 border-peach2" aria-label="Sidebar">
+  <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full bg-darkGray sm:translate-x-0 border-r-8 border-peach" aria-label="Sidebar">
      <div class="h-full px-3 pb-4 overflow-y-auto bg-darkGray">
         <div class="flex justify-center my-8">
             <svg width="200" height="120" viewBox="0 0 250 145" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -134,18 +134,18 @@
         </div>
 
         <div class="flex items-center justify-center text-white my-2">
-            <p>Logged in as {user.user_fullname}</p>
+            <p class="text-center">Logged in as {user.user_fullname}</p>
            
         </div>
         
         <div class="flex items-center justify-center text-gray-400 pb-2 border-b-4 border-gray-50">
-         <p>Role: {user_role.roles_name ? capitalizeFirstLetter(user_role.roles_name) : 'Loading...'}</p>
+         <p class="text-center">Role: {user_role.roles_name ? capitalizeFirstLetter(user_role.roles_name) : 'Loading...'}</p>
       </div>
       <ul class="space-y-2 font-medium mt-5">
          {#each privilegeNames as privilege}
             <li>
                <a href={`/${privilege}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
-                  <p style="text-transform: capitalize;">{transformPrivilegeName(privilege)}</p>
+                  <p class="text-center" style="text-transform: capitalize;">{transformPrivilegeName(privilege)}</p>
                </a>
             </li>
          {/each}

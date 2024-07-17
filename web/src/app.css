@@ -3,6 +3,25 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--scrollclr2) var(--scrollclr1);
+  }
+
+  *::-webkit-scrollbar {
+	width: 5px;
+  }
+  
+  *::-webkit-scrollbar-track {
+	background: var(--scrollclr1);
+	border-radius: 5px;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+	background-color: var(--scrollclr2);
+	border-radius: 20px;
+	border: 3px solid var(--scrollclr1);
+  }
 
 :root {
 	--font-body: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
@@ -21,6 +40,9 @@
 	--column-margin-top: 4rem;
 	font-family: var(--font-body);
 	color: var(--color-text);
+
+	--scrollclr1: #364445;
+  	--scrollclr2: #F2AA7E;
 }
 .bg-3d4c52 {
     color: #f7d4b2;
