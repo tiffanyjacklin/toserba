@@ -1,0 +1,11 @@
+{<2024-07-17 10:57:46>;Ip:::1;Nama API:UploadFoto;lenRespon:6;LenParam:3;}
+{<2024-07-17 11:00:08>;Ip:::1;Nama API:UploadFoto;lenRespon:6;LenParam:3;}
+{<2024-07-17 12:48:00>;Ip:::1;Nama API:UploadFoto;lenRespon:1;LenParam:3;}
+{<2024-07-17 12:48:05>;Ip:::1;Nama API:UploadFoto;lenRespon:1;LenParam:3;}
+{<2024-07-17 12:50:01>;Ip:::1;Nama API:UploadFoto;lenRespon:1;LenParam:3;}
+{<2024-07-17 12:50:02>;Ip:::1;Nama API:UploadFoto;lenRespon:1;LenParam:3;}
+{<2024-07-17 12:50:02>;Ip:::1;Nama API:UploadFoto;lenRespon:1;LenParam:3;}
+{<2024-07-17 12:50:02>;Ip:::1;Nama API:UploadFoto;lenRespon:1;LenParam:3;}
+{<2024-07-17 12:50:03>;Ip:::1;Nama API:UploadFoto;lenRespon:1;LenParam:3;}
+{<2024-07-17 12:50:07>;Ip:::1;Nama API:UploadFoto;lenRespon:1;LenParam:3;}
+{<2024-07-17 12:50:28>;Ip:::1;Nama API:UploadFoto;lenRespon:6;LenParam:3;}
