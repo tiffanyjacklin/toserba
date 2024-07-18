@@ -10,8 +10,9 @@ export default {
         coklat_hover:'#5E554A'
       },
       fontFamily: {
-        
         body: ['Helvetica', 'Arial', 'sans-serif'],
+        poppins: ["Poppins", "sans-serif"],        
+        roboto: ["Roboto Condensed", "sans-serif"],        
       },
     },
   },
