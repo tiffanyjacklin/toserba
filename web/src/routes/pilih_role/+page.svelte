@@ -1,12 +1,16 @@
 <script>
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { browser } from '$app/environment';
 
     let json;
     let allowed_roles = []
     let roles = [];
+    let userId;
     let selectedRole = '';
-    let userId = localStorage.getItem('userId');
+    if (browser) {
+        userId = localStorage.getItem('userId');
+    }
     console.log("user id : " + userId)
 
     async function fetchJson() {
