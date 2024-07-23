@@ -71,7 +71,7 @@
 <div class="flex justify-center">
     <div class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 justify-center">
         {#each roles as role, index}
-            <div class="">
+            <div class="w-72">
                 <a on:click={ChooseRole(role.roles_id)} href="#" value={role.roles_id} class="h-full text-center flex flex-col gap-y-3 items-center justify-center block max-w-sm p-6 bg-peach border border-peach2 rounded-lg shadow hover:bg-peach2 ">
                     {#if role.roles_id == 1}
                         <i class="fa-solid fa-cash-register fa-5x" style="color: #364445;"></i>
