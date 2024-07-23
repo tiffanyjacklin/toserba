@@ -155,10 +155,13 @@
             </li>
          {/each}
       </ul> 
-      <div class="bg-transparent hover:text-white text-[#64748b] font-bold py-2 ml-12 mt-10 px-4 rounded flex items-center cursor-pointer" on:click={handleLogout}>
-         <i class="fa-solid fa-arrow-right-from-bracket text-[#64748b]" style="color: #64748b;"></i>
-         <span class="ml-2">Logout</span>
-     </div>
+
+      <div class="bg-transparent hover:text-white text-[#64748b] font-bold py-2 mt-10 rounded cursor-pointer flex justify-center items-center" on:click={handleLogout}>
+        <span><i class="fa-solid fa-arrow-right-from-bracket text-[#64748b]" style="color: #64748b;"></i></span>
+        <span class="ml-2">Logout</span>
+    </div>
+    
+     
       <!-- <div class="bottom-10 left-0 right-0 px-3 ml-10 mt-10 ">
          <i class="fa-solid fa-arrow-right-from-bracket " style="color: #64748b;"></i>
          <span class="font-semibold text-gray-500">Log Out</span>
