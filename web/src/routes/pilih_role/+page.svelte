@@ -50,8 +50,10 @@
 
         // window.location.href = '/dashboard'
         goto('/dashboard')
-        localStorage.setItem('userId', userId)
-        localStorage.setItem('user_role', user_role)
+        if (browser) {
+            localStorage.setItem('userId', userId)
+            localStorage.setItem('user_role', user_role)
+        }
     }
 
 

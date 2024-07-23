@@ -1,7 +1,8 @@
 <script>
    import { onMount } from 'svelte';
    import { browser } from '$app/environment';
-   let json;
+   import { goto } from '$app/navigation';
+    let json;
 
    let user = '';
    let user_role = '';
@@ -76,12 +77,10 @@
                   .join(' ');
    }
    function handleLogout() {
-      localStorage.removeItem('userId');
-      localStorage.removeItem('user_fullname');
-      localStorage.removeItem('user_photo_profile');
-      localStorage.removeItem('user_role');
-
-      window.location.href = '/';
+      goto('/');
+      if (browser){
+         localStorage.removeItem('userId');
+      }
 }
 
 </script>
@@ -108,7 +107,7 @@
   </nav>
   
   <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full bg-darkGray sm:translate-x-0 border-r-8 border-peach" aria-label="Sidebar">
-     <div class="h-full px-3 pb-4 overflow-y-auto bg-darkGray">
+     <div class="h-full pb-4 overflow-y-auto bg-darkGray">
         <div class="flex justify-center my-8">
             <svg width="200" height="120" viewBox="0 0 250 145" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <rect width="250" height="145" rx="10" fill="url(#pattern0_318_69)"/>
