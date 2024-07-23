@@ -1,12 +1,17 @@
 <script>
    import { onMount } from 'svelte';
+   import { browser } from '$app/environment';
    let json;
 
    let user = '';
    let user_role = '';
    let user_fullname = '';
-   let userId = localStorage.getItem('userId');
-   let user_role_id = localStorage.getItem('user_role');
+   let userId;
+   let user_role_id;
+   if (browser) {
+      userId = localStorage.getItem('userId');
+      user_role_id = localStorage.getItem('user_role');
+   }
    // console.log(user_role_id)
    let privileges = [];
    let privilegeNames = [];

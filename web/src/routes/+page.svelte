@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { browser } from '$app/environment';
     let json;
 
     async function fetchJson() {
@@ -38,7 +39,7 @@
 			const userId = user.user_id;
 			// window.location.href = '/pilih_role';
 			goto('/pilih_role')
-			localStorage.setItem('userId', userId);
+			if (browser) localStorage.setItem('userId', userId);
 
 		} else {
 			alert('Invalid username, password, or role');
