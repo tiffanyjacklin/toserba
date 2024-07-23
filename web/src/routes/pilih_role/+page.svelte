@@ -69,10 +69,10 @@
 </div>
 
 <div class="flex justify-center">
-    <div class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 justify-center">
-        {#each roles as role, index}
-            <div class="w-72">
-                <a on:click={ChooseRole(role.roles_id)} href="#" value={role.roles_id} class="h-full text-center flex flex-col gap-y-3 items-center justify-center block max-w-sm p-6 bg-peach border border-peach2 rounded-lg shadow hover:bg-peach2 ">
+    <!-- <div class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 place-items-center"> -->
+        <div class="flex flex-wrap justify-center align-items-center gap-4 w-8/12">
+            {#each roles as role, index}
+                <a on:click={ChooseRole(role.roles_id)} href="#" value={role.roles_id} class="w-72 h-48 flex flex-col text-center items-center justify-center block max-w-sm p-6 bg-peach border border-peach2 rounded-lg shadow hover:bg-peach2 ">
                     {#if role.roles_id == 1}
                         <i class="fa-solid fa-cash-register fa-5x" style="color: #364445;"></i>
                     {:else if role.roles_id == 2}
@@ -86,12 +86,11 @@
                     {:else if role.roles_id == 6}
                         <i class="fa-solid fa-user-tie fa-5x" style="color: #364445;"></i>
                     {/if}
-                    <h5 class="capitalize mb-2 text-2xl font-semibold tracking-tight text-darkGray">{role.roles_name}</h5>
+                    <h5 class="capitalize mt-2 text-2xl font-semibold tracking-tight text-darkGray">{role.roles_name}</h5>
                 </a>
-            </div>
-        {/each}
-    
-    </div>
+            {/each}
+        </div>
+    <!-- </div> -->
 </div>
 
 
