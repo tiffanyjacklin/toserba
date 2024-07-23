@@ -19,8 +19,8 @@ func GetFoto(c echo.Context) error {
 }
 
 func GetUser(c echo.Context) error {
-	uname := c.QueryParam("username")
-	password := c.QueryParam("password")
+	uname := c.FormValue("username")
+	password := c.FormValue("password")
 	result, err := model.GetUser(uname, password)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
