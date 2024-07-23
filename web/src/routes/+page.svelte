@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
     let json;
 
     async function fetchJson() {
@@ -35,7 +36,8 @@
 
 		if (user) {
 			const userId = user.user_id;
-			window.location.href = '/pilih_role';
+			// window.location.href = '/pilih_role';
+			goto('/pilih_role')
 			localStorage.setItem('userId', userId);
 
 		} else {

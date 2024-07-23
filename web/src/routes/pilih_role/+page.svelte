@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
-    
+    import { goto } from '$app/navigation';
+
     let json;
     let allowed_roles = []
     let roles = [];
@@ -43,7 +44,8 @@
 
         const user_role = selectedRole;
 
-        window.location.href = '/dashboard'
+        // window.location.href = '/dashboard'
+        goto('/dashboard')
         localStorage.setItem('userId', userId)
         localStorage.setItem('user_role', user_role)
     }

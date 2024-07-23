@@ -4,14 +4,12 @@
 </script>
 
 <div class="app">
-	<Header />
+	<!-- <Header /> -->
 
 	<main>
 		<slot />
 	</main>
 
-	<footer>
-	</footer> 
 </div>
 
 <style>
