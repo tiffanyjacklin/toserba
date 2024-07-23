@@ -3,14 +3,16 @@
 	import '../app.css';
 </script>
 
-<div class="app">
-	<!-- <Header /> -->
+<!-- <div class="app">
+	<Header />
 
 	<main>
 		<slot />
 	</main>
 
-</div>
+</div> -->
+<slot />
+
 
 <style>
 	.app {

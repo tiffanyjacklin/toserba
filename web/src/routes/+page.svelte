@@ -65,7 +65,7 @@
 	<title>Home</title>
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
-
+<div id="cover" class="flex h-screen w-screen">
     <figure class="font-roboto shadow-xl container bg-[#3d4c52] w-11/12 max-w-3xl m-auto rounded-xl p-1 sm:p-2">
         <div class="flex flex-col sm:flex-row">
             <div class="welkombek items-center min-h-10 flex-none w-full sm:w-1/2 relative hidden sm:block max-[640px]:hidden">
@@ -132,10 +132,13 @@
             </form>
         </div>
     </figure>
+</div>
+
+    
     
 
 <style lang="postcss">
-	:global(body) {
+	#cover{
 		background: linear-gradient(45deg, #3d4c52 0%, #3d4c52 44%, #f7d4b2 44%, #f7d4b2 100%);
 	}	
 </style>

@@ -68,29 +68,32 @@
     <div class="h2 self-center font-bold text-4xl text-darkGray">Pilih Role Anda</div>
 </div>
 
-<div class="grid grid-cols-3 gap-4 flex-items-stretch">
-    {#each roles as role, index}
-        <div class="">
-            <a on:click={ChooseRole(role.roles_id)} href="#" value={role.roles_id} class="h-full text-center flex flex-col gap-y-3 items-center justify-center block max-w-sm p-6 bg-peach border border-peach2 rounded-lg shadow hover:bg-peach2 ">
-                {#if role.roles_id == 1}
-                    <i class="fa-solid fa-cash-register fa-5x" style="color: #364445;"></i>
-                {:else if role.roles_id == 2}
-                    <i class="fa-solid fa-cart-flatbed fa-5x" style="color: #364445;"></i>
-                {:else if role.roles_id == 3}
-                    <i class="fa-solid fa-warehouse fa-5x" style="color: #364445;"></i>
-                {:else if role.roles_id == 4}
-                    <i class="fa-solid fa-user-gear fa-5x" style="color: #364445;"></i>
-                {:else if role.roles_id == 5}
-                    <i class="fa-solid fa-user-group fa-5x" style="color: #364445;"></i>
-                {:else if role.roles_id == 6}
-                    <i class="fa-solid fa-user-tie fa-5x" style="color: #364445;"></i>
-                {/if}
-                <h5 class="capitalize mb-2 text-2xl font-semibold tracking-tight text-darkGray">{role.roles_name}</h5>
-            </a>
-        </div>
-    {/each}
-
+<div class="flex justify-center">
+    <div class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 justify-center">
+        {#each roles as role, index}
+            <div class="">
+                <a on:click={ChooseRole(role.roles_id)} href="#" value={role.roles_id} class="h-full text-center flex flex-col gap-y-3 items-center justify-center block max-w-sm p-6 bg-peach border border-peach2 rounded-lg shadow hover:bg-peach2 ">
+                    {#if role.roles_id == 1}
+                        <i class="fa-solid fa-cash-register fa-5x" style="color: #364445;"></i>
+                    {:else if role.roles_id == 2}
+                        <i class="fa-solid fa-cart-flatbed fa-5x" style="color: #364445;"></i>
+                    {:else if role.roles_id == 3}
+                        <i class="fa-solid fa-warehouse fa-5x" style="color: #364445;"></i>
+                    {:else if role.roles_id == 4}
+                        <i class="fa-solid fa-user-gear fa-5x" style="color: #364445;"></i>
+                    {:else if role.roles_id == 5}
+                        <i class="fa-solid fa-user-group fa-5x" style="color: #364445;"></i>
+                    {:else if role.roles_id == 6}
+                        <i class="fa-solid fa-user-tie fa-5x" style="color: #364445;"></i>
+                    {/if}
+                    <h5 class="capitalize mb-2 text-2xl font-semibold tracking-tight text-darkGray">{role.roles_name}</h5>
+                </a>
+            </div>
+        {/each}
+    
+    </div>
 </div>
+
 
 <div class="flex mt-8 justify-center">
     <button on:click={e => window.location.href="/"} type="button self-end" class="text-black font-semibold bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-8 py-2.5 me-2 mb-2">Kembali</button>
