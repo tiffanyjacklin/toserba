@@ -91,7 +91,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />  
 </svelte:head>
 
-<nav class="fixed top-0 z-40 w-full left-[256px] bg-peach">
+<nav class="fixed top-0 z-40 w-full bg-peach">
     <div class="px-5 py-3">
       <div class="flex items-center justify-start">
          <div class="w-0 lg:w-64 md:w-64"></div>
