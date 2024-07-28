@@ -1,0 +1,89 @@
+<script>
+    import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { browser } from '$app/environment';
+
+    export let data;
+    let json;
+
+    let roles = [];
+    let userId = data.userId;
+    let selectedRole = '';
+    if (browser) {
+        userId = localStorage.getItem('userId');
+    }
+    console.log("user id : " + userId);
+
+    async function fetchRoles(userId) {
+        const response = await fetch(`http://localhost:2681/user/roles/${userId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Roles fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+        console.log("data", data);
+
+        if (data.status !== 200) {
+            console.error('Invalid user roles', data);
+            return;
+        }
+        
+        roles = data.data;
+    }
+
+    onMount(() => {
+        fetchRoles(userId);
+    });
+
+    function ChooseRole(role_id) {
+        selectedRole = role_id;
+        console.log("role : " + selectedRole);
+
+        const user_role = selectedRole;
+
+        goto('/dashboard');
+        if (browser) {
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('user_role', user_role);
+        }
+    }
+</script>
+
+<div class="flex justify-center my-10">
+    <div class="h2 self-center font-bold text-4xl text-darkGray">Pilih Role Anda</div>
+</div>
+
+<div class="flex justify-center">
+    <div class="flex flex-wrap justify-center align-items-center gap-4 w-8/12">
+        {#each roles as role, index}
+            <a on:click={() => ChooseRole(role.role_id)} href="#" value={role.role_id} class="w-72 h-48 flex flex-col text-center items-center justify-center block max-w-sm p-6 bg-peach border border-peach2 rounded-lg shadow hover:bg-peach2 ">
+                {#if role.role_id == 1}
+                    <i class="fa-solid fa-cash-register fa-5x" style="color: #364445;"></i>ASU
+                {:else if role.role_id == 2}
+                    <i class="fa-solid fa-cart-flatbed fa-5x" style="color: #364445;"></i>BABI
+                {:else if role.role_id == 3}
+                    <i class="fa-solid fa-warehouse fa-5x" style="color: #364445;"></i>CICAK
+                {:else if role.role_id == 4}
+                    <i class="fa-solid fa-user-gear fa-5x" style="color: #364445;"></i>DUGONG
+                {:else if role.role_id == 5}
+                    <i class="fa-solid fa-user-group fa-5x" style="color: #364445;"></i>EEK
+                {:else if role.role_id == 6}
+                    <i class="fa-solid fa-user-tie fa-5x" style="color: #364445;"></i>FAK
+                {/if}
+                <h5 class="capitalize mt-2 text-2xl font-semibold tracking-tight text-darkGray">{role.roles_name}</h5>
+                <!-- <h5 class="capitalize mt-2 text-2xl font-semibold tracking-tight text-darkGray">{role.role_id}</h5> -->
+            </a>
+        {/each}
+    </div>
+</div>
+
+<div class="flex mt-8 justify-center">
+    <button on:click={e => window.location.href="/"} type="button self-end" class="text-black font-semibold bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-8 py-2.5 me-2 mb-2">Kembali</button>
+</div>

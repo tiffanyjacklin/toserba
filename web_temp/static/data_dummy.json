@@ -1,0 +1,397 @@
+{
+    "toserba" : {
+        "users" : [
+            {
+                "user_id": 1,
+                "username": "danielll",
+                "user_password": "danielaja",
+                "user_fullname": "Daniel Alexander",
+                "user_address": "Jalan leci",
+                "user_gender": "L",
+                "user_birthdate": "2003-01-01",
+                "user_email": "danielaja@gmail.com",
+                "user_phone_number": "081000888111",
+                "user_photo_profile": null,
+                "user_created_at": "2023-07-12 14:30:45",
+                "user_deleted_at": null,
+                "user_updated_at": null,
+                "user_login_timestamp": null
+            }, {
+                "user_id": 2,
+                "username": "alexlo",
+                "user_password": "alexaja",
+                "user_fullname": "Alexander Louis",
+                "user_address": "Jalan mangga",
+                "user_gender": "L",
+                "user_birthdate": "2003-02-02",
+                "user_email": "alexaja@gmail.com",
+                "user_phone_number": "081000888222",
+                "user_photo_profile": null,
+                "user_created_at": "2023-08-12 14:30:45",
+                "user_deleted_at": null,
+                "user_updated_at": null,
+                "user_login_timestamp": null
+            }, {
+                "user_id": 3,
+                "username": "tipani",
+                "user_password": "tipaja",
+                "user_fullname": "Tiffany Jacklin",
+                "user_address": "Jalan jeruk",
+                "user_gender": "P",
+                "user_birthdate": "2003-03-03",
+                "user_email": "tipaja@gmail.com",
+                "user_phone_number": "081000888333",
+                "user_photo_profile": null,
+                "user_created_at": "2023-09-12 14:30:45",
+                "user_deleted_at": null,
+                "user_updated_at": null,
+                "user_login_timestamp": null
+            }
+        ],
+        "roles" : [
+            {
+                "roles_id": 1,
+                "roles_name": "cashier"
+            }, {
+                "roles_id": 2,
+                "roles_name": "inventory store employee"
+            }, {
+                "roles_id": 3,
+                "roles_name": "warehouse employee"
+            }, {
+                "roles_id": 4,
+                "roles_name": "warehouse operational staff"
+            }, {
+                "roles_id": 5,
+                "roles_name": "admin"
+            }, {
+                "roles_id": 6,
+                "roles_name": "owner"
+            }
+        ],
+        "privileges" : [
+            {
+                "privileges_id": 1,
+                "privileges_name": "session"
+            }, {
+                "privileges_id": 2,
+                "privileges_name": "transaction_history"
+            }, {
+                "privileges_id": 3,
+                "privileges_name": "session_history"
+            }, {
+                "privileges_id": 4,
+                "privileges_name": "products"
+            }, {
+                "privileges_id": 5,
+                "privileges_name": "add_product"
+            }, {
+                "privileges_id": 6,
+                "privileges_name": "subtract_product_stock"
+            }, {
+                "privileges_id": 7,
+                "privileges_name": "stock_history"
+            }, {
+                "privileges_id": 8,
+                "privileges_name": "inventory_taking"
+            }, {
+                "privileges_id": 9,
+                "privileges_name": "assign_product_to_store"
+            }, {
+                "privileges_id": 10,
+                "privileges_name": "stock_transfer_notes"
+            }, {
+                "privileges_id": 11,
+                "privileges_name": "notification"
+            }, {
+                "privileges_id": 12,
+                "privileges_name": "manage_cashier"
+            }, {
+                "privileges_id": 13,
+                "privileges_name": "manage_employee_admin"
+            }, {
+                "privileges_id": 14,
+                "privileges_name": "manage_inventory"
+            }, {
+                "privileges_id": 15,
+                "privileges_name": "manage_employee_owner"
+            }, {
+                "privileges_id": 16,
+                "privileges_name": "sales_analytic"
+            }, {
+                "privileges_id": 17,
+                "privileges_name": "product_movement"
+            }, {
+                "privileges_id": 18,
+                "privileges_name": "manage_store_and_warehouse"
+            }, {
+                "privileges_id": 19,
+                "privileges_name": "promos"
+            }
+        ],
+        "user_roles" : [
+            {
+                "user_roles_id": 1,
+                "user_id": 1,
+                "roles_id": 5,
+                "custom": 0
+            }, {
+                "user_roles_id": 2,
+                "user_id": 3,
+                "roles_id": 6,
+                "custom": 0
+            }, {
+                "user_roles_id": 3,
+                "user_id": 2,
+                "roles_id": 1,
+                "custom": 1
+            }, {
+                "user_roles_id": 4,
+                "user_id": 2,
+                "roles_id": 2,
+                "custom": 0
+            }, {
+                "user_roles_id": 5,
+                "user_id": 2,
+                "roles_id": 6,
+                "custom": 0
+            }
+        ],
+        "roles_default" : [
+            {
+                "roles_default_id": 1,
+                "roles_id": 1,
+                "privileges_id": 1
+            }, {
+                "roles_default_id": 2,
+                "roles_id": 1,
+                "privileges_id": 2
+            }, {
+                "roles_default_id": 3,
+                "roles_id": 1,
+                "privileges_id": 3
+            }, {
+                "roles_default_id": 4,
+                "roles_id": 1,
+                "privileges_id": 11
+            }, {
+                "roles_default_id": 5,
+                "roles_id": 2,
+                "privileges_id": 1
+            }, {
+                "roles_default_id": 6,
+                "roles_id": 2,
+                "privileges_id": 3
+            }, {
+                "roles_default_id": 7,
+                "roles_id": 2,
+                "privileges_id": 7
+            }, {
+                "roles_default_id": 8,
+                "roles_id": 2,
+                "privileges_id": 11
+            }, {
+                "roles_default_id": 9,
+                "roles_id": 3,
+                "privileges_id": 4
+            }, {
+                "roles_default_id": 10,
+                "roles_id": 3,
+                "privileges_id": 6
+            }, {
+                "roles_default_id": 11,
+                "roles_id": 3,
+                "privileges_id": 7
+            }, {
+                "roles_default_id": 12,
+                "roles_id": 3,
+                "privileges_id": 8
+            }, {
+                "roles_default_id": 13,
+                "roles_id": 3,
+                "privileges_id": 10
+            }, {
+                "roles_default_id": 14,
+                "roles_id": 3,
+                "privileges_id": 11
+            }, {
+                "roles_default_id": 15,
+                "roles_id": 4,
+                "privileges_id": 4
+            }, {
+                "roles_default_id": 16,
+                "roles_id": 4,
+                "privileges_id": 5
+            }, {
+                "roles_default_id": 17,
+                "roles_id": 4,
+                "privileges_id": 6
+            }, {
+                "roles_default_id": 18,
+                "roles_id": 4,
+                "privileges_id": 7
+            }, {
+                "roles_default_id": 19,
+                "roles_id": 4,
+                "privileges_id": 8
+            }, {
+                "roles_default_id": 20,
+                "roles_id": 4,
+                "privileges_id": 9
+            }, {
+                "roles_default_id": 21,
+                "roles_id": 4,
+                "privileges_id": 10
+            }, {
+                "roles_default_id": 22,
+                "roles_id": 4,
+                "privileges_id": 11
+            }, {
+                "roles_default_id": 23,
+                "roles_id": 5,
+                "privileges_id": 2
+            }, {
+                "roles_default_id": 24,
+                "roles_id": 5,
+                "privileges_id": 3
+            }, {
+                "roles_default_id": 25,
+                "roles_id": 5,
+                "privileges_id": 4
+            }, {
+                "roles_default_id": 26,
+                "roles_id": 5,
+                "privileges_id": 7
+            }, {
+                "roles_default_id": 27,
+                "roles_id": 5,
+                "privileges_id": 11
+            }, {
+                "roles_default_id": 28,
+                "roles_id": 5,
+                "privileges_id": 12
+            }, {
+                "roles_default_id": 29,
+                "roles_id": 5,
+                "privileges_id": 13
+            }, {
+                "roles_default_id": 30,
+                "roles_id": 5,
+                "privileges_id": 14
+            }, {
+                "roles_default_id": 31,
+                "roles_id": 6,
+                "privileges_id": 1
+            },
+            {
+                "roles_default_id": 32,
+                "roles_id": 6,
+                "privileges_id": 2
+            },
+            {
+                "roles_default_id": 33,
+                "roles_id": 6,
+                "privileges_id": 3
+            },
+            {
+                "roles_default_id": 34,
+                "roles_id": 6,
+                "privileges_id": 4
+            },
+            {
+                "roles_default_id": 35,
+                "roles_id": 6,
+                "privileges_id": 5
+            },
+            {
+                "roles_default_id": 36,
+                "roles_id": 6,
+                "privileges_id": 6
+            },
+            {
+                "roles_default_id": 37,
+                "roles_id": 6,
+                "privileges_id": 7
+            },
+            {
+                "roles_default_id": 38,
+                "roles_id": 6,
+                "privileges_id": 8
+            },
+            {
+                "roles_default_id": 39,
+                "roles_id": 6,
+                "privileges_id": 9
+            },
+            {
+                "roles_default_id": 40,
+                "roles_id": 6,
+                "privileges_id": 10
+            },
+            {
+                "roles_default_id": 41,
+                "roles_id": 6,
+                "privileges_id": 11
+            },
+            {
+                "roles_default_id": 42,
+                "roles_id": 6,
+                "privileges_id": 12
+            },
+            {
+                "roles_default_id": 43,
+                "roles_id": 6,
+                "privileges_id": 13
+            },
+            {
+                "roles_default_id": 44,
+                "roles_id": 6,
+                "privileges_id": 14
+            },
+            {
+                "roles_default_id": 45,
+                "roles_id": 6,
+                "privileges_id": 15
+            },
+            {
+                "roles_default_id": 46,
+                "roles_id": 6,
+                "privileges_id": 16
+            },
+            {
+                "roles_default_id": 47,
+                "roles_id": 6,
+                "privileges_id": 17
+            },
+            {
+                "roles_default_id": 48,
+                "roles_id": 6,
+                "privileges_id": 18
+            },
+            {
+                "roles_default_id": 49,
+                "roles_id": 6,
+                "privileges_id": 19
+            }
+        ],
+        "user_privileges" : [
+            {
+                "user_privileges_id": 1,
+                "privileges_id": 1,
+                "user_id": 2
+            }, {
+                "user_privileges_id": 2,
+                "privileges_id": 7,
+                "user_id": 2
+            }, {
+                "user_privileges_id": 3,
+                "privileges_id": 3,
+                "user_id": 2
+            }, {
+                "user_privileges_id": 4,
+                "privileges_id": 11,
+                "user_id": 2
+            }
+        ]
+    }
+}
