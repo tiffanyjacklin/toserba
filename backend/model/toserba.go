@@ -80,7 +80,7 @@ func GetRoles(id_user string)(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT user_roles_id, user_id, roles_id, store_id, warehouse_id, custom FROM user_roles WHERE user_id = ?"
+	query := "SELECT ur.user_roles_id, ur.user_id, ur.roles_id, r.roles_name, ur.store_id, ur.warehouse_id, ur.custom FROM user_roles ur JOIN roles r ON ur.roles_id = r.roles_id WHERE ur.user_id = ?"
 	stmt, err := con.Prepare(query)
 	if (err != nil) {
 		res.Status = http.StatusBadRequest
@@ -100,7 +100,7 @@ func GetRoles(id_user string)(Response, error) {
 	defer rows.Close()
 
 	for rows.Next() {	
-		err = rows.Scan(&urole.UserRoleId, &urole.UserId, &urole.RoleId, &urole.StoreId, &urole.WarehouseId, &urole.Custom)		
+		err = rows.Scan(&urole.UserRoleId, &urole.UserId, &urole.RoleId, &urole.RoleName, &urole.StoreId, &urole.WarehouseId, &urole.Custom)		
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows scan"

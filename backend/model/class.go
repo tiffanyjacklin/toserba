@@ -18,6 +18,7 @@ type UserRoles struct {
 	UserRoleId int `json:"user_role_id"`
 	UserId int `json:"user_id"`
 	RoleId int `json:"role_id"`
+	RoleName string `json:"roles_name"`
 	StoreId sql.NullInt32 `json:"store_id"`
 	WarehouseId sql.NullInt32 `json:"warehouse_id"`
 	Custom int `json:"custom"`
