@@ -16,3 +16,6 @@
 {<2024-07-29 09:57:11>;Ip:::1;Nama API:GetRole;lenRespon:3;LenParam:3;}
 {<2024-07-29 09:57:14>;Ip:::1;Nama API:GetRole;lenRespon:3;LenParam:3;}
 {<2024-07-29 09:57:16>;Ip:::1;Nama API:GetRole;lenRespon:3;LenParam:3;}
+{<2024-07-29 10:13:28>;Ip:::1;Nama API:Login;lenRespon:1;LenParam:3;}
+{<2024-07-29 10:13:28>;Ip:::1;Nama API:GetRole;lenRespon:3;LenParam:3;}
+{<2024-07-29 10:13:44>;Ip:::1;Nama API:GetRole;lenRespon:3;LenParam:3;}
