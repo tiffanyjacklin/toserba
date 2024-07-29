@@ -55,7 +55,9 @@
         }
     }
 </script>
-
+<svelte:head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />  
+</svelte:head>
 <div class="flex justify-center my-10">
     <div class="h2 self-center font-bold text-4xl text-darkGray">Pilih Role Anda</div>
 </div>
@@ -65,17 +67,17 @@
         {#each roles as role, index}
             <a on:click={() => ChooseRole(role.role_id)} href="#" value={role.role_id} class="w-72 h-48 flex flex-col text-center items-center justify-center block max-w-sm p-6 bg-peach border border-peach2 rounded-lg shadow hover:bg-peach2 ">
                 {#if role.role_id == 1}
-                    <i class="fa-solid fa-cash-register fa-5x" style="color: #364445;"></i>ASU
+                    <i class="fa-solid fa-cash-register fa-5x" style="color: #364445;"></i>
                 {:else if role.role_id == 2}
-                    <i class="fa-solid fa-cart-flatbed fa-5x" style="color: #364445;"></i>BABI
+                    <i class="fa-solid fa-cart-flatbed fa-5x" style="color: #364445;"></i>
                 {:else if role.role_id == 3}
-                    <i class="fa-solid fa-warehouse fa-5x" style="color: #364445;"></i>CICAK
+                    <i class="fa-solid fa-warehouse fa-5x" style="color: #364445;"></i>
                 {:else if role.role_id == 4}
-                    <i class="fa-solid fa-user-gear fa-5x" style="color: #364445;"></i>DUGONG
+                    <i class="fa-solid fa-user-gear fa-5x" style="color: #364445;"></i>
                 {:else if role.role_id == 5}
-                    <i class="fa-solid fa-user-group fa-5x" style="color: #364445;"></i>EEK
+                    <i class="fa-solid fa-user-group fa-5x" style="color: #364445;"></i>
                 {:else if role.role_id == 6}
-                    <i class="fa-solid fa-user-tie fa-5x" style="color: #364445;"></i>FAK
+                    <i class="fa-solid fa-user-tie fa-5x" style="color: #364445;"></i>
                 {/if}
                 <h5 class="capitalize mt-2 text-2xl font-semibold tracking-tight text-darkGray">{role.roles_name}</h5>
                 <!-- <h5 class="capitalize mt-2 text-2xl font-semibold tracking-tight text-darkGray">{role.role_id}</h5> -->
@@ -85,5 +87,5 @@
 </div>
 
 <div class="flex mt-8 justify-center">
-    <button on:click={e => window.location.href="/"} type="button self-end" class="text-black font-semibold bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-8 py-2.5 me-2 mb-2">Kembali</button>
+    <button on:click={e => window.location.href="/login"} type="button self-end" class="text-black font-semibold bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-8 py-2.5 me-2 mb-2">Kembali</button>
 </div>
