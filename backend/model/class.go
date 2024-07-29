@@ -27,6 +27,7 @@ type UserData struct {
 	UserPhotoProfile sql.NullString `json:"user_photo_profile"`
 	LoginTimestamp sql.NullString `json:"user_login_timestamp"`
 	RoleId int `json:"role_id"` 
+	RoleName string `json:"roles_name"`
 }
 
 type UserRoles struct {

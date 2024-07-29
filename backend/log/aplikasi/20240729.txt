@@ -49,3 +49,9 @@
 {<2024-07-29 10:44:43>;Ip:::1;Nama API:Login;lenRespon:1;LenParam:3;}
 {<2024-07-29 10:44:43>;Ip:::1;Nama API:GetRole;lenRespon:2;LenParam:3;}
 {<2024-07-29 11:11:12>;Ip:::1;Nama API:GetRole;lenRespon:2;LenParam:3;}
+{<2024-07-29 14:35:44>;Ip:::1;Nama API:GetDataUser;lenRespon:2;LenParam:3;}
+{<2024-07-29 14:36:01>;Ip:::1;Nama API:GetDataUser;lenRespon:0;LenParam:3;}
+{<2024-07-29 14:36:04>;Ip:::1;Nama API:GetDataUser;lenRespon:2;LenParam:3;}
+{<2024-07-29 14:36:11>;Ip:::1;Nama API:GetDataUser;lenRespon:0;LenParam:3;}
+{<2024-07-29 14:37:25>;Ip:::1;Nama API:GetDataUser;lenRespon:2;LenParam:3;}
+{<2024-07-29 14:41:04>;Ip:::1;Nama API:GetDataUser;lenRespon:2;LenParam:3;}

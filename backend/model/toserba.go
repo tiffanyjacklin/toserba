@@ -97,7 +97,7 @@ func GetDataUser(id_user string)(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT u.user_id, u.username, u.user_password, u.user_fullname, u.user_address, u.user_gender, u.user_birthdate, u.user_email, u.user_phone_number, u.user_photo_profile, u.user_login_timestamp, ur.roles_id FROM users u JOIN user_roles ur ON u.user_id = ur.user_id WHERE u.user_id = ?"
+	query := "SELECT u.user_id, u.username, u.user_password, u.user_fullname, u.user_address, u.user_gender, u.user_birthdate, u.user_email, u.user_phone_number, u.user_photo_profile, u.user_login_timestamp, ur.roles_id, r.roles_name FROM users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN roles r ON r.roles_id = ur.roles_id WHERE u.user_id = ?"
 	stmt, err := con.Prepare(query)
 	if (err != nil) {
 		res.Status = http.StatusBadRequest
@@ -118,7 +118,7 @@ func GetDataUser(id_user string)(Response, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&user.UserId, &user.Username, &user.Password, &user.UserFullName, &user.UserAddress, &user.UserGender, &user.UserBirthDate, &user.UserEmail, &user.UserPhoneNumber, &user.UserPhotoProfile, &user.LoginTimestamp, &user.RoleId)		
+		err = rows.Scan(&user.UserId, &user.Username, &user.Password, &user.UserFullName, &user.UserAddress, &user.UserGender, &user.UserBirthDate, &user.UserEmail, &user.UserPhoneNumber, &user.UserPhotoProfile, &user.LoginTimestamp, &user.RoleId, &user.RoleName)		
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows scan"
