@@ -4,6 +4,11 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 </script>
+
+<svelte:head>
+    <title>Toserba | Login</title>
+</svelte:head>
+
 <div id="cover" class="flex h-screen w-screen">
     <figure class="font-roboto shadow-xl container bg-[#3d4c52] w-11/12 max-w-3xl m-auto rounded-xl p-1 sm:p-2">
         <div class="flex flex-col sm:flex-row">

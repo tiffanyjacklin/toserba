@@ -2,7 +2,7 @@
    import { onMount } from 'svelte';
    import { browser } from '$app/environment';
    import { goto } from '$app/navigation';
-    let json;
+   let json;
 
    let user = '';
    let user_role = '';

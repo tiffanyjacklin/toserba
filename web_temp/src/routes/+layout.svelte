@@ -3,8 +3,8 @@
 	import '../app.css';
 </script>
 
-<svelte:head>
-	<title>Tip Calendar</title>
-</svelte:head>
+<!-- <svelte:head>
+	<title>Toserba</title>
+</svelte:head> -->
 
 <slot />

@@ -12,7 +12,7 @@ export const actions = {
 		const entries = Object.fromEntries(formData);
 		
 		const response = await fetch(`http://localhost:2681/user/login?username=${entries.username}&password=${entries.password}`, {
-			method: 'GET',
+			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json'
 			}
