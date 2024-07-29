@@ -42,5 +42,6 @@ type UserPrivilege struct {
 	UserPrivilegeId int `json:"user_privilege_id"`
 	RoleId int `json:"role_id"`
 	PrivilegeId int `json:"privilege_id"`
+	PrivilegeName string `json:"privileges_name"`
 	Navbar int `json:"navbar"`
 }

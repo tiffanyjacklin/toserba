@@ -198,11 +198,17 @@ func GetPriv(id_role, id_user string) (Response, error) {
 	defer stmt.Close()
 
 	err = stmt.QueryRow(id_role, id_user).Scan(&custom)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Failed"
+		res.Data = err.Error()
+		return res, err
+	}
 
 	if (custom == 1) {
-		query = "SELECT up.user_privileges_id, up.role_id, up.privileges_id, p.navbar FROM user_privileges up JOIN privileges p ON up.privileges_id = p.privileges_id WHERE up.role_id = ? AND up.user_id = ?"	
+		query = "SELECT up.user_privileges_id, up.role_id, up.privileges_id, p.privileges_name, p.navbar FROM user_privileges up JOIN privileges p ON up.privileges_id = p.privileges_id WHERE up.role_id = ? AND up.user_id = ?"	
 	} else {
-		query = "SELECT rd.roles_default_id, rd.roles_id, rd.privileges_id, p.navbar FROM roles_default rd JOIN privileges p ON rd.privileges_id = p.privileges_id WHERE rd.roles_id = ?"
+		query = "SELECT rd.roles_default_id, rd.roles_id, rd.privileges_id, p.privileges_name, p.navbar FROM roles_default rd JOIN privileges p ON rd.privileges_id = p.privileges_id WHERE rd.roles_id = ?"
 	}
 
 	stmt, err = con.Prepare(query)
@@ -236,7 +242,7 @@ func GetPriv(id_role, id_user string) (Response, error) {
 	defer rows.Close()
 
 	for rows.Next() {	
-		err = rows.Scan(&upriv.UserPrivilegeId, &upriv.RoleId, &upriv.PrivilegeId, &upriv.Navbar)		
+		err = rows.Scan(&upriv.UserPrivilegeId, &upriv.RoleId, &upriv.PrivilegeId, &upriv.PrivilegeName, &upriv.Navbar)		
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows scan"
