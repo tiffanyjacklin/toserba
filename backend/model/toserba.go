@@ -59,6 +59,24 @@ func GetUser(username, password string)(Response, error) {
 		return res, nil
 	}
 
+	query = "UPDATE users SET user_login_timestamp = NOW() WHERE username = ?"
+	stmt, err = con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(username)
+	if err != nil {
+		res.Status = http.StatusInternalServerError
+		res.Message = "Failed to update login timestamp"
+		res.Data = err.Error()
+		return res, err
+	}
+
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = user
