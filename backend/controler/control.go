@@ -32,7 +32,8 @@ func GetUser(c echo.Context) error {
 
 func GetDataUser(c echo.Context) error {
 	uid := c.Param("user_id")
-	result, err := model.GetDataUser(uid)
+	rid := c.Param("role_id")
+	result, err := model.GetDataUser(uid, rid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

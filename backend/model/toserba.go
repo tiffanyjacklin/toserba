@@ -83,7 +83,7 @@ func GetUser(username, password string)(Response, error) {
 	return res, nil
 }
 
-func GetDataUser(id_user string)(Response, error) {
+func GetDataUser(id_user, id_role string)(Response, error) {
 	var res Response
 	var user UserData
 	var arrUser = []UserData{}
@@ -97,7 +97,7 @@ func GetDataUser(id_user string)(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT u.user_id, u.username, u.user_password, u.user_fullname, u.user_address, u.user_gender, u.user_birthdate, u.user_email, u.user_phone_number, u.user_photo_profile, u.user_login_timestamp, ur.roles_id, r.roles_name FROM users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN roles r ON r.roles_id = ur.roles_id WHERE u.user_id = ?"
+	query := "SELECT u.user_id, u.username, u.user_password, u.user_fullname, u.user_address, u.user_gender, u.user_birthdate, u.user_email, u.user_phone_number, u.user_photo_profile, u.user_login_timestamp, ur.roles_id, r.roles_name FROM users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN roles r ON r.roles_id = ur.roles_id WHERE u.user_id = ? AND ur.roles_id = ?"
 	stmt, err := con.Prepare(query)
 	if (err != nil) {
 		res.Status = http.StatusBadRequest
@@ -108,7 +108,8 @@ func GetDataUser(id_user string)(Response, error) {
 	defer stmt.Close()
 
 	uid, _ := strconv.Atoi(id_user)
-	rows, err := stmt.Query(uid)
+	rid, _ := strconv.Atoi(id_role)
+	rows, err := stmt.Query(uid, rid)
 	if err != nil {
 		res.Status = 401
 		res.Message = "rows gagal"
