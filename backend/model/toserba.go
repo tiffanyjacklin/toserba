@@ -86,6 +86,7 @@ func GetUser(username, password string)(Response, error) {
 func GetDataUser(id_user string)(Response, error) {
 	var res Response
 	var user UserData
+	var arrUser = []UserData{}
 
 	con, err := db.DbConnection()
 	if err != nil {
@@ -96,7 +97,7 @@ func GetDataUser(id_user string)(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT user_id, username, user_password, user_fullname, user_address, user_gender, user_birthdate, user_email, user_phone_number, user_photo_profile, user_login_timestamp FROM users WHERE user_id = ?"
+	query := "SELECT u.user_id, u.username, u.user_password, u.user_fullname, u.user_address, u.user_gender, u.user_birthdate, u.user_email, u.user_phone_number, u.user_photo_profile, u.user_login_timestamp, ur.roles_id FROM users u JOIN user_roles ur ON u.user_id = ur.user_id WHERE u.user_id = ?"
 	stmt, err := con.Prepare(query)
 	if (err != nil) {
 		res.Status = http.StatusBadRequest
@@ -107,18 +108,29 @@ func GetDataUser(id_user string)(Response, error) {
 	defer stmt.Close()
 
 	uid, _ := strconv.Atoi(id_user)
-	err = stmt.QueryRow(uid).Scan(&user.UserId, &user.Username, &user.Password, &user.UserFullName, &user.UserAddress, &user.UserGender, &user.UserBirthDate, &user.UserEmail, &user.UserPhoneNumber, &user.UserPhotoProfile, &user.LoginTimestamp)
-
+	rows, err := stmt.Query(uid)
 	if err != nil {
-		res.Status = http.StatusBadRequest
-		res.Message = "Invalid user id"
+		res.Status = 401
+		res.Message = "rows gagal"
 		res.Data = err.Error()
 		return res, err
+		}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&user.UserId, &user.Username, &user.Password, &user.UserFullName, &user.UserAddress, &user.UserGender, &user.UserBirthDate, &user.UserEmail, &user.UserPhoneNumber, &user.UserPhotoProfile, &user.LoginTimestamp, &user.RoleId)		
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+			}
+		arrUser = append(arrUser, user)
 	}
 
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
-	res.Data = user
+	res.Data = arrUser
 	return res, nil
 }
 
