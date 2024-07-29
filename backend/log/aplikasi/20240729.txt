@@ -48,3 +48,4 @@
 {<2024-07-29 10:39:29>;Ip:::1;Nama API:Login;lenRespon:1;LenParam:3;}
 {<2024-07-29 10:44:43>;Ip:::1;Nama API:Login;lenRespon:1;LenParam:3;}
 {<2024-07-29 10:44:43>;Ip:::1;Nama API:GetRole;lenRespon:2;LenParam:3;}
+{<2024-07-29 11:11:12>;Ip:::1;Nama API:GetRole;lenRespon:2;LenParam:3;}

@@ -47,7 +47,7 @@
 
         const user_role = selectedRole;
 
-        goto('/dashboard');
+        goto(`/dashboard/${userId}/${selectedRole}`);
         if (browser) {
             localStorage.setItem('userId', userId);
             localStorage.setItem('user_role', user_role);
