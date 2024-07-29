@@ -5,8 +5,8 @@
 
 </script>
 
-<Navbar title="Calendar">
-	<Menu title="Home" href="/"></Menu>
+<Navbar title="Toserba" href="/">
+	<!-- <Menu title="Home" href="/"></Menu> -->
 </Navbar>
 
 <div class="p-4">
