@@ -7,11 +7,10 @@
     let json;
 
     let roles = [];
-    let userId = data.userId;
+    let userId = data.id;
+    console.log(userId);
     let selectedRole = '';
-    if (browser) {
-        userId = localStorage.getItem('userId');
-    }
+  
     console.log("user id : " + userId);
 
     async function fetchRoles(userId) {
