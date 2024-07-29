@@ -14,6 +14,20 @@ type User struct {
 	Password string `json:"user_password"`
 }
 
+type UserData struct {
+	UserId int `json:"user_id"`
+	Username string `json:"username"`
+	Password string `json:"user_password"`
+	UserFullName string `json:"user_fullname"`
+	UserAddress string `json:"user_address"`
+	UserGender string `json:"user_gender"`
+	UserBirthDate string `json:"user_birthdate"`
+	UserEmail string `json:"user_email"`
+	UserPhoneNumber string `json:"user_phone_number"`
+	UserPhotoProfile sql.NullString `json:"user_photo_profile"`
+	LoginTimestamp sql.NullString `json:"user_login_timestamp"`
+}
+
 type UserRoles struct {
 	UserRoleId int `json:"user_role_id"`
 	UserId int `json:"user_id"`

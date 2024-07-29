@@ -22,7 +22,9 @@ func Init() *echo.Echo {
 		return c.String(http.StatusOK, "welcome here")
 	})
 
+	// User
 	e.GET("/user/login", controller.GetUser) // body form-data username & password
+	e.GET("/user/:user_id", controller.GetDataUser)
 	e.GET("/user/roles/:user_id", controller.GetRoles)
 	e.GET("/user/privileges/:user_id/:role_id", controller.GetPriv)
 	return e

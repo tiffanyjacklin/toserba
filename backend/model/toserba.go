@@ -3,12 +3,11 @@ package model
 import (
 	"TemplateProject/db"
 	"database/sql"
-	// "fmt"
+	"strconv"
 
-	// "strconv"
+	// "fmt"
 	// "encoding/json"
 	"net/http"
-	// "strconv"
 )
 
 func GetUser(username, password string)(Response, error) {
@@ -39,7 +38,7 @@ func GetUser(username, password string)(Response, error) {
 	if (err != nil)  {
 		res.Status = http.StatusUnauthorized
 		res.Message = "Username not exist"
-		return res, nil
+		return res, err
 	}
 
 	query = "SELECT user_id, username, user_password FROM users WHERE username = ? AND user_password = ?"
@@ -58,6 +57,45 @@ func GetUser(username, password string)(Response, error) {
 		res.Status = http.StatusBadRequest
 		res.Message = "Incorrect Username or Password"
 		return res, nil
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = user
+	return res, nil
+}
+
+func GetDataUser(id_user string)(Response, error) {
+	var res Response
+	var user UserData
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT user_id, username, user_password, user_fullname, user_address, user_gender, user_birthdate, user_email, user_phone_number, user_photo_profile, user_login_timestamp FROM users WHERE user_id = ?"
+	stmt, err := con.Prepare(query)
+	if (err != nil) {
+		res.Status = http.StatusBadRequest
+		res.Message = "stmt user check failed"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	uid, _ := strconv.Atoi(id_user)
+	err = stmt.QueryRow(uid).Scan(&user.UserId, &user.Username, &user.Password, &user.UserFullName, &user.UserAddress, &user.UserGender, &user.UserBirthDate, &user.UserEmail, &user.UserPhoneNumber, &user.UserPhotoProfile, &user.LoginTimestamp)
+
+	if err != nil {
+		res.Status = http.StatusBadRequest
+		res.Message = "Invalid user id"
+		res.Data = err.Error()
+		return res, err
 	}
 
 	res.Status = http.StatusOK

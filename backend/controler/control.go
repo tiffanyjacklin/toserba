@@ -30,6 +30,17 @@ func GetUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetDataUser(c echo.Context) error {
+	uid := c.Param("user_id")
+	result, err := model.GetDataUser(uid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetDataUser", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetRoles(c echo.Context) error {
 	id := c.Param("user_id")
 	result, err := model.GetRoles(id)
