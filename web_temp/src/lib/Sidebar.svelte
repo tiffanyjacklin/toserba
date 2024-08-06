@@ -116,7 +116,7 @@
         {#each privileges as privilege}
            <li>
                 {#if privilege.navbar != 0}
-                <a href={`/${privilege.user_privilege_id}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
+                <a href={`/${privilege.privileges_name.replace(/ /g, '_')}/${userId}/${roleId}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
                     <p class="text-center" style="text-transform: capitalize;">{privilege.privileges_name}</p>
                 </a>
                 {/if}
