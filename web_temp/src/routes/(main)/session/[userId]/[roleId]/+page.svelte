@@ -116,12 +116,12 @@
                Opening cash
             </div>
             <div class="">
-               <input type="text" name="opening_cash" id="opening_cash" class="shadow-inner text-[#3d4c52] text-end bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] block w-full px-2.5 py-0.5" placeholder="Rp 400,000.00" required="">
+               <input type="text" name="opening_cash" id="opening_cash" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] text-end bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] block w-full px-2.5 py-0.5" placeholder="Rp 400,000.00" required="">
             </div>
          </div>
          <div class="text-[#f7d4b2]">
             Additional notes
-            <textarea id="additional_notes" rows="4" class="shadow-inner text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " placeholder="Session starting earlier than expected."></textarea>                    
+            <textarea id="additional_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " placeholder="Session starting earlier than expected."></textarea>                    
          </div>
 
          <div class="flex items-center justify-center">
