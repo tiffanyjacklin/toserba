@@ -25,3 +25,7 @@
 <div class="ml-64 mt-16">
 	<slot />
 </div>
+
+<style>
+	
+</style>
