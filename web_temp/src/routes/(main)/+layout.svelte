@@ -22,6 +22,6 @@
 <Sidebar userId={userId} roleId={roleId}>
 </Sidebar>
 
-<div class="p-4">
+<div class="ml-64 mt-16">
 	<slot />
 </div>
