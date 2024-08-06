@@ -87,5 +87,5 @@
 </div>
 
 <div class="flex mt-8 justify-center">
-    <button on:click={e => window.location.href="/login"} type="button self-end" class="text-black font-semibold bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-8 py-2.5 me-2 mb-2">Kembali</button>
+    <button on:click={e => window.location.href="/login"} type="button self-end" class="text-black font-semibold bg-peach hover:bg-peach2 focus:ring-4 focus:ring-peach2 font-medium rounded-lg text-sm px-8 py-2.5 me-2 mb-2">Kembali</button>
 </div>
