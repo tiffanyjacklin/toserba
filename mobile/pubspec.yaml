@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   auto_size_text: ^3.0.0
+  mysql_client: ^0.0.27
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:

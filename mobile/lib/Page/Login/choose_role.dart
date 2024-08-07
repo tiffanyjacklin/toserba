@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Page/main_page.dart';
 
 class ChooseRolePage extends StatelessWidget {
   const ChooseRolePage({super.key});
@@ -35,9 +36,12 @@ class ChooseRolePage extends StatelessWidget {
                     ),
                 itemCount: 6,
                 itemBuilder: (_, index) {
-                  return GestureDetector(
+                  return InkWell(
                     onTap: () {
                         print('Kamu pilih blabla');
+
+                        // pindah halaman
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) => MainPage()));
                       },
                     child: Container(
                       decoration: BoxDecoration(
