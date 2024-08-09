@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"strconv"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 const (

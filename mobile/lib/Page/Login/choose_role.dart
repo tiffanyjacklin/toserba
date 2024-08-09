@@ -40,6 +40,7 @@ class ChooseRolePage extends StatelessWidget {
                     onTap: () {
                         print('Kamu pilih blabla');
 
+
                         // pindah halaman
                         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) => MainPage()));
                       },
