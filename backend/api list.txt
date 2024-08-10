@@ -1,0 +1,33 @@
+================================================= User =================================================
+e.PUT("/user/login", controller.GetUser) // body form-data username & password
+/user/login?username=tipani&password=tipaja
+
+e.GET("/user/:user_id/:role_id", controller.GetDataUser)
+e.GET("/user/roles/:user_id", controller.GetRoles)
+e.GET("/user/privileges/:user_id/:role_id", controller.GetPriv)
+
+================================================= Cashier - Session =================================================
+e.GET("/cashier/session/:session_id", controller.GetSessionByID)
+e.POST("/cashier/session/new", controller.InsertNewSession) // body raw
+{
+    "user_id": 1,
+    "start_time": "2015-09-02 08:04:00",
+    "opening_cash":30000
+}
+
+e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
+{
+    "end_time": "2024-01-01 11:11:11",
+    "expected_closing_cash": 120000,
+    "actual_closing_cash": 110000,
+    "difference_cash": 10000
+
+}
+
+e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
+{
+    "last_update_time": "2024-01-01 12:11:11",
+    "actual_closing_cash": 100000,
+    "difference_cash": 30000,
+    "closing_notes": "Finished"
+}

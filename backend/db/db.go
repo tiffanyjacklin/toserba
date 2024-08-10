@@ -15,7 +15,7 @@ const (
 	username = "root"
 	password = "admin"
 	hostname = "localhost"
-	port     = "3306"
+	port     = "3307"
 	dbname   = "toserba"
 )
 
