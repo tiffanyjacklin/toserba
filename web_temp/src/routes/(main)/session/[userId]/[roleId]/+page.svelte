@@ -9,7 +9,7 @@
    
    }
 </script>
-
+<!-- tes -->
 <div class="p-4 pt-20 flex items-center justify-center select-none	">
     <div class="p-6 rounded-2xl w-[32rem] bg-[#3d4c52] shadow-[0_6px_0px_0px_rgba(242,176,130,1)]">
       <div class="flex flex-col mb-4 rounded font-roboto font-medium">
@@ -86,16 +86,17 @@
    </div>
 
    <form class="p-4 md:p-5" >
-      <div class="grid gap-4 font-roboto font-semibold">
+      <div class="grid gap-3 font-roboto font-semibold">
          <div class="flex justify-between">
             <div class="text-[#f7d4b2]">
                Cashier
             </div>
             <div class="text-white">
-               Budi
+               Budi Setiawan
             </div>
          </div>
-         <div class="flex justify-between">
+         <!-- part ini otomatis ya sob -->
+         <div class="flex justify-between"> 
             <div class="text-[#f7d4b2]">
                Start time
             </div>
@@ -103,14 +104,14 @@
                08:03 AM, 12 July 2024
             </div>
          </div>
-         <div class="flex justify-between">
+         <!-- <div class="flex justify-between">
             <div class="text-[#f7d4b2]">
                Closing time
             </div>
             <div class="text-white">
                12:04 PM, 12 July 2024
             </div>
-         </div>
+         </div> -->
          <div class="flex justify-between">
             <div class="text-[#f7d4b2]">
                Opening cash
@@ -120,7 +121,7 @@
             </div>
          </div>
          <div class="text-[#f7d4b2]">
-            Additional notes
+            <div class="pb-3">Additional notes</div>
             <textarea id="additional_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " placeholder="Session starting earlier than expected."></textarea>                    
          </div>
 

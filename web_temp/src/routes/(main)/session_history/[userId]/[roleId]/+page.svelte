@@ -1,13 +1,22 @@
 <script>
    import TaskModal from '$lib/TaskModal.svelte';
-   let showModal = false;
-   function closeModal() {
-      showModal = false;
-   }
-   function handleClick() {
-      showModal = true;
-   
-   }
+   let showModal1 = false;
+   let showModal2 = false;
+   function closeModal(whichModal) {
+    if (whichModal === 1) {
+      showModal1 = false;
+    } else if (whichModal === 2) {
+      showModal2 = false;
+    }
+  }
+
+  function handleClick(whichModal) {
+    if (whichModal === 1) {
+      showModal1 = true;
+    } else if (whichModal === 2) {
+      showModal2 = true;
+    }
+  }
 </script>
 
 <div class="mx-8 mt-[90px] mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg">
@@ -90,7 +99,7 @@
             
          </div>
          <div class="w-1/5 bg-darkGray flex items-center">
-            <button on:click={() => handleClick()} class="border-8 bg-peach2 border-peach2 mx-6 my-2 rounded-lg w-full">
+            <button on:click={() => handleClick(1)} class="border-8 bg-peach2 border-peach2 mx-6 my-2 rounded-lg w-full">
                <div class="bg-peach rounded-lg flex flex-col min-h-40 w-full items-center justify-center shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">
                   <span class="text-2xl text-darkGray mb-2 font-bold">Edit</span>
                   <svg width="52" height="60" viewBox="0 0 52 60" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -108,7 +117,43 @@
       </div>
     </div>
     
-   <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+    <div class="bg-darkGray border-8 border-darkGray rounded-lg w-[96%] my-5">
+      <div class=" flex">
+         <div class="w-4/5 p-3 text-darkGray bg-white rounded-tl-lg rounded-bl-lg shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">
+            <p class="text-2xl font-bold mb-3">Session #8310321031</p>
+            <p class="font-semibold">Session start: 08:03 AM, 12/07/2024</p>
+            <p class="font-semibold">Session close: 12:04 PM, 12/07/2024</p>
+            <div class="flex items-center my-2">
+               <i class="fa-regular fa-user fa-xl me-3" style="color: #364445;"></i>
+               <span class="font-semibold">Budi Setiawan</span>
+            </div>
+            
+            <div class="flex items-center my-2 hidden">
+               <i class="fa-solid fa-triangle-exclamation fa-xl me-3" style="color: #bf6a02;"></i>
+               <span class="font-bold text-peach2 ">WARNING: CLOSING CASH IS NOT INPUTTED!</span>
+            </div>
+            
+         </div>
+         <div class="w-1/5 bg-darkGray flex items-center">
+            <button on:click={() => handleClick(2)} class="border-8 bg-peach2 border-peach2 mx-6 my-2 rounded-lg w-full">
+               <div class="bg-peach rounded-lg flex flex-col min-h-40 w-full items-center justify-center shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">
+                  <span class="text-2xl text-darkGray mb-2 font-bold">View</span>
+                  <svg width="52" height="60" viewBox="0 0 52 60" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                     <rect y="0.30127" width="52" height="58.8916" fill="url(#pattern0_382_567)"/>
+                     <defs>
+                     <pattern id="pattern0_382_567" patternContentUnits="objectBoundingBox" width="1" height="1">
+                     <use xlink:href="#image0_382_567" transform="matrix(0.00283133 0 0 0.0025 -0.0662651 0)"/>
+                     </pattern>
+                     <image id="image0_382_567" width="400" height="400" xlink:href="data:image/png;base64,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"/>
+                     </defs>
+                     </svg>
+               </div>
+            </button>
+         </div>
+      </div>
+    </div>
+
+    <!-- <TaskModal open={showModal1} onClose={() => closeModal(1)} color={"#3d4c52"}>
       <div class="flex flex-col justify-center">
          <svg class="mx-auto" width="213" height="27" viewBox="0 0 396 36" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g filter="url(#filter0_i_464_3583)">
@@ -139,7 +184,215 @@
                </div>
             </form>
       </div>
-   </TaskModal>  
+   </TaskModal>   -->
+   
+   <TaskModal open={showModal1} onClose={() => closeModal(1)} color={"#3d4c52"}>
+      <div class="flex items-center justify-center py-8 ">
+         <svg width="213" height="27" viewBox="0 0 284 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g filter="url(#filter0_i_434_825)">
+            <path d="M19.9904 11.3171H13.9154C13.9604 8.30213 13.6904 5.33213 10.2254 5.33213C8.11038 5.33213 6.76038 6.18713 6.76038 8.48213C6.76038 11.0471 8.38038 12.0371 10.3604 13.2971C12.4304 14.6021 16.2554 17.1221 18.0104 18.8321C20.1704 20.9471 20.8454 22.9721 20.8454 25.8971C20.8454 32.2871 16.6154 35.6171 10.4504 35.6171C2.89038 35.6171 0.190382 31.3871 0.190382 25.3571V22.8821H6.49038V24.8621C6.35538 28.1471 7.34538 30.5321 10.4504 30.5321C13.1054 30.5321 14.3654 29.1371 14.3654 26.5721C14.3654 24.5921 13.4654 23.2421 11.8454 22.1171C8.56038 19.5521 4.46538 17.7071 1.90038 14.3321C0.865382 12.8021 0.280382 10.9571 0.280382 9.15713C0.280382 3.39713 3.52038 0.247129 10.1804 0.247129C20.2154 0.247129 19.9454 7.98713 19.9904 11.3171ZM25.3753 24.8171V18.1571C25.1053 12.1721 28.1653 8.75213 33.9253 8.75213C42.0703 8.75213 42.9253 12.9821 42.9253 19.9121V23.3321H31.2253V27.0221C31.2703 30.3521 32.5303 30.9821 34.2853 30.9821C36.4453 30.9821 37.0753 29.4071 36.9853 26.2121H42.8353C43.0603 31.8821 40.7203 35.4821 34.7353 35.4821C27.9853 35.4821 25.2403 32.2871 25.3753 24.8171ZM31.2253 18.8321H37.0753V16.6271C37.0303 14.0621 36.3553 13.2521 34.0153 13.2521C31.0903 13.2521 31.2253 15.5021 31.2253 17.7971V18.8321ZM46.7953 26.4371H52.6453C52.1953 31.1171 53.9953 30.9821 55.3453 30.9821C57.0103 30.9821 58.1803 29.7671 57.7753 28.1471C57.6853 26.7071 56.0203 25.8971 54.8953 25.1321L51.7003 22.9271C48.7753 20.9021 46.8853 18.5621 46.8853 14.9171C46.8853 11.0021 49.9903 8.75213 55.6153 8.75213C61.2853 8.75213 63.8953 11.7221 63.7603 17.1671H57.9103C58.0453 14.3321 57.2353 13.2521 55.2103 13.2521C53.8153 13.2521 52.7353 13.8821 52.7353 15.3221C52.7353 16.8071 53.8153 17.4821 54.9403 18.2471L59.7103 21.4871C61.1953 22.3421 63.5353 24.7721 63.7153 26.4821C64.2103 30.8921 63.1303 35.4821 55.0303 35.4821C51.9253 35.4821 46.1203 34.1771 46.7953 26.4371ZM66.7904 26.4371H72.6404C72.1904 31.1171 73.9904 30.9821 75.3404 30.9821C77.0054 30.9821 78.1754 29.7671 77.7704 28.1471C77.6804 26.7071 76.0154 25.8971 74.8904 25.1321L71.6954 22.9271C68.7704 20.9021 66.8804 18.5621 66.8804 14.9171C66.8804 11.0021 69.9854 8.75213 75.6104 8.75213C81.2804 8.75213 83.8904 11.7221 83.7554 17.1671H77.9054C78.0404 14.3321 77.2304 13.2521 75.2054 13.2521C73.8104 13.2521 72.7304 13.8821 72.7304 15.3221C72.7304 16.8071 73.8104 17.4821 74.9354 18.2471L79.7054 21.4871C81.1904 22.3421 83.5304 24.7721 83.7104 26.4821C84.2054 30.8921 83.1254 35.4821 75.0254 35.4821C71.9204 35.4821 66.1154 34.1771 66.7904 26.4371ZM94.6605 34.8071H88.8105V9.42713H94.6605V34.8071ZM94.6605 6.36713H88.8105V1.05713H94.6605V6.36713ZM106.24 18.0671V26.5271C106.24 29.6321 106.51 30.9821 109.345 30.9821C112.045 30.9821 112.27 29.6321 112.27 26.5271V18.0671C112.27 15.6821 112.27 13.2521 109.345 13.2521C106.24 13.2521 106.24 15.6821 106.24 18.0671ZM109.345 35.4821C101.65 35.6171 100.345 31.8371 100.39 23.0171C100.435 14.3321 100.525 8.75213 109.345 8.75213C118.03 8.75213 118.075 14.3321 118.12 23.0171C118.165 31.8371 116.905 35.6171 109.345 35.4821ZM129.1 9.42713V12.0371H129.19C130.495 9.11213 133.105 8.75213 134.455 8.75213C137.785 8.75213 140.485 10.6871 140.305 15.2321V34.8071H134.455V17.8871C134.455 15.4121 134.185 13.7921 131.98 13.7021C129.775 13.6121 129.01 15.6821 129.1 18.3821V34.8071H123.25V9.42713H129.1ZM163.795 29.8571H166.54C172.165 29.8571 172.525 26.8871 172.525 17.1221C172.525 9.15713 171.715 6.00713 167.935 6.00713H163.795V29.8571ZM169.15 34.8071H157.495V1.05713H170.635C172.165 1.05713 175.225 1.73213 177.16 4.88213C178.6 7.22213 179.005 10.9571 179.005 16.5371C179.005 23.1971 179.005 30.8921 173.83 33.9071C172.435 34.7171 170.725 34.8071 169.15 34.8071ZM184.15 24.8171V18.1571C183.88 12.1721 186.94 8.75213 192.7 8.75213C200.845 8.75213 201.7 12.9821 201.7 19.9121V23.3321H190V27.0221C190.045 30.3521 191.305 30.9821 193.06 30.9821C195.22 30.9821 195.85 29.4071 195.76 26.2121H201.61C201.835 31.8821 199.495 35.4821 193.51 35.4821C186.76 35.4821 184.015 32.2871 184.15 24.8171ZM190 18.8321H195.85V16.6271C195.805 14.0621 195.13 13.2521 192.79 13.2521C189.865 13.2521 190 15.5021 190 17.7971V18.8321ZM215.605 30.3071V34.8971C212.14 35.3021 207.28 35.6171 207.28 30.8921V13.7021H204.895V9.42713H207.235V2.45213H213.13V9.42713H215.605V13.7021H213.13V29.4521C213.265 30.5321 214.885 30.3971 215.605 30.3071ZM236.589 34.8071H231.054C230.649 33.9971 230.604 33.0971 230.694 32.1971H230.604C229.929 33.2321 229.164 34.0871 228.264 34.6271C227.409 35.1671 226.464 35.4821 225.474 35.4821C220.749 35.4821 218.679 33.0971 218.679 27.8771C218.679 22.0721 222.774 20.6771 227.364 18.7871C229.839 17.7521 230.739 16.6271 230.244 14.5571C229.974 13.4321 229.074 13.2521 227.499 13.2521C224.844 13.2521 224.394 14.6471 224.439 16.9421H218.859C218.814 12.1271 220.389 8.75213 227.724 8.75213C235.689 8.75213 236.184 12.9371 236.094 16.2671V31.2521C236.094 32.4671 236.274 33.6371 236.589 34.8071ZM230.244 24.1871V21.4421C228.804 22.4321 227.049 23.4221 225.519 24.6821C224.664 25.4021 224.529 26.6621 224.529 27.7421C224.529 29.6771 225.114 30.9821 227.274 30.9821C230.739 30.9821 230.109 26.6171 230.244 24.1871ZM248.469 34.8071H242.619V9.42713H248.469V34.8071ZM248.469 6.36713H242.619V1.05713H248.469V6.36713ZM260.994 34.8071H255.144V1.05713H260.994V34.8071ZM265.643 26.4371H271.493C271.043 31.1171 272.843 30.9821 274.193 30.9821C275.858 30.9821 277.028 29.7671 276.623 28.1471C276.533 26.7071 274.868 25.8971 273.743 25.1321L270.548 22.9271C267.623 20.9021 265.733 18.5621 265.733 14.9171C265.733 11.0021 268.838 8.75213 274.463 8.75213C280.133 8.75213 282.743 11.7221 282.608 17.1671H276.758C276.893 14.3321 276.083 13.2521 274.058 13.2521C272.663 13.2521 271.583 13.8821 271.583 15.3221C271.583 16.8071 272.663 17.4821 273.788 18.2471L278.558 21.4871C280.043 22.3421 282.383 24.7721 282.563 26.4821C283.058 30.8921 281.978 35.4821 273.878 35.4821C270.773 35.4821 264.968 34.1771 265.643 26.4371Z" fill="white"/>
+            </g>
+            <defs>
+            <filter id="filter0_i_434_825" x="0.191406" y="0.24707" width="282.867" height="39.3701" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+            <feOffset dy="4"/>
+            <feGaussianBlur stdDeviation="2"/>
+            <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+            <feBlend mode="normal" in2="shape" result="effect1_innerShadow_434_825"/>
+            </filter>
+            </defs>
+         </svg>   
+      </div>
+   
+      <form class="p-4 md:p-5" >
+         <div class="grid gap-3 font-roboto font-semibold">
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Cashier
+               </div>
+               <div class="text-white">
+                  Budi Setiawan
+               </div>
+            </div>
+            <!-- part ini otomatis ya sob -->
+            <div class="flex justify-between"> 
+               <div class="text-[#f7d4b2]">
+                  Start time
+               </div>
+               <div class="text-white">
+                  08:03 AM, 12 July 2024
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Closing time
+               </div>
+               <div class="text-white">
+                  12:04 PM, 12 July 2024
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Opening cash
+               </div>
+               <div class="text-white">
+                  Rp 400,000.00
+               </div>
+            </div>
+
+
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Total Income 
+               </div>
+
+               <div class="text-white">
+                  Rp 500,000.00
+               </div>
+            </div>
+            <div class="text-[#f7d4b2]">
+               <div class="pb-3">Transactions</div>
+               <textarea id="additional_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " value="Rp 40,000.00 
+    Rp 0.00
+
+Rp 60,000.00"></textarea>                    
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Expected closing cash
+               </div>
+               <div class="text-white">
+                  Rp 500,000.00
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Actual closing cash
+               </div>
+               <div class="">
+                  <input type="text" name="opening_cash" id="opening_cash" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] text-end bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] block w-full px-2.5 py-0.5" value="Rp 502,000.00" placeholder="Rp 0.00" required="">
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Difference
+               </div>
+               <div class="text-white">
+                  Rp 2,000.00
+               </div>
+            </div>
+            <div class="text-[#f7d4b2]">
+               <div class="pb-3">Additional notes</div>
+               <textarea id="additional_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " value="Session closing earlier than expected."></textarea>                    
+            </div>
+   
+            <div class="flex items-center justify-center">
+               <button type="submit" class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+                  Save
+               </button>
+            </div>
+         </div>
+     </form>
+   
+   </TaskModal>
     
-    
+   <TaskModal open={showModal2} onClose={() => closeModal(2)} color={"#3d4c52"}>
+      <div class="flex items-center justify-center py-8 ">
+         <svg width="128" height="27" viewBox="0 0 171 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g filter="url(#filter0_i_427_655)">
+            <path d="M20.7794 11.317H14.7044C14.7494 8.302 14.4794 5.33201 11.0144 5.33201C8.89944 5.33201 7.54944 6.18701 7.54944 8.48201C7.54944 11.047 9.16944 12.037 11.1494 13.297C13.2194 14.602 17.0444 17.122 18.7994 18.832C20.9594 20.947 21.6344 22.972 21.6344 25.897C21.6344 32.287 17.4044 35.617 11.2394 35.617C3.67944 35.617 0.979445 31.387 0.979445 25.357V22.882H7.27945V24.862C7.14444 28.147 8.13444 30.532 11.2394 30.532C13.8944 30.532 15.1544 29.137 15.1544 26.572C15.1544 24.592 14.2544 23.242 12.6344 22.117C9.34945 19.552 5.25444 17.707 2.68944 14.332C1.65444 12.802 1.06944 10.957 1.06944 9.157C1.06944 3.39701 4.30944 0.247007 10.9694 0.247007C21.0044 0.247007 20.7344 7.98701 20.7794 11.317ZM26.1643 24.817V18.157C25.8943 12.172 28.9543 8.752 34.7143 8.752C42.8593 8.752 43.7143 12.982 43.7143 19.912V23.332H32.0143V27.022C32.0593 30.352 33.3193 30.982 35.0743 30.982C37.2343 30.982 37.8643 29.407 37.7743 26.212H43.6243C43.8493 31.882 41.5093 35.482 35.5243 35.482C28.7743 35.482 26.0293 32.287 26.1643 24.817ZM32.0143 18.832H37.8643V16.627C37.8193 14.062 37.1443 13.252 34.8043 13.252C31.8793 13.252 32.0143 15.502 32.0143 17.797V18.832ZM47.5843 26.437H53.4343C52.9843 31.117 54.7843 30.982 56.1343 30.982C57.7993 30.982 58.9693 29.767 58.5643 28.147C58.4743 26.707 56.8093 25.897 55.6843 25.132L52.4893 22.927C49.5643 20.902 47.6743 18.562 47.6743 14.917C47.6743 11.002 50.7793 8.752 56.4043 8.752C62.0743 8.752 64.6843 11.722 64.5493 17.167H58.6993C58.8343 14.332 58.0243 13.252 55.9993 13.252C54.6043 13.252 53.5243 13.882 53.5243 15.322C53.5243 16.807 54.6043 17.482 55.7293 18.247L60.4993 21.487C61.9843 22.342 64.3243 24.772 64.5043 26.482C64.9993 30.892 63.9193 35.482 55.8193 35.482C52.7143 35.482 46.9093 34.177 47.5843 26.437ZM67.5794 26.437H73.4294C72.9794 31.117 74.7794 30.982 76.1294 30.982C77.7944 30.982 78.9644 29.767 78.5594 28.147C78.4694 26.707 76.8044 25.897 75.6794 25.132L72.4844 22.927C69.5594 20.902 67.6694 18.562 67.6694 14.917C67.6694 11.002 70.7744 8.752 76.3994 8.752C82.0694 8.752 84.6794 11.722 84.5444 17.167H78.6944C78.8294 14.332 78.0194 13.252 75.9944 13.252C74.5994 13.252 73.5194 13.882 73.5194 15.322C73.5194 16.807 74.5994 17.482 75.7244 18.247L80.4944 21.487C81.9794 22.342 84.3194 24.772 84.4994 26.482C84.9944 30.892 83.9144 35.482 75.8144 35.482C72.7094 35.482 66.9044 34.177 67.5794 26.437ZM95.4496 34.807H89.5996V9.42701H95.4496V34.807ZM95.4496 6.36701H89.5996V1.057H95.4496V6.36701ZM107.029 18.067V26.527C107.029 29.632 107.299 30.982 110.134 30.982C112.834 30.982 113.059 29.632 113.059 26.527V18.067C113.059 15.682 113.059 13.252 110.134 13.252C107.029 13.252 107.029 15.682 107.029 18.067ZM110.134 35.482C102.439 35.617 101.134 31.837 101.179 23.017C101.224 14.332 101.314 8.752 110.134 8.752C118.819 8.752 118.864 14.332 118.909 23.017C118.954 31.837 117.694 35.617 110.134 35.482ZM129.889 9.42701V12.037H129.979C131.284 9.11201 133.894 8.752 135.244 8.752C138.574 8.752 141.274 10.687 141.094 15.232V34.807H135.244V17.887C135.244 15.412 134.974 13.792 132.769 13.702C130.564 13.612 129.799 15.682 129.889 18.382V34.807H124.039V9.42701H129.889ZM164.629 34.807V11.407H157.024V6.90701C161.389 6.862 165.034 5.69201 166.294 1.057H170.929V34.807H164.629Z" fill="white"/>
+            </g>
+            <defs>
+            <filter id="filter0_i_427_655" x="0.980469" y="0.247009" width="169.949" height="39.37" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+            <feOffset dy="4"/>
+            <feGaussianBlur stdDeviation="2"/>
+            <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+            <feBlend mode="normal" in2="shape" result="effect1_innerShadow_427_655"/>
+            </filter>
+            </defs>
+         </svg>
+               
+      </div>
+
+      <form class="p-4 md:p-5" >
+         <div class="grid gap-3 font-roboto font-semibold">
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Cashier
+               </div>
+               <div class="text-white">
+                  Budi Setiawan
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Start time
+               </div>
+               <div class="text-white">
+                  08:03 AM, 12 July 2024
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Closing time
+               </div>
+               <div class="text-white">
+                  12:04 PM, 12 July 2024
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Opening cash
+               </div>
+               <div class="text-white">
+                  Rp 400,000.00
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Expected closing cash
+               </div>
+               <div class="text-white">
+                  Rp 500,000.00
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Actual closing cash
+               </div>
+               <div class="text-white">
+                  Rp 502,000.00
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
+                  Difference
+               </div>
+               <div class="text-white">
+                  Rp 2,000.00
+               </div>
+            </div>
+            <div class="text-[#f7d4b2]">
+               <div class="pb-3">Additional notes</div>
+               <textarea id="additional_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " placeholder="" value="Session closing earlier than expected."></textarea>                    
+            </div>
+
+            <div class="flex items-center justify-center">
+               <button type="button" on:click={() => closeModal(2)} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+                  Close
+               </button>
+            </div>
+         </div>
+   </form>
+
+
+   </TaskModal>
+ 
 </div>

@@ -16,7 +16,7 @@
 
 {#if open}
      <div class="overlay" role="dialog" aria-labelledby="modal-title" on:click={close} on:keydown={handleKeyDown}>
-        <div class="modal-content bg-[{color}] shadow-[0_6px_0px_0px_rgba(242,176,130,1)]" on:click|stopPropagation >
+        <div class="overflow-y-scroll max-h-full overflow-y-auto modal-content bg-[{color}] shadow-[0_6px_0px_0px_rgba(242,176,130,1)]" on:click|stopPropagation >
             <!-- <button class="close-button" type="button" on:click={close}>✖</button> -->
             <button type="button" on:click={close} class="close-button text-gray-400 bg-transparent hover:bg-gray-200 hover:text-white rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
                 <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -45,11 +45,11 @@
 
     .modal-content {
         /* background: white; */
-        padding: 20px;
+        padding: 10px;
         border-radius: 8px;
         position: relative;
         width: 100%;
-        max-width: 700px;
+        max-width: 550px;
     }
 
     .close-button {
