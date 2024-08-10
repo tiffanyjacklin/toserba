@@ -36,5 +36,11 @@ func Init() *echo.Echo {
 	e.POST("/cashier/session/new", controller.InsertNewSession)
 	e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
 	e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
+
+	// Owner 
+	e.GET("/stores/:store_id", controller.GetStoreByID)
+	e.POST("/stores/add", controller.InsertStore)
+	e.GET("/warehouses/:warehouse_id", controller.GetWarehouseByID)
+	e.POST("/warehouses/add", controller.InsertWarehouse)
 	return e
 }

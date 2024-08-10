@@ -31,3 +31,20 @@ e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
     "difference_cash": 30000,
     "closing_notes": "Finished"
 }
+
+================================================= Owner =================================================
+e.GET("/stores/:store_id", controller.GetStoreByID)
+e.POST("/stores/add", controller.InsertStore)
+{
+    "store_name": "Toko XYZ",
+    "store_address": "Jl. Mangga Pahit No. 123, Surabaya",
+    "store_phone_number": "081222333444"
+}
+
+e.GET("/warehouses/:warehouse_id", controller.GetWarehouseByID)
+e.POST("/warehouses/add", controller.InsertWarehouse)
+{
+    "warehouse_name": "Gudang ABC",
+    "warehouse_address": "Jl. Jeruk Busuk No. 0, Surabaya",
+    "warehouse_phone_number": "081555666888"
+}

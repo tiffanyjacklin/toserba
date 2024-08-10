@@ -55,10 +55,24 @@ type Session struct {
 	EndTime string `json:"end_time"`
 	LastUpdateTime string `json:"last_update_time"`
 	OpeningCash int `json:"opening_cash"`
-	TotalTransaction int `json:"total_transaction"`
+	TotalIncome int `json:"total_income"`
 	ExpectedClosingCash int `json:"expected_closing_cash"`
 	ActualClosingCash int `json:"actual_closing_cash"`
 	DifferenceCash int `json:"difference_cash"`
 	OpeningNotes string `json:"opening_notes"`
 	ClosingNotes string `json:"closing_notes"`
+}
+
+type Stores struct {
+	StoreId int `json:"store_id"`
+	StoreName string `json:"store_name"`
+	StoreAddress string `json:"store_address"`
+	StorePhoneNumber string `json:"store_phone_number"`
+}
+
+type Warehouses struct {
+	WarehouseId int `json:"warehouse_id"`
+	WarehouseName string `json:"warehouse_name"`
+	WarehouseAddress string `json:"warehouse_address"`
+	WarehousePhoneNumber string `json:"warehouse_phone_number"`
 }

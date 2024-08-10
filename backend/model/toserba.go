@@ -327,7 +327,7 @@ func GetSessionByID(id_session string) (Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_transactions, expected_closing_cash, actual_closing_cash, difference_cash, opening_notes, closing_notes, last_update_time FROM sessions WHERE session_id = ?"
+	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, difference_cash, opening_notes, closing_notes, last_update_time FROM sessions WHERE session_id = ?"
 	stmt, err := con.Prepare(query)
 	if err != nil {
 		res.Status = 401
@@ -338,7 +338,7 @@ func GetSessionByID(id_session string) (Response, error) {
 	defer stmt.Close()
 
 	Id, _ := strconv.Atoi(id_session)
-	err = stmt.QueryRow(Id).Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalTransaction, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
+	err = stmt.QueryRow(Id).Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
 	if err != nil {
 		res.Status = 401
 		res.Message = "Data Not Exist"
@@ -499,5 +499,191 @@ func UpdateSessionData (id_session, session string) (Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = sess
+	return res, nil
+}
+
+func GetStoreByID(id_store string) (Response, error) {
+	var res Response
+	var str Stores
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT store_id, store_name, store_address, store_phone_number FROM stores WHERE store_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_store)
+	err = stmt.QueryRow(Id).Scan(&str.StoreId, &str.StoreName, &str.StoreAddress, &str.StorePhoneNumber)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = str
+	return res, nil
+}
+
+func InsertStore(store string) (Response, error) {
+	var res Response
+	var str Stores
+
+	err := json.Unmarshal([]byte(store), &str)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO stores(store_name, store_address, store_phone_number) VALUES (?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(&str.StoreName, &str.StoreAddress, &str.StorePhoneNumber)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		res.Status = 401
+		res.Message = "last id gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	str.StoreId = int(lastId)
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = str
+	return res, nil
+}
+
+func GetWarehouseByID(id_warehouse string) (Response, error) {
+	var res Response
+	var wrh Warehouses
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT warehouse_id, warehouse_name, warehouse_address, warehouse_phone_number FROM warehouses WHERE warehouse_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_warehouse)
+	err = stmt.QueryRow(Id).Scan(&wrh.WarehouseId, &wrh.WarehouseName, &wrh.WarehouseAddress, &wrh.WarehousePhoneNumber)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = wrh
+	return res, nil
+}
+
+func InsertWarehouse(warehouse string) (Response, error) {
+	var res Response
+	var wrh Warehouses
+
+	err := json.Unmarshal([]byte(warehouse), &wrh)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO warehouses(warehouse_name, warehouse_address, warehouse_phone_number) VALUES (?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(&wrh.WarehouseName, &wrh.WarehouseAddress, &wrh.WarehousePhoneNumber)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		res.Status = 401
+		res.Message = "last id gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	wrh.WarehouseId = int(lastId)
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = wrh
 	return res, nil
 }

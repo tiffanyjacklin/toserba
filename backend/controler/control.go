@@ -162,6 +162,57 @@ func UpdateSessionData(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetStoreByID(c echo.Context) error {
+	sid := c.Param("store_id")
+	result, err := model.GetStoreByID(sid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetStoreByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertStore(c echo.Context) error {
+	store, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertStore(string(store))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertStore", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetWarehouseByID(c echo.Context) error {
+	wid := c.Param("warehouse_id")
+	result, err := model.GetWarehouseByID(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetWarehouseByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertWarehouse(c echo.Context) error {
+	warehouse, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertWarehouse(string(warehouse))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertWarehouse", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+
 func UploadFoto(c echo.Context) error {
 	// /login?username=tipani. formvalue ini username it
 	folder := c.FormValue("folder")
