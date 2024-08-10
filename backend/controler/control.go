@@ -2,6 +2,7 @@ package controller
 
 import (
 	"TemplateProject/model"
+	"io"
 	// "io"
 	"net/http"
 	"strconv"
@@ -16,6 +17,47 @@ func GetFoto(c echo.Context) error {
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetPhotoFolder", "getfoto("+id+")", 1)
 	return c.File(result)
+}
+
+func GetFile(c echo.Context) error {
+	// path := c.FormValue("path")
+	tabel := c.FormValue("tabel")
+	kolom_name := c.FormValue("kolom_name")
+	kolom_id := c.FormValue("kolom_id")
+	id := c.FormValue("id")
+	path := ""
+	
+	result, err := model.GetPhotoData(tabel, kolom_name, kolom_id, id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message333": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetPath", result.Data, 3)
+
+	if result.Data != nil {
+		path, _ = result.Data.(string)
+	}
+
+	return c.File(path)
+}
+
+func UploadFile(c echo.Context) error {
+	folder := c.FormValue("folder")
+	kolom_name := c.FormValue("kolom_name")
+	kolom_id := c.FormValue("kolom_id")
+	id := c.FormValue("id")
+	fileUpload, err := c.FormFile("file")
+	// student, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.UploadFile(fileUpload, kolom_name, kolom_id, id, folder)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UploadFoto", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
 }
 
 func GetUser(c echo.Context) error {
@@ -46,7 +88,7 @@ func GetRoles(c echo.Context) error {
 	id := c.Param("user_id")
 	result, err := model.GetRoles(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+		return c.JSON(http.StatusInternalServerError, result)
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetRole", result.Data, 3)
@@ -65,6 +107,60 @@ func GetPriv(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetSessionByID(c echo.Context) error {
+	sid := c.Param("session_id")
+	result, err := model.GetSessionByID(sid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetSessionByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertNewSession(c echo.Context) error {
+	session, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertNewSession(string(session))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertNewSession", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func UpdateClosingSession(c echo.Context) error {
+	id := c.Param("session_id")
+	session, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.UpdateClosingSession(id, string(session))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UploadFoto", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func UpdateSessionData(c echo.Context) error {
+	id := c.Param("session_id")
+	session, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.UpdateSessionData(id, string(session))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UploadFoto", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
 
 func UploadFoto(c echo.Context) error {
 	// /login?username=tipani. formvalue ini username it

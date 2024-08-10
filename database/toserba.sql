@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `privileges` (
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.privileges: ~26 rows (approximately)
-INSERT INTO `privileges` (`privileges_id`, `privileges_name`, `navbar`) VALUES
+REPLACE INTO `privileges` (`privileges_id`, `privileges_name`, `navbar`) VALUES
 	(1, 'session', 1),
 	(2, 'transaction history', 1),
 	(3, 'input opening cash', 0),
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.roles: ~6 rows (approximately)
-INSERT INTO `roles` (`roles_id`, `roles_name`) VALUES
+REPLACE INTO `roles` (`roles_id`, `roles_name`) VALUES
 	(5, 'Admin'),
 	(1, 'Cashier'),
 	(2, 'Inventory Store Employee'),
@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS `roles_default` (
 ) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.roles_default: ~69 rows (approximately)
-INSERT INTO `roles_default` (`roles_default_id`, `roles_id`, `privileges_id`) VALUES
+REPLACE INTO `roles_default` (`roles_default_id`, `roles_id`, `privileges_id`) VALUES
 	(1, 1, 1),
 	(2, 1, 2),
 	(3, 1, 3),
@@ -270,6 +270,44 @@ INSERT INTO `roles_default` (`roles_default_id`, `roles_id`, `privileges_id`) VA
 	(67, 6, 24),
 	(68, 6, 25),
 	(69, 6, 26);
+
+-- Dumping structure for table toserba.sessions
+CREATE TABLE IF NOT EXISTS `sessions` (
+  `session_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL DEFAULT 0,
+  `start_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `end_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `opening_cash` int(11) NOT NULL DEFAULT 0,
+  `total_transactions` int(11) NOT NULL DEFAULT 0,
+  `expected_closing_cash` int(11) NOT NULL DEFAULT 0,
+  `actual_closing_cash` int(11) NOT NULL DEFAULT 0,
+  `difference_cash` int(11) NOT NULL DEFAULT 0,
+  `opening_notes` varchar(225) NOT NULL DEFAULT '-',
+  `closing_notes` varchar(225) NOT NULL DEFAULT '-',
+  `last_update_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`session_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `FK_sessions_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table toserba.sessions: ~2 rows (approximately)
+REPLACE INTO `sessions` (`session_id`, `user_id`, `start_time`, `end_time`, `opening_cash`, `total_transactions`, `expected_closing_cash`, `actual_closing_cash`, `difference_cash`, `opening_notes`, `closing_notes`, `last_update_time`) VALUES
+	(1, 1, '2015-09-02 08:04:00', '0000-00-00 00:00:00', 20000, 100000, 120000, 100000, 20000, '', 'Finished', '0000-00-00 00:00:00'),
+	(3, 1, '2015-09-02 08:04:00', '2024-01-01 11:11:11', 30000, 100000, 130000, 100000, 30000, '', 'Finished', '2024-01-01 12:11:11');
+
+-- Dumping structure for table toserba.session_transactions
+CREATE TABLE IF NOT EXISTS `session_transactions` (
+  `session_transaction_id` int(11) NOT NULL AUTO_INCREMENT,
+  `session_id` int(11) NOT NULL DEFAULT 0,
+  `transaction_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`session_transaction_id`),
+  KEY `session_id` (`session_id`),
+  KEY `transaction_id` (`transaction_id`),
+  CONSTRAINT `FK_session_transactions_sessions` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`session_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_session_transactions_transactions` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`transaction_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table toserba.session_transactions: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.stock_cards
 CREATE TABLE IF NOT EXISTS `stock_cards` (
@@ -348,7 +386,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_birthdate` date NOT NULL,
   `user_email` varchar(50) NOT NULL,
   `user_phone_number` varchar(15) NOT NULL,
-  `user_photo_profile` varchar(50) DEFAULT NULL,
+  `user_photo_profile` varchar(225) DEFAULT NULL,
   `user_created_at` datetime DEFAULT NULL,
   `user_deleted_at` datetime DEFAULT NULL,
   `user_updated_at` datetime DEFAULT NULL,
@@ -359,10 +397,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.users: ~3 rows (approximately)
-INSERT INTO `users` (`user_id`, `username`, `user_password`, `user_fullname`, `user_address`, `user_gender`, `user_birthdate`, `user_email`, `user_phone_number`, `user_photo_profile`, `user_created_at`, `user_deleted_at`, `user_updated_at`, `user_login_timestamp`) VALUES
-	(1, 'tipani', 'tipaja', 'Tiffany Jacklin', 'Jalan Jeruk', 'P', '2003-03-13', 'tipaja@gmail.com', '081000888333', NULL, '2024-07-18 13:48:04', NULL, NULL, NULL),
-	(2, 'danielll', 'danielaja', 'Daniel Alexander', 'Jalan leci', 'L', '2003-01-01', 'danielaja@gmail.com', '081000888111', NULL, '2023-07-12 14:30:45', NULL, NULL, NULL),
-	(3, 'alexlo', 'alexaja', 'Alexander Louis', 'Jalan mangga', 'L', '2003-02-02', 'alexaja@gmail.com', '081000888222', NULL, '2023-08-12 14:30:45', NULL, NULL, NULL);
+REPLACE INTO `users` (`user_id`, `username`, `user_password`, `user_fullname`, `user_address`, `user_gender`, `user_birthdate`, `user_email`, `user_phone_number`, `user_photo_profile`, `user_created_at`, `user_deleted_at`, `user_updated_at`, `user_login_timestamp`) VALUES
+	(1, 'tipani', 'tipaja', 'Tiffany Jacklin', 'Jalan Jeruk', 'P', '2003-03-13', 'tipaja@gmail.com', '081000888333', 'uploads/users/lena.png', '2024-07-18 13:48:04', NULL, NULL, '2024-08-07 11:19:43'),
+	(2, 'danielll', 'danielaja', 'Daniel Alexander', 'Jalan leci', 'L', '2003-01-01', 'danielaja@gmail.com', '081000888111', NULL, '2023-07-12 14:30:45', NULL, NULL, '2024-07-29 11:15:28'),
+	(3, 'alexlo', 'alexaja', 'Alexander Louis', 'Jalan mangga', 'L', '2003-02-02', 'alexaja@gmail.com', '081000888222', NULL, '2023-08-12 14:30:45', NULL, NULL, '2024-07-29 11:31:45');
 
 -- Dumping structure for table toserba.user_privileges
 CREATE TABLE IF NOT EXISTS `user_privileges` (
@@ -380,7 +418,7 @@ CREATE TABLE IF NOT EXISTS `user_privileges` (
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.user_privileges: ~4 rows (approximately)
-INSERT INTO `user_privileges` (`user_privileges_id`, `privileges_id`, `user_id`, `role_id`) VALUES
+REPLACE INTO `user_privileges` (`user_privileges_id`, `privileges_id`, `user_id`, `role_id`) VALUES
 	(1, 1, 2, 1),
 	(2, 7, 2, 1),
 	(3, 3, 2, 1),
@@ -406,7 +444,7 @@ CREATE TABLE IF NOT EXISTS `user_roles` (
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.user_roles: ~4 rows (approximately)
-INSERT INTO `user_roles` (`user_roles_id`, `roles_id`, `user_id`, `store_id`, `warehouse_id`, `custom`) VALUES
+REPLACE INTO `user_roles` (`user_roles_id`, `roles_id`, `user_id`, `store_id`, `warehouse_id`, `custom`) VALUES
 	(1, 1, 1, NULL, NULL, 0),
 	(2, 2, 1, NULL, NULL, 0),
 	(3, 6, 3, NULL, NULL, 0),

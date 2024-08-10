@@ -47,3 +47,18 @@ type UserPrivilege struct {
 	PrivilegeName string `json:"privileges_name"`
 	Navbar int `json:"navbar"`
 }
+
+type Session struct {
+	SessionId int `json:"session_id"`
+	UserId int `json:"user_id"`
+	StartTime string `json:"start_time"`
+	EndTime string `json:"end_time"`
+	LastUpdateTime string `json:"last_update_time"`
+	OpeningCash int `json:"opening_cash"`
+	TotalTransaction int `json:"total_transaction"`
+	ExpectedClosingCash int `json:"expected_closing_cash"`
+	ActualClosingCash int `json:"actual_closing_cash"`
+	DifferenceCash int `json:"difference_cash"`
+	OpeningNotes string `json:"opening_notes"`
+	ClosingNotes string `json:"closing_notes"`
+}
