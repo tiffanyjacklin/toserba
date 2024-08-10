@@ -22,10 +22,7 @@ USE `toserba`;
 -- Dumping structure for table toserba.customers
 CREATE TABLE IF NOT EXISTS `customers` (
   `customer_id` int(11) NOT NULL AUTO_INCREMENT,
-  `member_id` int(11) NOT NULL,
-  PRIMARY KEY (`customer_id`),
-  KEY `fk_customers_member` (`member_id`),
-  CONSTRAINT `fk_customers_member` FOREIGN KEY (`member_id`) REFERENCES `members` (`member_id`)
+  PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.customers: ~0 rows (approximately)
@@ -69,7 +66,10 @@ CREATE TABLE IF NOT EXISTS `members` (
   `member_phone_number` varchar(225) NOT NULL,
   `member_points` int(11) DEFAULT NULL,
   `member_join_date` datetime NOT NULL,
-  PRIMARY KEY (`member_id`)
+  `customer_id` int(11) NOT NULL,
+  PRIMARY KEY (`member_id`),
+  KEY `customer_id` (`customer_id`),
+  CONSTRAINT `FK_members_customers` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.members: ~0 rows (approximately)
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `product_details` (
   `buy_price` int(11) NOT NULL,
   `sell_price` int(11) NOT NULL,
   `expiry_date` date NOT NULL,
-  `min_stock` int(11) DEFAULT NULL,
+  `min_stock` int(11) NOT NULL DEFAULT 0,
   `product_stock` int(11) NOT NULL,
   `product_timestamp` datetime NOT NULL,
   PRIMARY KEY (`product_detail_id`),
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
   UNIQUE KEY `roles_name` (`roles_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.roles: ~6 rows (approximately)
+-- Dumping data for table toserba.roles: ~5 rows (approximately)
 REPLACE INTO `roles` (`roles_id`, `roles_name`) VALUES
 	(5, 'Admin'),
 	(1, 'Cashier'),
@@ -278,7 +278,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   `start_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `end_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `opening_cash` int(11) NOT NULL DEFAULT 0,
-  `total_transactions` int(11) NOT NULL DEFAULT 0,
+  `total_income` int(11) NOT NULL DEFAULT 0,
   `expected_closing_cash` int(11) NOT NULL DEFAULT 0,
   `actual_closing_cash` int(11) NOT NULL DEFAULT 0,
   `difference_cash` int(11) NOT NULL DEFAULT 0,
@@ -291,7 +291,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.sessions: ~2 rows (approximately)
-REPLACE INTO `sessions` (`session_id`, `user_id`, `start_time`, `end_time`, `opening_cash`, `total_transactions`, `expected_closing_cash`, `actual_closing_cash`, `difference_cash`, `opening_notes`, `closing_notes`, `last_update_time`) VALUES
+REPLACE INTO `sessions` (`session_id`, `user_id`, `start_time`, `end_time`, `opening_cash`, `total_income`, `expected_closing_cash`, `actual_closing_cash`, `difference_cash`, `opening_notes`, `closing_notes`, `last_update_time`) VALUES
 	(1, 1, '2015-09-02 08:04:00', '0000-00-00 00:00:00', 20000, 100000, 120000, 100000, 20000, '', 'Finished', '0000-00-00 00:00:00'),
 	(3, 1, '2015-09-02 08:04:00', '2024-01-01 11:11:11', 30000, 100000, 130000, 100000, 30000, '', 'Finished', '2024-01-01 12:11:11');
 
@@ -331,13 +331,15 @@ CREATE TABLE IF NOT EXISTS `stock_cards` (
 -- Dumping structure for table toserba.stores
 CREATE TABLE IF NOT EXISTS `stores` (
   `store_id` int(11) NOT NULL AUTO_INCREMENT,
-  `store_name` varchar(255) NOT NULL,
-  `store_address` varchar(255) NOT NULL,
-  `store_phone_number` varchar(255) NOT NULL,
+  `store_name` varchar(255) NOT NULL DEFAULT '-',
+  `store_address` varchar(255) NOT NULL DEFAULT '-',
+  `store_phone_number` varchar(255) NOT NULL DEFAULT '-',
   PRIMARY KEY (`store_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.stores: ~0 rows (approximately)
+-- Dumping data for table toserba.stores: ~1 rows (approximately)
+REPLACE INTO `stores` (`store_id`, `store_name`, `store_address`, `store_phone_number`) VALUES
+	(1, 'Toko XYZ', 'Jl. Mangga Pahit No. 123, Surabaya', '081222333444');
 
 -- Dumping structure for table toserba.transactions
 CREATE TABLE IF NOT EXISTS `transactions` (
@@ -457,9 +459,11 @@ CREATE TABLE IF NOT EXISTS `warehouses` (
   `warehouse_address` varchar(255) NOT NULL,
   `warehouse_phone_number` varchar(255) NOT NULL,
   PRIMARY KEY (`warehouse_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.warehouses: ~0 rows (approximately)
+-- Dumping data for table toserba.warehouses: ~1 rows (approximately)
+REPLACE INTO `warehouses` (`warehouse_id`, `warehouse_name`, `warehouse_address`, `warehouse_phone_number`) VALUES
+	(1, 'Gudang ABC', 'Jl. Jeruk Busuk No. 0, Surabaya', '081555666888');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
