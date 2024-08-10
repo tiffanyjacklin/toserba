@@ -3,14 +3,56 @@ package model
 import (
 	"TemplateProject/db"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"strconv"
+	"time"
 
 	// "fmt"
 	// "encoding/json"
 	"net/http"
 )
 
-func GetUser(username, password string)(Response, error) {
+func GetPhotoData(tabel, kolom_name, kolom_id, id string) (Response, error) {
+	var res Response
+	var user UserData
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	nId, _ := strconv.Atoi(id)
+
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE %s_id = %d", kolom_name, tabel, kolom_id, nId)
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt username check failed"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow().Scan(&user.UserPhotoProfile)
+
+	if err != nil {
+		res.Status = http.StatusUnauthorized
+		res.Message = "User Photo not exist"
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = user
+	return res, nil
+}
+
+func GetUser(username, password string) (Response, error) {
 	var res Response
 	var user User
 
@@ -35,7 +77,7 @@ func GetUser(username, password string)(Response, error) {
 
 	err = stmt.QueryRow(username).Scan(&user.UserId)
 
-	if (err != nil)  {
+	if err != nil {
 		res.Status = http.StatusUnauthorized
 		res.Message = "Username not exist"
 		return res, err
@@ -43,7 +85,7 @@ func GetUser(username, password string)(Response, error) {
 
 	query = "SELECT user_id, username, user_password FROM users WHERE username = ? AND user_password = ?"
 	stmt, err = con.Prepare(query)
-	if (err != nil) {
+	if err != nil {
 		res.Status = http.StatusBadRequest
 		res.Message = "stmt user check failed"
 		res.Data = err.Error()
@@ -83,7 +125,7 @@ func GetUser(username, password string)(Response, error) {
 	return res, nil
 }
 
-func GetDataUser(id_user, id_role string)(Response, error) {
+func GetDataUser(id_user, id_role string) (Response, error) {
 	var res Response
 	var user UserData
 	var arrUser = []UserData{}
@@ -99,7 +141,7 @@ func GetDataUser(id_user, id_role string)(Response, error) {
 
 	query := "SELECT u.user_id, u.username, u.user_password, u.user_fullname, u.user_address, u.user_gender, u.user_birthdate, u.user_email, u.user_phone_number, u.user_photo_profile, u.user_login_timestamp, ur.roles_id, r.roles_name FROM users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN roles r ON r.roles_id = ur.roles_id WHERE u.user_id = ? AND ur.roles_id = ?"
 	stmt, err := con.Prepare(query)
-	if (err != nil) {
+	if err != nil {
 		res.Status = http.StatusBadRequest
 		res.Message = "stmt user check failed"
 		res.Data = err.Error()
@@ -115,17 +157,17 @@ func GetDataUser(id_user, id_role string)(Response, error) {
 		res.Message = "rows gagal"
 		res.Data = err.Error()
 		return res, err
-		}
+	}
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&user.UserId, &user.Username, &user.Password, &user.UserFullName, &user.UserAddress, &user.UserGender, &user.UserBirthDate, &user.UserEmail, &user.UserPhoneNumber, &user.UserPhotoProfile, &user.LoginTimestamp, &user.RoleId, &user.RoleName)		
+		err = rows.Scan(&user.UserId, &user.Username, &user.Password, &user.UserFullName, &user.UserAddress, &user.UserGender, &user.UserBirthDate, &user.UserEmail, &user.UserPhoneNumber, &user.UserPhotoProfile, &user.LoginTimestamp, &user.RoleId, &user.RoleName)
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows scan"
 			res.Data = err.Error()
 			return res, err
-			}
+		}
 		arrUser = append(arrUser, user)
 	}
 
@@ -135,13 +177,14 @@ func GetDataUser(id_user, id_role string)(Response, error) {
 	return res, nil
 }
 
-func GetRoles(id_user string)(Response, error) {
+func GetRoles(id_user string) (Response, error) {
 	var res Response
 	var urole UserRoles
 	var arrRole = []UserRoles{}
 
 	con, err := db.DbConnection()
 	if err != nil {
+		// fmt.Println("error db open")
 		res.Status = 401
 		res.Message = "gagal membuka koneksi database"
 		res.Data = err.Error()
@@ -151,7 +194,7 @@ func GetRoles(id_user string)(Response, error) {
 
 	query := "SELECT ur.user_roles_id, ur.user_id, ur.roles_id, r.roles_name, ur.store_id, ur.warehouse_id, ur.custom FROM user_roles ur JOIN roles r ON ur.roles_id = r.roles_id WHERE ur.user_id = ?"
 	stmt, err := con.Prepare(query)
-	if (err != nil) {
+	if err != nil {
 		res.Status = http.StatusBadRequest
 		res.Message = "stmt user check failed"
 		res.Data = err.Error()
@@ -165,17 +208,17 @@ func GetRoles(id_user string)(Response, error) {
 		res.Message = "rows gagal"
 		res.Data = err.Error()
 		return res, err
-		}
+	}
 	defer rows.Close()
 
-	for rows.Next() {	
-		err = rows.Scan(&urole.UserRoleId, &urole.UserId, &urole.RoleId, &urole.RoleName, &urole.StoreId, &urole.WarehouseId, &urole.Custom)		
+	for rows.Next() {
+		err = rows.Scan(&urole.UserRoleId, &urole.UserId, &urole.RoleId, &urole.RoleName, &urole.StoreId, &urole.WarehouseId, &urole.Custom)
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows scan"
 			res.Data = err.Error()
 			return res, err
-			}
+		}
 		arrRole = append(arrRole, urole)
 	}
 
@@ -218,25 +261,25 @@ func GetPriv(id_role, id_user string) (Response, error) {
 		return res, err
 	}
 
-	if (custom == 1) {
-		query = "SELECT up.user_privileges_id, up.role_id, up.privileges_id, p.privileges_name, p.navbar FROM user_privileges up JOIN privileges p ON up.privileges_id = p.privileges_id WHERE up.role_id = ? AND up.user_id = ?"	
+	if custom == 1 {
+		query = "SELECT up.user_privileges_id, up.role_id, up.privileges_id, p.privileges_name, p.navbar FROM user_privileges up JOIN privileges p ON up.privileges_id = p.privileges_id WHERE up.role_id = ? AND up.user_id = ?"
 	} else {
 		query = "SELECT rd.roles_default_id, rd.roles_id, rd.privileges_id, p.privileges_name, p.navbar FROM roles_default rd JOIN privileges p ON rd.privileges_id = p.privileges_id WHERE rd.roles_id = ?"
 	}
 
-	stmt, err = con.Prepare(query)
-	if (err != nil) {
+	stmt2, err := con.Prepare(query)
+	if err != nil {
 		res.Status = http.StatusBadRequest
 		res.Message = "stmt user check failed"
 		res.Data = err.Error()
 		return res, err
 	}
-	defer stmt.Close()
+	defer stmt2.Close()
 
 	var rows *sql.Rows
 
 	if custom == 1 {
-		rows, err = stmt.Query(id_role, id_user)
+		rows, err = stmt2.Query(id_role, id_user)
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows gagal"
@@ -244,7 +287,7 @@ func GetPriv(id_role, id_user string) (Response, error) {
 			return res, err
 		}
 	} else {
-		rows, err = stmt.Query(id_role)
+		rows, err = stmt2.Query(id_role)
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows gagal"
@@ -254,19 +297,207 @@ func GetPriv(id_role, id_user string) (Response, error) {
 	}
 	defer rows.Close()
 
-	for rows.Next() {	
-		err = rows.Scan(&upriv.UserPrivilegeId, &upriv.RoleId, &upriv.PrivilegeId, &upriv.PrivilegeName, &upriv.Navbar)		
+	for rows.Next() {
+		err = rows.Scan(&upriv.UserPrivilegeId, &upriv.RoleId, &upriv.PrivilegeId, &upriv.PrivilegeName, &upriv.Navbar)
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows scan"
 			res.Data = err.Error()
 			return res, err
-			}
+		}
 		arrPriv = append(arrPriv, upriv)
 	}
 
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = arrPriv
+	return res, nil
+}
+
+func GetSessionByID(id_session string) (Response, error) {
+	var res Response
+	var sess Session
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_transactions, expected_closing_cash, actual_closing_cash, difference_cash, opening_notes, closing_notes, last_update_time FROM sessions WHERE session_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_session)
+	err = stmt.QueryRow(Id).Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalTransaction, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sess
+	return res, nil
+}
+
+func InsertNewSession(session string) (Response, error) {
+	var res Response
+	var sess  Session
+
+	err := json.Unmarshal([]byte(session), &sess)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO sessions(user_id, start_time, opening_cash, opening_notes) VALUES (?,?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	startTime, _ := time.Parse("2006-01-02 15:04:05", sess.StartTime)
+	result, err := stmt.Exec(sess.UserId, startTime, sess.OpeningCash, sess.OpeningNotes)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		res.Status = 401
+		res.Message = "last id gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	sess.SessionId = int(lastId)
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sess
+	return res, nil
+}
+
+func UpdateClosingSession (id_session, session string) (Response, error) {
+	var res Response
+	var sess  Session
+
+	err := json.Unmarshal([]byte(session), &sess)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "UPDATE sessions SET end_time = ?, expected_closing_cash = ?, actual_closing_cash = ?, difference_cash = ?, closing_notes = ? WHERE session_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_session)
+	endTime, _ := time.Parse("2006-01-02 15:04:05", sess.EndTime)
+	_, err = stmt.Exec(endTime, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.ClosingNotes, Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sess
+	return res, nil
+}
+
+func UpdateSessionData (id_session, session string) (Response, error) {
+	var res Response
+	var sess  Session
+
+	err := json.Unmarshal([]byte(session), &sess)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "UPDATE sessions SET last_update_time = ?, actual_closing_cash = ?, difference_cash = ?, closing_notes = ? WHERE session_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_session)
+	updateTime, _ := time.Parse("2006-01-02 15:04:05", sess.LastUpdateTime)
+	_, err = stmt.Exec(updateTime, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.ClosingNotes, Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sess
 	return res, nil
 }

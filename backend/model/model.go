@@ -118,13 +118,50 @@ func UploadFotoFolder(file *multipart.FileHeader, id int64, folder string) (Resp
 	return res, nil
 }
 
+func UploadFile(file *multipart.FileHeader, kolom_name string, kolom_id string, id string, folder string) (Response, error) {
+	var res Response
+	log.Println("Upload Foto")
+	nId, _ := strconv.Atoi(id)
+	pathFile := "uploads/" + folder + "/" + file.Filename
+	//source
+	src, err := file.Open()
+	if err != nil {
+		log.Println(err.Error())
+		return res, err
+	}
+	defer src.Close()
+	// Destination
+	dst, err := os.Create(pathFile)
+	if err != nil {
+		return res, err
+	}
+
+	// Copy
+	if _, err = io.Copy(dst, src); err != nil {
+		log.Println(err.Error())
+		return res, err
+	}
+	dst.Close()
+
+	err = UpdateDataFotoPath(folder, kolom_name ,pathFile, kolom_id, nId)
+	if err != nil {
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Sukses Upload Foto"
+	res.Data = file.Filename
+
+	return res, nil
+}
+
 func GetPhoto(path string, id string) string {
 	result := "uploads/" + path + "/" + path + "-" + id + ".png"
 	fmt.Println(result)
 	return result
 }
 
-func UpdateDataFoto(tabel string, kolom string, id int) error {
+func UpdateDataFoto(tabel string,  kolom string,  id int) error {
 	log.Println("mengubah status foto di DB")
 	con, err := db.DbConnection()
 	defer db.DbClose(con)
@@ -132,11 +169,14 @@ func UpdateDataFoto(tabel string, kolom string, id int) error {
 		log.Println("error: " + err.Error())
 		return err
 	}
-	var query string
+	// var query string 
 
-	query = fmt.Sprintf("UPDATE %s SET %s='%s' where id = %d", tabel, kolom, "ada", id)
+	query := fmt.Sprintf("UPDATE %s SET %s='%s' where id = %d", tabel, kolom, "ada", id)
 
 	rows, err := con.Query(query)
+	if err == nil {
+		return err
+	}
 	defer rows.Close()
 	if err != nil {
 		return err
@@ -144,4 +184,61 @@ func UpdateDataFoto(tabel string, kolom string, id int) error {
 	defer con.Close()
 	fmt.Println("status foto di edit")
 	return nil
+}
+
+func UpdateDataFotoPath(tabel string, kolom string, path string, kolom_id string, id int) error {
+	log.Println("mengubah status foto di DB")
+	con, err := db.DbConnection()
+	defer db.DbClose(con)
+	if err != nil {
+		log.Println("errorrr: " + err.Error())
+		return err
+	}
+
+	query := fmt.Sprintf("UPDATE %s SET %s='%s' where %s_id = %d", tabel, kolom, path, kolom_id, id)
+
+	rows, err := con.Query(query)
+	if err != nil {
+		log.Println("kolom", kolom)
+		log.Println("error row: " + err.Error())
+		return err
+	}
+	defer rows.Close()
+	if err != nil {
+		return err
+	}
+	defer con.Close()
+	fmt.Println("status foto di edit")
+	return nil
+}
+
+func ReadJSONFile (path string, obj any) (any, error) {
+	fileData, err := os.ReadFile(path)
+	if err != nil {
+		return obj, err
+	}
+
+	err = json.Unmarshal(fileData, &obj)
+	if err != nil {
+		return obj, err
+	}
+	return obj, nil
+}
+
+func ReadConfigFile()(Response, error) {
+	var res Response
+	var conf interface{}
+	var err error
+	conf, err = ReadJSONFile("model/config.json", conf)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal mengambil config"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = 200
+	res.Message = "Berhasil"
+	res.Data = conf
+	return res, nil
 }
