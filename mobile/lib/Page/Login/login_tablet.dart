@@ -285,26 +285,33 @@ class _LoginTabletState extends State<LoginTablet> {
   //       }
 
   // CEK USER
-  void _fetchUser() async {
+  Future _fetchUser() async {
     // link api
     final link =
-        'http://localhost:2681/user/login?username=${usernameController.text}&password=${passwordController.text}';
+        'http://localhost:8888/user/login?username=${usernameController.text}&password=${passwordController.text}';
 
-    // call api
+    // call api (method PUT)
     final response = await http.put(Uri.parse(link));
 
     // cek status
     if (response.statusCode == 200) {
       // misal oke berati masuk
+      // decode?
+      if (response.body != null) {
+        print('' + response.body);
+        return true;
+      }
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
-      throw Exception('Failed to load album');
+      // throw Exception('Login Failed, Try Again');
+      print('login Failed');
+      return false;
     }
   }
 
   // LOGIN
-  void _login() {
+  void _login() async {
     // cek semua apakah ada yang belum diisi
     var belumDiisi = '';
     if (usernameController.text == '') {
@@ -328,10 +335,21 @@ class _LoginTabletState extends State<LoginTablet> {
     // lanjutkan login
     else {
       // cari apakah valid
-      
-      // pindah halaman
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (BuildContext context) => ChooseRolePage()));
+      _fetchUser().then((hasil) => {
+            if (hasil)
+              {
+                // pindah halaman
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (BuildContext context) => ChooseRolePage()))
+              }
+            else
+              {
+                // show snackbar
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Wrong Username/Password'),
+                ))
+              }
+          });
     }
   }
 }
