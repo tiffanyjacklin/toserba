@@ -1,17 +1,26 @@
 <script>
     import TaskModal from '$lib/TaskModal.svelte';
+    import { goto } from '$app/navigation';
+    
+    export let data;
     let showModal = false;
     function closeModal() {
        showModal = false;
     }
     function handleClick() {
        showModal = true;
-    
+    }
+
+    function navigateToTransaction(transactionId) {
+        // Construct the URL with dynamic parameters
+        const url = `/transaction_history/${data.userId}/${data.roleId}/${transactionId}`;
+        // Use goto to navigate to the constructed URL
+        goto(url);
     }
  </script>
  
  <div class="mx-8 mt-[90px] mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg">
-    <span class="text-3xl font-bold font-poppins text-black my-10">Transaction History</span>
+    <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Transaction History</span>
     
     <!-- <form class="flex items-center max-w-lg mx-auto">    -->
        <label for="voice-search" class="sr-only">Search</label>
@@ -116,7 +125,7 @@
                             Budi Maneh
                         </td>
                         <td class="py-2">
-                            <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full">
+                            <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full" on:click={() => navigateToTransaction(1)}>
                                 View
                             </button>
                         </td>
@@ -138,7 +147,8 @@
                             Budi Maneh
                         </td>
                         <td class="py-2">
-                            <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full">
+                            <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full"
+                            on:click={() => navigateToTransaction(1)}>
                                 View
                             </button>
                         </td>
@@ -160,7 +170,8 @@
                             Budi Maneh
                         </td>
                         <td class="py-2">
-                            <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full">
+                            <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full"
+                            on:click={() => navigateToTransaction(1)}>
                                 View
                             </button>
                         </td>

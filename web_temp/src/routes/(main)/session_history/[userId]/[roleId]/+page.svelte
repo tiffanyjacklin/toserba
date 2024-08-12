@@ -1,21 +1,40 @@
 <script>
    import TaskModal from '$lib/TaskModal.svelte';
+   import MoneyInput from '$lib/MoneyInput.svelte';
+   let cash1 = 0;
 
-
-   let showModal1 = false;
+   let showModal11 = false;
+   let showModal12 = false;
    let showModal2 = false;
+
+   let showTable = false;
+
+    function toggleTable() {
+        showTable = !showTable;
+    }
+
    function closeModal(whichModal) {
-    if (whichModal === 1) {
-      showModal1 = false;
+    if (whichModal === 11) {
+      showModal11 = false;
+    } else if (whichModal === 12) {
+      showModal12 = false;
     } else if (whichModal === 2) {
       showModal2 = false;
     }
   }
 
   function handleClick(whichModal) {
-    if (whichModal === 1) {
-      showModal1 = true;
+    if (whichModal === 11) {
+      showModal11 = true;
+      showModal12 = false;
+      showModal2 = false;
+   } else if (whichModal === 12) {
+      showModal11 = false;
+      showModal12 = true;
+      showModal2 = false;
     } else if (whichModal === 2) {
+      showModal11 = false;
+      showModal12 = false;
       showModal2 = true;
     }
   }
@@ -103,7 +122,7 @@
             
          </div>
          <div class="w-1/5 bg-darkGray flex items-center">
-            <button on:click={() => handleClick(1)} class="border-8 bg-peach2 border-peach2 mx-6 my-2 rounded-lg w-full">
+            <button on:click={() => handleClick(11)} class="border-8 bg-peach2 border-peach2 mx-6 my-2 rounded-lg w-full">
                <div class="bg-peach rounded-lg flex flex-col min-h-40 w-full items-center justify-center shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">
                   <span class="text-2xl text-darkGray mb-2 font-bold">Edit</span>
                   <svg width="52" height="60" viewBox="0 0 52 60" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -157,7 +176,7 @@
       </div>
     </div>
 
-    <!-- <TaskModal open={showModal1} onClose={() => closeModal(1)} color={"#3d4c52"}>
+    <TaskModal open={showModal11} onClose={() => closeModal(11)} color={"#3d4c52"}>
       <div class="flex flex-col justify-center">
          <svg class="mx-auto" width="213" height="27" viewBox="0 0 396 36" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g filter="url(#filter0_i_464_3583)">
@@ -184,13 +203,13 @@
                      <input type="text" class="rounded-lg p-2 focus:ring-2 focus:ring-peach">
                   </div>
                   
-                  <button class="w-fit px-16 py-2 bg-peach text-darkGray font-bold text-2xl mx-auto rounded-lg">Edit</button>
+                  <button class="w-fit px-16 py-2 bg-peach text-darkGray font-bold text-2xl mx-auto rounded-lg" on:click={() => handleClick(12)}>Edit</button>
                </div>
             </form>
       </div>
-   </TaskModal>   -->
+   </TaskModal>  
    
-   <TaskModal open={showModal1} onClose={() => closeModal(1)} color={"#3d4c52"}>
+   <TaskModal open={showModal12} onClose={() => closeModal(12)} color={"#3d4c52"}>
       <div class="flex items-center justify-center py-8 ">
          <svg width="213" height="27" viewBox="0 0 284 36" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g filter="url(#filter0_i_434_825)">
@@ -251,19 +270,75 @@
             <div class="flex justify-between">
                <div class="text-[#f7d4b2]">
                   Total Income 
+                  <button on:click={toggleTable} class="ml-2">
+                     {#if showTable}
+                        <i class="fa-solid fa-caret-up"></i>
+                     {:else}
+                        <i class="fa-solid fa-caret-down"></i>
+                     {/if}
+                  </button>
                </div>
 
                <div class="text-white">
-                  Rp 500,000.00
+                  Rp 100,000.00
                </div>
             </div>
-            <div class="text-[#f7d4b2]">
-               <div class="pb-3">Transactions</div>
-               <textarea id="additional_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " value="Rp 40,000.00 
-    Rp 0.00
-
-Rp 60,000.00"></textarea>                    
+      
+            {#if showTable}
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+               <table class="w-full text-sm text-left rtl:text-right">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                        <tr class="border-b-2 border-black">
+                           <th scope="col" class="px-6 py-3 text-sm font-bold">
+                              TRANSACTION ID
+                           </th>
+                           <th scope="col" class="px-6 py-3 text-sm font-bold">
+                              TIME
+                           </th>
+                           <th scope="col" class="px-6 py-3 text-sm font-bold">
+                              TOTAL
+                           </th>
+                        </tr>
+                  </thead>
+                  <tbody>
+                        <tr class="bg-yellow-100">
+                           <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                              5432112345
+                           </th>
+                           <td class="px-6 py-4">
+                              15:40 PM
+                           </td>
+                           <td class="px-6 py-4">
+                              Rp 16.000,00
+                           </td>
+                        </tr>
+                        <tr class="bg-white">
+                           <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                              5432112345
+                           </th>
+                           <td class="px-6 py-4">
+                              15:40 PM
+                           </td>
+                           <td class="px-6 py-4">
+                              Rp 16.000,00
+                           </td>
+                        </tr>
+                        <tr class="bg-yellow-100">
+                           <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                              5432112345
+                           </th>
+                           <td class="px-6 py-4">
+                              15:40 PM
+                           </td>
+                           <td class="px-6 py-4">
+                              Rp 16.000,00
+                           </td>
+                        </tr>
+                  </tbody>
+               </table>
             </div>
+            {/if}
+
             <div class="flex justify-between">
                <div class="text-[#f7d4b2]">
                   Expected closing cash
@@ -277,7 +352,7 @@ Rp 60,000.00"></textarea>
                   Actual closing cash
                </div>
                <div class="">
-                  <input type="text" name="opening_cash" id="opening_cash" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] text-end bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] block w-full px-2.5 py-0.5" value="Rp 502,000.00" placeholder="Rp 0.00" required="">
+                  <MoneyInput bind:value={cash1} />
                </div>
             </div>
             <div class="flex justify-between">
@@ -361,6 +436,15 @@ Rp 60,000.00"></textarea>
             </div>
             <div class="flex justify-between">
                <div class="text-[#f7d4b2]">
+                  Total Income 
+               </div>
+
+               <div class="text-white">
+                  Rp 100,000.00
+               </div>
+            </div>
+            <div class="flex justify-between">
+               <div class="text-[#f7d4b2]">
                   Expected closing cash
                </div>
                <div class="text-white">
@@ -385,7 +469,7 @@ Rp 60,000.00"></textarea>
             </div>
             <div class="text-[#f7d4b2]">
                <div class="pb-3">Additional notes</div>
-               <textarea id="additional_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " placeholder="" value="Session closing earlier than expected."></textarea>                    
+               <textarea id="additional_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " placeholder="" value="Session closing earlier than expected." readonly></textarea>                    
             </div>
 
             <div class="flex items-center justify-center">
@@ -394,7 +478,7 @@ Rp 60,000.00"></textarea>
                </button>
             </div>
          </div>
-   </form>
+      </form>
 
 
    </TaskModal>
