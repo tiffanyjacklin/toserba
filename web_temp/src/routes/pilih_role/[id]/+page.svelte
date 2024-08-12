@@ -14,7 +14,7 @@
     console.log("user id : " + userId);
 
     async function fetchRoles(userId) {
-        const response = await fetch(`http://localhost:2681/user/roles/${userId}`, {
+        const response = await fetch(`http://localhost:8888/user/roles/${userId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

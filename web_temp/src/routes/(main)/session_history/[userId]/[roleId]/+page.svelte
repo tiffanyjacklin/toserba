@@ -1,5 +1,7 @@
 <script>
    import TaskModal from '$lib/TaskModal.svelte';
+
+
    let showModal1 = false;
    let showModal2 = false;
    function closeModal(whichModal) {
@@ -17,6 +19,8 @@
       showModal2 = true;
     }
   }
+
+
 </script>
 
 <div class="mx-8 mt-[90px] mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg">
@@ -206,7 +210,7 @@
             </defs>
          </svg>   
       </div>
-   
+     
       <form class="p-4 md:p-5" >
          <div class="grid gap-3 font-roboto font-semibold">
             <div class="flex justify-between">
