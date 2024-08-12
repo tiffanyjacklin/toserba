@@ -84,9 +84,9 @@ func GetDataUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func GetRoles(c echo.Context) error {
+func GetUserRoles(c echo.Context) error {
 	id := c.Param("user_id")
-	result, err := model.GetRoles(id)
+	result, err := model.GetUserRoles(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, result)
 	}
@@ -95,15 +95,37 @@ func GetRoles(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func GetPriv(c echo.Context) error {
+func GetRolesByID(c echo.Context) error {
+	rid := c.Param("roles_id")
+	result, err := model.GetRolesByID(rid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetRolesByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetUserPriv(c echo.Context) error {
 	uid := c.Param("user_id")
 	rid := c.Param("role_id")
-	result, err := model.GetPriv(rid, uid)
+	result, err := model.GetUserPriv(rid, uid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetPrivileges", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetPrivilegesByID(c echo.Context) error {
+	pid := c.Param("priv_id")
+	result, err := model.GetPrivilegesByID(pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetPrivilegesByID", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -162,6 +184,20 @@ func UpdateSessionData(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func InsertProductCategory(c echo.Context) error {
+	procat, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertProductCategory(string(procat))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UploadProductCategory", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetStoreByID(c echo.Context) error {
 	sid := c.Param("store_id")
 	result, err := model.GetStoreByID(sid)
@@ -211,6 +247,49 @@ func InsertWarehouse(c echo.Context) error {
 	model.InsertLog(ip, "InsertWarehouse", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
+
+func InsertRoles(c echo.Context) error {
+	roles, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertRoles(string(roles))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UploadRoles", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertPrivileges(c echo.Context) error {
+	priv, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertPrivileges(string(priv))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UploadPrivileges", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertRolesDefault(c echo.Context) error {
+	rd, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertRolesDefault(string(rd))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UploadRolesDefault", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 
 
 func UploadFoto(c echo.Context) error {

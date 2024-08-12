@@ -177,7 +177,7 @@ func GetDataUser(id_user, id_role string) (Response, error) {
 	return res, nil
 }
 
-func GetRoles(id_user string) (Response, error) {
+func GetUserRoles(id_user string) (Response, error) {
 	var res Response
 	var urole UserRoles
 	var arrRole = []UserRoles{}
@@ -228,7 +228,45 @@ func GetRoles(id_user string) (Response, error) {
 	return res, nil
 }
 
-func GetPriv(id_role, id_user string) (Response, error) {
+func GetRolesByID (id_roles string) (Response, error) {
+	var res Response
+	var roles Roles
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT roles_id, roles_name FROM roles WHERE roles_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_roles)
+	err = stmt.QueryRow(Id).Scan(&roles.RolesId, &roles.RolesName)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = roles
+	return res, nil
+}
+
+func GetUserPriv (id_role, id_user string) (Response, error) {
 	var res Response
 	var custom int16
 	var upriv UserPrivilege
@@ -314,7 +352,45 @@ func GetPriv(id_role, id_user string) (Response, error) {
 	return res, nil
 }
 
-func GetSessionByID(id_session string) (Response, error) {
+func GetPrivilegesByID (id_priv string) (Response, error) {
+	var res Response
+	var priv Privileges
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT privileges_id, privileges_name, navbar FROM privileges WHERE privileges_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_priv)
+	err = stmt.QueryRow(Id).Scan(&priv.PrivilegesId, &priv.PrivilegesName, &priv.Navbar)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = priv
+	return res, nil
+}
+
+func GetSessionByID (id_session string) (Response, error) {
 	var res Response
 	var sess Session
 
@@ -352,7 +428,7 @@ func GetSessionByID(id_session string) (Response, error) {
 	return res, nil
 }
 
-func InsertNewSession(session string) (Response, error) {
+func InsertNewSession (session string) (Response, error) {
 	var res Response
 	var sess  Session
 
@@ -502,7 +578,76 @@ func UpdateSessionData (id_session, session string) (Response, error) {
 	return res, nil
 }
 
-func GetStoreByID(id_store string) (Response, error) {
+func InsertProductCategory (procat string)(Response, error) {
+	var res Response
+	var name sql.NullString
+	var arrPro = []ProductCategories{}
+
+	err := json.Unmarshal([]byte(procat), &arrPro)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	for _ ,x := range arrPro {
+		query := "SELECT product_category_name FROM products_category WHERE product_category_name = ?"
+		stmt, _ := con.Prepare(query)
+		defer stmt.Close()
+
+		err = stmt.QueryRow(&x.ProductCategoryName).Scan(&name)
+		if err == nil {
+			res.Status = http.StatusBadRequest
+			res.Message = "Product Category Name " + x.ProductCategoryName + " existed"
+			return res, nil
+		}
+	}
+
+	query := "INSERT INTO products_category(product_category_name) VALUES(?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i ,x := range arrPro {
+		result, err := stmt.Exec(x.ProductCategoryName)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPro[i].ProductCategoryId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPro
+	return res, nil
+}
+
+func GetStoreByID (id_store string) (Response, error) {
 	var res Response
 	var str Stores
 
@@ -685,5 +830,216 @@ func InsertWarehouse(warehouse string) (Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = wrh
+	return res, nil
+}
+
+func InsertRoles(roles string)(Response, error) {
+	var res Response
+	var name string
+	var arrRole = []Roles{}
+
+	err := json.Unmarshal([]byte(roles), &arrRole)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	for _ ,x := range arrRole {
+		query := "SELECT roles_name FROM roles WHERE roles_name = ?"
+		stmt, _ := con.Prepare(query)
+		defer stmt.Close()
+
+		err = stmt.QueryRow(&x.RolesName).Scan(&name)
+		if err == nil {
+			res.Status = http.StatusBadRequest
+			res.Message = "Role Name " + x.RolesName + " existed"
+			return res, nil
+		}
+	}
+
+	query := "INSERT INTO roles(roles_name) VALUE (?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i ,x := range arrRole {
+		result, err := stmt.Exec(x.RolesName)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrRole[i].RolesId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrRole
+	return res, nil
+}
+
+func InsertPrivileges(priv string)(Response, error) {
+	var res Response
+	var name string
+	var arrPrv = []Privileges{}
+
+	err := json.Unmarshal([]byte(priv), &arrPrv)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	for _ ,x := range arrPrv {
+		query := "SELECT privileges_name FROM privileges WHERE privileges_name = ?"
+		stmt, _ := con.Prepare(query)
+		defer stmt.Close()
+
+		err = stmt.QueryRow(&x.PrivilegesName).Scan(&name)
+		if err == nil {
+			res.Status = http.StatusBadRequest
+			res.Message = "Privilege Name " + x.PrivilegesName + " existed"
+			return res, nil
+		}
+	}
+
+	query := "INSERT INTO privileges(privileges_name, navbar) VALUE (?, ?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i ,x := range arrPrv {
+		result, err := stmt.Exec(x.PrivilegesName, x.Navbar)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPrv[i].PrivilegesId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPrv
+	return res, nil
+}
+
+func InsertRolesDefault(roled string)(Response, error) {
+	var res Response
+	var arrRD = []RolesDefault{}
+
+	err := json.Unmarshal([]byte(roled), &arrRD)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	for _ ,x := range arrRD {
+		subid := strconv.Itoa(x.RolesId)
+		check, err := GetRolesByID(subid)
+		if (err != nil || check.Data == nil) {
+			res.Status = http.StatusBadRequest
+			res.Message = "Roles ID " + subid+ " not exist"
+			return res, nil
+		}
+
+		tchid := strconv.Itoa(x.PrivilegesId)
+		check, err = GetPrivilegesByID(tchid)
+		if (err != nil || check.Data == nil) {
+			res.Status = http.StatusBadRequest
+			res.Message = "Privileges iD " + tchid + " not exist"
+			return res, nil
+		}
+	}
+
+	query := "INSERT INTO roles_default (roles_id, privileges_id) VALUES(?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i ,x := range arrRD {
+		result, err := stmt.Exec(x.RolesId, x.PrivilegesId)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrRD[i].RoleDefaultId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrRD
 	return res, nil
 }

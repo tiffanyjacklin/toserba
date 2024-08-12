@@ -28,8 +28,8 @@ func Init() *echo.Echo {
 	// User
 	e.PUT("/user/login", controller.GetUser) // body form-data username & password
 	e.GET("/user/:user_id/:role_id", controller.GetDataUser)
-	e.GET("/user/roles/:user_id", controller.GetRoles)
-	e.GET("/user/privileges/:user_id/:role_id", controller.GetPriv)
+	e.GET("/user/roles/:user_id", controller.GetUserRoles)
+	e.GET("/user/privileges/:user_id/:role_id", controller.GetUserPriv)
 
 	// Cashier - Session
 	e.GET("/cashier/session/:session_id", controller.GetSessionByID)
@@ -37,10 +37,18 @@ func Init() *echo.Echo {
 	e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
 	e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
 
+	// Admin
+	e.POST("/products/category/add", controller.InsertProductCategory)
+	e.GET("/roles/:roles_id", controller.GetRolesByID)
+	e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
+
 	// Owner 
 	e.GET("/stores/:store_id", controller.GetStoreByID)
 	e.POST("/stores/add", controller.InsertStore)
 	e.GET("/warehouses/:warehouse_id", controller.GetWarehouseByID)
 	e.POST("/warehouses/add", controller.InsertWarehouse)
+	e.POST("/roles/add", controller.InsertRoles)
+	e.POST("/privileges/add", controller.InsertPrivileges)
+	e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
 	return e
 }

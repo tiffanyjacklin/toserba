@@ -40,6 +40,23 @@ type UserRoles struct {
 	Custom int `json:"custom"`
 }
 
+type Roles struct {
+	RolesId int `json:"roles_id"`
+	RolesName string `json:"roles_name"`
+}
+
+type Privileges struct {
+	PrivilegesId int `json:"privileges_id"`
+	PrivilegesName string `json:"privileges_name"`
+	Navbar int `json:"navbar"`
+}
+
+type RolesDefault struct {
+	RoleDefaultId int `json:"roles_default_id"`
+	RolesId int `json:"roles_id"`
+	PrivilegesId int `json:"privileges_id"`
+}
+
 type UserPrivilege struct {
 	UserPrivilegeId int `json:"user_privilege_id"`
 	RoleId int `json:"role_id"`
@@ -61,6 +78,25 @@ type Session struct {
 	DifferenceCash int `json:"difference_cash"`
 	OpeningNotes string `json:"opening_notes"`
 	ClosingNotes string `json:"closing_notes"`
+}
+
+type ProductCategories struct {
+	ProductCategoryId int `json:"product_category_id"`
+	ProductCategoryName string `json:"product_category_name"`
+}
+
+type Product struct {
+	ProductId int `json:"product_id"`
+	ProductCategoryId int `json:"product_category_id"`
+	ProductName string `json:"product_name"`
+	ProductBrand string `json:"product_brand"`
+	ProductBatch int `json:"product_batch"`
+	BuyPrice int `json:"buy_price"`
+	SellPrice int `json:"sell_price"`
+	ExpiryDate string `json:"expiry_date"`
+	ProductStock int `json:"product_stock"`
+	ProductMinStock int `json:"min_stock"`
+	ProductTimeStamp string `json:"product_timestamp"`
 }
 
 type Stores struct {

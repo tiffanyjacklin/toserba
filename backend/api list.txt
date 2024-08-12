@@ -32,6 +32,20 @@ e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
     "closing_notes": "Finished"
 }
 
+================================================= Admin =================================================
+e.POST("/products/category/add", controller.InsertProductCategory)
+[
+    {
+        "product_category_name": "Meats"
+    }, 
+    {
+        "product_category_name": "Fruits"
+    }
+]
+
+e.GET("/roles/:roles_id", controller.GetRolesByID)
+e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
+
 ================================================= Owner =================================================
 e.GET("/stores/:store_id", controller.GetStoreByID)
 e.POST("/stores/add", controller.InsertStore)
@@ -48,3 +62,26 @@ e.POST("/warehouses/add", controller.InsertWarehouse)
     "warehouse_address": "Jl. Jeruk Busuk No. 0, Surabaya",
     "warehouse_phone_number": "081555666888"
 }
+
+e.POST("/owner/roles/add", controller.InsertRoles)
+[
+    {
+        "roles_name": "Owner"
+    }
+]
+
+e.POST("/privileges/add", controller.InsertPrivileges)
+[
+    {
+        "privileges_name": "Do Something",
+        "Navbar" : 1
+    }
+]
+
+e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
+[
+    {
+        "roles_id": 6,
+        "privileges_id": 1
+    }
+]
