@@ -428,6 +428,91 @@ func GetSessionByID (id_session string) (Response, error) {
 	return res, nil
 }
 
+func GetLastSession () (Response, error) {
+	var res Response
+	var sess Session
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, difference_cash, opening_notes, closing_notes, last_update_time FROM sessions ORDER BY session_id DESC LIMIT 1"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow().Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sess
+	return res, nil
+}
+
+func GetAllSession()(Response, error) {
+	var res Response
+	var sess Session
+	var arrSess = []Session{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, difference_cash, opening_notes, closing_notes, last_update_time FROM sessions"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+		}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)		
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+			}
+		arrSess = append(arrSess, sess)
+	}
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSess
+	return res, nil
+}
+
 func InsertNewSession (session string) (Response, error) {
 	var res Response
 	var sess  Session

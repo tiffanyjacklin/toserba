@@ -8,6 +8,8 @@ e.GET("/user/privileges/:user_id/:role_id", controller.GetPriv)
 
 ================================================= Cashier - Session =================================================
 e.GET("/cashier/session/:session_id", controller.GetSessionByID)
+e.GET("/cashier/session", controller.GetAllSession)
+e.GET("/cashier/session/last", controller.GetLastSession)
 e.POST("/cashier/session/new", controller.InsertNewSession) // body raw
 {
     "user_id": 1,

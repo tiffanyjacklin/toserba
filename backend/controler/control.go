@@ -140,6 +140,26 @@ func GetSessionByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetLastSession(c echo.Context) error {
+	result, err := model.GetLastSession()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetLastSessions", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllSession(c echo.Context) error {
+	result, err := model.GetAllSession()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllSessions", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func InsertNewSession(c echo.Context) error {
 	session, err := io.ReadAll(c.Request().Body)
 	if err != nil {

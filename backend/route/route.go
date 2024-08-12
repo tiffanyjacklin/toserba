@@ -33,6 +33,8 @@ func Init() *echo.Echo {
 
 	// Cashier - Session
 	e.GET("/cashier/session/:session_id", controller.GetSessionByID)
+	e.GET("/cashier/session", controller.GetAllSession)
+	e.GET("/cashier/session/last", controller.GetLastSession)
 	e.POST("/cashier/session/new", controller.InsertNewSession)
 	e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
 	e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
