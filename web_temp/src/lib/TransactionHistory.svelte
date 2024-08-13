@@ -28,8 +28,8 @@
     
     <!-- <form class="flex items-center max-w-lg mx-auto">    -->
        <label for="voice-search" class="sr-only">Search</label>
-       <div class="relative w-11/12">
-          <input type="text" id="voice-search" class="py-5 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " placeholder="Search..."/>
+       <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
+          <input type="text" id="voice-search" class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " placeholder="Search..."/>
           <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-3">
              <svg class="size-7" viewBox="0 0 66 59" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <rect x="0.625" width="64.8125" height="59" fill="url(#pattern0_371_473)"/>
