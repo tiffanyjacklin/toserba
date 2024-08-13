@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/ColorPallete.dart';
-import 'package:flutter_app_all/Model/Users.dart';
+// import 'package:flutter_app_all/Model/Users.dart';
 import 'package:flutter_app_all/Page/Login/choose_role.dart';
 import 'package:flutter_app_all/Page/main_page.dart';
 import 'package:http/http.dart' as http;
@@ -296,17 +298,25 @@ class _LoginTabletState extends State<LoginTablet> {
     // cek status
     if (response.statusCode == 200) {
       // misal oke berati masuk
+      // json
+      Map<String, dynamic> temp = json.decode(response.body);
       // decode?
-      if (response.body != null) {
-        print('' + response.body);
-        return true;
+      print(response.body);
+      if (temp['status'] == 200) {
+        print(temp);
+
+        return temp['data']['user_id'];
       }
+      else{
+        return -1;
+      }
+
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
       // throw Exception('Login Failed, Try Again');
       print('login Failed');
-      return false;
+      return -1;
     }
   }
 
@@ -336,17 +346,19 @@ class _LoginTabletState extends State<LoginTablet> {
     else {
       // cari apakah valid
       _fetchUser().then((hasil) => {
-            if (hasil)
+            if (hasil != -1)
               {
-                // pindah halaman
+                // ambil nama user?
+                // pindah halaman terus pass userId , btw simpan juga di sharedpreference?
+
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (BuildContext context) => ChooseRolePage()))
+                    builder: (BuildContext context) => ChooseRolePage(hasil)))
               }
             else
               {
                 // show snackbar
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text('Wrong Username/Password'),
+                  content: const Text('Wrong Username/Password'),
                 ))
               }
           });
