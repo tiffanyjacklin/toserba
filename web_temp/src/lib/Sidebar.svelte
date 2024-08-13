@@ -49,7 +49,7 @@
         }
 
         const data = await response.json();
-        console.log("data", data);
+        // console.log("data", data);
 
         // if (data.status !== 200) {
         //     console.error('Invalid user roles', data);

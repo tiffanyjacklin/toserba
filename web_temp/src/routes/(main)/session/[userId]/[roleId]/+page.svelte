@@ -1,16 +1,159 @@
 <script>
    import TaskModal from '$lib/TaskModal.svelte';
    import MoneyInput from '$lib/MoneyInput.svelte';
-   let cash1 = 0;
+   import { onMount } from 'svelte';
+   import { browser } from '$app/environment';
+	import { stringify } from 'postcss';
+   // import { goto } from '$app/navigation';
    
    let showModal = false;
    function closeModal() {
       showModal = false;
+      start_time = start_time;
    }
    function handleClick() {
       showModal = true;
-   
+      start_time = new Date();
+      start_time = start_time.getUTCFullYear() + '-' +
+      ('00' + (start_time.getUTCMonth()+1)).slice(-2) + '-' +
+      ('00' + start_time.getUTCDate()).slice(-2) + ' ' + 
+      ('00' + (start_time.getUTCHours()+7)).slice(-2) + ':' + 
+      ('00' + start_time.getUTCMinutes()).slice(-2) + ':' + 
+      ('00' + start_time.getUTCSeconds()).slice(-2);
+      start_time = String(start_time);
    }
+
+   let opening_cash = 0;
+   console.log(opening_cash)
+
+   export let data;
+   let user_id = parseInt(data.userId);
+   let roleId = data.roleId;
+
+   let last_session = [];
+   let full_name = "Loading...";
+
+   let start_time = new Date();
+      start_time = start_time.getUTCFullYear() + '-' +
+      ('00' + (start_time.getUTCMonth()+1)).slice(-2) + '-' +
+      ('00' + start_time.getUTCDate()).slice(-2) + ' ' + 
+      ('00' + (start_time.getUTCHours()+7)).slice(-2) + ':' + 
+      ('00' + start_time.getUTCMinutes()).slice(-2) + ':' + 
+      ('00' + start_time.getUTCSeconds()).slice(-2);
+      start_time = String(start_time)
+
+   async function fetchLast() {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/last`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('last session fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch last', data);
+            return;
+        }
+
+        last_session = data.data;
+      //   console.log(last_session);
+    }
+
+    async function NewSession() {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/new`, {
+            method: 'POST',
+            body: JSON.stringify({
+               user_id,
+               start_time,
+               opening_cash
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new session gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new session', data);
+            return;
+        }
+        console.log(data);
+    }
+
+    async function fetchUser(userId,roleId) {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/user/${userId}/${roleId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Roles fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+        // console.log("data", data);
+
+        if (data.status !== 200) {
+            console.error('Invalid user roles', data);
+            return;
+        }
+        // console.log(data.data[0].roles_name);
+        full_name = data.data[0].user_fullname;
+    }
+
+    onMount(() => {
+        fetchLast();
+        fetchUser(user_id,roleId);
+    });
+
+
+    function formatCurrency(value) {
+        return "Rp " + Number(value).toLocaleString('id-ID', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+    
+    function formatDate(value) {
+      let text = String(value);
+      const arr = text.split(" ");
+      
+      let tmp_jam = String(arr[1]).split(":");
+      let jam = tmp_jam[0] +":"+ tmp_jam[1];
+
+      let tmp_bulan = String(arr[0]).split("-");
+      let bulan = "January";
+      if (tmp_bulan[1] != "01"){
+         if (tmp_bulan[1] == "02"){bulan = "February"}
+         else if (tmp_bulan[1] == "03"){bulan = "March"}
+         else if (tmp_bulan[1] == "04"){bulan = "April"}
+         else if (tmp_bulan[1] == "05"){bulan = "May"}
+         else if (tmp_bulan[1] == "06"){bulan = "June"}
+         else if (tmp_bulan[1] == "07"){bulan = "July"}
+         else if (tmp_bulan[1] == "08"){bulan = "August"}
+         else if (tmp_bulan[1] == "09"){bulan = "September"}
+         else if (tmp_bulan[1] == "10"){bulan = "October"}
+         else if (tmp_bulan[1] == "11"){bulan = "November"}
+         else if (tmp_bulan[1] == "12"){bulan = "Desember"}
+
+      }
+
+      return jam + ", " + tmp_bulan[2] + " " + bulan + " " + tmp_bulan[0];
+    }
+
    
 </script>
 <!-- tes -->
@@ -42,7 +185,7 @@
                   Last Closing Date
                </div>
                <div class="text-white text-2xl">
-                  06:32 PM, 06 June 2024
+                  {formatDate(last_session.end_time)}
                </div>
             </div>
             
@@ -51,7 +194,7 @@
                   Last Closing Cash Balance
                </div>
                <div class="text-white text-2xl">
-                  Rp 1,203,000.00
+                  {formatCurrency(last_session.actual_closing_cash)}
                </div>
             </div>
          </div>
@@ -96,7 +239,7 @@
                Cashier
             </div>
             <div class="text-white">
-               Budi Setiawan
+               {full_name}
             </div>
          </div>
          <!-- part ini otomatis ya sob -->
@@ -105,7 +248,7 @@
                Start time
             </div>
             <div class="text-white">
-               08:03 AM, 12 July 2024
+               {start_time}
             </div>
          </div>
          <!-- <div class="flex justify-between">
@@ -121,7 +264,7 @@
                Opening cash
             </div>
             <div class="">
-               <MoneyInput bind:value={cash1} />
+               <MoneyInput bind:value={opening_cash} />
             </div>
          </div>
          <div class="text-[#f7d4b2]">
@@ -130,7 +273,14 @@
          </div>
 
          <div class="flex items-center justify-center">
-            <button type="submit" class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+            <button on:click={() => opening_cash == last_session.deposit_difference ? NewSession() : Swal.fire({
+               title: "Opening Cash Invalid",
+               text: "Opening Cash harus sama dengan Deposit Difference",
+               icon: "error",
+               color: "white",
+               background: "#364445",
+               confirmButtonColor: '#F2AA7E'
+             })} type="submit" class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                Save
             </button>
          </div>
