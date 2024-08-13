@@ -1,5 +1,7 @@
 <script>
     import TaskModal from '$lib/TaskModal.svelte';
+    import MoneyConverter from '$lib/MoneyConverter.svelte';
+
     import { goto } from '$app/navigation';
     
     export let userId = 0;
@@ -121,7 +123,7 @@
                             15:40 PM
                         </td>
                         <td class="px-6 py-4">
-                            Rp 16.000,00
+                          <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
                         </td>
                         <td class="px-6 py-4">
                             Budi Maneh
@@ -143,7 +145,7 @@
                             15:40 PM
                         </td>
                         <td class="px-6 py-4">
-                            Rp 16.000,00
+                          <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
                         </td>
                         <td class="px-6 py-4">
                             Budi Maneh
@@ -166,7 +168,7 @@
                             15:40 PM
                         </td>
                         <td class="px-6 py-4">
-                            Rp 16.000,00
+                          <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
                         </td>
                         <td class="px-6 py-4">
                             Budi Maneh

@@ -1,5 +1,6 @@
 <script>
     import TaskModal from '$lib/TaskModal.svelte';
+    import MoneyConverter from '$lib/MoneyConverter.svelte';
     import receipt from '$lib/assets/receipt-1.png';
     
     export let transactionId = 1;
@@ -46,21 +47,16 @@
             </div>
         </div>
         <div class="flex justify-between mb-3">
-          <div class="indent-8">
-            Permen karet x2
-          </div>
-          <div class="">
-            Rp 16,000.00
-          </div>
+            <div class="indent-8">
+                Permen karet x2
+            </div>
+            <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
       </div>
         <div class="flex justify-between mb-3">
             <div class="">
               Total amount 
             </div>
-  
-            <div class="">
-              Rp 16,000.00
-            </div>
+            <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
         </div>
         <div class="flex justify-between">
             <div class="">
@@ -125,10 +121,10 @@
           2
         </div>
         <div class="flex flex-1 justify-end">
-          8,000
+            <MoneyConverter value={8000} currency={false} decimal={false}></MoneyConverter>
         </div>
         <div class="flex flex-1 justify-end">
-          16,000
+            <MoneyConverter value={16000} currency={false} decimal={false}></MoneyConverter>
         </div>
       </div>
       <div>
@@ -144,7 +140,7 @@
           </div>
         </div>
         <div>
-          16,000
+            <MoneyConverter value={16000} currency={false} decimal={false}></MoneyConverter>
         </div>
       </div>
       <div class="flex justify-between my-2">
@@ -152,7 +148,7 @@
           Total belanja
         </div>
         <div>
-          16,000
+            <MoneyConverter value={16000} currency={false} decimal={false}></MoneyConverter>
         </div>
       </div>
       <div class="flex justify-between my-2">
@@ -160,7 +156,7 @@
           Tunai
         </div>
         <div>
-          20,000
+            <MoneyConverter value={20000} currency={false} decimal={false}></MoneyConverter>
         </div>
       </div>
       <div class="flex justify-between my-2">
@@ -168,7 +164,7 @@
           Kembalian
         </div>
         <div>
-          4,000
+            <MoneyConverter value={4000} currency={false} decimal={false}></MoneyConverter>
         </div>
       </div>
       <div>
