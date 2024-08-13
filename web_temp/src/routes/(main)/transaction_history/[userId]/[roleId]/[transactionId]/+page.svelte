@@ -96,47 +96,86 @@
       </defs>
     </svg>
   </div>
-  <div class="mx-8 bg-white">
-    <div>
+  <div class="mx-8 bg-white p-3 font-roboto text-lg">
+    <div class="flex justify-center my-2">
       Toserba XYZ
     </div>
-    <div>
+    <div class="flex justify-center">
       Jl. X No. X-XXI KEL. X KEC. X SURABAYA
     </div>
     <div>
-      ==============================================
+      ==================================================
     </div>
-    <div>
+    <div class="flex justify-between">
       <div>BON XYXY-123-XYZ123XYZ</div>
       <div>Kasir: Budi</div>
     </div>
     <div>
-      ==============================================
+      ==================================================
     </div>
-    <div>
-      <div class="uppercase ">
+    <div class="flex justify-between">
+      <div class="uppercase flex-[1.5_1.5_0%]">
         Permen Karet
       </div>
-      <div>
-      
+      <div class="flex flex-1 justify-end">
+        2
       </div>
-      <div>
-      
+      <div class="flex flex-1 justify-end">
+        8,000
       </div>
-      <div>
-      
+      <div class="flex flex-1 justify-end">
+        16,000
       </div>
     </div>
     <div>
-      ==============================================
+      ==================================================
+    </div>
+    <div class="flex justify-between my-2">
+      <div class="flex ">
+        <div class="w-24">
+          Total item
+        </div>
+        <div>
+          2
+        </div>
+      </div>
+      <div>
+        16,000
+      </div>
+    </div>
+    <div class="flex justify-between my-2">
+      <div>
+        Total belanja
+      </div>
+      <div>
+        16,000
+      </div>
+    </div>
+    <div class="flex justify-between my-2">
+      <div>
+        Tunai
+      </div>
+      <div>
+        20,000
+      </div>
+    </div>
+    <div class="flex justify-between my-2">
+      <div>
+        Kembalian
+      </div>
+      <div>
+        4,000
+      </div>
     </div>
     <div>
-      
+      ==================================================
     </div>
-    
-    <img src={receipt} class="">
+    <div class="flex justify-center my-2">
+      Tgl. 01-01-2024 06:54:17
+    </div>
+    <!-- <img src={receipt} class=""> -->
   </div>
-  <div class="flex items-center justify-center">
+  <div class="flex items-center justify-center font-roboto">
     <button on:click={() => closeModal()} type="button" class="mt-6 mb-3 flex items-center justify-center text-[#3d4c52] bg-[#F2AA7E] shadow-[0_2px_3px_rgba(0,0,0,0.3)] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg  px-12 py-1.5 text-center">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
