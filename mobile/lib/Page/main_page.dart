@@ -2,11 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Model/UserData.dart';
 import 'package:flutter_app_all/Page/Cashier/sessionHistory_page.dart';
 import 'package:flutter_app_all/Page/Cashier/session_page.dart';
 
 class MainPage extends StatelessWidget {
-  const MainPage({super.key});
+  final Data dataUser;
+  const MainPage(this.dataUser);
 
   // cek layar tablet atau hp
   bool isTablet(BuildContext context) =>
@@ -62,7 +64,7 @@ class MainPage extends StatelessWidget {
                                   Expanded(
                                       flex: 1,
                                       child: Text(
-                                        'Logged in as NAMA.',
+                                        'Logged in as ${dataUser.userFullname}',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white),
@@ -70,7 +72,7 @@ class MainPage extends StatelessWidget {
                                   Expanded(
                                       flex: 1,
                                       child: Text(
-                                        'ROLE',
+                                        '${dataUser.rolesName}',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white54),

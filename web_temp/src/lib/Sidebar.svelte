@@ -11,7 +11,7 @@
     let privileges = [];
 
     async function fetchUser(userId,roleId) {
-        const response = await fetch(`http://localhost:8888/user/${userId}/${roleId}`, {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/user/${userId}/${roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -36,7 +36,7 @@
     }
 
     async function fetchPrivileges(userId, roleId) {
-        const response = await fetch(`http://localhost:8888/user/privileges/${userId}/${roleId}`, {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/user/privileges/${userId}/${roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

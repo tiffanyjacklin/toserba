@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/ColorPallete.dart';
-import 'package:flutter_app_all/Model/Users.dart';
+// import 'package:flutter_app_all/Model/Users.dart';
 import 'package:flutter_app_all/Page/Login/choose_role.dart';
 import 'package:flutter_app_all/Page/main_page.dart';
 import 'package:http/http.dart' as http;
@@ -285,26 +287,41 @@ class _LoginTabletState extends State<LoginTablet> {
   //       }
 
   // CEK USER
-  void _fetchUser() async {
+  Future _fetchUser() async {
     // link api
     final link =
-        'http://localhost:2681/user/login?username=${usernameController.text}&password=${passwordController.text}';
+        'http://localhost:8888/user/login?username=${usernameController.text}&password=${passwordController.text}';
 
-    // call api
+    // call api (method PUT)
     final response = await http.put(Uri.parse(link));
 
     // cek status
     if (response.statusCode == 200) {
       // misal oke berati masuk
+      // json
+      Map<String, dynamic> temp = json.decode(response.body);
+      // decode?
+      print(response.body);
+      if (temp['status'] == 200) {
+        print(temp);
+
+        return temp['data']['user_id'];
+      }
+      else{
+        return -1;
+      }
+
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
-      throw Exception('Failed to load album');
+      // throw Exception('Login Failed, Try Again');
+      print('login Failed');
+      return -1;
     }
   }
 
   // LOGIN
-  void _login() {
+  void _login() async {
     // cek semua apakah ada yang belum diisi
     var belumDiisi = '';
     if (usernameController.text == '') {
@@ -328,10 +345,23 @@ class _LoginTabletState extends State<LoginTablet> {
     // lanjutkan login
     else {
       // cari apakah valid
-      
-      // pindah halaman
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (BuildContext context) => ChooseRolePage()));
+      _fetchUser().then((hasil) => {
+            if (hasil != -1)
+              {
+                // ambil nama user?
+                // pindah halaman terus pass userId , btw simpan juga di sharedpreference?
+
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (BuildContext context) => ChooseRolePage(hasil)))
+              }
+            else
+              {
+                // show snackbar
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: const Text('Wrong Username/Password'),
+                ))
+              }
+          });
     }
   }
 }

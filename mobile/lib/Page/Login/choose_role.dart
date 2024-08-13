@@ -1,12 +1,33 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Model/UserData.dart';
+import 'package:flutter_app_all/Page/Login/login_tablet.dart';
 import 'package:flutter_app_all/Page/main_page.dart';
+import 'package:http/http.dart' as http;
 
-class ChooseRolePage extends StatelessWidget {
-  const ChooseRolePage({super.key});
+// manual nama
+var roleName = [
+  'Cashier',
+  'Inventory Store Employee',
+  'Warehouse Employee',
+  'Warehouse Operational Staff',
+  'Admin',
+  'Owner'
+];
 
+class ChooseRolePage extends StatefulWidget {
+  final int userId;
+  const ChooseRolePage(this.userId);
+
+  @override
+  State<ChooseRolePage> createState() => _ChooseRolePageState();
+}
+
+class _ChooseRolePageState extends State<ChooseRolePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +51,7 @@ class ChooseRolePage extends StatelessWidget {
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent:
                         250, // tinggal setting berapa besar kotak rolenya mau berapa
-                    childAspectRatio: (3/2), // rasio hasil besar child
+                    childAspectRatio: (3 / 2), // rasio hasil besar child
                     crossAxisSpacing: 10, // kiri kanan
                     mainAxisSpacing: 10 // atas bawah
                     ),
@@ -38,12 +59,18 @@ class ChooseRolePage extends StatelessWidget {
                 itemBuilder: (_, index) {
                   return InkWell(
                     onTap: () {
-                        print('Kamu pilih blabla');
-
-
-                        // pindah halaman
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) => MainPage()));
-                      },
+                      _roleValidate(widget.userId, index + 1).then((hasil) => {
+                            if (hasil != null)
+                              {
+                                // pindah halaman dengan kirim data user
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            MainPage(hasil)))
+                              },
+                            // print(hasil.runtimeType)
+                          });
+                    },
                     child: Container(
                       decoration: BoxDecoration(
                         color: ColorPalleteLogin.OrangeLightColor,
@@ -65,12 +92,14 @@ class ChooseRolePage extends StatelessWidget {
                             Icons.access_alarm_outlined,
                             color: Colors.black,
                           ),
-                          Text(
-                            'Data Halo',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: ColorPalleteLogin.PrimaryColor),
+                          Center(
+                            child: Text(
+                              roleName[index],
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: ColorPalleteLogin.PrimaryColor),
+                            ),
                           ),
                         ],
                       ),
@@ -96,5 +125,46 @@ class ChooseRolePage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future _roleValidate(int userId, int roleId) async {
+    // link api
+    final link = 'http://localhost:8888/user/$userId/$roleId';
+
+    // call api (method GET)
+    final response = await http.get(Uri.parse(link));
+
+    // cek status
+    if (response.statusCode == 200) {
+      // misal oke berati masuk
+      Map<String, dynamic> temp = json.decode(response.body);
+      // decode?
+      // print(response.body);
+
+      // ambil data yang ada
+      FetchUsers userData = FetchUsers.fromJson(temp);
+
+      if (temp['data'].length != 0) {
+        // masukin data login ke dalam sharedpreference
+        return userData.data!.first;
+      }
+      // kasih error kalo dia ga punya akses
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Akses ditolak'),
+      ));
+      return null;
+    } 
+    else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      // throw Exception('Login Failed, Try Again');
+      print('Error, Try Again');
+
+      // show snackbar
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Wrong Username/Password'),
+      ));
+      return null;
+    }
   }
 }
