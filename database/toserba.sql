@@ -19,15 +19,8 @@
 CREATE DATABASE IF NOT EXISTS `toserba` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
 USE `toserba`;
 
--- Dumping structure for table toserba.customers
-CREATE TABLE IF NOT EXISTS `customers` (
-  `customer_id` int(11) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`customer_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- Dumping data for table toserba.customers: ~0 rows (approximately)
-
 -- Dumping structure for table toserba.delivery_orders
+DROP TABLE IF EXISTS `delivery_orders`;
 CREATE TABLE IF NOT EXISTS `delivery_orders` (
   `delivery_order_id` int(11) NOT NULL AUTO_INCREMENT,
   `warehouse_id` int(11) NOT NULL,
@@ -44,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `delivery_orders` (
 -- Dumping data for table toserba.delivery_orders: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.delivery_order_details
+DROP TABLE IF EXISTS `delivery_order_details`;
 CREATE TABLE IF NOT EXISTS `delivery_order_details` (
   `delivery_order_detail_id` int(11) NOT NULL AUTO_INCREMENT,
   `delivery_order_id` int(11) NOT NULL DEFAULT 0,
@@ -60,21 +54,20 @@ CREATE TABLE IF NOT EXISTS `delivery_order_details` (
 -- Dumping data for table toserba.delivery_order_details: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.members
+DROP TABLE IF EXISTS `members`;
 CREATE TABLE IF NOT EXISTS `members` (
   `member_id` int(11) NOT NULL AUTO_INCREMENT,
   `member_name` varchar(225) NOT NULL,
   `member_phone_number` varchar(225) NOT NULL,
   `member_points` int(11) DEFAULT NULL,
   `member_join_date` datetime NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  PRIMARY KEY (`member_id`),
-  KEY `customer_id` (`customer_id`),
-  CONSTRAINT `FK_members_customers` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  PRIMARY KEY (`member_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.members: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.privileges
+DROP TABLE IF EXISTS `privileges`;
 CREATE TABLE IF NOT EXISTS `privileges` (
   `privileges_id` int(11) NOT NULL AUTO_INCREMENT,
   `privileges_name` varchar(100) NOT NULL,
@@ -113,27 +106,33 @@ REPLACE INTO `privileges` (`privileges_id`, `privileges_name`, `navbar`) VALUES
 	(26, 'manage promos', 1);
 
 -- Dumping structure for table toserba.products_category
+DROP TABLE IF EXISTS `products_category`;
 CREATE TABLE IF NOT EXISTS `products_category` (
   `product_category_id` int(11) NOT NULL AUTO_INCREMENT,
-  `product_cetagory_name` varchar(255) NOT NULL,
+  `product_category_name` varchar(255) NOT NULL DEFAULT '-',
   PRIMARY KEY (`product_category_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.products_category: ~0 rows (approximately)
+-- Dumping data for table toserba.products_category: ~3 rows (approximately)
+REPLACE INTO `products_category` (`product_category_id`, `product_category_name`) VALUES
+	(1, 'Vegetables'),
+	(2, 'Meats'),
+	(3, 'Fruits');
 
 -- Dumping structure for table toserba.product_details
+DROP TABLE IF EXISTS `product_details`;
 CREATE TABLE IF NOT EXISTS `product_details` (
   `product_detail_id` int(11) NOT NULL AUTO_INCREMENT,
   `product_category_id` int(11) NOT NULL DEFAULT 0,
-  `product_name` varchar(225) NOT NULL,
+  `product_name` varchar(225) NOT NULL DEFAULT '-',
   `product_brand` varchar(50) NOT NULL DEFAULT '-',
-  `product_batch` int(11) unsigned zerofill NOT NULL,
-  `buy_price` int(11) NOT NULL,
-  `sell_price` int(11) NOT NULL,
-  `expiry_date` date NOT NULL,
+  `product_batch` int(11) NOT NULL DEFAULT 0,
+  `buy_price` int(11) NOT NULL DEFAULT 0,
+  `sell_price` int(11) NOT NULL DEFAULT 0,
+  `expiry_date` date NOT NULL DEFAULT '0000-00-00',
   `min_stock` int(11) NOT NULL DEFAULT 0,
-  `product_stock` int(11) NOT NULL,
-  `product_timestamp` datetime NOT NULL,
+  `product_stock` int(11) NOT NULL DEFAULT 0,
+  `product_timestamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`product_detail_id`),
   KEY `product_category_id` (`product_category_id`),
   CONSTRAINT `fk_product_details_product_category` FOREIGN KEY (`product_category_id`) REFERENCES `products_category` (`product_category_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -142,6 +141,7 @@ CREATE TABLE IF NOT EXISTS `product_details` (
 -- Dumping data for table toserba.product_details: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.promos
+DROP TABLE IF EXISTS `promos`;
 CREATE TABLE IF NOT EXISTS `promos` (
   `promo_id` int(11) NOT NULL AUTO_INCREMENT,
   `promo_type` varchar(225) NOT NULL,
@@ -157,6 +157,7 @@ CREATE TABLE IF NOT EXISTS `promos` (
 -- Dumping data for table toserba.promos: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.promo_products
+DROP TABLE IF EXISTS `promo_products`;
 CREATE TABLE IF NOT EXISTS `promo_products` (
   `promo_product_id` int(11) NOT NULL AUTO_INCREMENT,
   `product_detail_id` int(11) NOT NULL,
@@ -171,6 +172,7 @@ CREATE TABLE IF NOT EXISTS `promo_products` (
 -- Dumping data for table toserba.promo_products: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.roles
+DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
   `roles_id` int(11) NOT NULL AUTO_INCREMENT,
   `roles_name` varchar(100) NOT NULL,
@@ -178,7 +180,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
   UNIQUE KEY `roles_name` (`roles_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.roles: ~5 rows (approximately)
+-- Dumping data for table toserba.roles: ~6 rows (approximately)
 REPLACE INTO `roles` (`roles_id`, `roles_name`) VALUES
 	(5, 'Admin'),
 	(1, 'Cashier'),
@@ -188,6 +190,7 @@ REPLACE INTO `roles` (`roles_id`, `roles_name`) VALUES
 	(4, 'Warehouse Operational Staff');
 
 -- Dumping structure for table toserba.roles_default
+DROP TABLE IF EXISTS `roles_default`;
 CREATE TABLE IF NOT EXISTS `roles_default` (
   `roles_default_id` int(11) NOT NULL AUTO_INCREMENT,
   `roles_id` int(11) NOT NULL,
@@ -272,6 +275,7 @@ REPLACE INTO `roles_default` (`roles_default_id`, `roles_id`, `privileges_id`) V
 	(69, 6, 26);
 
 -- Dumping structure for table toserba.sessions
+DROP TABLE IF EXISTS `sessions`;
 CREATE TABLE IF NOT EXISTS `sessions` (
   `session_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT 0,
@@ -281,21 +285,24 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   `total_income` int(11) NOT NULL DEFAULT 0,
   `expected_closing_cash` int(11) NOT NULL DEFAULT 0,
   `actual_closing_cash` int(11) NOT NULL DEFAULT 0,
-  `difference_cash` int(11) NOT NULL DEFAULT 0,
+  `actual_difference` int(11) NOT NULL DEFAULT 0,
   `opening_notes` varchar(225) NOT NULL DEFAULT '-',
   `closing_notes` varchar(225) NOT NULL DEFAULT '-',
   `last_update_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `deposit_money` int(11) NOT NULL DEFAULT 0,
+  `deposit_difference` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`session_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `FK_sessions_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.sessions: ~2 rows (approximately)
-REPLACE INTO `sessions` (`session_id`, `user_id`, `start_time`, `end_time`, `opening_cash`, `total_income`, `expected_closing_cash`, `actual_closing_cash`, `difference_cash`, `opening_notes`, `closing_notes`, `last_update_time`) VALUES
-	(1, 1, '2015-09-02 08:04:00', '0000-00-00 00:00:00', 20000, 100000, 120000, 100000, 20000, '', 'Finished', '0000-00-00 00:00:00'),
-	(3, 1, '2015-09-02 08:04:00', '2024-01-01 11:11:11', 30000, 100000, 130000, 100000, 30000, '', 'Finished', '2024-01-01 12:11:11');
+REPLACE INTO `sessions` (`session_id`, `user_id`, `start_time`, `end_time`, `opening_cash`, `total_income`, `expected_closing_cash`, `actual_closing_cash`, `actual_difference`, `opening_notes`, `closing_notes`, `last_update_time`, `deposit_money`, `deposit_difference`) VALUES
+	(1, 1, '2015-09-02 08:04:00', '0000-00-00 00:00:00', 20000, 100000, 120000, 100000, 20000, '', 'Finished', '0000-00-00 00:00:00', 0, 0),
+	(3, 1, '2015-09-02 08:04:00', '2024-01-01 11:11:11', 30000, 100000, 130000, 100000, 30000, '', 'Finished', '2024-01-01 12:11:11', 0, 0);
 
 -- Dumping structure for table toserba.session_transactions
+DROP TABLE IF EXISTS `session_transactions`;
 CREATE TABLE IF NOT EXISTS `session_transactions` (
   `session_transaction_id` int(11) NOT NULL AUTO_INCREMENT,
   `session_id` int(11) NOT NULL DEFAULT 0,
@@ -310,6 +317,7 @@ CREATE TABLE IF NOT EXISTS `session_transactions` (
 -- Dumping data for table toserba.session_transactions: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.stock_cards
+DROP TABLE IF EXISTS `stock_cards`;
 CREATE TABLE IF NOT EXISTS `stock_cards` (
   `stock_card_id` int(11) NOT NULL AUTO_INCREMENT,
   `product_detail_id` int(11) NOT NULL,
@@ -329,6 +337,7 @@ CREATE TABLE IF NOT EXISTS `stock_cards` (
 -- Dumping data for table toserba.stock_cards: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.stores
+DROP TABLE IF EXISTS `stores`;
 CREATE TABLE IF NOT EXISTS `stores` (
   `store_id` int(11) NOT NULL AUTO_INCREMENT,
   `store_name` varchar(255) NOT NULL DEFAULT '-',
@@ -342,21 +351,37 @@ REPLACE INTO `stores` (`store_id`, `store_name`, `store_address`, `store_phone_n
 	(1, 'Toko XYZ', 'Jl. Mangga Pahit No. 123, Surabaya', '081222333444');
 
 -- Dumping structure for table toserba.transactions
+DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE IF NOT EXISTS `transactions` (
   `transaction_id` int(11) NOT NULL AUTO_INCREMENT,
-  `customer_id` int(11) NOT NULL,
-  `store_employee_id` int(11) NOT NULL,
-  `transaction_total_price` int(11) NOT NULL,
-  `transaction_timestamp` datetime NOT NULL,
-  `transaction_payment_method` varchar(225) NOT NULL,
-  PRIMARY KEY (`transaction_id`) USING BTREE,
-  KEY `fk_transactions_customer` (`customer_id`),
-  CONSTRAINT `fk_transactions_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`)
+  `user_id` int(11) NOT NULL,
+  `transaction_total_price` int(11) NOT NULL DEFAULT 0,
+  `transaction_timestamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `transaction_payment_method` varchar(225) NOT NULL DEFAULT '-',
+  `transaction_payment` int(11) NOT NULL DEFAULT 0,
+  `transaction_change` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`transaction_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.transactions: ~0 rows (approximately)
 
+-- Dumping structure for table toserba.transactions_member
+DROP TABLE IF EXISTS `transactions_member`;
+CREATE TABLE IF NOT EXISTS `transactions_member` (
+  `transaction_member_id` int(11) NOT NULL AUTO_INCREMENT,
+  `transaction_id` int(11) NOT NULL DEFAULT 0,
+  `member_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`transaction_member_id`),
+  KEY `transaction_id` (`transaction_id`),
+  KEY `member_id` (`member_id`),
+  CONSTRAINT `FK__members` FOREIGN KEY (`member_id`) REFERENCES `members` (`member_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK__transactions` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`transaction_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table toserba.transactions_member: ~0 rows (approximately)
+
 -- Dumping structure for table toserba.transaction_details
+DROP TABLE IF EXISTS `transaction_details`;
 CREATE TABLE IF NOT EXISTS `transaction_details` (
   `transaction_detail_id` int(11) NOT NULL AUTO_INCREMENT,
   `transaction_id` int(11) NOT NULL,
@@ -378,6 +403,7 @@ CREATE TABLE IF NOT EXISTS `transaction_details` (
 -- Dumping data for table toserba.transaction_details: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.users
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(255) NOT NULL AUTO_INCREMENT,
   `username` varchar(20) NOT NULL,
@@ -405,6 +431,7 @@ REPLACE INTO `users` (`user_id`, `username`, `user_password`, `user_fullname`, `
 	(3, 'alexlo', 'alexaja', 'Alexander Louis', 'Jalan mangga', 'L', '2003-02-02', 'alexaja@gmail.com', '081000888222', NULL, '2023-08-12 14:30:45', NULL, NULL, '2024-07-29 11:31:45');
 
 -- Dumping structure for table toserba.user_privileges
+DROP TABLE IF EXISTS `user_privileges`;
 CREATE TABLE IF NOT EXISTS `user_privileges` (
   `user_privileges_id` int(11) NOT NULL AUTO_INCREMENT,
   `privileges_id` int(11) NOT NULL,
@@ -427,6 +454,7 @@ REPLACE INTO `user_privileges` (`user_privileges_id`, `privileges_id`, `user_id`
 	(4, 11, 2, 1);
 
 -- Dumping structure for table toserba.user_roles
+DROP TABLE IF EXISTS `user_roles`;
 CREATE TABLE IF NOT EXISTS `user_roles` (
   `user_roles_id` int(11) NOT NULL AUTO_INCREMENT,
   `roles_id` int(11) NOT NULL,
@@ -453,6 +481,7 @@ REPLACE INTO `user_roles` (`user_roles_id`, `roles_id`, `user_id`, `store_id`, `
 	(4, 1, 2, NULL, NULL, 1);
 
 -- Dumping structure for table toserba.warehouses
+DROP TABLE IF EXISTS `warehouses`;
 CREATE TABLE IF NOT EXISTS `warehouses` (
   `warehouse_id` int(11) NOT NULL AUTO_INCREMENT,
   `warehouse_name` varchar(255) NOT NULL,
