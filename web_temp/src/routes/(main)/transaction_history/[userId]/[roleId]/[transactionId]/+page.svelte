@@ -96,7 +96,44 @@
       </defs>
     </svg>
   </div>
-  <div class="mx-8">
+  <div class="mx-8 bg-white">
+    <div>
+      Toserba XYZ
+    </div>
+    <div>
+      Jl. X No. X-XXI KEL. X KEC. X SURABAYA
+    </div>
+    <div>
+      ==============================================
+    </div>
+    <div>
+      <div>BON XYXY-123-XYZ123XYZ</div>
+      <div>Kasir: Budi</div>
+    </div>
+    <div>
+      ==============================================
+    </div>
+    <div>
+      <div class="uppercase ">
+        Permen Karet
+      </div>
+      <div>
+      
+      </div>
+      <div>
+      
+      </div>
+      <div>
+      
+      </div>
+    </div>
+    <div>
+      ==============================================
+    </div>
+    <div>
+      
+    </div>
+    
     <img src={receipt} class="">
   </div>
   <div class="flex items-center justify-center">
