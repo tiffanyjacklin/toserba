@@ -57,9 +57,9 @@ CREATE TABLE IF NOT EXISTS `delivery_order_details` (
 DROP TABLE IF EXISTS `members`;
 CREATE TABLE IF NOT EXISTS `members` (
   `member_id` int(11) NOT NULL AUTO_INCREMENT,
-  `member_name` varchar(225) NOT NULL,
-  `member_phone_number` varchar(225) NOT NULL,
-  `member_points` int(11) DEFAULT NULL,
+  `member_name` varchar(225) NOT NULL DEFAULT '-',
+  `member_phone_number` varchar(225) NOT NULL DEFAULT '-',
+  `member_points` int(11) NOT NULL DEFAULT 0,
   `member_join_date` datetime NOT NULL,
   PRIMARY KEY (`member_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
@@ -123,18 +123,23 @@ REPLACE INTO `products_category` (`product_category_id`, `product_category_name`
 DROP TABLE IF EXISTS `product_details`;
 CREATE TABLE IF NOT EXISTS `product_details` (
   `product_detail_id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_code` varchar(225) NOT NULL DEFAULT '-',
   `product_category_id` int(11) NOT NULL DEFAULT 0,
   `product_name` varchar(225) NOT NULL DEFAULT '-',
-  `product_brand` varchar(50) NOT NULL DEFAULT '-',
+  `supplier_id` int(11) NOT NULL,
   `product_batch` int(11) NOT NULL DEFAULT 0,
   `buy_price` int(11) NOT NULL DEFAULT 0,
   `sell_price` int(11) NOT NULL DEFAULT 0,
   `expiry_date` date NOT NULL DEFAULT '0000-00-00',
   `min_stock` int(11) NOT NULL DEFAULT 0,
   `product_stock` int(11) NOT NULL DEFAULT 0,
+  `product_unit` varchar(50) NOT NULL DEFAULT '-',
   `product_timestamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`product_detail_id`),
+  UNIQUE KEY `product_code` (`product_code`),
   KEY `product_category_id` (`product_category_id`),
+  KEY `supplier_id` (`supplier_id`),
+  CONSTRAINT `FK_product_details_suppliers` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`supplier_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_product_details_product_category` FOREIGN KEY (`product_category_id`) REFERENCES `products_category` (`product_category_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -180,7 +185,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
   UNIQUE KEY `roles_name` (`roles_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.roles: ~6 rows (approximately)
+-- Dumping data for table toserba.roles: ~5 rows (approximately)
 REPLACE INTO `roles` (`roles_id`, `roles_name`) VALUES
 	(5, 'Admin'),
 	(1, 'Cashier'),
@@ -350,16 +355,28 @@ CREATE TABLE IF NOT EXISTS `stores` (
 REPLACE INTO `stores` (`store_id`, `store_name`, `store_address`, `store_phone_number`) VALUES
 	(1, 'Toko XYZ', 'Jl. Mangga Pahit No. 123, Surabaya', '081222333444');
 
+-- Dumping structure for table toserba.suppliers
+DROP TABLE IF EXISTS `suppliers`;
+CREATE TABLE IF NOT EXISTS `suppliers` (
+  `supplier_id` int(11) NOT NULL AUTO_INCREMENT,
+  `supplier_name` varchar(225) NOT NULL DEFAULT '-',
+  `supplier_phone_number` varchar(225) NOT NULL DEFAULT '-',
+  `supplier_address` varchar(225) NOT NULL DEFAULT '-',
+  PRIMARY KEY (`supplier_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table toserba.suppliers: ~0 rows (approximately)
+
 -- Dumping structure for table toserba.transactions
 DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE IF NOT EXISTS `transactions` (
   `transaction_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
   `transaction_total_price` int(11) NOT NULL DEFAULT 0,
   `transaction_timestamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `transaction_payment_method` varchar(225) NOT NULL DEFAULT '-',
   `transaction_payment` int(11) NOT NULL DEFAULT 0,
   `transaction_change` int(11) NOT NULL DEFAULT 0,
+  `transaction_total_item` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`transaction_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -419,16 +436,18 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_deleted_at` datetime DEFAULT NULL,
   `user_updated_at` datetime DEFAULT NULL,
   `user_login_timestamp` datetime DEFAULT NULL,
+  `user_otp` varchar(225) NOT NULL DEFAULT '',
+  `otp_exp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `user_email` (`user_email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.users: ~3 rows (approximately)
-REPLACE INTO `users` (`user_id`, `username`, `user_password`, `user_fullname`, `user_address`, `user_gender`, `user_birthdate`, `user_email`, `user_phone_number`, `user_photo_profile`, `user_created_at`, `user_deleted_at`, `user_updated_at`, `user_login_timestamp`) VALUES
-	(1, 'tipani', 'tipaja', 'Tiffany Jacklin', 'Jalan Jeruk', 'P', '2003-03-13', 'tipaja@gmail.com', '081000888333', 'uploads/users/lena.png', '2024-07-18 13:48:04', NULL, NULL, '2024-08-07 11:19:43'),
-	(2, 'danielll', 'danielaja', 'Daniel Alexander', 'Jalan leci', 'L', '2003-01-01', 'danielaja@gmail.com', '081000888111', NULL, '2023-07-12 14:30:45', NULL, NULL, '2024-07-29 11:15:28'),
-	(3, 'alexlo', 'alexaja', 'Alexander Louis', 'Jalan mangga', 'L', '2003-02-02', 'alexaja@gmail.com', '081000888222', NULL, '2023-08-12 14:30:45', NULL, NULL, '2024-07-29 11:31:45');
+REPLACE INTO `users` (`user_id`, `username`, `user_password`, `user_fullname`, `user_address`, `user_gender`, `user_birthdate`, `user_email`, `user_phone_number`, `user_photo_profile`, `user_created_at`, `user_deleted_at`, `user_updated_at`, `user_login_timestamp`, `user_otp`, `otp_exp`) VALUES
+	(1, 'tipani', 'tipaja', 'Tiffany Jacklin', 'Jalan Jeruk', 'P', '2003-03-13', 'allenfiola@gmail.com', '081000888333', 'uploads/users/lena.png', '2024-07-18 13:48:04', NULL, NULL, '2024-08-07 11:19:43', '', '0000-00-00 00:00:00'),
+	(2, 'danielll', 'danielaja', 'Daniel Alexander', 'Jalan leci', 'L', '2003-01-01', 'danielaja@gmail.com', '081000888111', NULL, '2023-07-12 14:30:45', NULL, NULL, '2024-07-29 11:15:28', '', '0000-00-00 00:00:00'),
+	(3, 'alexlo', 'alexaja', 'Alexander Louis', 'Jalan mangga', 'L', '2003-02-02', 'alexaja@gmail.com', '081000888222', NULL, '2023-08-12 14:30:45', NULL, NULL, '2024-07-29 11:31:45', '', '0000-00-00 00:00:00');
 
 -- Dumping structure for table toserba.user_privileges
 DROP TABLE IF EXISTS `user_privileges`;

@@ -6,7 +6,16 @@ e.GET("/user/:user_id/:role_id", controller.GetDataUser)
 e.GET("/user/roles/:user_id", controller.GetRoles)
 e.GET("/user/privileges/:user_id/:role_id", controller.GetPriv)
 
-================================================= Cashier - Session =================================================
+e.PUT("/cashier/session/edit/sendotp/:user_id", controller.AccountSendOTP)
+e.PUT("/cashier/session/edit/verifotp/:user_id", controller.OTPVerification)
+{
+    "user_otp": "107228"
+}
+
+================================================= Cashier =================================================
+
+// Session
+
 e.GET("/cashier/session/:session_id", controller.GetSessionByID)
 e.GET("/cashier/session", controller.GetAllSession)
 e.GET("/cashier/session/last", controller.GetLastSession)
@@ -14,25 +23,43 @@ e.POST("/cashier/session/new", controller.InsertNewSession) // body raw
 {
     "user_id": 1,
     "start_time": "2015-09-02 08:04:00",
-    "opening_cash":30000
+    "opening_cash":30000,
+    "opening_notes" : "Start"
 }
 
 e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
 {
-    "end_time": "2024-01-01 11:11:11",
+    "end_time": "2024-02-01 11:11:11",
     "expected_closing_cash": 120000,
     "actual_closing_cash": 110000,
-    "difference_cash": 10000
-
+    "actual_difference": 10000, // expected_closing_cash - actual_closing_cash
+    "deposit_money": 100000,
+    "deposit_difference" : 10000, // actual_closing_cash - deposit_money
+    "closing_notes": "Finished"
 }
 
 e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
 {
     "last_update_time": "2024-01-01 12:11:11",
     "actual_closing_cash": 100000,
-    "difference_cash": 30000,
+    "difference_cash": 30000, // expected_closing_cash - actual_closing_cash
+    "deposit_money": 100000,
+    "deposit_difference" : 10000 // actual_closing_cash - deposit_money
     "closing_notes": "Finished"
 }
+
+// Transaction, Member & Product
+
+e.GET("/cashier/members/:member_id", controller.GetMemberByID)
+e.POST("/cashier/members/add", controller.InsertNewMember)
+{
+    "member_name": "Vina",
+    "member_phone_number": "081229075436",
+    "member_join_date": "2024-08-13 15:56:00"
+}
+
+//BELUM TESTING
+e.POST("/cashier/transaction/add/:session_id/:member_id", controller.InsertTransaction)
 
 ================================================= Admin =================================================
 e.POST("/products/category/add", controller.InsertProductCategory)
@@ -42,6 +69,24 @@ e.POST("/products/category/add", controller.InsertProductCategory)
     }, 
     {
         "product_category_name": "Fruits"
+    }
+]
+
+e.POST("/products/add", controller.InsertProductDetails)
+[
+    {
+        "product_code": "VEG001",
+        "product_category_id": 1,
+        "product_name": "Broccoli",
+        "supplier_id": 1,
+        "product_batch": 1,
+        "buy_price": 10000,
+        "sell_price": 12000,
+        "expiry_date": "2024-08-23",
+        "min_stock": 500,
+        "product_stock": 1000,
+        "product_unit": "gram",
+        "product_timestamp": "2024-08-13 09:10:00"
     }
 ]
 
@@ -87,3 +132,10 @@ e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
         "privileges_id": 1
     }
 ]
+
+e.POST("suppliers/add", controller.InsertSupplier)
+{
+    "supplier_name": "Rumah Tani",
+    "supplier_phone_number": "081237485623",
+    "supplier_address": "Jl. Semangka II No. 3, Surabaya"
+}

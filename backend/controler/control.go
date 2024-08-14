@@ -2,13 +2,43 @@ package controller
 
 import (
 	"TemplateProject/model"
+	// "fmt"
 	"io"
+
 	// "io"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
+
+func AccountSendOTP (c echo.Context) error {
+	id := c.Param("user_id")
+
+	result, err := model.AccountSendOTP(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"messageee": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "AccountSendOTP", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func OTPVerification (c echo.Context) error {
+	id := c.Param("user_id")
+	otp, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+
+	result, err := model.OTPVerification(id, string(otp))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "OTPVerification", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
 
 func GetFoto(c echo.Context) error {
 	id := c.FormValue("id")
@@ -174,6 +204,47 @@ func InsertNewSession(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetMemberByID(c echo.Context) error {
+	mid := c.Param("member_id")
+	result, err := model.GetMemberByID(mid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetMemberByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertNewMember(c echo.Context) error {
+	member, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertNewMember(string(member))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertNewMember", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertTransaction(c echo.Context) error {
+	sid := c.Param("session_id")
+	mid := c.Param("member_id")
+	trs, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertTransaction(string(trs), sid, mid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertTransaction", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func UpdateClosingSession(c echo.Context) error {
 	id := c.Param("session_id")
 	session, err := io.ReadAll(c.Request().Body)
@@ -215,6 +286,20 @@ func InsertProductCategory(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "UploadProductCategory", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertProductDetails(c echo.Context) error {
+	procat, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertProductDetails(string(procat))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UploadProductDetails", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -307,6 +392,20 @@ func InsertRolesDefault(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "UploadRolesDefault", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertSupplier(c echo.Context) error {
+	sup, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertSupplier(string(sup))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertSupplier", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 

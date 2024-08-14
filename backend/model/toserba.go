@@ -5,13 +5,193 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"math/rand"
+	"net/http"
+	"net/smtp"
 	"strconv"
 	"time"
-
-	// "fmt"
-	// "encoding/json"
-	"net/http"
 )
+
+func GenerateOTP () string {
+	// var res Response
+    otp := rand.Intn(9000) + 100000
+
+    return strconv.Itoa(otp)
+}
+
+func SendEmail (toEmail, otp string) error {
+	from := "c14210021@john.petra.ac.id"
+	password := "bnkp otmd lwcr biif" 
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+
+	subject := "Your OTP Code"
+	body := fmt.Sprintf(
+		"Your OTP is: %s\n\nPlease do not reply to this email. Replies are not monitored.",
+		otp,
+	)
+	message := fmt.Sprintf(
+		"From: %s\nTo: %s\nReply-To: no-reply@example.com\nSubject: %s\n\n%s",
+		from, toEmail, subject, body,
+	)
+
+	// Authentication
+	auth := smtp.PlainAuth("", from, password, smtpHost)
+
+	// Sending email
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, []string{toEmail}, []byte(message))
+	if err != nil {
+		fmt.Printf("SMTP error: %v", err)
+		return err
+	}
+	return err
+}
+
+func AccountSendOTP (id_user string) (Response, error) {
+	var res Response
+	var user UserData
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT user_email FROM users WHERE user_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_user)
+	err = stmt.QueryRow(&Id).Scan(&user.UserEmail)
+	if err != nil {
+		res.Status = http.StatusBadRequest
+		res.Message = "User ID " + id_user + " not existed"
+		return res, nil
+	}
+
+	user.UserOTP = GenerateOTP()
+
+	err = SendEmail(user.UserEmail, user.UserOTP)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Send Email Failed"
+		res.Data = err.Error()
+		return res, err
+	}
+	
+	query = "UPDATE users SET user_otp = ?, otp_exp = ? WHERE user_id = ?"
+	stmt, err = con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	expTime := time.Now().Add(5 * time.Minute)
+	user.OTPExp = expTime.Format("2006-01-02 15:04:05")
+	_, err = stmt.Exec(&user.UserOTP, &user.OTPExp, Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = user
+	return res, nil
+}
+
+func OTPVerification (id_user, vOtp string) (Response, error) {
+	var res Response
+	var user UserData
+	var verifOtp OTPRequest
+
+	err := json.Unmarshal([]byte(vOtp), &verifOtp)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT user_otp, otp_exp FROM users WHERE user_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_user)
+	_ = stmt.QueryRow(&Id).Scan(&user.UserOTP, &user.OTPExp)
+
+	fmt.Println("masukk", &user.UserOTP, &user.OTPExp)
+
+	endTime, err := time.Parse("2006-01-02 15:04:05", user.OTPExp)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Error Parsing Time"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	if endTime.Before(time.Now()) {
+		res.Status = 401
+		res.Message = "OTP Not Valid Anymore"
+		// res.Data = err.Error()
+	} else if user.UserOTP != verifOtp.OTP {
+		res.Status = 401
+		res.Message = "Incorrect OTP"
+		// res.Data = err.Error()
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Berhasil"
+		res.Data = user
+	}
+
+	query = "UPDATE users SET user_otp = '', otp_exp = '0000-00-00 00:00:00' WHERE user_id = ?"
+	stmt, err = con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	return res, nil
+}
 
 func GetPhotoData(tabel, kolom_name, kolom_id, id string) (Response, error) {
 	var res Response
@@ -228,7 +408,7 @@ func GetUserRoles(id_user string) (Response, error) {
 	return res, nil
 }
 
-func GetRolesByID (id_roles string) (Response, error) {
+func GetRolesByID(id_roles string) (Response, error) {
 	var res Response
 	var roles Roles
 
@@ -266,7 +446,7 @@ func GetRolesByID (id_roles string) (Response, error) {
 	return res, nil
 }
 
-func GetUserPriv (id_role, id_user string) (Response, error) {
+func GetUserPriv(id_role, id_user string) (Response, error) {
 	var res Response
 	var custom int16
 	var upriv UserPrivilege
@@ -352,7 +532,7 @@ func GetUserPriv (id_role, id_user string) (Response, error) {
 	return res, nil
 }
 
-func GetPrivilegesByID (id_priv string) (Response, error) {
+func GetPrivilegesByID(id_priv string) (Response, error) {
 	var res Response
 	var priv Privileges
 
@@ -390,7 +570,7 @@ func GetPrivilegesByID (id_priv string) (Response, error) {
 	return res, nil
 }
 
-func GetSessionByID (id_session string) (Response, error) {
+func GetSessionByID(id_session string) (Response, error) {
 	var res Response
 	var sess Session
 
@@ -403,7 +583,7 @@ func GetSessionByID (id_session string) (Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, difference_cash, opening_notes, closing_notes, last_update_time FROM sessions WHERE session_id = ?"
+	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, actual_difference, deposit_money, deposit_difference, opening_notes, closing_notes, last_update_time FROM sessions WHERE session_id = ?"
 	stmt, err := con.Prepare(query)
 	if err != nil {
 		res.Status = 401
@@ -414,7 +594,7 @@ func GetSessionByID (id_session string) (Response, error) {
 	defer stmt.Close()
 
 	Id, _ := strconv.Atoi(id_session)
-	err = stmt.QueryRow(Id).Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
+	err = stmt.QueryRow(Id).Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
 	if err != nil {
 		res.Status = 401
 		res.Message = "Data Not Exist"
@@ -428,7 +608,7 @@ func GetSessionByID (id_session string) (Response, error) {
 	return res, nil
 }
 
-func GetLastSession () (Response, error) {
+func GetLastSession() (Response, error) {
 	var res Response
 	var sess Session
 
@@ -441,7 +621,7 @@ func GetLastSession () (Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, difference_cash, opening_notes, closing_notes, last_update_time FROM sessions ORDER BY session_id DESC LIMIT 1"
+	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, actual_difference, deposit_money, deposit_difference, opening_notes, closing_notes, last_update_time FROM sessions ORDER BY session_id DESC LIMIT 1"
 	stmt, err := con.Prepare(query)
 	if err != nil {
 		res.Status = 401
@@ -451,7 +631,7 @@ func GetLastSession () (Response, error) {
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow().Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
+	err = stmt.QueryRow().Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
 	if err != nil {
 		res.Status = 401
 		res.Message = "Data Not Exist"
@@ -465,7 +645,7 @@ func GetLastSession () (Response, error) {
 	return res, nil
 }
 
-func GetAllSession()(Response, error) {
+func GetAllSession() (Response, error) {
 	var res Response
 	var sess Session
 	var arrSess = []Session{}
@@ -479,7 +659,7 @@ func GetAllSession()(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, difference_cash, opening_notes, closing_notes, last_update_time FROM sessions"
+	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, actual_difference, deposit_money, deposit_difference, opening_notes, closing_notes, last_update_time FROM sessions"
 	stmt, err := con.Prepare(query)
 	if err != nil {
 		res.Status = 401
@@ -494,17 +674,17 @@ func GetAllSession()(Response, error) {
 		res.Message = "rows gagal"
 		res.Data = err.Error()
 		return res, err
-		}
+	}
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)		
+		err = rows.Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows scan"
 			res.Data = err.Error()
 			return res, err
-			}
+		}
 		arrSess = append(arrSess, sess)
 	}
 	res.Status = http.StatusOK
@@ -513,9 +693,9 @@ func GetAllSession()(Response, error) {
 	return res, nil
 }
 
-func InsertNewSession (session string) (Response, error) {
+func InsertNewSession(session string) (Response, error) {
 	var res Response
-	var sess  Session
+	var sess Session
 
 	err := json.Unmarshal([]byte(session), &sess)
 	if err != nil {
@@ -533,6 +713,23 @@ func InsertNewSession (session string) (Response, error) {
 		return res, err
 	}
 	defer db.DbClose(con)
+
+	check, err := GetLastSession()
+
+	sessionData, ok := check.Data.(Session)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if sessionData.DepositDifference != sess.OpeningCash {
+		fmt.Println(sessionData.DepositDifference, sess.OpeningCash)
+		res.Status = 401
+		res.Message = "Input Correct Value"
+		// res.Data = err.Error()
+		return res, err
+	}
 
 	query := "INSERT INTO sessions(user_id, start_time, opening_cash, opening_notes) VALUES (?,?,?,?)"
 	stmt, err := con.Prepare(query)
@@ -569,9 +766,9 @@ func InsertNewSession (session string) (Response, error) {
 	return res, nil
 }
 
-func UpdateClosingSession (id_session, session string) (Response, error) {
+func UpdateClosingSession(id_session, session string) (Response, error) {
 	var res Response
-	var sess  Session
+	var sess Session
 
 	err := json.Unmarshal([]byte(session), &sess)
 	if err != nil {
@@ -590,7 +787,14 @@ func UpdateClosingSession (id_session, session string) (Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "UPDATE sessions SET end_time = ?, expected_closing_cash = ?, actual_closing_cash = ?, difference_cash = ?, closing_notes = ? WHERE session_id = ?"
+	if sess.DepositDifference > 100000 {
+		res.Status = 401
+		res.Message = "Too Much"
+		// res.Data = err.Error()
+		return res, err
+	}
+
+	query := "UPDATE sessions SET end_time = ?, expected_closing_cash = ?, actual_closing_cash = ?, actual_difference = ?, deposit_money = ?, deposit_difference =?, closing_notes = ? WHERE session_id = ?"
 	stmt, err := con.Prepare(query)
 	if err != nil {
 		res.Status = 401
@@ -602,7 +806,7 @@ func UpdateClosingSession (id_session, session string) (Response, error) {
 
 	Id, _ := strconv.Atoi(id_session)
 	endTime, _ := time.Parse("2006-01-02 15:04:05", sess.EndTime)
-	_, err = stmt.Exec(endTime, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.ClosingNotes, Id)
+	_, err = stmt.Exec(endTime, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.ClosingNotes, Id)
 	if err != nil {
 		res.Status = 401
 		res.Message = "exec gagal"
@@ -616,9 +820,9 @@ func UpdateClosingSession (id_session, session string) (Response, error) {
 	return res, nil
 }
 
-func UpdateSessionData (id_session, session string) (Response, error) {
+func UpdateSessionData(id_session, session string) (Response, error) {
 	var res Response
-	var sess  Session
+	var sess Session
 
 	err := json.Unmarshal([]byte(session), &sess)
 	if err != nil {
@@ -637,7 +841,45 @@ func UpdateSessionData (id_session, session string) (Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "UPDATE sessions SET last_update_time = ?, actual_closing_cash = ?, difference_cash = ?, closing_notes = ? WHERE session_id = ?"
+	check, _ := GetLastSession()
+
+	sessionData, ok := check.Data.(Session)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	layout := "2006-01-02 15:04:05"
+
+	endTime, err := time.Parse(layout, sessionData.EndTime)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Error Parsing Time"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	updateTime, err := time.Parse(layout, sess.LastUpdateTime)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Error Parsing Time"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	duration := updateTime.Sub(endTime)
+
+	fmt.Println(endTime, updateTime, duration)
+
+	if duration > 30*time.Minute {
+		res.Status = 401
+		res.Message = "Cannot Edit Session"
+		// res.Data = err.Error()
+		return res, err
+	}
+
+	query := "UPDATE sessions SET last_update_time = ?, actual_closing_cash = ?, actual_difference = ?, deposit_money =?, deposit_difference = ?, closing_notes = ? WHERE session_id = ?"
 	stmt, err := con.Prepare(query)
 	if err != nil {
 		res.Status = 401
@@ -648,8 +890,7 @@ func UpdateSessionData (id_session, session string) (Response, error) {
 	defer stmt.Close()
 
 	Id, _ := strconv.Atoi(id_session)
-	updateTime, _ := time.Parse("2006-01-02 15:04:05", sess.LastUpdateTime)
-	_, err = stmt.Exec(updateTime, &sess.ActualClosingCash, &sess.DifferenceCash, &sess.ClosingNotes, Id)
+	_, err = stmt.Exec(updateTime, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.ClosingNotes, Id)
 	if err != nil {
 		res.Status = 401
 		res.Message = "exec gagal"
@@ -663,7 +904,99 @@ func UpdateSessionData (id_session, session string) (Response, error) {
 	return res, nil
 }
 
-func InsertProductCategory (procat string)(Response, error) {
+func GetMemberByID(id_member string) (Response, error) {
+	var res Response
+	var mbr Members
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT member_id, member_name, member_phone_number, member_points, member_join_date FROM members WHERE member_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_member)
+	err = stmt.QueryRow(Id).Scan(&mbr.MemberId, &mbr.MemberName, &mbr.MemberPhoneNumber, &mbr.MemberPoints, &mbr.MemberJoinDate)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = mbr
+	return res, nil
+}
+
+func InsertNewMember(member string) (Response, error) {
+	var res Response
+	var mbr Members
+
+	err := json.Unmarshal([]byte(member), &mbr)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO members(member_name, member_phone_number, member_join_date) VALUES(?, ?, ?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	joinDate, _ := time.Parse("2006-01-02 15:04:05", mbr.MemberJoinDate)
+	result, err := stmt.Exec(mbr.MemberName, mbr.MemberPhoneNumber, joinDate)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		res.Status = 401
+		res.Message = "last id gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	mbr.MemberId = int(lastId)
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = mbr
+	return res, nil
+}
+
+func InsertProductCategory(procat string) (Response, error) {
 	var res Response
 	var name sql.NullString
 	var arrPro = []ProductCategories{}
@@ -685,7 +1018,7 @@ func InsertProductCategory (procat string)(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	for _ ,x := range arrPro {
+	for _, x := range arrPro {
 		query := "SELECT product_category_name FROM products_category WHERE product_category_name = ?"
 		stmt, _ := con.Prepare(query)
 		defer stmt.Close()
@@ -708,7 +1041,7 @@ func InsertProductCategory (procat string)(Response, error) {
 	}
 	defer stmt.Close()
 
-	for i ,x := range arrPro {
+	for i, x := range arrPro {
 		result, err := stmt.Exec(x.ProductCategoryName)
 		if err != nil {
 			res.Status = 401
@@ -732,7 +1065,213 @@ func InsertProductCategory (procat string)(Response, error) {
 	return res, nil
 }
 
-func GetStoreByID (id_store string) (Response, error) {
+func InsertProductDetails(product string) (Response, error) {
+	var res Response
+	var arrPro = []ProductDetails{}
+
+	err := json.Unmarshal([]byte(product), &arrPro)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	for _, x := range arrPro {
+		query := "SELECT product_code FROM product_details WHERE product_code = ?"
+		stmt, _ := con.Prepare(query)
+		defer stmt.Close()
+
+		err = stmt.QueryRow(&x.ProductCode).Scan()
+		if err == nil {
+			res.Status = http.StatusBadRequest
+			res.Message = "Product Code " + x.ProductCode + " existed"
+			return res, nil
+		}
+	}
+
+	query := "INSERT INTO product_details(product_code, product_category_id, product_name, supplier_id, product_batch, buy_price, sell_price, expiry_date, min_stock, product_stock, product_unit, product_timestamp) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i, x := range arrPro {
+		timeStamp, _ := time.Parse("2006-01-02 15:04:05", x.ProductTimeStamp)
+		result, err := stmt.Exec(x.ProductCode, x.ProductCategoryId, x.ProductName, x.SupplierId, x.ProductBatch, x.BuyPrice, x.SellPrice, x.ExpiryDate, x.MinStock, x.ProductStock, x.ProductUnit, timeStamp)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPro[i].ProductDetailId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPro
+	return res, nil
+}
+
+func InsertTransaction(transaction, id_session, id_member string) (Response, error) {
+	var res Response
+	var trs Transaction
+
+	err := json.Unmarshal([]byte(transaction), &trs)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO transactions(transaction_total_price, transaction_timestamp, transaction_payment_method, transaction_payment, transaction_change, transaction_total_item) VALUES(?,?,?,?,?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	timeStamp, _ := time.Parse("2006-01-02 15:04:05", trs.TransactionTimeStamp)
+	result, err := stmt.Exec(trs.TransactionTotalPrice, timeStamp, trs.PaymentMethod, trs.TransactionPayment, trs.TransactionChange, trs.TotalItem)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		res.Status = 401
+		res.Message = "last id gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	trs.TransactionId = int(lastId)
+
+	_, _ = InsertSessionTransaction(trs.TransactionId, id_session)
+
+	mid, _ := strconv.Atoi(id_member)
+	if mid != 0 {
+		_, _ = InsertMemberTransaction(trs.TransactionId, id_member)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = trs
+	return res, nil
+}
+
+func InsertSessionTransaction(id_transaction int, id_session string) (Response, error) {
+	var res Response
+	// var trs Transaction
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO session_transactions(session_id, transaction_id) VALUES(?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	sId, _ := strconv.Atoi(id_session)
+	result, err := stmt.Exec(sId, id_transaction)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = result
+	return res, nil
+}
+
+func InsertMemberTransaction(id_transaction int, id_member string) (Response, error) {
+	var res Response
+	// var trs Transaction
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO transactions_member(member_id, transaction_id) VALUES(?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	sId, _ := strconv.Atoi(id_member)
+	result, err := stmt.Exec(sId, id_transaction)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = result
+	return res, nil
+}
+
+func GetStoreByID(id_store string) (Response, error) {
 	var res Response
 	var str Stores
 
@@ -918,7 +1457,7 @@ func InsertWarehouse(warehouse string) (Response, error) {
 	return res, nil
 }
 
-func InsertRoles(roles string)(Response, error) {
+func InsertRoles(roles string) (Response, error) {
 	var res Response
 	var name string
 	var arrRole = []Roles{}
@@ -940,7 +1479,7 @@ func InsertRoles(roles string)(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	for _ ,x := range arrRole {
+	for _, x := range arrRole {
 		query := "SELECT roles_name FROM roles WHERE roles_name = ?"
 		stmt, _ := con.Prepare(query)
 		defer stmt.Close()
@@ -963,7 +1502,7 @@ func InsertRoles(roles string)(Response, error) {
 	}
 	defer stmt.Close()
 
-	for i ,x := range arrRole {
+	for i, x := range arrRole {
 		result, err := stmt.Exec(x.RolesName)
 		if err != nil {
 			res.Status = 401
@@ -987,7 +1526,7 @@ func InsertRoles(roles string)(Response, error) {
 	return res, nil
 }
 
-func InsertPrivileges(priv string)(Response, error) {
+func InsertPrivileges(priv string) (Response, error) {
 	var res Response
 	var name string
 	var arrPrv = []Privileges{}
@@ -1009,7 +1548,7 @@ func InsertPrivileges(priv string)(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	for _ ,x := range arrPrv {
+	for _, x := range arrPrv {
 		query := "SELECT privileges_name FROM privileges WHERE privileges_name = ?"
 		stmt, _ := con.Prepare(query)
 		defer stmt.Close()
@@ -1032,7 +1571,7 @@ func InsertPrivileges(priv string)(Response, error) {
 	}
 	defer stmt.Close()
 
-	for i ,x := range arrPrv {
+	for i, x := range arrPrv {
 		result, err := stmt.Exec(x.PrivilegesName, x.Navbar)
 		if err != nil {
 			res.Status = 401
@@ -1056,7 +1595,7 @@ func InsertPrivileges(priv string)(Response, error) {
 	return res, nil
 }
 
-func InsertRolesDefault(roled string)(Response, error) {
+func InsertRolesDefault(roled string) (Response, error) {
 	var res Response
 	var arrRD = []RolesDefault{}
 
@@ -1077,18 +1616,18 @@ func InsertRolesDefault(roled string)(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	for _ ,x := range arrRD {
+	for _, x := range arrRD {
 		subid := strconv.Itoa(x.RolesId)
 		check, err := GetRolesByID(subid)
-		if (err != nil || check.Data == nil) {
+		if err != nil || check.Data == nil {
 			res.Status = http.StatusBadRequest
-			res.Message = "Roles ID " + subid+ " not exist"
+			res.Message = "Roles ID " + subid + " not exist"
 			return res, nil
 		}
 
 		tchid := strconv.Itoa(x.PrivilegesId)
 		check, err = GetPrivilegesByID(tchid)
-		if (err != nil || check.Data == nil) {
+		if err != nil || check.Data == nil {
 			res.Status = http.StatusBadRequest
 			res.Message = "Privileges iD " + tchid + " not exist"
 			return res, nil
@@ -1105,7 +1644,7 @@ func InsertRolesDefault(roled string)(Response, error) {
 	}
 	defer stmt.Close()
 
-	for i ,x := range arrRD {
+	for i, x := range arrRD {
 		result, err := stmt.Exec(x.RolesId, x.PrivilegesId)
 		if err != nil {
 			res.Status = 401
@@ -1126,5 +1665,58 @@ func InsertRolesDefault(roled string)(Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = arrRD
+	return res, nil
+}
+
+func InsertSupplier(supplier string) (Response, error) {
+	var res Response
+	var sup Suppliers
+
+	err := json.Unmarshal([]byte(supplier), &sup)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO suppliers(supplier_name, supplier_phone_number, supplier_address) VALUES(?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(sup.SupplierName, sup.SupplierPhoneNumber, sup.SupplierAddress)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		res.Status = 401
+		res.Message = "last id gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	sup.SupplierId = int(lastId)
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sup
 	return res, nil
 }

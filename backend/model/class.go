@@ -8,6 +8,10 @@ type Response struct {
 	Data    interface{} `json:"data"`
 }
 
+type OTPRequest struct {
+	OTP string `json:"user_otp"`
+}
+
 type User struct {
 	UserId int `json:"user_id"`
 	Username string `json:"username"`
@@ -28,6 +32,8 @@ type UserData struct {
 	LoginTimestamp sql.NullString `json:"user_login_timestamp"`
 	RoleId int `json:"role_id"` 
 	RoleName string `json:"roles_name"`
+	UserOTP string `json:"user_otp"`
+	OTPExp string `json:"otp_exp"`
 }
 
 type UserRoles struct {
@@ -75,9 +81,19 @@ type Session struct {
 	TotalIncome int `json:"total_income"`
 	ExpectedClosingCash int `json:"expected_closing_cash"`
 	ActualClosingCash int `json:"actual_closing_cash"`
-	DifferenceCash int `json:"difference_cash"`
+	ActualDifference int `json:"actual_difference"`
+	DepositMoney int `json:"deposit_money"`
+	DepositDifference int `json:"deposit_difference"`
 	OpeningNotes string `json:"opening_notes"`
 	ClosingNotes string `json:"closing_notes"`
+}
+
+type Members struct {
+	MemberId int `json:"member_id"`
+	MemberName string `json:"member_name"`
+	MemberPhoneNumber string `json:"member_phone_number"`
+	MemberPoints int `json:"member_points"`
+	MemberJoinDate string `json:"member_join_date"`
 }
 
 type ProductCategories struct {
@@ -85,18 +101,41 @@ type ProductCategories struct {
 	ProductCategoryName string `json:"product_category_name"`
 }
 
-type Product struct {
-	ProductId int `json:"product_id"`
+type ProductDetails struct {
+	ProductDetailId int `json:"product_detail_id"`
+	ProductCode string `json:"product_code"`
 	ProductCategoryId int `json:"product_category_id"`
 	ProductName string `json:"product_name"`
-	ProductBrand string `json:"product_brand"`
+	SupplierId int `json:"supplier_id"`
 	ProductBatch int `json:"product_batch"`
 	BuyPrice int `json:"buy_price"`
 	SellPrice int `json:"sell_price"`
 	ExpiryDate string `json:"expiry_date"`
+	MinStock int `json:"min_stock"`
 	ProductStock int `json:"product_stock"`
-	ProductMinStock int `json:"min_stock"`
-	ProductTimeStamp string `json:"product_timestamp"`
+	ProductUnit string `json:"product_unit"`
+	ProductTimeStamp string `json:"product_time_stamp"`
+}
+
+type Transaction struct {
+	TransactionId int `json:"transaction_id"`
+	TransactionTotalPrice int `json:"transaction_total_price"`
+	TransactionTimeStamp string `json:"transaction_timestamp"`
+	PaymentMethod string `json:"transaction_payment_method"`
+	TransactionPayment int `json:"transaction_payment"`
+	TransactionChange int `json:"transaction_change"`
+	TotalItem int `json:"transaction_total_item"`
+}
+
+type TransactionDetails struct {
+	TransactionDetailId int `json:"transaction_detail_id"`
+	TransactionId int `json:"transaction_id"`
+	ProductDetailId int `json:"product_detail_id"`
+	PromoProductId int `json:"promo_product_id"`
+	Quantity int `json:"quantity"`
+	SellPrice int `json:"sell_price"`
+	DiscountPrice int `json:"discount_price"`
+	TotalPrice int `json:"total_price"`
 }
 
 type Stores struct {
@@ -111,4 +150,11 @@ type Warehouses struct {
 	WarehouseName string `json:"warehouse_name"`
 	WarehouseAddress string `json:"warehouse_address"`
 	WarehousePhoneNumber string `json:"warehouse_phone_number"`
+}
+
+type Suppliers struct {
+	SupplierId int `json:"supplier_id"`
+	SupplierName string `json:"supplier_name"`
+	SupplierPhoneNumber string `json:"supplier_phone_number"`
+	SupplierAddress string `json:"supplier_address"`
 }
