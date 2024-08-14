@@ -114,6 +114,27 @@ func AccountSendOTP (id_user string) (Response, error) {
 	return res, nil
 }
 
+func ResetOTP (id_user int, res Response, con *sql.DB) (Response, error) {
+	query := "UPDATE users SET user_otp = '', otp_exp = '0000-00-00 00:00:00' WHERE user_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id_user)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	return res, nil
+}
+
 func OTPVerification (id_user, vOtp string) (Response, error) {
 	var res Response
 	var user UserData
@@ -149,8 +170,6 @@ func OTPVerification (id_user, vOtp string) (Response, error) {
 	Id, _ := strconv.Atoi(id_user)
 	_ = stmt.QueryRow(&Id).Scan(&user.UserOTP, &user.OTPExp)
 
-	fmt.Println("masukk", &user.UserOTP, &user.OTPExp)
-
 	endTime, err := time.Parse("2006-01-02 15:04:05", user.OTPExp)
 	if err != nil {
 		res.Status = 401
@@ -162,34 +181,17 @@ func OTPVerification (id_user, vOtp string) (Response, error) {
 	if endTime.Before(time.Now()) {
 		res.Status = 401
 		res.Message = "OTP Not Valid Anymore"
-		// res.Data = err.Error()
+		ResetOTP(Id, res, con)
 	} else if user.UserOTP != verifOtp.OTP {
 		res.Status = 401
 		res.Message = "Incorrect OTP"
-		// res.Data = err.Error()
 	} else {
 		res.Status = http.StatusOK
 		res.Message = "Berhasil"
 		res.Data = user
+		ResetOTP(Id, res, con)
 	}
 
-	query = "UPDATE users SET user_otp = '', otp_exp = '0000-00-00 00:00:00' WHERE user_id = ?"
-	stmt, err = con.Prepare(query)
-	if err != nil {
-		res.Status = 401
-		res.Message = "stmt gagal"
-		res.Data = err.Error()
-		return res, err
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(Id)
-	if err != nil {
-		res.Status = 401
-		res.Message = "exec gagal"
-		res.Data = err.Error()
-		return res, err
-	}
 	return res, nil
 }
 
