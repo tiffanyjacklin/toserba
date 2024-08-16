@@ -1,6 +1,8 @@
 <script>
    import TaskModal from '$lib/TaskModal.svelte';
    import MoneyInput from '$lib/MoneyInput.svelte';
+   import MoneyConverter from '$lib/MoneyConverter.svelte';
+   import DateConverter from '$lib/DateConverter.svelte';
    import { onMount } from 'svelte';
    import { browser } from '$app/environment';
 	import { stringify } from 'postcss';
@@ -24,8 +26,8 @@
    }
 
    let opening_cash = 0;
-   console.log(opening_cash)
-
+   console.log(opening_cash);
+   let opening_notes = "";
    export let data;
    let user_id = parseInt(data.userId);
    let roleId = data.roleId;
@@ -72,7 +74,8 @@
             body: JSON.stringify({
                user_id,
                start_time,
-               opening_cash
+               opening_cash,
+               opening_notes,
             })
         });
 
@@ -157,7 +160,7 @@
    
 </script>
 <!-- tes -->
-<div class="p-4 pt-20 flex items-center justify-center select-none	">
+<div class="p-4 pt-20 flex items-center justify-center">
     <div class="p-6 rounded-2xl w-[32rem] bg-[#3d4c52] shadow-[0_6px_0px_0px_rgba(242,176,130,1)]">
       <div class="flex flex-col mb-4 rounded font-roboto font-medium">
          <div class="flex items-center justify-center py-2">
@@ -185,7 +188,7 @@
                   Last Closing Date
                </div>
                <div class="text-white text-2xl">
-                  {formatDate(last_session.end_time)}
+                  <DateConverter value={last_session.end_time} date={true} hour={true} second={false} ampm={false} monthNumber={false} dash={false} dateFirst={false}/>
                </div>
             </div>
             
@@ -194,7 +197,7 @@
                   Last Closing Cash Balance
                </div>
                <div class="text-white text-2xl">
-                  {formatCurrency(last_session.actual_closing_cash)}
+                  <MoneyConverter value={last_session.actual_closing_cash} currency={true} decimal={true}/>
                </div>
             </div>
          </div>

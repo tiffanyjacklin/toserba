@@ -1,32 +1,33 @@
 <script>
     export let value = 0; // Initial value in the smallest currency unit (e.g., Rp 400,000.00)
-    let displayValue = formatCurrency(value); // Initialize displayValue with the formatted value
-
+    let displayValue = formatCurrency(value);
     function formatCurrency(value) {
         return "Rp " + Number(value).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
     }
-
     function handleInput(event) {
-        // Update displayValue while keeping the "Rp" prefix
-        displayValue = "Rp " + event.target.value.replace(/[^\d,.]/g, ''); 
+        const rawValue = event.target.value.replace(/[^0-9.]/g, ''); // Remove non-numeric and non-decimal characters
+        if (rawValue === '' || !/^\d*\.?\d*$/.test(rawValue)) {
+            value = 0; // Set to 0 if the input is empty or invalid
+            displayValue = rawValue; // Show raw value while typing
+        } else {
+            value = Number(rawValue); // Convert to number
+            displayValue = rawValue; // Show raw value while typing
+        }
     }
-
     function handleBlur() {
-        const rawValue = displayValue.replace(/[^\d.]/g, ''); // Remove all non-numeric and non-period characters
-        value = parseFloat(rawValue.replace(/,/g, '')) || 0; // Convert to number or default to 0
-        displayValue = formatCurrency(value); // Format the value with the "Rp" prefix
+        if (displayValue !== '') {
+            displayValue = formatCurrency(value); // Format the value when input loses focus
+        }
     }
-
     function handleFocus() {
-        const rawValue = displayValue.replace(/[^\d.]/g, ''); // Show raw value without "Rp" but keep decimal places
-        displayValue = rawValue !== '' ? rawValue : '0.00'; // Ensure there is always something to display
+        displayValue = value.toFixed(2).toString(); // Show raw value with two decimal places when input is focused
     }
 </script>
 
-<div>
+<div class="">
     <input type="text"
            class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] text-end bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] block w-full px-2.5 py-0.5"
            placeholder="Rp 0.00"
