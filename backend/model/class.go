@@ -74,6 +74,7 @@ type UserPrivilege struct {
 type Session struct {
 	SessionId int `json:"session_id"`
 	UserId int `json:"user_id"`
+	UserFullName string `json:"user_fullname"`
 	StartTime string `json:"start_time"`
 	EndTime string `json:"end_time"`
 	LastUpdateTime string `json:"last_update_time"`
@@ -114,14 +115,14 @@ type ProductDetails struct {
 	MinStock int `json:"min_stock"`
 	ProductStock int `json:"product_stock"`
 	ProductUnit string `json:"product_unit"`
-	ProductTimeStamp string `json:"product_time_stamp"`
+	ProductTimeStamp string `json:"product_timestamp"`
 }
 
 type Transaction struct {
 	TransactionId int `json:"transaction_id"`
 	TransactionTotalPrice int `json:"transaction_total_price"`
 	TransactionTimeStamp string `json:"transaction_timestamp"`
-	PaymentMethod string `json:"transaction_payment_method"`
+	PaymentMethodId int `json:"transaction_payment_method_id"`
 	TransactionPayment int `json:"transaction_payment"`
 	TransactionChange int `json:"transaction_change"`
 	TotalItem int `json:"transaction_total_item"`
@@ -136,6 +137,35 @@ type TransactionDetails struct {
 	SellPrice int `json:"sell_price"`
 	DiscountPrice int `json:"discount_price"`
 	TotalPrice int `json:"total_price"`
+}
+
+type PromoTypes struct {
+	PromoTypeId int `json:"promo_type_id"`
+	PromoTypeName string `json:"promo_type_name"`
+}
+
+type Promos struct {
+	PromoId int `json:"promo_id"`
+	PromoCode string `json:"promo_code"`
+	PromoTypeId int `json:"promo_type_id"`
+	PromoStartDate string `json:"promo_start_date"`
+	PromoEndDate string `json:"promo_end_date"`
+	PromoPercentage int `json:"promo_percentage"`
+	PromoDiscount int `json:"promo_discount"`
+	TermAndCond string `json:"promo_term_and_cond"`
+	XAmount int `json:"x_amount"`
+	YAmount int `json:"y_amount"`
+}
+
+type PromoProducts struct {
+	PromoProductId int `json:"promo_product_id"`
+	ProductDetailId int `json:"product_detail_id"`
+	PromoId int `json:"promo_id"`
+}
+
+type PaymentMethod struct {
+	PaymentMethodId int `json:"payment_method_id"`
+	PaymentMethodName string `json:"payment_method_name"`
 }
 
 type Stores struct {

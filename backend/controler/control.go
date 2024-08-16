@@ -229,19 +229,81 @@ func InsertNewMember(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func InsertTransaction(c echo.Context) error {
-	sid := c.Param("session_id")
-	mid := c.Param("member_id")
-	trs, err := io.ReadAll(c.Request().Body)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
-	}
-	result, err := model.InsertTransaction(string(trs), sid, mid)
+// func InsertTransaction(c echo.Context) error {
+// 	sid := c.Param("session_id")
+// 	mid := c.Param("member_id")
+// 	trs, err := io.ReadAll(c.Request().Body)
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+// 	}
+// 	result, err := model.InsertTransaction(string(trs), sid, mid)
+// 	if err != nil {
+// 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+// 	}
+// 	ip := c.RealIP()
+// 	model.InsertLog(ip, "InsertTransaction", result.Data, 3)
+// 	return c.JSON(http.StatusOK, result)
+// }
+
+func GetTransactionByID(c echo.Context) error {
+	tid := c.Param("transaction_id")
+	result, err := model.GetTransactionByID(tid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	ip := c.RealIP()
-	model.InsertLog(ip, "InsertTransaction", result.Data, 3)
+	model.InsertLog(ip, "GetTransactionByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetLastTransaction(c echo.Context) error {
+	result, err := model.GetLastTransaction()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetLastTransaction", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllTransaction(c echo.Context) error {
+	result, err := model.GetAllTransaction()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllTransaction", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func UpdateTransaction(c echo.Context) error {
+	tid := c.Param("transaction_id")
+	sid := c.Param("session_id")
+	mid := c.Param("member_id")
+	transaction, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.UpdateTransaction(tid, sid, mid, string(transaction))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UpdateTransaction", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertTransactionDetails(c echo.Context) error {
+	trd, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertTransactionDetails(string(trd))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertTransactionDetails", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -289,6 +351,27 @@ func InsertProductCategory(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetProductByID(c echo.Context) error {
+	pid := c.Param("product_id")
+	result, err := model.GetProductByID(pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetProductByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllProducts(c echo.Context) error {
+	result, err := model.GetAllProducts()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllProducts", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func InsertProductDetails(c echo.Context) error {
 	procat, err := io.ReadAll(c.Request().Body)
 	if err != nil {
@@ -300,6 +383,73 @@ func InsertProductDetails(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "UploadProductDetails", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertPromoType(c echo.Context) error {
+	prt, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertPromoType(string(prt))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "nsertPromoType", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetPromoByID(c echo.Context) error {
+	pid := c.Param("promo_id")
+	result, err := model.GetPromoByID(pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetPromoByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertPromos(c echo.Context) error {
+	promo, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertPromos(string(promo))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertPromos", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertPromoProducts(c echo.Context) error {
+	prd, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertPromoProducts(string(prd))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertPromoProducts", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertPaymentMethod(c echo.Context) error {
+	pay, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertPaymentMethod(string(pay))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertPaymentMethod", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 

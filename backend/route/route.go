@@ -45,11 +45,22 @@ func Init() *echo.Echo {
 	// Cashier - Transaction, Member & Product
 	e.GET("/cashier/members/:member_id", controller.GetMemberByID)
 	e.POST("/cashier/members/add", controller.InsertNewMember)
-	e.POST("/cashier/transaction/add/:session_id/:member_id", controller.InsertTransaction)
+	
+	e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
+	e.GET("/transaction/last", controller.GetLastTransaction)
+	e.GET("/transaction", controller.GetAllTransaction)
+	e.POST("/transaction/details/add", controller.InsertTransactionDetails) 
+	e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.UpdateTransaction)
 
 	// Admin
 	e.POST("/products/category/add", controller.InsertProductCategory)
+	e.GET("/products/:product_id", controller.GetProductByID) 
+	e.GET("/products", controller.GetAllProducts) 
 	e.POST("/products/add", controller.InsertProductDetails)
+	e.POST("/promos/type/add", controller.InsertPromoType)
+	e.GET("/promos/:promo_id", controller.GetPromoByID) 
+	e.POST("/promos/add", controller.InsertPromos) 
+	e.POST("promos/product/add", controller.InsertPromoProducts) 
 	e.GET("/roles/:roles_id", controller.GetRolesByID)
 	e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
 
@@ -61,6 +72,7 @@ func Init() *echo.Echo {
 	e.POST("/roles/add", controller.InsertRoles)
 	e.POST("/privileges/add", controller.InsertPrivileges)
 	e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
-	e.POST("suppliers/add", controller.InsertSupplier)
+	e.POST("/suppliers/add", controller.InsertSupplier)
+	e.POST("/payment/method/add", controller.InsertPaymentMethod)
 	return e
 }

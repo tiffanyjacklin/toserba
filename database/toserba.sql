@@ -66,6 +66,18 @@ CREATE TABLE IF NOT EXISTS `members` (
 
 -- Dumping data for table toserba.members: ~0 rows (approximately)
 
+-- Dumping structure for table toserba.payment_method
+DROP TABLE IF EXISTS `payment_method`;
+CREATE TABLE IF NOT EXISTS `payment_method` (
+  `payment_method_id` int(11) NOT NULL AUTO_INCREMENT,
+  `payment_method_name` varchar(225) NOT NULL DEFAULT '',
+  PRIMARY KEY (`payment_method_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table toserba.payment_method: ~1 rows (approximately)
+REPLACE INTO `payment_method` (`payment_method_id`, `payment_method_name`) VALUES
+	(1, 'Debit');
+
 -- Dumping structure for table toserba.privileges
 DROP TABLE IF EXISTS `privileges`;
 CREATE TABLE IF NOT EXISTS `privileges` (
@@ -135,7 +147,7 @@ CREATE TABLE IF NOT EXISTS `product_details` (
   `product_stock` int(11) NOT NULL DEFAULT 0,
   `product_unit` varchar(50) NOT NULL DEFAULT '-',
   `product_timestamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`product_detail_id`),
+  PRIMARY KEY (`product_detail_id`) USING BTREE,
   UNIQUE KEY `product_code` (`product_code`),
   KEY `product_category_id` (`product_category_id`),
   KEY `supplier_id` (`supplier_id`),
@@ -149,14 +161,19 @@ CREATE TABLE IF NOT EXISTS `product_details` (
 DROP TABLE IF EXISTS `promos`;
 CREATE TABLE IF NOT EXISTS `promos` (
   `promo_id` int(11) NOT NULL AUTO_INCREMENT,
-  `promo_type` varchar(225) NOT NULL,
-  `promo_start_date` date NOT NULL,
-  `promo_end_date` date NOT NULL,
-  `promo_discount` int(11) DEFAULT NULL,
-  `promo_term_and_cond` varchar(225) NOT NULL,
-  `x_amount` int(11) DEFAULT NULL,
-  `y_amount` int(11) DEFAULT NULL,
-  PRIMARY KEY (`promo_id`)
+  `promo_code` varchar(225) NOT NULL DEFAULT '-',
+  `promo_type_id` int(11) NOT NULL DEFAULT 0,
+  `promo_start_date` date NOT NULL DEFAULT '0000-00-00',
+  `promo_end_date` date NOT NULL DEFAULT '0000-00-00',
+  `promo_percentage` int(11) NOT NULL DEFAULT 0,
+  `promo_discount` int(11) NOT NULL DEFAULT 0,
+  `promo_term_and_cond` varchar(225) NOT NULL DEFAULT '-',
+  `x_amount` int(11) NOT NULL DEFAULT 0,
+  `y_amount` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`promo_id`),
+  UNIQUE KEY `promo_code` (`promo_code`),
+  KEY `promo_type_id` (`promo_type_id`),
+  CONSTRAINT `FK_promos_promo_type` FOREIGN KEY (`promo_type_id`) REFERENCES `promo_type` (`promo_type_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.promos: ~0 rows (approximately)
@@ -175,6 +192,16 @@ CREATE TABLE IF NOT EXISTS `promo_products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.promo_products: ~0 rows (approximately)
+
+-- Dumping structure for table toserba.promo_type
+DROP TABLE IF EXISTS `promo_type`;
+CREATE TABLE IF NOT EXISTS `promo_type` (
+  `promo_type_id` int(11) NOT NULL AUTO_INCREMENT,
+  `promo_type_name` varchar(225) NOT NULL DEFAULT '-',
+  PRIMARY KEY (`promo_type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table toserba.promo_type: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.roles
 DROP TABLE IF EXISTS `roles`;
@@ -351,7 +378,7 @@ CREATE TABLE IF NOT EXISTS `stores` (
   PRIMARY KEY (`store_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.stores: ~1 rows (approximately)
+-- Dumping data for table toserba.stores: ~0 rows (approximately)
 REPLACE INTO `stores` (`store_id`, `store_name`, `store_address`, `store_phone_number`) VALUES
 	(1, 'Toko XYZ', 'Jl. Mangga Pahit No. 123, Surabaya', '081222333444');
 
@@ -373,11 +400,13 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `transaction_id` int(11) NOT NULL AUTO_INCREMENT,
   `transaction_total_price` int(11) NOT NULL DEFAULT 0,
   `transaction_timestamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `transaction_payment_method` varchar(225) NOT NULL DEFAULT '-',
+  `transaction_payment_method_id` int(11) NOT NULL,
   `transaction_payment` int(11) NOT NULL DEFAULT 0,
   `transaction_change` int(11) NOT NULL DEFAULT 0,
   `transaction_total_item` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`transaction_id`) USING BTREE
+  PRIMARY KEY (`transaction_id`) USING BTREE,
+  KEY `transaction_payment_method_id` (`transaction_payment_method_id`),
+  CONSTRAINT `FK_transactions_payment_method` FOREIGN KEY (`transaction_payment_method_id`) REFERENCES `payment_method` (`payment_method_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Dumping data for table toserba.transactions: ~0 rows (approximately)
@@ -445,7 +474,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 -- Dumping data for table toserba.users: ~3 rows (approximately)
 REPLACE INTO `users` (`user_id`, `username`, `user_password`, `user_fullname`, `user_address`, `user_gender`, `user_birthdate`, `user_email`, `user_phone_number`, `user_photo_profile`, `user_created_at`, `user_deleted_at`, `user_updated_at`, `user_login_timestamp`, `user_otp`, `otp_exp`) VALUES
-	(1, 'tipani', 'tipaja', 'Tiffany Jacklin', 'Jalan Jeruk', 'P', '2003-03-13', 'allenfiola@gmail.com', '081000888333', 'uploads/users/lena.png', '2024-07-18 13:48:04', NULL, NULL, '2024-08-07 11:19:43', '', '0000-00-00 00:00:00'),
+	(1, 'tipani', 'tipaja', 'Tiffany Jacklin', 'Jalan Jeruk', 'P', '2003-03-13', 'c14210056@john.petra.ac.id', '081000888333', 'uploads/users/lena.png', '2024-07-18 13:48:04', NULL, NULL, '2024-08-07 11:19:43', '', '0000-00-00 00:00:00'),
 	(2, 'danielll', 'danielaja', 'Daniel Alexander', 'Jalan leci', 'L', '2003-01-01', 'danielaja@gmail.com', '081000888111', NULL, '2023-07-12 14:30:45', NULL, NULL, '2024-07-29 11:15:28', '', '0000-00-00 00:00:00'),
 	(3, 'alexlo', 'alexaja', 'Alexander Louis', 'Jalan mangga', 'L', '2003-02-02', 'alexaja@gmail.com', '081000888222', NULL, '2023-08-12 14:30:45', NULL, NULL, '2024-07-29 11:31:45', '', '0000-00-00 00:00:00');
 
@@ -509,7 +538,7 @@ CREATE TABLE IF NOT EXISTS `warehouses` (
   PRIMARY KEY (`warehouse_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.warehouses: ~1 rows (approximately)
+-- Dumping data for table toserba.warehouses: ~0 rows (approximately)
 REPLACE INTO `warehouses` (`warehouse_id`, `warehouse_name`, `warehouse_address`, `warehouse_phone_number`) VALUES
 	(1, 'Gudang ABC', 'Jl. Jeruk Busuk No. 0, Surabaya', '081555666888');
 

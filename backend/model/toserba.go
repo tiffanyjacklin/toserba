@@ -585,7 +585,7 @@ func GetSessionByID(id_session string) (Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, actual_difference, deposit_money, deposit_difference, opening_notes, closing_notes, last_update_time FROM sessions WHERE session_id = ?"
+	query := "SELECT s.session_id, s.user_id, u.user_fullname ,s.start_time, s.end_time, s.opening_cash, s.total_income, s.expected_closing_cash, s.actual_closing_cash, s.actual_difference, s.deposit_money, s.deposit_difference, s.opening_notes, s.closing_notes, s.last_update_time FROM sessions s JOIN users u ON s.user_id = u.user_id WHERE session_id = ?"
 	stmt, err := con.Prepare(query)
 	if err != nil {
 		res.Status = 401
@@ -596,7 +596,7 @@ func GetSessionByID(id_session string) (Response, error) {
 	defer stmt.Close()
 
 	Id, _ := strconv.Atoi(id_session)
-	err = stmt.QueryRow(Id).Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
+	err = stmt.QueryRow(Id).Scan(&sess.SessionId, &sess.UserId, &sess.UserFullName, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
 	if err != nil {
 		res.Status = 401
 		res.Message = "Data Not Exist"
@@ -661,7 +661,7 @@ func GetAllSession() (Response, error) {
 	}
 	defer db.DbClose(con)
 
-	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, actual_difference, deposit_money, deposit_difference, opening_notes, closing_notes, last_update_time FROM sessions"
+	query := "SELECT s.session_id, s.user_id, u.user_fullname ,s.start_time, s.end_time, s.opening_cash, s.total_income, s.expected_closing_cash, s.actual_closing_cash, s.actual_difference, s.deposit_money, s.deposit_difference, s.opening_notes, s.closing_notes, s.last_update_time FROM sessions s JOIN users u ON s.user_id = u.user_id"
 	stmt, err := con.Prepare(query)
 	if err != nil {
 		res.Status = 401
@@ -680,7 +680,7 @@ func GetAllSession() (Response, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
+		err = rows.Scan(&sess.SessionId, &sess.UserId, &sess.UserFullName, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
 		if err != nil {
 			res.Status = 401
 			res.Message = "rows scan"
@@ -1067,8 +1067,95 @@ func InsertProductCategory(procat string) (Response, error) {
 	return res, nil
 }
 
+func GetProductByID(id_product string) (Response, error) {
+	var res Response
+	var prd ProductDetails
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT product_detail_id, product_code, product_category_id, product_name, supplier_id, product_batch, buy_price, sell_price, expiry_date, min_stock, product_stock, product_unit, product_timestamp FROM product_details WHERE product_detail_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_product)
+	err = stmt.QueryRow(Id).Scan(&prd.ProductDetailId, &prd.ProductCode, &prd.ProductCategoryId, &prd.ProductName, &prd.SupplierId, &prd.ProductBatch, &prd.BuyPrice, &prd.SellPrice, &prd.ExpiryDate, &prd.MinStock, &prd.ProductStock, &prd.ProductUnit, &prd.ProductTimeStamp)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = prd
+	return res, nil
+}
+
+func GetAllProducts() (Response, error) {
+	var res Response
+	var prd ProductDetails
+	var arrPrd = []ProductDetails{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT product_detail_id, product_code, product_category_id, product_name, supplier_id, product_batch, buy_price, sell_price, expiry_date, min_stock, product_stock, product_unit, product_timestamp FROM product_details"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&prd.ProductDetailId, &prd.ProductCode, &prd.ProductCategoryId, &prd.ProductName, &prd.SupplierId, &prd.ProductBatch, &prd.BuyPrice, &prd.SellPrice, &prd.ExpiryDate, &prd.MinStock, &prd.ProductStock, &prd.ProductUnit, &prd.ProductTimeStamp)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPrd = append(arrPrd, prd)
+	}
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPrd
+	return res, nil
+}
+
 func InsertProductDetails(product string) (Response, error) {
 	var res Response
+	var code string
 	var arrPro = []ProductDetails{}
 
 	err := json.Unmarshal([]byte(product), &arrPro)
@@ -1093,10 +1180,10 @@ func InsertProductDetails(product string) (Response, error) {
 		stmt, _ := con.Prepare(query)
 		defer stmt.Close()
 
-		err = stmt.QueryRow(&x.ProductCode).Scan()
+		err = stmt.QueryRow(x.ProductCode).Scan(&code)
 		if err == nil {
 			res.Status = http.StatusBadRequest
-			res.Message = "Product Code " + x.ProductCode + " existed"
+			res.Message = "Product Code " + code + " existed"
 			return res, nil
 		}
 	}
@@ -1136,7 +1223,267 @@ func InsertProductDetails(product string) (Response, error) {
 	return res, nil
 }
 
-func InsertTransaction(transaction, id_session, id_member string) (Response, error) {
+func GetTotalOfTransaction(id_transaction int, con *sql.DB) (Response, error) {
+	var res Response
+	var trd Transaction
+
+	query := "SELECT SUM(total_price), SUM(quantity) FROM transaction_details WHERE transaction_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(id_transaction).Scan(&trd.TransactionTotalPrice, &trd.TotalItem)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Data = trd
+	return res, nil
+}
+
+func GetTransactionByID(id_transaction string) (Response, error) {
+	var res Response
+	var trs Transaction
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT transaction_id, transaction_total_price, transaction_timestamp, transaction_payment_method_id, transaction_payment, transaction_change, transaction_total_item FROM transactions WHERE transaction_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_transaction)
+	err = stmt.QueryRow(Id).Scan(&trs.TransactionId, &trs.TransactionTotalPrice, &trs.TransactionTimeStamp, &trs.PaymentMethodId, &trs.TransactionPayment, &trs.TransactionChange, &trs.TotalItem)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = trs
+	return res, nil
+}
+
+func GetLastTransaction() (Response, error) {
+	var res Response
+	var trs Transaction
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT transaction_id, transaction_total_price, transaction_timestamp, transaction_payment_method_id, transaction_payment, transaction_change, transaction_total_item FROM transactions ORDER BY transaction_id DESC LIMIT 1"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow().Scan(&trs.TransactionId, &trs.TransactionTotalPrice, &trs.TransactionTimeStamp, &trs.PaymentMethodId, &trs.TransactionPayment, &trs.TransactionChange, &trs.TotalItem)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = trs
+	return res, nil
+}
+
+func GetAllTransaction() (Response, error) {
+	var res Response
+	var trs Transaction
+	var arrTrs = []Transaction{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT transaction_id, transaction_total_price, transaction_timestamp, transaction_payment_method_id, transaction_payment, transaction_change, transaction_total_item FROM transactions"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&trs.TransactionId, &trs.TransactionTotalPrice, &trs.TransactionTimeStamp, &trs.PaymentMethodId, &trs.TransactionPayment, &trs.TransactionChange, &trs.TotalItem)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrTrs = append(arrTrs, trs)
+	}
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrTrs
+	return res, nil
+}
+
+func InsertTransactionDetails(transaction string) (Response, error) {
+	var res Response
+	var arrTrd = []TransactionDetails{}
+
+	err := json.Unmarshal([]byte(transaction), &arrTrd)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := CreateTransaction()
+
+	transactionData, ok := check.Data.(Transaction)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format: got %T", check.Data)
+	}
+
+	query := "INSERT INTO transaction_details(transaction_id, product_detail_id, promo_product_id, quantity, sell_price, discount_price, total_price) VALUES(?,?,?,?,?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i, x := range arrTrd{
+		fmt.Println(transactionData.TransactionId)
+		result, err := stmt.Exec(transactionData.TransactionId, x.ProductDetailId, x.PromoProductId, x.Quantity, x.SellPrice, x.DiscountPrice, x.TotalPrice)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrTrd[i].TransactionDetailId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrTrd
+	return res, nil
+}
+
+func CreateTransaction() (Response, error) {
+	var res Response
+	var trs Transaction
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO transactions(transaction_timestamp, transaction_payment_method_id) VALUES(NOW(), 1)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec()
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		res.Status = 401
+		res.Message = "last id gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	trs.TransactionId = int(lastId)
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = trs
+	return res, nil
+}
+
+func UpdateTransaction(id_transaction, id_session, id_member, transaction string) (Response, error) {
 	var res Response
 	var trs Transaction
 
@@ -1156,8 +1503,19 @@ func InsertTransaction(transaction, id_session, id_member string) (Response, err
 		return res, err
 	}
 	defer db.DbClose(con)
+	
+	Id, _ := strconv.Atoi(id_transaction)
 
-	query := "INSERT INTO transactions(transaction_total_price, transaction_timestamp, transaction_payment_method, transaction_payment, transaction_change, transaction_total_item) VALUES(?,?,?,?,?,?,?)"
+	check, _ := GetTotalOfTransaction(Id, con)
+
+	sessionData, ok := check.Data.(Transaction)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	query := "UPDATE transactions SET transaction_total_price = ?, transaction_timestamp = ?, transaction_payment_method_id = ?, transaction_payment = ?, transaction_change = ?, transaction_total_item = ? WHERE transaction_id = ?"
 	stmt, err := con.Prepare(query)
 	if err != nil {
 		res.Status = 401
@@ -1168,21 +1526,13 @@ func InsertTransaction(transaction, id_session, id_member string) (Response, err
 	defer stmt.Close()
 
 	timeStamp, _ := time.Parse("2006-01-02 15:04:05", trs.TransactionTimeStamp)
-	result, err := stmt.Exec(trs.TransactionTotalPrice, timeStamp, trs.PaymentMethod, trs.TransactionPayment, trs.TransactionChange, trs.TotalItem)
+	_, err = stmt.Exec(sessionData.TransactionTotalPrice, timeStamp, trs.PaymentMethodId, trs.TransactionPayment, trs.TransactionChange, sessionData.TotalItem, Id)
 	if err != nil {
 		res.Status = 401
 		res.Message = "exec gagal"
 		res.Data = err.Error()
 		return res, err
 	}
-	lastId, err := result.LastInsertId()
-	if err != nil {
-		res.Status = 401
-		res.Message = "last id gagal"
-		res.Data = err.Error()
-		return res, err
-	}
-	trs.TransactionId = int(lastId)
 
 	_, _ = InsertSessionTransaction(trs.TransactionId, id_session)
 
@@ -1270,6 +1620,305 @@ func InsertMemberTransaction(id_transaction int, id_member string) (Response, er
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = result
+	return res, nil
+}
+
+func InsertPromoType(protype string) (Response, error) {
+	var res Response
+	var arrPrt = []PromoTypes{}
+
+	err := json.Unmarshal([]byte(protype), &arrPrt)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO promo_type(promo_type_name) VALUE (?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i, x := range arrPrt {
+		result, err := stmt.Exec(x.PromoTypeName)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPrt[i].PromoTypeId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPrt
+	return res, nil
+}
+
+func GetPromoByID(id_promo string) (Response, error) {
+	var res Response
+	var prm Promos
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT promo_id, promo_code, promo_type_id, promo_start_date, promo_end_date, promo_percentage, promo_discount, promo_term_and_cond, x_amount, y_amount FROM promos WHERE promo_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_promo)
+	err = stmt.QueryRow(Id).Scan(&prm.PromoId, &prm.PromoCode, &prm.PromoTypeId, &prm.PromoStartDate, &prm.PromoEndDate, &prm.PromoPercentage, &prm.PromoDiscount, &prm.TermAndCond, &prm.XAmount, &prm.YAmount)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = prm
+	return res, nil
+}
+
+func InsertPromos(promo string) (Response, error) {
+	var res Response
+	var code string
+	var arrPrm = []Promos{}
+
+	err := json.Unmarshal([]byte(promo), &arrPrm)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	for _, x := range arrPrm {
+		query := "SELECT promo_code FROM promos WHERE promo_code = ?"
+		stmt, _ := con.Prepare(query)
+		defer stmt.Close()
+
+		err = stmt.QueryRow(&x.PromoCode).Scan(&code)
+		if err == nil {
+			res.Status = http.StatusBadRequest
+			res.Message = "Promo Code " + code + " existed"
+			return res, nil
+		}
+	}
+
+	query := "INSERT INTO promos(promo_code, promo_type_id, promo_start_date, promo_end_date, promo_percentage, promo_discount, promo_term_and_cond, x_amount, y_amount) VALUES (?,?,?,?,?,?,?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i, x := range arrPrm {
+		startDate, _ := time.Parse("2006-01-02", x.PromoStartDate)
+		endDate, _ := time.Parse("2006-01-02", x.PromoEndDate)
+
+		if endDate.Before(startDate) {
+			res.Status = 401
+			res.Message = "End Date must after Start Date"
+			return res, nil
+		}
+
+		result, err := stmt.Exec(x.PromoCode, x.PromoTypeId, startDate, endDate, x.PromoPercentage, x.PromoDiscount, x.TermAndCond, x.XAmount, x.YAmount)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPrm[i].PromoId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPrm
+	return res, nil
+}
+
+func InsertPromoProducts(promo string)(Response, error) {
+	var res Response
+	var arrPrd = []PromoProducts{}
+
+	err := json.Unmarshal([]byte(promo), &arrPrd)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	for _ ,x := range arrPrd {
+		pdid := strconv.Itoa(x.ProductDetailId)
+		check, err := GetProductByID(pdid)
+		if (err != nil || check.Data == nil) {
+			res.Status = http.StatusBadRequest
+			res.Message = "Product ID " + pdid + " not exist"
+			return res, nil
+		}
+
+		pid := strconv.Itoa(x.PromoId)
+		check, err = GetPromoByID(pid)
+		if (err != nil || check.Data == nil) {
+			res.Status = http.StatusBadRequest
+			res.Message = "Promo ID " + pid + " not exist"
+			return res, nil
+		}
+	}
+
+	query := "INSERT INTO promo_products(product_detail_id, promo_id) VALUES (?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i ,x := range arrPrd {
+		result, err := stmt.Exec(x.ProductDetailId, x.PromoId)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPrd[i].PromoProductId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPrd
+	return res, nil
+}
+
+func InsertPaymentMethod(payment string) (Response, error) {
+	var res Response
+	var arrPay = []PaymentMethod{}
+
+	err := json.Unmarshal([]byte(payment), &arrPay)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO payment_method(payment_method_name) VALUE (?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i, x := range arrPay {
+		result, err := stmt.Exec(x.PaymentMethodName)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPay[i].PaymentMethodId = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPay
 	return res, nil
 }
 

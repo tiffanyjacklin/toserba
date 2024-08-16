@@ -12,6 +12,7 @@ e.PUT("/cashier/session/edit/verifotp/:user_id", controller.OTPVerification)
     "user_otp": "107228"
 }
 
+{
 ================================================= Cashier =================================================
 
 // Session
@@ -58,8 +59,39 @@ e.POST("/cashier/members/add", controller.InsertNewMember)
     "member_join_date": "2024-08-13 15:56:00"
 }
 
-//BELUM TESTING
-e.POST("/cashier/transaction/add/:session_id/:member_id", controller.InsertTransaction)
+e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
+e.GET("/transaction/last", controller.GetLastTransaction)
+e.GET("/transaction", controller.GetAllTransaction)
+
+e.POST("/transaction/details/add", controller.InsertTransactionDetails)
+[
+    {
+        "product_detail_id": 2,
+        "promo_product_id": 1,
+        "quantity": 2,
+        "sell_price": 44000,
+        "discount_price": 6600,
+        "total_price": 37400
+    }, 
+    {
+        "product_detail_id": 2,
+        "promo_product_id": 1,
+        "quantity": 2,
+        "sell_price": 44000,
+        "discount_price": 6600,
+        "total_price": 37400
+    }
+]
+
+// Kalau ga ada member, member_id = 0
+e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.UpdateTransaction)
+{
+    "transaction_timestamp": "2024-06-06 11:11:11",
+    "transaction_payment_method_id": 2,
+    "transaction_payment": 50000,
+    "transaction_change": 6000
+}
+}
 
 ================================================= Admin =================================================
 e.POST("/products/category/add", controller.InsertProductCategory)
@@ -72,6 +104,8 @@ e.POST("/products/category/add", controller.InsertProductCategory)
     }
 ]
 
+e.GET("/products/:product_id", controller.GetProductByID) 
+e.GET("/products", controller.GetAllProducts) 
 e.POST("/products/add", controller.InsertProductDetails)
 [
     {
@@ -87,6 +121,41 @@ e.POST("/products/add", controller.InsertProductDetails)
         "product_stock": 1000,
         "product_unit": "gram",
         "product_timestamp": "2024-08-13 09:10:00"
+    }
+]
+
+e.POST("/promos/type/add", controller.InsertPromoType)
+[
+    {
+        "promo_type_name": "BUY1GET1"
+    },
+    {
+        "promo_type_name": "%DISCOUNT"
+    }
+]
+
+e.GET("/promos/:promo_id", controller.GetPromoByID)
+e.POST("/promos/add", controller.InsertPromos)
+[
+    {
+        "promo_code": "PROMO01",
+        "promo_type_id": 2,
+        "promo_start_date": "2024-08-16",
+        "promo_end_date": "2024-09-16",
+        "promo_percentage": 15,
+        "promo_term_and_cond": "Min Buy: Rp 30,000"
+    }
+]
+
+e.POST("promos/product/add", controller.InsertPromoProducts)
+[
+    {
+        "product_detail_id": 2,
+        "promo_id" :2
+    },
+    {
+        "product_detail_id": 3,
+        "promo_id" :2
     }
 ]
 
@@ -139,3 +208,10 @@ e.POST("suppliers/add", controller.InsertSupplier)
     "supplier_phone_number": "081237485623",
     "supplier_address": "Jl. Semangka II No. 3, Surabaya"
 }
+
+e.POST("/payment/method/add", controller.InsertPaymentMethod)
+[
+    {
+        "payment_method_name": "Cash"
+    }
+]
