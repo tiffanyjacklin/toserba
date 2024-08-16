@@ -12,16 +12,16 @@ import (
 	"time"
 )
 
-func GenerateOTP () string {
+func GenerateOTP() string {
 	// var res Response
-    otp := rand.Intn(9000) + 100000
+	otp := rand.Intn(9000) + 100000
 
-    return strconv.Itoa(otp)
+	return strconv.Itoa(otp)
 }
 
-func SendEmail (toEmail, otp string) error {
+func SendEmail(toEmail, otp string) error {
 	from := "c14210021@john.petra.ac.id"
-	password := "bnkp otmd lwcr biif" 
+	password := "bnkp otmd lwcr biif"
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
 
@@ -47,7 +47,7 @@ func SendEmail (toEmail, otp string) error {
 	return err
 }
 
-func AccountSendOTP (id_user string) (Response, error) {
+func AccountSendOTP(id_user string) (Response, error) {
 	var res Response
 	var user UserData
 
@@ -87,7 +87,7 @@ func AccountSendOTP (id_user string) (Response, error) {
 		res.Data = err.Error()
 		return res, err
 	}
-	
+
 	query = "UPDATE users SET user_otp = ?, otp_exp = ? WHERE user_id = ?"
 	stmt, err = con.Prepare(query)
 	if err != nil {
@@ -114,7 +114,7 @@ func AccountSendOTP (id_user string) (Response, error) {
 	return res, nil
 }
 
-func ResetOTP (id_user int, res Response, con *sql.DB) (Response, error) {
+func ResetOTP(id_user int, res Response, con *sql.DB) (Response, error) {
 	query := "UPDATE users SET user_otp = '', otp_exp = '0000-00-00 00:00:00' WHERE user_id = ?"
 	stmt, err := con.Prepare(query)
 	if err != nil {
@@ -135,7 +135,7 @@ func ResetOTP (id_user int, res Response, con *sql.DB) (Response, error) {
 	return res, nil
 }
 
-func OTPVerification (id_user, vOtp string) (Response, error) {
+func OTPVerification(id_user, vOtp string) (Response, error) {
 	var res Response
 	var user UserData
 	var verifOtp OTPRequest
@@ -872,8 +872,6 @@ func UpdateSessionData(id_session, session string) (Response, error) {
 
 	duration := updateTime.Sub(endTime)
 
-	fmt.Println(endTime, updateTime, duration)
-
 	if duration > 30*time.Minute {
 		res.Status = 401
 		res.Message = "Cannot Edit Session"
@@ -1412,7 +1410,7 @@ func InsertTransactionDetails(transaction string) (Response, error) {
 	}
 	defer stmt.Close()
 
-	for i, x := range arrTrd{
+	for i, x := range arrTrd {
 		fmt.Println(transactionData.TransactionId)
 		result, err := stmt.Exec(transactionData.TransactionId, x.ProductDetailId, x.PromoProductId, x.Quantity, x.SellPrice, x.DiscountPrice, x.TotalPrice)
 		if err != nil {
@@ -1483,7 +1481,7 @@ func CreateTransaction() (Response, error) {
 	return res, nil
 }
 
-func UpdateTransaction(id_transaction, id_session, id_member, transaction string) (Response, error) {
+func InsertTransaction(id_transaction, id_session, id_member, transaction string) (Response, error) {
 	var res Response
 	var trs Transaction
 
@@ -1503,7 +1501,7 @@ func UpdateTransaction(id_transaction, id_session, id_member, transaction string
 		return res, err
 	}
 	defer db.DbClose(con)
-	
+
 	Id, _ := strconv.Atoi(id_transaction)
 
 	check, _ := GetTotalOfTransaction(Id, con)
@@ -1534,16 +1532,70 @@ func UpdateTransaction(id_transaction, id_session, id_member, transaction string
 		return res, err
 	}
 
-	_, _ = InsertSessionTransaction(trs.TransactionId, id_session)
+	fmt.Println("MASUK1")
 
+	_, _ = InsertSessionTransaction(Id, id_session)
+	fmt.Println("MASUK5")
 	mid, _ := strconv.Atoi(id_member)
 	if mid != 0 {
-		_, _ = InsertMemberTransaction(trs.TransactionId, id_member)
+		_, _ = InsertMemberTransaction(Id, id_member)
 	}
 
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = trs
+	return res, nil
+}
+
+func GetTransactionIDBySessionID(id_session string) (Response, error) {
+	var res Response
+	var ts SessionTransaction
+	var arrTS = []SessionTransaction{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT transaction_id FROM session_transactions WHERE session_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_session)
+	rows, err := stmt.Query(Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&ts.TransactionId)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrTS = append(arrTS, ts)
+	}
+
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrTS
 	return res, nil
 }
 
@@ -1585,6 +1637,58 @@ func InsertSessionTransaction(id_transaction int, id_session string) (Response, 
 	return res, nil
 }
 
+func GetTransactionIDByMemberID(id_member string) (Response, error) {
+	var res Response
+	var ts TransactionMember
+	var arrTS = []TransactionMember{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT transaction_id FROM transactions_member WHERE member_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_member)
+	rows, err := stmt.Query(Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&ts.TransactionId)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrTS = append(arrTS, ts)
+	}
+
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrTS
+	return res, nil
+}
+
 func InsertMemberTransaction(id_transaction int, id_member string) (Response, error) {
 	var res Response
 	// var trs Transaction
@@ -1611,6 +1715,7 @@ func InsertMemberTransaction(id_transaction int, id_member string) (Response, er
 	sId, _ := strconv.Atoi(id_member)
 	result, err := stmt.Exec(sId, id_transaction)
 	if err != nil {
+		fmt.Println("BRO LAGI", err)
 		res.Status = 401
 		res.Message = "exec gagal"
 		res.Data = err.Error()
@@ -1794,7 +1899,7 @@ func InsertPromos(promo string) (Response, error) {
 	return res, nil
 }
 
-func InsertPromoProducts(promo string)(Response, error) {
+func InsertPromoProducts(promo string) (Response, error) {
 	var res Response
 	var arrPrd = []PromoProducts{}
 
@@ -1815,10 +1920,10 @@ func InsertPromoProducts(promo string)(Response, error) {
 	}
 	defer db.DbClose(con)
 
-	for _ ,x := range arrPrd {
+	for _, x := range arrPrd {
 		pdid := strconv.Itoa(x.ProductDetailId)
 		check, err := GetProductByID(pdid)
-		if (err != nil || check.Data == nil) {
+		if err != nil || check.Data == nil {
 			res.Status = http.StatusBadRequest
 			res.Message = "Product ID " + pdid + " not exist"
 			return res, nil
@@ -1826,7 +1931,7 @@ func InsertPromoProducts(promo string)(Response, error) {
 
 		pid := strconv.Itoa(x.PromoId)
 		check, err = GetPromoByID(pid)
-		if (err != nil || check.Data == nil) {
+		if err != nil || check.Data == nil {
 			res.Status = http.StatusBadRequest
 			res.Message = "Promo ID " + pid + " not exist"
 			return res, nil
@@ -1843,7 +1948,7 @@ func InsertPromoProducts(promo string)(Response, error) {
 	}
 	defer stmt.Close()
 
-	for i ,x := range arrPrd {
+	for i, x := range arrPrd {
 		result, err := stmt.Exec(x.ProductDetailId, x.PromoId)
 		if err != nil {
 			res.Status = 401

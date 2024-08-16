@@ -20,6 +20,7 @@ e.PUT("/cashier/session/edit/verifotp/:user_id", controller.OTPVerification)
 e.GET("/cashier/session/:session_id", controller.GetSessionByID)
 e.GET("/cashier/session", controller.GetAllSession)
 e.GET("/cashier/session/last", controller.GetLastSession)
+e.GET("/cashier/session/transaction/:session_id", controller.GetTransactionIDBySessionID)
 e.POST("/cashier/session/new", controller.InsertNewSession) // body raw
 {
     "user_id": 1,
@@ -58,6 +59,7 @@ e.POST("/cashier/members/add", controller.InsertNewMember)
     "member_phone_number": "081229075436",
     "member_join_date": "2024-08-13 15:56:00"
 }
+e.GET("/cashier/members/transaction/:member_id", controller.GetTransactionIDByMemberID)
 
 e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
 e.GET("/transaction/last", controller.GetLastTransaction)
@@ -84,7 +86,7 @@ e.POST("/transaction/details/add", controller.InsertTransactionDetails)
 ]
 
 // Kalau ga ada member, member_id = 0
-e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.UpdateTransaction)
+e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.InsertTransaction)
 {
     "transaction_timestamp": "2024-06-06 11:11:11",
     "transaction_payment_method_id": 2,

@@ -139,6 +139,18 @@ type TransactionDetails struct {
 	TotalPrice int `json:"total_price"`
 }
 
+type SessionTransaction struct {
+	SessionTransactionId int `json:"session_transaction_id"`
+	TransactionId int `json:"transaction_id"`
+	SessionId int `json:"session_id"`
+}
+
+type TransactionMember struct {
+	TransactionMemberId int `json:"transaction_member_id"`
+	TransactionId int `json:"transaction_id"`
+	MemberId int `json:"member_id"`
+}
+
 type PromoTypes struct {
 	PromoTypeId int `json:"promo_type_id"`
 	PromoTypeName string `json:"promo_type_name"`

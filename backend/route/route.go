@@ -38,6 +38,7 @@ func Init() *echo.Echo {
 	e.GET("/cashier/session/:session_id", controller.GetSessionByID)
 	e.GET("/cashier/session", controller.GetAllSession)
 	e.GET("/cashier/session/last", controller.GetLastSession)
+	e.GET("/cashier/session/transaction/:session_id", controller.GetTransactionIDBySessionID)
 	e.POST("/cashier/session/new", controller.InsertNewSession)
 	e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
 	e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
@@ -45,12 +46,13 @@ func Init() *echo.Echo {
 	// Cashier - Transaction, Member & Product
 	e.GET("/cashier/members/:member_id", controller.GetMemberByID)
 	e.POST("/cashier/members/add", controller.InsertNewMember)
-	
+	e.GET("/cashier/members/transaction/:member_id", controller.GetTransactionIDByMemberID)
+
 	e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
 	e.GET("/transaction/last", controller.GetLastTransaction)
 	e.GET("/transaction", controller.GetAllTransaction)
 	e.POST("/transaction/details/add", controller.InsertTransactionDetails) 
-	e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.UpdateTransaction)
+	e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.InsertTransaction)
 
 	// Admin
 	e.POST("/products/category/add", controller.InsertProductCategory)

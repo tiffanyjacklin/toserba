@@ -245,6 +245,28 @@ func InsertNewMember(c echo.Context) error {
 // 	return c.JSON(http.StatusOK, result)
 // }
 
+func GetTransactionIDBySessionID(c echo.Context) error {
+	sid := c.Param("session_id")
+	result, err := model.GetTransactionIDBySessionID(sid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetTransactionIDBySessionID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetTransactionIDByMemberID(c echo.Context) error {
+	sid := c.Param("member_id")
+	result, err := model.GetTransactionIDByMemberID(sid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetTransactionIDByMemberID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetTransactionByID(c echo.Context) error {
 	tid := c.Param("transaction_id")
 	result, err := model.GetTransactionByID(tid)
@@ -276,7 +298,7 @@ func GetAllTransaction(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func UpdateTransaction(c echo.Context) error {
+func InsertTransaction(c echo.Context) error {
 	tid := c.Param("transaction_id")
 	sid := c.Param("session_id")
 	mid := c.Param("member_id")
@@ -284,7 +306,7 @@ func UpdateTransaction(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
 	}
-	result, err := model.UpdateTransaction(tid, sid, mid, string(transaction))
+	result, err := model.InsertTransaction(tid, sid, mid, string(transaction))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
