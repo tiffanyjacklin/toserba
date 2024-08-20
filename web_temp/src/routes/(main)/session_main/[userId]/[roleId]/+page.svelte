@@ -11,6 +11,15 @@
 
     let all_produk = [];
     let checkout = [];
+    $: total = 0;
+    
+    function sumTotal(){
+        total = checkout.reduce((sum, item) => {
+        return sum + (item.sell_price * item.jumlah);
+        }, 0);
+        total = total
+        // console.log(total); 
+    }
 
     async function fetchProduk() {
         const response = await fetch(`http://leap.crossnet.co.id:8888/products`, {
@@ -42,22 +51,15 @@
 
     let window = "payment";
 
-    function plus(idBarang){
-        var value = document.getElementById(idBarang).value;
-        value++;
-        document.getElementById(idBarang).value = value;
-    }
-    
-    function minus(idBarang){
-        var value = document.getElementById(idBarang).value;
-        if (value > 1){
-            value--;
-        }
-        document.getElementById(idBarang).value = value;
-    }
-
     function addtoCheckout(produk){
-        checkout.push(produk)
+        if (checkout.find(({ product_name }) => product_name === produk.product_name) != null){
+            let index = checkout.findIndex(produk_c => produk_c.product_name == produk.product_name);
+            checkout[index].jumlah+=1;
+        } else{
+            produk.jumlah = 1;
+            checkout.push(produk)
+        }
+        
         checkout = checkout;
         console.log("checkout : ", checkout);
     }
@@ -108,7 +110,7 @@
                     
                     <div class="grid grid-cols-3 gap-4 mt-6 mx-8">
                         {#each all_produk as produk}
-                        <button on:click={() => addtoCheckout(produk)} class="w-full border-2 border-black rounded-lg bg-white">
+                        <button on:click={() => {addtoCheckout(produk); sumTotal()}} class="w-full border-2 border-black rounded-lg bg-white">
                             <div class="p-3 w-full flex flex-col items-center">
                                 <img class="rounded-lg w-10/12 h-10/12" src={img_produk} alt="">
                                 <p class="w-full truncate text-black font-semibold my-1 text-center">{produk.product_name}</p>
@@ -147,18 +149,34 @@
                 <div class="flex py-1 my-1 w-full">
                     <div class="w-9/12 text-white">
                         <p class="font-semibold truncate">{produk_checkout.product_name}</p>
-                        <p class="font-semibold ml-8">2 unit (Rp 35,000.00/unit)</p>
+                        <p class="flex font-semibold ml-8"><MoneyConverter value={produk_checkout.sell_price} currency={true} decimal={true}></MoneyConverter>/{produk_checkout.product_unit}</p>
                     </div>
                     <div class="w-3/12 text-center">
-                        <span class="text-peach font-semibold">Rp 70,000.00</span>
+                        <span class="text-peach font-semibold"><MoneyConverter value={produk_checkout.sell_price*produk_checkout.jumlah} currency={true} decimal={true}></MoneyConverter></span>
                         <div class="flex">
-                            <button on:click={() => minus("produk1")} type="button" class="bg-peach rounded-s-xl h-8 p-2">
+                            <button on:click={() => {
+                                let index = checkout.findIndex(produk_c => produk_c.product_name == produk_checkout.product_name);
+                                if (checkout[index].jumlah > 1){
+                                    checkout[index].jumlah-=1;
+                                } else{
+                                    checkout.splice(index,1);
+                                    checkout = checkout;
+                                    console.log(checkout);
+                                }
+                                sumTotal()
+                            }} 
+                            type="button" class="bg-peach rounded-s-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
                                 </svg>
                             </button>
-                            <input id="produk1" value=1 type="text" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16" required />
-                            <button on:click={() => plus("produk1")} type="button" class="bg-peach rounded-e-xl h-8 p-2">
+                            <input on:change={() => sumTotal()} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
+                            <button on:click={() => {
+                                let index = checkout.findIndex(produk_c => produk_c.product_name == produk_checkout.product_name);
+                                checkout[index].jumlah+=1;
+                                sumTotal()
+                            }} 
+                            type="button" class="bg-peach rounded-e-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
                                 </svg>
@@ -168,7 +186,7 @@
                 </div>
             {/each}
             
-
+            
             <!-- <div class="flex py-1 my-1 w-full">
                 <div class="w-9/12 text-white">
                     <p class="font-semibold truncate">Beras Pandan Wangi</p>
@@ -220,8 +238,9 @@
 
         </div>
 
-        <div class="text-end">
-            <span class="text-peach font-semibold">Total: Rp 136,630.00</span>
+        <div class="text-end"> 
+            <span class="text-peach font-semibold"><MoneyConverter bind:value={total} currency={true} decimal={true}></MoneyConverter></span>
+
         </div>
         <button class="w-auto bg-peach2 text-darkGray p-2 px-auto rounded-2xl mx-3 my-2 font-semibold">1 item(s) with promo, 0 promo(s) applied</button>
         
