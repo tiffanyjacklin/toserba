@@ -5,9 +5,8 @@
 	import Sidebar from '$lib/Sidebar.svelte';
 	import { page } from '$app/stores';
 
-	let hide = $page.url.pathname.startsWith('/session_main');
+	$: hide = $page.url.pathname.startsWith('/session_main') ||  $page.url.pathname.startsWith('/payment');
 
-	console.log(hide)
 	export let data;
 	let userId = data.userId;
 	let roleId = data.roleId;
@@ -34,7 +33,7 @@
 	<div class="ml-64 mt-16">
 		<slot />
 	</div>
-	{:else}
+	{:else if hide}
 	<slot />
 {/if}
 
