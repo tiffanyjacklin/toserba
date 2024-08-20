@@ -54,14 +54,19 @@ func Init() *echo.Echo {
 	e.POST("/transaction/details/add", controller.InsertTransactionDetails) 
 	e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.InsertTransaction)
 
+	// Warehouse
+	e.POST("/products/stock/card/add", controller.InsertStockCards)
+
 	// Admin
 	e.POST("/products/category/add", controller.InsertProductCategory)
 	e.GET("/products/:product_id", controller.GetProductByID) 
-	e.GET("/products/code/:product_code", controller.GetProductByCode) 
+	e.GET("/products/code/:product_code", controller.GetProductByCode)
+	e.GET("/products/name/:product_name", controller.GetProductByName) 
 	e.GET("/products", controller.GetAllProducts) 
 	e.POST("/products/add/:store_warehouse_id", controller.InsertProductDetails)
 	e.POST("/promos/type/add", controller.InsertPromoType)
-	e.GET("/promos/:promo_id", controller.GetPromoByID) 
+	e.GET("/promos/:promo_id", controller.GetPromoByID)
+	e.GET("/promos", controller.GetAllPromos)  
 	e.POST("/promos/add", controller.InsertPromos) 
 	e.GET("/promos/product/:product_id", controller.GetPromoIDByProductID)
 	e.POST("/promos/product/add", controller.InsertPromoProducts) 

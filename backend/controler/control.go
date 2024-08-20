@@ -403,6 +403,17 @@ func GetProductByCode(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetProductByName(c echo.Context) error {
+	pid := c.Param("product_name")
+	result, err := model.GetProductByName(pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetProductByName", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetAllProducts(c echo.Context) error {
 	result, err := model.GetAllProducts()
 	if err != nil {
@@ -450,6 +461,16 @@ func GetPromoByID(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetPromoByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllPromos(c echo.Context) error {
+	result, err := model.GetAllPromos()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllPromos", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -514,6 +535,20 @@ func InsertPaymentMethod(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "InsertPaymentMethod", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertStockCards(c echo.Context) error {
+	pay, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertStockCards(string(pay))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertStockCards", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 

@@ -183,6 +183,20 @@ type PaymentMethod struct {
 	PaymentMethodName string `json:"payment_method_name"`
 }
 
+type StockCards struct {
+	StockCardID int `json:"stock_card_id"`
+	ProductDetailID int `json:"product_detail_id"`
+	StockDate string `json:"stock_date"`
+	StockDescription string `json:"stock_description"`
+	ProductName string `json:"product_name"`
+	ProductBatch int `json:"product_batch"`
+	ProductStock int `json:"product_stock"`
+	ExpiredDate string `json:"expired_date"`
+	StockIn int `json:"stock_in"`
+	StockOut int `json:"stock_out"`
+	StoreWarehouseID int `json:"store_warehouse_id"`
+}
+
 type StoreWarehouses struct {
 	StoreWarehouseId int `json:"store_warehouse_id"`
 	StoreWarehouseType string `json:"store_warehouse_type"`

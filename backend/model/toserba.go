@@ -1140,6 +1140,57 @@ func GetProductByCode(product_code string) (Response, error) {
 	return res, nil
 }
 
+func GetProductByName(product_name string) (Response, error) {
+	var res Response
+	var prd ProductDetails
+	var arrPrd = []ProductDetails{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT pd.product_detail_id, pd.product_code, pd.product_category_id, pd.product_name, pd.supplier_id, pd.product_batch, pd.buy_price, pd.sell_price, pd.expiry_date, pd.min_stock, pd.product_stock, pd.product_unit, pd.product_timestamp, sw.store_warehouse_id FROM product_details pd JOIN sw_products sw ON pd.product_detail_id = sw.product_detail_id WHERE product_name LIKE ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	searchName := "%" + product_name + "%"
+
+	rows, err := stmt.Query(searchName)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&prd.ProductDetailId, &prd.ProductCode, &prd.ProductCategoryId, &prd.ProductName, &prd.SupplierId, &prd.ProductBatch, &prd.BuyPrice, &prd.SellPrice, &prd.ExpiryDate, &prd.MinStock, &prd.ProductStock, &prd.ProductUnit, &prd.ProductTimeStamp, &prd.StoreWarehouseID)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPrd = append(arrPrd, prd)
+	}
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPrd
+	return res, nil
+}
+
 func GetAllProducts() (Response, error) {
 	var res Response
 	var prd ProductDetails
@@ -1921,6 +1972,54 @@ func GetPromoByID(id_promo string) (Response, error) {
 	return res, nil
 }
 
+func GetAllPromos() (Response, error) {
+	var res Response
+	var prm Promos
+	var arrPrm = []Promos{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT promo_id, promo_code, promo_type_id, promo_start_date, promo_end_date, promo_percentage, promo_discount, promo_term_and_cond, x_amount, y_amount FROM promos"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&prm.PromoId, &prm.PromoCode, &prm.PromoTypeId, &prm.PromoStartDate, &prm.PromoEndDate, &prm.PromoPercentage, &prm.PromoDiscount, &prm.TermAndCond, &prm.XAmount, &prm.YAmount)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrPrm = append(arrPrm, prm)
+	}
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrPrm
+	return res, nil
+}
+
 func GetPromoIDByProductID(id_product string) (Response, error) {
 	var res Response
 	var pp PromoProducts
@@ -2228,6 +2327,101 @@ func InsertPaymentMethod(payment string) (Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = arrPay
+	return res, nil
+}
+
+func InsertStockCards(stockcard string) (Response, error) {
+	var res Response
+	var arrSC = []StockCards{}
+
+	err := json.Unmarshal([]byte(stockcard), &arrSC)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "INSERT INTO stock_cards(product_detail_id, stock_date, stock_description, product_name, product_batch, product_stock, expired_date, stock_in, stock_out) VALUE (?,NOW(),?,?,?,?,?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i, x := range arrSC {
+		// timeStamp, _ := time.Parse("2006-01-02", x.StockDate)
+		expiredDate, _ := time.Parse("2006-01-02", x.ExpiredDate)
+		result, err := stmt.Exec(x.ProductDetailID, x.StockDescription, x.ProductName, x.ProductBatch, x.ProductStock, expiredDate, x.StockIn, x.StockOut)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSC[i].StockCardID = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSC
+	return res, nil
+}
+
+func GetStockCardByID(id_stockcard string) (Response, error) {
+	var res Response
+	var sc StockCards
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT stock_card_id, product_detail_id, stock_date, stock_description, product_name, product_batch, product_stock, expired_date, stock_in, stock_out FROM stock_cards WHERE stock_card_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_stockcard)
+	err = stmt.QueryRow(Id).Scan(&sc.StockCardID, &sc.ProductDetailID, &sc.StockDate, &sc.StockDescription, &sc.ProductName, &sc.ProductBatch, &sc.ProductStock, &sc.ExpiredDate, &sc.StockIn, &sc.StockOut)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sc
 	return res, nil
 }
 
