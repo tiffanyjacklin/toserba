@@ -1,10 +1,12 @@
 <script>
     import SessionHistory from "$lib/SessionHistory.svelte";
     import TransactionHistory from "$lib/TransactionHistory.svelte"
+    import TransactionHistoryDetails from "$lib/TransactionHistoryDetails.svelte"
     import ProdukMain from "$lib/ProdukMain.svelte"
 
     import produk from "$lib/assets/produk.png";
 
+    let window = "payment";
 
     function plus(idBarang){
         var value = document.getElementById(idBarang).value;
@@ -38,13 +40,18 @@
     <div class="w-7/12 bg-gray-100 flex flex-col">
         <div class="h-auto text-darkGray text-lg font-semibold my-2 mx-6">
             <button class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Close Session</button>
-            <button class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-regular fa-clock mr-1"></i>Session History</button>
-            <button class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-user-check mr-1"></i>Accept Order</button>
+            <button on:click={() => window = "session_history"} class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-regular fa-clock mr-1"></i>Session History</button>
         </div>
         <div class="h-auto overflow-auto no-scrollbar">
-            <!-- <SessionHistory></SessionHistory> -->
-            <!-- <TransactionHistory></TransactionHistory> -->
-             <ProdukMain></ProdukMain>
+            {#if window == "payment"}
+                <ProdukMain></ProdukMain>
+            {:else if window == "session_history"}
+                <SessionHistory></SessionHistory>
+            {:else if window == "transaction_list"}
+                <TransactionHistory></TransactionHistory>
+            {/if}
+            <!-- <TransactionHistoryDetails></TransactionHistoryDetails> -->
+            
         
         </div>
         
@@ -52,8 +59,8 @@
     </div>
     <div class="w-5/12 flex flex-col bg-darkGray h-full border-l-8 border-l-peach">
         <div class="flex justify-around text-white font-semibold mt-4 mb-2">
-            <button class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-dollar-sign mr-2" style="color: #F2AA7E;"></i></span>Payment</button>
-            <button class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-list mr-2" style="color: #F2AA7E;"></i></span>View Transaction List</button>
+            <button on:click={() =>  window = "payment"} class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-dollar-sign mr-2" style="color: #F2AA7E;"></i></span>Payment</button>
+            <button on:click={() =>  window = "transaction_list"} class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-list mr-2" style="color: #F2AA7E;"></i></span>View Transaction List</button>
             <button class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray flex"><span class="mr-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <rect width="24" height="24" fill="url(#pattern0_434_939)"/>
                 <defs>
