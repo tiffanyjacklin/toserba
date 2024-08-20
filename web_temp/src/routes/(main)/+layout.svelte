@@ -34,9 +34,11 @@
 	<div class="ml-64 mt-16">
 		<slot />
 	</div>
+	{:else}
+	<slot />
 {/if}
 
-<slot />
+
 
 <style>
 	
