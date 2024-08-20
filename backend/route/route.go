@@ -57,24 +57,26 @@ func Init() *echo.Echo {
 	// Admin
 	e.POST("/products/category/add", controller.InsertProductCategory)
 	e.GET("/products/:product_id", controller.GetProductByID) 
+	e.GET("/products/code/:product_code", controller.GetProductByCode) 
 	e.GET("/products", controller.GetAllProducts) 
-	e.POST("/products/add", controller.InsertProductDetails)
+	e.POST("/products/add/:store_warehouse_id", controller.InsertProductDetails)
 	e.POST("/promos/type/add", controller.InsertPromoType)
 	e.GET("/promos/:promo_id", controller.GetPromoByID) 
 	e.POST("/promos/add", controller.InsertPromos) 
-	e.POST("promos/product/add", controller.InsertPromoProducts) 
+	e.GET("/promos/product/:product_id", controller.GetPromoIDByProductID)
+	e.POST("/promos/product/add", controller.InsertPromoProducts) 
+	e.POST("/promos/product/all/:promo_id", controller.UpdatePromoToAllProducts)
 	e.GET("/roles/:roles_id", controller.GetRolesByID)
 	e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
 
 	// Owner 
-	e.GET("/stores/:store_id", controller.GetStoreByID)
-	e.POST("/stores/add", controller.InsertStore)
-	e.GET("/warehouses/:warehouse_id", controller.GetWarehouseByID)
-	e.POST("/warehouses/add", controller.InsertWarehouse)
+	e.GET("/store_warehouses/:store_warehouse_id", controller.GetStoreWarehouseByID)
+	e.POST("/store_warehouses/add", controller.InsertStoreWarehouse)
 	e.POST("/roles/add", controller.InsertRoles)
 	e.POST("/privileges/add", controller.InsertPrivileges)
 	e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
 	e.POST("/suppliers/add", controller.InsertSupplier)
 	e.POST("/payment/method/add", controller.InsertPaymentMethod)
+
 	return e
 }

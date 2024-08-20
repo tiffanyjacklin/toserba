@@ -116,6 +116,8 @@ type ProductDetails struct {
 	ProductStock int `json:"product_stock"`
 	ProductUnit string `json:"product_unit"`
 	ProductTimeStamp string `json:"product_timestamp"`
+	StoreWarehouseID int `json:"store_warehouse_id"`
+	WarehousePlacement string `json:"warehouse_placement"`
 }
 
 type Transaction struct {
@@ -126,6 +128,7 @@ type Transaction struct {
 	TransactionPayment int `json:"transaction_payment"`
 	TransactionChange int `json:"transaction_change"`
 	TotalItem int `json:"transaction_total_item"`
+	TransactionUser string `json:"transaction_user"`
 }
 
 type TransactionDetails struct {
@@ -180,18 +183,12 @@ type PaymentMethod struct {
 	PaymentMethodName string `json:"payment_method_name"`
 }
 
-type Stores struct {
-	StoreId int `json:"store_id"`
-	StoreName string `json:"store_name"`
-	StoreAddress string `json:"store_address"`
-	StorePhoneNumber string `json:"store_phone_number"`
-}
-
-type Warehouses struct {
-	WarehouseId int `json:"warehouse_id"`
-	WarehouseName string `json:"warehouse_name"`
-	WarehouseAddress string `json:"warehouse_address"`
-	WarehousePhoneNumber string `json:"warehouse_phone_number"`
+type StoreWarehouses struct {
+	StoreWarehouseId int `json:"store_warehouse_id"`
+	StoreWarehouseType string `json:"store_warehouse_type"`
+	StoreWarehouseName string `json:"store_warehouse_name"`
+	StoreWarehouseAddress string `json:"store_warehouse_address"`
+	StoreWarehousePhoneNumber string `json:"store_warehouse_phone_number"`
 }
 
 type Suppliers struct {

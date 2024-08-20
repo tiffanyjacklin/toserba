@@ -153,9 +153,12 @@ CREATE TABLE IF NOT EXISTS `product_details` (
   KEY `supplier_id` (`supplier_id`),
   CONSTRAINT `FK_product_details_suppliers` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`supplier_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_product_details_product_category` FOREIGN KEY (`product_category_id`) REFERENCES `products_category` (`product_category_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.product_details: ~0 rows (approximately)
+-- Dumping data for table toserba.product_details: ~2 rows (approximately)
+REPLACE INTO `product_details` (`product_detail_id`, `product_code`, `product_category_id`, `product_name`, `supplier_id`, `product_batch`, `buy_price`, `sell_price`, `expiry_date`, `min_stock`, `product_stock`, `product_unit`, `product_timestamp`) VALUES
+	(3, 'VEG001', 1, 'Spinach', 1, 1, 20000, 22000, '2024-08-23', 500, 1000, 'gram', '2024-08-13 09:10:00'),
+	(4, 'VEG002', 1, 'Pepper', 1, 1, 25000, 28000, '2024-08-23', 500, 1000, 'gram', '2024-08-13 09:10:00');
 
 -- Dumping structure for table toserba.promos
 DROP TABLE IF EXISTS `promos`;
@@ -174,9 +177,11 @@ CREATE TABLE IF NOT EXISTS `promos` (
   UNIQUE KEY `promo_code` (`promo_code`),
   KEY `promo_type_id` (`promo_type_id`),
   CONSTRAINT `FK_promos_promo_type` FOREIGN KEY (`promo_type_id`) REFERENCES `promo_type` (`promo_type_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.promos: ~0 rows (approximately)
+-- Dumping data for table toserba.promos: ~1 rows (approximately)
+REPLACE INTO `promos` (`promo_id`, `promo_code`, `promo_type_id`, `promo_start_date`, `promo_end_date`, `promo_percentage`, `promo_discount`, `promo_term_and_cond`, `x_amount`, `y_amount`) VALUES
+	(2, 'PROMO001', 2, '2024-08-20', '2024-08-29', 15, 0, '-', 0, 0);
 
 -- Dumping structure for table toserba.promo_products
 DROP TABLE IF EXISTS `promo_products`;
@@ -189,9 +194,12 @@ CREATE TABLE IF NOT EXISTS `promo_products` (
   KEY `fk_promo_products_product` (`product_detail_id`) USING BTREE,
   CONSTRAINT `FK_promo_products_product_details` FOREIGN KEY (`product_detail_id`) REFERENCES `product_details` (`product_detail_id`),
   CONSTRAINT `fk_promo_products_promo` FOREIGN KEY (`promo_id`) REFERENCES `promos` (`promo_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.promo_products: ~0 rows (approximately)
+-- Dumping data for table toserba.promo_products: ~2 rows (approximately)
+REPLACE INTO `promo_products` (`promo_product_id`, `product_detail_id`, `promo_id`) VALUES
+	(1, 3, 2),
+	(2, 4, 2);
 
 -- Dumping structure for table toserba.promo_type
 DROP TABLE IF EXISTS `promo_type`;
@@ -199,9 +207,13 @@ CREATE TABLE IF NOT EXISTS `promo_type` (
   `promo_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `promo_type_name` varchar(225) NOT NULL DEFAULT '-',
   PRIMARY KEY (`promo_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.promo_type: ~0 rows (approximately)
+-- Dumping data for table toserba.promo_type: ~3 rows (approximately)
+REPLACE INTO `promo_type` (`promo_type_id`, `promo_type_name`) VALUES
+	(1, 'BUYXGETY'),
+	(2, '%DISCOUNT'),
+	(3, 'RPDISCOUNT');
 
 -- Dumping structure for table toserba.roles
 DROP TABLE IF EXISTS `roles`;
@@ -353,14 +365,14 @@ DROP TABLE IF EXISTS `stock_cards`;
 CREATE TABLE IF NOT EXISTS `stock_cards` (
   `stock_card_id` int(11) NOT NULL AUTO_INCREMENT,
   `product_detail_id` int(11) NOT NULL,
-  `stock_date` date NOT NULL,
-  `stock_description` varchar(225) DEFAULT NULL,
-  `product_name` varchar(225) NOT NULL,
-  `product_batch` int(11) DEFAULT NULL,
-  `product_stock` int(11) NOT NULL,
-  `expired_date` date NOT NULL,
-  `stock_in` int(11) DEFAULT NULL,
-  `stock_out` int(11) DEFAULT NULL,
+  `stock_date` date NOT NULL DEFAULT '0000-00-00',
+  `stock_description` varchar(225) NOT NULL DEFAULT '-',
+  `product_name` varchar(225) NOT NULL DEFAULT '-',
+  `product_batch` int(11) NOT NULL DEFAULT 0,
+  `product_stock` int(11) NOT NULL DEFAULT 0,
+  `expired_date` date NOT NULL DEFAULT '0000-00-00',
+  `stock_in` int(11) NOT NULL DEFAULT 0,
+  `stock_out` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`stock_card_id`),
   KEY `fk_stock_cards_product_detail` (`product_detail_id`),
   CONSTRAINT `fk_stock_cards_product_detail` FOREIGN KEY (`product_detail_id`) REFERENCES `product_details` (`product_detail_id`)
@@ -368,19 +380,18 @@ CREATE TABLE IF NOT EXISTS `stock_cards` (
 
 -- Dumping data for table toserba.stock_cards: ~0 rows (approximately)
 
--- Dumping structure for table toserba.stores
-DROP TABLE IF EXISTS `stores`;
-CREATE TABLE IF NOT EXISTS `stores` (
-  `store_id` int(11) NOT NULL AUTO_INCREMENT,
-  `store_name` varchar(255) NOT NULL DEFAULT '-',
-  `store_address` varchar(255) NOT NULL DEFAULT '-',
-  `store_phone_number` varchar(255) NOT NULL DEFAULT '-',
-  PRIMARY KEY (`store_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+-- Dumping structure for table toserba.store_warehouses
+DROP TABLE IF EXISTS `store_warehouses`;
+CREATE TABLE IF NOT EXISTS `store_warehouses` (
+  `store_warehouse_id` int(11) NOT NULL AUTO_INCREMENT,
+  `store_warehouse_type` varchar(225) NOT NULL DEFAULT '',
+  `store_warehouse_name` varchar(225) NOT NULL DEFAULT '',
+  `store_warehouse_address` varchar(225) NOT NULL DEFAULT '',
+  `store_warehouse_phone_number` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`store_warehouse_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.stores: ~0 rows (approximately)
-REPLACE INTO `stores` (`store_id`, `store_name`, `store_address`, `store_phone_number`) VALUES
-	(1, 'Toko XYZ', 'Jl. Mangga Pahit No. 123, Surabaya', '081222333444');
+-- Dumping data for table toserba.store_warehouses: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.suppliers
 DROP TABLE IF EXISTS `suppliers`;
@@ -390,9 +401,27 @@ CREATE TABLE IF NOT EXISTS `suppliers` (
   `supplier_phone_number` varchar(225) NOT NULL DEFAULT '-',
   `supplier_address` varchar(225) NOT NULL DEFAULT '-',
   PRIMARY KEY (`supplier_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table toserba.suppliers: ~1 rows (approximately)
+REPLACE INTO `suppliers` (`supplier_id`, `supplier_name`, `supplier_phone_number`, `supplier_address`) VALUES
+	(1, 'Rumah Tani', '081237485623', 'Jl. Semangka II No. 3, Surabay');
+
+-- Dumping structure for table toserba.sw_products
+DROP TABLE IF EXISTS `sw_products`;
+CREATE TABLE IF NOT EXISTS `sw_products` (
+  `sw_product_id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_detail_id` int(11) NOT NULL,
+  `store_warehouse_id` int(11) NOT NULL,
+  `section_placement` varchar(225) NOT NULL DEFAULT '',
+  PRIMARY KEY (`sw_product_id`),
+  KEY `product_detail_id` (`product_detail_id`),
+  KEY `store_warehouse_id` (`store_warehouse_id`),
+  CONSTRAINT `FK_sw_products_product_details` FOREIGN KEY (`product_detail_id`) REFERENCES `product_details` (`product_detail_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_sw_products_store_warehouses` FOREIGN KEY (`store_warehouse_id`) REFERENCES `store_warehouses` (`store_warehouse_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table toserba.suppliers: ~0 rows (approximately)
+-- Dumping data for table toserba.sw_products: ~0 rows (approximately)
 
 -- Dumping structure for table toserba.transactions
 DROP TABLE IF EXISTS `transactions`;
@@ -527,20 +556,6 @@ REPLACE INTO `user_roles` (`user_roles_id`, `roles_id`, `user_id`, `store_id`, `
 	(2, 2, 1, NULL, NULL, 0),
 	(3, 6, 3, NULL, NULL, 0),
 	(4, 1, 2, NULL, NULL, 1);
-
--- Dumping structure for table toserba.warehouses
-DROP TABLE IF EXISTS `warehouses`;
-CREATE TABLE IF NOT EXISTS `warehouses` (
-  `warehouse_id` int(11) NOT NULL AUTO_INCREMENT,
-  `warehouse_name` varchar(255) NOT NULL,
-  `warehouse_address` varchar(255) NOT NULL,
-  `warehouse_phone_number` varchar(255) NOT NULL,
-  PRIMARY KEY (`warehouse_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- Dumping data for table toserba.warehouses: ~0 rows (approximately)
-REPLACE INTO `warehouses` (`warehouse_id`, `warehouse_name`, `warehouse_address`, `warehouse_phone_number`) VALUES
-	(1, 'Gudang ABC', 'Jl. Jeruk Busuk No. 0, Surabaya', '081555666888');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

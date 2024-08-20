@@ -2,6 +2,7 @@ package controller
 
 import (
 	"TemplateProject/model"
+	"fmt"
 	// "fmt"
 	"io"
 
@@ -56,7 +57,8 @@ func GetFile(c echo.Context) error {
 	kolom_id := c.FormValue("kolom_id")
 	id := c.FormValue("id")
 	path := ""
-	
+
+	fmt.Println("MASUK1")
 	result, err := model.GetPhotoData(tabel, kolom_name, kolom_id, id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message333": err.Error()})
@@ -64,9 +66,15 @@ func GetFile(c echo.Context) error {
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetPath", result.Data, 3)
 
-	if result.Data != nil {
-		path, _ = result.Data.(string)
+	userData, ok := result.Data.(model.UserData)
+	if !ok {
+		// Handle the case where the assertion fails
+		fmt.Println("Failed to cast result.Data to UserData")
+		return c.JSON(http.StatusInternalServerError, "Invalid data type")
 	}
+
+	// Now access the UserPhotoProfile
+	path = userData.UserPhotoProfile.String
 
 	return c.File(path)
 }
@@ -384,6 +392,17 @@ func GetProductByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetProductByCode(c echo.Context) error {
+	pid := c.Param("product_code")
+	result, err := model.GetProductByCode(pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetProductByCode", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetAllProducts(c echo.Context) error {
 	result, err := model.GetAllProducts()
 	if err != nil {
@@ -395,11 +414,12 @@ func GetAllProducts(c echo.Context) error {
 }
 
 func InsertProductDetails(c echo.Context) error {
+	swid := c.Param("store_warehouse_id")
 	procat, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
 	}
-	result, err := model.InsertProductDetails(string(procat))
+	result, err := model.InsertProductDetails(string(procat), swid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -433,6 +453,17 @@ func GetPromoByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetPromoIDByProductID(c echo.Context) error {
+	pid := c.Param("product_id")
+	result, err := model.GetPromoIDByProductID(pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetPromoIDByProductID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func InsertPromos(c echo.Context) error {
 	promo, err := io.ReadAll(c.Request().Body)
 	if err != nil {
@@ -461,6 +492,17 @@ func InsertPromoProducts(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func UpdatePromoToAllProducts(c echo.Context) error {
+	pid := c.Param("promo_id")
+	result, err := model.UpdatePromoToAllProducts(pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UpdatePromoToAllProducts", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func InsertPaymentMethod(c echo.Context) error {
 	pay, err := io.ReadAll(c.Request().Body)
 	if err != nil {
@@ -475,53 +517,28 @@ func InsertPaymentMethod(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func GetStoreByID(c echo.Context) error {
-	sid := c.Param("store_id")
-	result, err := model.GetStoreByID(sid)
+func GetStoreWarehouseByID(c echo.Context) error {
+	wid := c.Param("store_warehouse_id")
+	result, err := model.GetStoreWarehouseByID(wid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	ip := c.RealIP()
-	model.InsertLog(ip, "GetStoreByID", result.Data, 3)
+	model.InsertLog(ip, "GetStoreWarehouseByID", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
-func InsertStore(c echo.Context) error {
-	store, err := io.ReadAll(c.Request().Body)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
-	}
-	result, err := model.InsertStore(string(store))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
-	}
-	ip := c.RealIP()
-	model.InsertLog(ip, "InsertStore", result.Data, 3)
-	return c.JSON(http.StatusOK, result)
-}
-
-func GetWarehouseByID(c echo.Context) error {
-	wid := c.Param("warehouse_id")
-	result, err := model.GetWarehouseByID(wid)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
-	}
-	ip := c.RealIP()
-	model.InsertLog(ip, "GetWarehouseByID", result.Data, 3)
-	return c.JSON(http.StatusOK, result)
-}
-
-func InsertWarehouse(c echo.Context) error {
+func InsertStoreWarehouse(c echo.Context) error {
 	warehouse, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
 	}
-	result, err := model.InsertWarehouse(string(warehouse))
+	result, err := model.InsertStoreWarehouse(string(warehouse))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	ip := c.RealIP()
-	model.InsertLog(ip, "InsertWarehouse", result.Data, 3)
+	model.InsertLog(ip, "InsertStoreWarehouse", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
