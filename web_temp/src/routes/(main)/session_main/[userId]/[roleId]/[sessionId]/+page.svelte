@@ -17,6 +17,7 @@
     let userId = data.userId;
     let showTable = false;
     let showModal = null; 
+    let session = [];
     
     function handleClick(id) {
         showModal = id;
@@ -32,7 +33,8 @@
         console.log("close", showModal);
     }
     
-    let this_session = [];
+    let this_session = {"session_id":1,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"0000-00-00 00:00:00","last_update_time":"0000-00-00 00:00:00","opening_cash":20000,"total_income":100000,"expected_closing_cash":120000,"actual_closing_cash":100000,"actual_difference":20000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"};
+    
     
     async function thisSession(){
         const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/${sessionId}`, {
@@ -55,21 +57,18 @@
         }
 
         this_session = data.data;
-    }
-    let actual_closing_cash = 0;
-    let actual_difference = 0;
-    let deposit_money = 0;
-    let deposit_difference = 0;
-    let closing_notes = "";
-    $: this_session => {
         this_session.last_update_time = getFormattedDate();
+        console.log(this_session);
+    }
+
+   
+    
+    $: {
         this_session.actual_difference = this_session.actual_closing_cash - this_session.expected_closing_cash;
         this_session.deposit_difference = this_session.actual_closing_cash - this_session.deposit_money;
-    };
+    }
 
-    let last_update_time = getFormattedDate();
-
-    async function CloseSession(session_id, item) {
+    async function CloseSession(session_id, this_session) {
         try {
             const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/close/${session_id}`, {
                 method: 'PUT',
@@ -77,13 +76,13 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    "end_time": last_update_time, // Example for current time
-                    "expected_closing_cash": item.expected_closing_cash,
-                    "actual_closing_cash": item.actual_closing_cash,
-                    "actual_difference": item.actual_difference,
-                    "deposit_money": item.deposit_money,
-                    "deposit_difference": item.deposit_difference,
-                    "closing_notes": item.closing_notes
+                    "end_time": this_session.last_update_time, 
+                    "expected_closing_cash": this_session.expected_closing_cash,
+                    "actual_closing_cash": this_session.actual_closing_cash,
+                    "actual_difference": this_session.actual_difference,
+                    "deposit_money": this_session.deposit_money,
+                    "deposit_difference": this_session.deposit_difference,
+                    "closing_notes": this_session.closing_notes,
                 })
             });
             if (!response.ok) {
@@ -98,8 +97,8 @@
                 return;
             }
 
-            // Handle successful response
             console.log('Session closed successfully');
+
             closeModal();
             goto(`/session_history/${userId}/${roleId}`);
 
@@ -198,7 +197,8 @@
             <TransactionHistory></TransactionHistory>
             <!-- <TransactionHistoryDetails></TransactionHistoryDetails> -->
             {:else if window == "session_history"}
-                <SessionHistory></SessionHistory>
+                <SessionHistory ></SessionHistory>            
+            <!-- <SessionHistory session={this_session} userId={userId} roleId={roleId}></SessionHistory>             -->
             {:else if window == "payment"}
                 <div class="mx-8 flex flex-col items-center my-10">
                     <label for="voice-search" class="sr-only">Search</label>
@@ -381,7 +381,7 @@
           <div class="flex justify-between">
              <div class="text-[#f7d4b2]">Closing time</div>
              <div class="text-white">
-                <DateConverter value={last_update_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
+                <DateConverter value={this_session.last_update_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
              </div>
           </div>
           <div class="flex justify-between">
@@ -478,11 +478,11 @@
           </div>
           <div class="text-[#f7d4b2]">
              <div class="pb-3">Opening notes</div>
-             <textarea id="additional_notes" rows="4" class="min-h-24	shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " value="{this_session.opening_notes.toLocaleString()}" readonly></textarea>                    
+             <textarea id="opening_notes" rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5" bind:value={this_session.opening_notes} readonly></textarea>                    
           </div>
           <div class="text-[#f7d4b2]">
              <div class="pb-3">Closing notes</div>
-             <textarea id="additional_notes" rows="4" class="min-h-24	shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " value="{this_session.closing_notes.toLocaleString()}"></textarea>                    
+             <textarea id="closing_notes" rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5" bind:value={this_session.closing_notes}></textarea>                    
           </div>
  
           <div class="flex items-center justify-center">
