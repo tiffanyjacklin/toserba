@@ -93,7 +93,7 @@
         }
         console.log(data);
         closeModal();
-        goto(`/session_main/${user_id}/${roleId}`);
+        goto(`/session_main/${user_id}/${roleId}/${data.data.session_id}`);
       }
 
    function backToSession() {
