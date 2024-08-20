@@ -6,14 +6,15 @@
    import { getFormattedDate, isInTimeRange } from '$lib/DateNow.js';
 	import { goto } from '$app/navigation';
    export let userId = 0;
+   export let roleId = 0;
    export let session = [{"session_id":1,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"0000-00-00 00:00:00","last_update_time":"0000-00-00 00:00:00","opening_cash":20000,"total_income":100000,"expected_closing_cash":120000,"actual_closing_cash":100000,"actual_difference":20000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"},{"session_id":3,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"2024-01-01 11:11:11","last_update_time":"2024-01-01 12:11:11","opening_cash":30000,"total_income":100000,"expected_closing_cash":130000,"actual_closing_cash":100000,"actual_difference":30000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"}];
 
    let user_otp = "";
    let selectedItem = null;
    let last_update_time = getFormattedDate();
-
-   // console.log("OTP", user_otp);
-
+   // let last_session = session.filter(s => s.user_id === Number(userId)).reduce((maxSession, currentSession) => (currentSession.session_id > maxSession.session_id) ? currentSession : maxSession, { session_id: -1 });
+   
+   // console.log(last_session);
    let cash1 = 0;
    let showModal = null; 
    let showModal12 = null; 
@@ -30,9 +31,9 @@
    });
 
    // INI BUTUH DIGANTI BUAT REDIRECT BALIK KE PAGE TRANSAKSI YA BOS!! BUTUH UPDATE
-   function backToTransaction(){
+   function backToTransaction(last_session){
       closeModal();
-      goto(`/dashboard/${userId}`);
+      goto(`/session_main/${userId}/${roleId}/${last_session}`);
    }
    function isWithinThirtyMinutes(endTime) {
       const currentTime = new Date();
@@ -246,9 +247,9 @@
                      </div>
                   </div>
                </button>
-            {:else if item.end_time === "0000-00-00 00:00:00"}
+            {:else if (item.end_time === "0000-00-00 00:00:00" && item.user_id === Number(userId))}
                <button 
-                  on:click={() => backToTransaction()} 
+                  on:click={() => backToTransaction(item.session_id)} 
                   class="border-8 bg-peach2 border-peach2 mx-6 my-2 rounded-lg w-full">
                   <div class="bg-peach rounded-lg flex flex-col min-h-40 w-full items-center justify-center shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">
                      <span class="text-2xl text-darkGray mb-2 font-bold">Continue</span>

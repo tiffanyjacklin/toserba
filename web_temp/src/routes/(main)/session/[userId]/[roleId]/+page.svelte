@@ -96,6 +96,10 @@
         goto(`/session_main/${user_id}/${roleId}`);
       }
 
+   function backToSession() {
+      goto(`/session_main/${user_id}/${roleId}`);
+   }
+
     async function fetchUser(userId,roleId) {
         const response = await fetch(`http://leap.crossnet.co.id:8888/user/${userId}/${roleId}`, {
             method: 'GET',
@@ -206,11 +210,19 @@
          </div>
 
          <div class="flex items-center justify-center  pt-12 ">
+            {#if (last_session.end_time === "0000-00-00 00:00:00" && last_session.user_id === user_id)}
+            <button type="button" 
+               on:click={() => backToSession()}
+               class="h-10 w-1/2 px-6 text-xl inline-flex items-center justify-center font-bold rounded-md bg-[#f7d4b2] hover:bg-[#f2b082] text-[#3d4c52] hover:shadow-2xl">
+                  Continue Session
+            </button>
+            {:else}
             <button type="button" 
                on:click={() => handleClick()}
                class="h-10 w-1/2 px-6 text-xl inline-flex items-center justify-center font-bold rounded-md bg-[#f7d4b2] hover:bg-[#f2b082] text-[#3d4c52] hover:shadow-2xl">
                   New Session
             </button>
+            {/if}
          </div>
          
       </div>

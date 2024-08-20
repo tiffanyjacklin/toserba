@@ -3,11 +3,116 @@
     import TransactionHistory from "$lib/TransactionHistory.svelte"
     import TransactionHistoryDetails from "$lib/TransactionHistoryDetails.svelte"
     import ProdukMain from "$lib/ProdukMain.svelte"
-
+    import TaskModal from '$lib/TaskModal.svelte';
+    import MoneyInput from '$lib/MoneyInput.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
+    import DateConverter from '$lib/DateConverter.svelte';
+    import { getFormattedDate } from '$lib/DateNow.js';
     import { onMount } from 'svelte';
     import img_produk from "$lib/assets/produk.png";
+    import { goto } from '$app/navigation';
+    export let data;
+    let sessionId = data.sessionId;
+    let roleId = data.roleId;
+    let userId = data.userId;
+    let showTable = false;
+    let showModal = null; 
     
+    function handleClick(id) {
+        showModal = id;
+        console.log("click", showModal);
+        console.log(this_session);
+
+    }
+    function toggleTable() {
+        showTable = !showTable;
+    }
+    function closeModal() {
+        showModal = null;
+        console.log("close", showModal);
+    }
+    
+    let this_session = [];
+    
+    async function thisSession(){
+        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/${sessionId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('last session fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch last', data);
+            return;
+        }
+
+        this_session = data.data;
+    }
+    let actual_closing_cash = 0;
+    let actual_difference = 0;
+    let deposit_money = 0;
+    let deposit_difference = 0;
+    let closing_notes = "";
+    $: this_session => {
+        this_session.last_update_time = getFormattedDate();
+        this_session.actual_difference = this_session.actual_closing_cash - this_session.expected_closing_cash;
+        this_session.deposit_difference = this_session.actual_closing_cash - this_session.deposit_money;
+    };
+
+    let last_update_time = getFormattedDate();
+
+    async function CloseSession(session_id, item) {
+        try {
+            const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/close/${session_id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "end_time": last_update_time, // Example for current time
+                    "expected_closing_cash": item.expected_closing_cash,
+                    "actual_closing_cash": item.actual_closing_cash,
+                    "actual_difference": item.actual_difference,
+                    "deposit_money": item.deposit_money,
+                    "deposit_difference": item.deposit_difference,
+                    "closing_notes": item.closing_notes
+                })
+            });
+            if (!response.ok) {
+                const errorDetails = await response.text();
+                console.error('CloseSession failed:', response.status, response.statusText, errorDetails);
+                Swal.fire({
+                    title: "Error",
+                    text: `CloseSession failed: ${response.statusText}`,
+                    icon: "error",
+                    confirmButtonColor: '#F2AA7E'
+                });
+                return;
+            }
+
+            // Handle successful response
+            console.log('Session closed successfully');
+            closeModal();
+            goto(`/session_history/${userId}/${roleId}`);
+
+        } catch (error) {
+            console.error('Request failed:', error);
+            Swal.fire({
+                title: "Error",
+                text: `Request failed: ${error.message}`,
+                icon: "error",
+                confirmButtonColor: '#F2AA7E'
+            });
+        }
+    }
 
     let all_produk = [];
     let checkout = [];
@@ -47,6 +152,8 @@
 
     onMount(async () => {
         fetchProduk();
+        thisSession();
+
     });
 
     let window = "payment";
@@ -81,7 +188,9 @@
 <div class="flex h-screen">
     <div class="w-7/12 bg-gray-100 flex flex-col">
         <div class="h-auto text-darkGray text-lg font-semibold my-2 mx-6">
-            <button class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Close Session</button>
+            <button class="mx-3 hover:bg-gray-300 p-2 rounded-lg"
+            on:click={() => handleClick(1)}>
+            <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Close Session</button>
             <button on:click={() => window = "session_history"} class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-regular fa-clock mr-1"></i>Session History</button>
         </div>
         <div class="h-auto overflow-auto no-scrollbar">
@@ -132,7 +241,9 @@
         <div class="flex justify-around text-white font-semibold mt-4 mb-2">
             <button on:click={() =>  window = "payment"} class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-dollar-sign mr-2" style="color: #F2AA7E;"></i></span>Payment</button>
             <button on:click={() =>  window = "transaction_list"} class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-list mr-2" style="color: #F2AA7E;"></i></span>View Transaction List</button>
-            <button class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray flex"><span class="mr-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <button 
+            on:click={() => handleClick(2)}
+            class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray flex"><span class="mr-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <rect width="24" height="24" fill="url(#pattern0_434_939)"/>
                 <defs>
                 <pattern id="pattern0_434_939" patternContentUnits="objectBoundingBox" width="1" height="1">
@@ -248,3 +359,149 @@
         
     </div>
 </div>
+
+{#if showModal === 1}
+<TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+    <div class="flex items-center justify-center pt-8">
+       <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Session #{this_session.session_id}</div>
+    </div>
+    
+    <form class="p-4 md:p-5" >
+       <div class="grid gap-3 font-roboto font-semibold">
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Cashier</div>
+             <div class="text-white">{this_session.user_fullname}</div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Start time</div>
+             <div class="text-white">
+                   <DateConverter value={this_session.start_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
+             </div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Closing time</div>
+             <div class="text-white">
+                <DateConverter value={last_update_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
+             </div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Opening cash</div>
+             <div class="text-white"><MoneyConverter value={this_session.opening_cash} currency={true} decimal={true}/></div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Total Income
+                <button on:click={toggleTable} class="ml-2">
+                   {#if showTable}
+                      <i class="fa-solid fa-caret-up"></i>
+                   {:else}
+                      <i class="fa-solid fa-caret-down"></i>
+                   {/if}
+                </button>
+             </div>
+             <div class="text-white"><MoneyConverter value={this_session.total_income} currency={true} decimal={true}/></div>
+          </div>
+    
+          {#if showTable}
+          <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+             <table class="w-full text-sm text-left rtl:text-right">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                      <tr class="border-b-2 border-black">
+                         <th scope="col" class="px-6 py-3 text-sm font-bold">
+                            TRANSACTION ID
+                         </th>
+                         <th scope="col" class="px-6 py-3 text-sm font-bold">
+                            TIME
+                         </th>
+                         <th scope="col" class="px-6 py-3 text-sm font-bold">
+                            TOTAL
+                         </th>
+                      </tr>
+                </thead>
+                <tbody>
+                      <tr class="bg-yellow-100">
+                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            5432112345
+                         </th>
+                         <td class="px-6 py-4">
+                            15:40 PM
+                         </td>
+                         <td class="px-6 py-4">
+                            Rp 16.000,00
+                         </td>
+                      </tr>
+                      <tr class="bg-white">
+                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            5432112345
+                         </th>
+                         <td class="px-6 py-4">
+                            15:40 PM
+                         </td>
+                         <td class="px-6 py-4">
+                            Rp 16.000,00
+                         </td>
+                      </tr>
+                      <tr class="bg-yellow-100">
+                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            5432112345
+                         </th>
+                         <td class="px-6 py-4">
+                            15:40 PM
+                         </td>
+                         <td class="px-6 py-4">
+                            Rp 16.000,00
+                         </td>
+                      </tr>
+                </tbody>
+             </table>
+          </div>
+          {/if}
+
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Expected closing cash</div>
+             <div class="text-white"><MoneyConverter value={this_session.expected_closing_cash} currency={true} decimal={true}/></div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Actual closing cash</div>
+                <MoneyInput bind:value={this_session.actual_closing_cash} />
+                </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Actual difference</div>
+             <div class="text-white"><MoneyConverter value={this_session.actual_difference} currency={true} decimal={true}/></div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Deposit money</div>
+             <MoneyInput bind:value={this_session.deposit_money} />
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Deposit Difference</div>
+             <div class="text-white"><MoneyConverter value={this_session.deposit_difference} currency={true} decimal={true}/></div>
+          </div>
+          <div class="text-[#f7d4b2]">
+             <div class="pb-3">Opening notes</div>
+             <textarea id="additional_notes" rows="4" class="min-h-24	shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " value="{this_session.opening_notes.toLocaleString()}" readonly></textarea>                    
+          </div>
+          <div class="text-[#f7d4b2]">
+             <div class="pb-3">Closing notes</div>
+             <textarea id="additional_notes" rows="4" class="min-h-24	shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " value="{this_session.closing_notes.toLocaleString()}"></textarea>                    
+          </div>
+ 
+          <div class="flex items-center justify-center">
+             <button
+             on:click={() => CloseSession(this_session.session_id, this_session)}
+                type="submit" 
+                class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
+                Save
+             </button>
+          </div>
+       </div>
+    </form>
+ </TaskModal>
+{:else if showModal === 1}
+    <TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+
+    </TaskModal>
+{:else}
+    <TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+
+    </TaskModal>
+{/if}
