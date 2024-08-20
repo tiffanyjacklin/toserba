@@ -18,6 +18,10 @@
   
   <div class="select-none font-roboto text-[#364445] mx-8 mt-[90px] mb-10 flex flex-col items-center justify-center bg-white shadow-[0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <div class="flex flex-col w-full pb-10 items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
+      <div class="text-lg">
+        <i class="fa-solid fa-angle-left"></i>
+        Back
+      </div>
       <span class="text-4xl font-bold   mt-10">TRANSACTION #5260560369532650</span>
           
       <div class="w-full p-10 font-semibold text-xl ">

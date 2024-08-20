@@ -23,7 +23,7 @@
     }
  </script>
  
- <div class="mx-8 mt-[90px] mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
+ <div class="mx-8  mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Transaction History</span>
     
     <!-- <form class="flex items-center max-w-lg mx-auto">    -->
