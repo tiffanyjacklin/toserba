@@ -4,4 +4,6 @@
 
 </script>
 
-<TransactionHistory userId={data.userId} roleId={data.roleId}></TransactionHistory>
+<div class="mt-[90px]">
+  <TransactionHistory userId={data.userId} roleId={data.roleId}></TransactionHistory>
+</div>

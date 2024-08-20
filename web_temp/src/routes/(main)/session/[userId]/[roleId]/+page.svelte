@@ -6,6 +6,7 @@
    import { onMount } from 'svelte';
    import { browser } from '$app/environment';
 	import { stringify } from 'postcss';
+	import { goto } from '$app/navigation';
    // import { goto } from '$app/navigation';
    
    let showModal = false;
@@ -91,7 +92,9 @@
             return;
         }
         console.log(data);
-    }
+        closeModal();
+        goto(`/session_main/${user_id}/${roleId}`);
+      }
 
     async function fetchUser(userId,roleId) {
         const response = await fetch(`http://leap.crossnet.co.id:8888/user/${userId}/${roleId}`, {
