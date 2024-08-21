@@ -185,8 +185,8 @@
     
     function countPromoApplied(){
         let count = 0;
-        for (let i = 0; i < checkout.length; i++) {
-            if (checkout[i].promo_applied == true){
+        for (let i = 0; i < promos.length; i++) {
+            if (promos[i].promo_applied == true){
                 count += 1
             }
         }
@@ -196,16 +196,22 @@
 
     function checkPromoAppliedType1(){
         for (let i = 0; i < checkout.length; i++) {
-            if (all_promo.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i].product_detail_id) != null){
+            if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i].product_detail_id) != null){
                 // jika ada, ambil index di array all promo
-                let index = all_promo.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i].product_detail_id);
+                let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i].product_detail_id);
 
-                if (checkout[i].jumlah >= all_promo[index]["Promo"].x_amount){
+                if (checkout[i].jumlah >= promos[index]["Promo"].x_amount){
                     checkout[i].promo_applied = true;
                     checkout[i].promo_applied = checkout[i].promo_applied;
+
+                    promos[index].promo_applied = true;
+                    promos[index].promo_applied = promos[index].promo_applied;
                 } else {
                     checkout[i].promo_applied = false;
                     checkout[i].promo_applied = checkout[i].promo_applied;
+
+                    promos[index].promo_applied = false;
+                    promos[index].promo_applied = promos[index].promo_applied;
                 }
             }
         }
@@ -437,7 +443,7 @@
             <span class="text-peach font-semibold"><MoneyConverter bind:value={total} currency={true} decimal={true}></MoneyConverter></span>
 
         </div>
-        <button class="w-auto bg-peach2 text-darkGray p-2 px-auto rounded-2xl mx-3 my-2 font-semibold">{promos.length} item(s) with promo, {count_promo_app} promo(s) applied</button>
+        <button on:click={() => handleClick(3)} class="w-auto bg-peach2 text-darkGray p-2 px-auto rounded-2xl mx-3 my-2 font-semibold">{promos.length} item(s) with promo, {count_promo_app} promo(s) applied</button>
         
         <button class="w-48 bg-peach text-darkGray p-2 px-auto rounded-2xl mx-auto mt-2 mb-4 font-semibold">Pay</button>
         
@@ -637,6 +643,77 @@
     </TaskModal>
 {:else}
     <TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+        <div class="flex items-center justify-center pt-8">
+            <svg width="136" height="35" viewBox="0 0 136 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_i_1156_3148)">
+                <path d="M6.52728 5.21416V14.9342H9.90228C12.6473 14.9342 14.4923 13.7642 14.4923 9.66916C14.4923 5.79916 12.9623 5.21416 9.40728 5.21416H6.52728ZM6.52728 34.0142H0.227282V0.264157H13.0973C19.1273 0.264157 20.9723 5.12416 20.9723 9.84916C20.9723 12.7292 20.2073 15.9692 17.8223 17.8592C15.8423 19.4342 13.1873 19.9292 10.7573 19.8842H6.52728V34.0142ZM30.4972 8.63416V13.1342H30.5872C31.3072 11.2892 32.0272 10.2542 32.8822 9.53416C34.5472 8.13916 35.6722 8.22916 36.5272 8.18416V15.1142C33.2872 14.7992 30.8122 15.6092 30.7222 19.3442V34.0142H24.8722V8.63416H30.4972ZM45.3925 17.2742V25.7342C45.3925 28.8392 45.6625 30.1892 48.4975 30.1892C51.1975 30.1892 51.4225 28.8392 51.4225 25.7342V17.2742C51.4225 14.8892 51.4225 12.4592 48.4975 12.4592C45.3925 12.4592 45.3925 14.8892 45.3925 17.2742ZM48.4975 34.6892C40.8025 34.8242 39.4975 31.0442 39.5425 22.2242C39.5875 13.5392 39.6775 7.95916 48.4975 7.95916C57.1825 7.95916 57.2275 13.5392 57.2725 22.2242C57.3175 31.0442 56.0575 34.8242 48.4975 34.6892ZM68.4775 8.63416V11.2442H68.5675C69.8725 8.45416 72.2575 8.04916 74.1475 7.95916C76.3075 7.91416 79.1875 8.85916 79.5475 11.2442H79.6375C80.7625 9.03916 82.6075 7.95916 85.4875 7.95916C89.8075 7.95916 91.6975 10.6592 91.6975 13.3592V34.0142H85.8475V16.8692C85.8475 14.5742 85.6225 12.3242 83.0575 12.4592C80.5375 12.5942 80.0875 14.3492 80.0875 17.3192V34.0142H74.2375V16.5542C74.2375 14.3042 74.0575 12.4142 71.3575 12.4592C68.6125 12.5042 68.4775 14.5292 68.4775 17.3192V34.0142H62.6275V8.63416H68.4775ZM102.917 17.2742V25.7342C102.917 28.8392 103.187 30.1892 106.022 30.1892C108.722 30.1892 108.947 28.8392 108.947 25.7342V17.2742C108.947 14.8892 108.947 12.4592 106.022 12.4592C102.917 12.4592 102.917 14.8892 102.917 17.2742ZM106.022 34.6892C98.3269 34.8242 97.0219 31.0442 97.0669 22.2242C97.1119 13.5392 97.2019 7.95916 106.022 7.95916C114.707 7.95916 114.752 13.5392 114.797 22.2242C114.842 31.0442 113.582 34.8242 106.022 34.6892ZM118.487 25.6442H124.337C123.887 30.3242 125.687 30.1892 127.037 30.1892C128.702 30.1892 129.872 28.9742 129.467 27.3542C129.377 25.9142 127.712 25.1042 126.587 24.3392L123.392 22.1342C120.467 20.1092 118.577 17.7692 118.577 14.1242C118.577 10.2092 121.682 7.95916 127.307 7.95916C132.977 7.95916 135.587 10.9292 135.452 16.3742H129.602C129.737 13.5392 128.927 12.4592 126.902 12.4592C125.507 12.4592 124.427 13.0892 124.427 14.5292C124.427 16.0142 125.507 16.6892 126.632 17.4542L131.402 20.6942C132.887 21.5492 135.227 23.9792 135.407 25.6892C135.902 30.0992 134.822 34.6892 126.722 34.6892C123.617 34.6892 117.812 33.3842 118.487 25.6442Z" fill="white"/>
+                </g>
+                <defs>
+                <filter id="filter0_i_1156_3148" x="0.226562" y="0.26416" width="135.672" height="38.5601" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dy="4"/>
+                <feGaussianBlur stdDeviation="2"/>
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                <feBlend mode="normal" in2="shape" result="effect1_innerShadow_1156_3148"/>
+                </filter>
+                </defs>
+            </svg>
+         </div>
+        <div class="p-4 md:p-5 font-roboto font-semibold" >
+        {#if (promos.length == 0)}
+            <div class="text-[#f7d4b2] text-xl text-center">
+                Tidak ada promo pada produk di checkout
+            </div>
+        {:else}
+            {#each promos as promo}
+                {@const checkout_produk = checkout.find((produk) => produk.product_detail_id  == promo["ProductDetail"].product_detail_id)}
+                <div class="py-3">
+                    <div class="text-peach2 text-xl">
+                        {promo.ProductDetail.product_name}
+                    </div>
+                    <div class="indent-8 text-white text-xl ">
+                        {#if (promo.Promo.promo_percentage !== 0)}
+                            Discount {promo.Promo.promo_percentage}% off.
+                        {:else if (promo.Promo.promo_discount !== 0)}
+                            Discount <MoneyConverter value={promo.Promo.promo_discount} currency={true} decimal={true}></MoneyConverter>
+                            
+                        {:else}
+                            Buy {promo.Promo.x_amount} get {promo.Promo.y_amount} free.
+                        {/if}
+                        
+                    </div>
+                    <!-- <div class="indent-8 text-2xl text-[#f7d4b2]">
+                        {promo.Promo.promo_term_and_cond}
+                    </div>    -->
+                    <div class="indent-8 text-xl text-peach2">
+                        {#if (promo.promo_applied == true)}
+                            {#if (promo["Promo"].promo_type_id == 1)}
+                                Promo applied {(parseInt(checkout_produk.jumlah/promo["Promo"].x_amount))} time(s)
+                                <p class="indent-16 text-white font-bold">{(parseInt(checkout_produk.jumlah/promo["Promo"].x_amount)*promo["Promo"].y_amount)} Free {checkout_produk.product_unit}</p>
+                            
+                            {:else}
+                                Promo applied 
+                            {/if}
+                        {:else}
+                            Promo not applied, requirements not met.
+                        {/if}
+                    </div>   
 
+                </div>
+            {/each}
+        {/if}
+        
+        <div class="flex items-center justify-center">
+            <button
+            on:click={() => closeModal()}
+               type="submit" 
+               class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
+               Close
+            </button>
+         </div>
+        </div>
     </TaskModal>
 {/if}
