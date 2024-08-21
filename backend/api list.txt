@@ -96,6 +96,8 @@ e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.I
     "transaction_change": 6000
 }
 
+e.PUT("/store/orders/delivery/accept/:deliveryorder_id/:user_id", controller.AcceptDeliveryOrders)
+
 ================================================= Warehouse =================================================
 e.POST("/products/stock/card/add", controller.InsertStockCards)
 [
@@ -126,14 +128,15 @@ e.POST("/orders/delivery/add", controller.InsertDeliveryOrderDetails)
 [
     {
         "product_detail_id": 4,
-        "quantity": 5
+        "quantity": 5,
+        "expired_date" : "2024-08-20"
     }
 ]
 e.PUT("/orders/delivery/update/:deliveryorder_id", controller.InsertDeliveryOrders)
 {
-    "store_warehouse_from": 2,
     "store_warehouse_to": 1,
-    "user_id_from": 3
+    "user_id_from": 3,
+    "batch": 1
 }
 
 ================================================= Admin =================================================
@@ -258,6 +261,8 @@ e.POST("suppliers/add", controller.InsertSupplier)
     "supplier_address": "Jl. Semangka II No. 3, Surabaya"
 }
 
+e.GET("/payment/method", controller.GetAllPaymentMethod)
+e.POST("/payment/method/add", controller.InsertPaymentMethod)
 e.POST("/payment/method/add", controller.InsertPaymentMethod)
 [
     {
