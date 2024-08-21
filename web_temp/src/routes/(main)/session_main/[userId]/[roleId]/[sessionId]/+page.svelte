@@ -185,8 +185,8 @@
     
     function countPromoApplied(){
         let count = 0;
-        for (let i = 0; i < promos.length; i++) {
-            if (promos[i].promo_applied == true){
+        for (let i = 0; i < checkout.length; i++) {
+            if (checkout[i].promo_applied == true){
                 count += 1
             }
         }
@@ -203,7 +203,9 @@
                 if (checkout[i].jumlah >= all_promo[index]["Promo"].x_amount){
                     checkout[i].promo_applied = true;
                     checkout[i].promo_applied = checkout[i].promo_applied;
-                    
+                } else {
+                    checkout[i].promo_applied = false;
+                    checkout[i].promo_applied = checkout[i].promo_applied;
                 }
             }
         }
@@ -319,7 +321,7 @@
                     <div class="grid grid-cols-3 gap-4 mt-6 mx-8">
                         {#each all_produk as produk}
                             {@const tmp_produk = {...produk}}
-                        <button on:click={() => {addtoCheckout(tmp_produk); sumTotal(); checkPromo(); countPromoApplied(); checkPromoAppliedType1()}} class="w-full border-2 border-black rounded-lg bg-white">
+                        <button on:click={() => {addtoCheckout(tmp_produk); sumTotal(); checkPromo(); checkPromoAppliedType1(); countPromoApplied();}} class="w-full border-2 border-black rounded-lg bg-white">
                             <div class="p-3 w-full flex flex-col items-center">
                                 <img class="rounded-lg w-10/12 h-10/12" src={img_produk} alt="">
                                 <p class="w-full truncate text-black font-semibold my-1 text-center">{produk.product_name}</p>
@@ -402,20 +404,21 @@
                                     // console.log("promos-",promos);
                                 }
                                 sumTotal();
-                                countPromoApplied();
                                 checkPromoAppliedType1();
+                                countPromoApplied();
                             }} 
                             type="button" class="bg-peach rounded-s-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
                                 </svg>
                             </button>
-                            <input on:change={() =>{ sumTotal(); countPromoApplied();checkPromoAppliedType1()}} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
+                            <input on:change={() =>{ sumTotal(); checkPromoAppliedType1();countPromoApplied()}} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
                             <button on:click={() => {
                                 let index = checkout.findIndex(produk_c => produk_c.product_name == produk_checkout.product_name);
                                 checkout[index].jumlah+=1;
                                 sumTotal(); 
                                 checkPromoAppliedType1();
+                                countPromoApplied();
                             }} 
                             type="button" class="bg-peach rounded-e-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
