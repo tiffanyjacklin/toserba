@@ -10,6 +10,8 @@
    export let roleId = 0;
    export let sessionId = 0;
    // export let session = [];
+   let filteredSessions = [];
+   let searchQuery = '';
 
    let user_otp = "";
    let selectedItem = null;
@@ -53,12 +55,21 @@
       }
 
       session = data.data;
+      filteredSessions = session;
    //   console.log(session);
    }
+   $: if (searchQuery.length > 0) {
+      filteredSessions = session.filter(item => 
+         item.user_fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         item.session_id.toString().includes(searchQuery)
+      );
+   } else {
+      filteredSessions = session;  // Show all if search query is empty
+   }
+
    onMount(() => {
       fetchSession();
    });
-
    // INI BUTUH DIGANTI BUAT REDIRECT BALIK KE PAGE TRANSAKSI YA BOS!! BUTUH UPDATE
    function backToTransaction(last_session){
       closeModal();
@@ -217,21 +228,26 @@
  </script>
  
  <div class="mx-8 mt-[90px] mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg">
-    <span class="text-3xl font-bold font-poppins text-black my-10">Session History</span>
-    
+    <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Session History</span>
+
     <!-- <form class="flex items-center max-w-lg mx-auto">    -->
        <label for="voice-search" class="sr-only">Search</label>
        <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
-         <input type="text" id="voice-search" class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " placeholder="Search..."/>
-          <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-3">
+         <input 
+         type="text" 
+         id="voice-search" 
+         class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+         placeholder="Search by Session ID..."
+         bind:value={searchQuery} />          
+         <!-- <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-3">
            
-          </button>
+          </button> -->
        </div>
     <!-- </form> -->
  
    <!-- di sini ada navbar  -->
 
-   {#each session as item}
+   {#each filteredSessions as item}
    <div class="bg-darkGray border-8 border-darkGray rounded-lg w-[96%] my-5">
       <div class=" flex">
          <div class="w-4/5 p-3 text-darkGray bg-white rounded-tl-lg rounded-bl-lg shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">
