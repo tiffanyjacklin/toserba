@@ -52,6 +52,7 @@ e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
 // Transaction, Member & Product
 
 e.GET("/cashier/members/:member_id", controller.GetMemberByID)
+e.GET("/cashier/members/phone_number/:phonenumber", controller.GetMemberByPhoneNumber)
 e.POST("/cashier/members/add", controller.InsertNewMember)
 {
     "member_name": "Vina",
