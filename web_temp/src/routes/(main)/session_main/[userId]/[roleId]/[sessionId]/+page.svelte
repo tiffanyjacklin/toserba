@@ -131,16 +131,84 @@
         }
 
         all_promo = data.data;
-
-        console.log(all_promo);
+        // console.log(all_promo[0]["Promo"]);
     }
 
     // GATAU ALEX
 
     let all_produk = [];
     let checkout = [];
+    let promos = [];
     $: total = 0;
+    $: count_promo_app = 0;
+
+    function checkPromo(){
+        for (let i = 0; i < checkout.length; i++) {
+            // cek apakah produk promo pada checkout
+            let produk_promo = all_promo.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i].product_detail_id);
+            // jika ada, di cek apakah udh ada di array promos atau blm, klo blm baru di push
+            if (produk_promo != null){
+                if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_promo["ProductDetail"].product_detail_id) != null){
+                    // console.log("produk promo udh ada di promos")
+                } else {
+                    produk_promo.promo_applied = checkout[i].promo_applied;
+                    promos.push(produk_promo);
+                    promos = promos;
+                }
+            }
+        }
+        console.log("promos",promos);
+    }
+
+    function promoType2_3(produk_checkout){
+
+        // cek apakah produk_checkout ada di array all promo
+        if (all_promo.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout.product_detail_id) != null){
+            // jika ada, ambil index di array all promo
+            let index = all_promo.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout.product_detail_id);
+
+            // type 2 discount
+            if (all_promo[index]["Promo"].promo_type_id == 2){
+                produk_checkout.sell_price = produk_checkout.sell_price - (produk_checkout.sell_price*(all_promo[index]["Promo"].promo_percentage)/100)
+                produk_checkout.sell_price = produk_checkout.sell_price
+                produk_checkout.promo_applied = true;
+            } else if (all_promo[index]["Promo"].promo_type_id == 3){
+                produk_checkout.sell_price = produk_checkout.sell_price - (all_promo[index]["Promo"].promo_discount)
+                produk_checkout.sell_price = produk_checkout.sell_price
+                produk_checkout.promo_applied = true;
+            } else {
+                produk_checkout.promo_applied = false;
+            }
+        }
+        return produk_checkout;
+    }
     
+    function countPromoApplied(){
+        let count = 0;
+        for (let i = 0; i < promos.length; i++) {
+            if (promos[i].promo_applied == true){
+                count += 1
+            }
+        }
+        count_promo_app = count;
+        count_promo_app = count_promo_app;
+    }
+
+    function checkPromoAppliedType1(){
+        for (let i = 0; i < checkout.length; i++) {
+            if (all_promo.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i].product_detail_id) != null){
+                // jika ada, ambil index di array all promo
+                let index = all_promo.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i].product_detail_id);
+
+                if (checkout[i].jumlah >= all_promo[index]["Promo"].x_amount){
+                    checkout[i].promo_applied = true;
+                    checkout[i].promo_applied = checkout[i].promo_applied;
+                    
+                }
+            }
+        }
+    }
+
     function sumTotal(){
         total = checkout.reduce((sum, item) => {
         return sum + (item.sell_price * item.jumlah);
@@ -187,13 +255,16 @@
             let index = checkout.findIndex(produk_c => produk_c.product_name == produk.product_name);
             checkout[index].jumlah+=1;
         } else{
+            promoType2_3(produk);
             produk.jumlah = 1;
             checkout.push(produk)
         }
-        
+        all_produk = all_produk;
         checkout = checkout;
         console.log("checkout : ", checkout);
     }
+
+
 </script>
 
 <style>
@@ -247,7 +318,8 @@
                     
                     <div class="grid grid-cols-3 gap-4 mt-6 mx-8">
                         {#each all_produk as produk}
-                        <button on:click={() => {addtoCheckout(produk); sumTotal()}} class="w-full border-2 border-black rounded-lg bg-white">
+                            {@const tmp_produk = {...produk}}
+                        <button on:click={() => {addtoCheckout(tmp_produk); sumTotal(); checkPromo(); countPromoApplied(); checkPromoAppliedType1()}} class="w-full border-2 border-black rounded-lg bg-white">
                             <div class="p-3 w-full flex flex-col items-center">
                                 <img class="rounded-lg w-10/12 h-10/12" src={img_produk} alt="">
                                 <p class="w-full truncate text-black font-semibold my-1 text-center">{produk.product_name}</p>
@@ -287,33 +359,63 @@
             {#each checkout as produk_checkout}
                 <div class="flex py-1 my-1 w-full">
                     <div class="w-9/12 text-white">
-                        <p class="font-semibold truncate">{produk_checkout.product_name}</p>
+                        {#if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout.product_detail_id) != null)}
+                            <p class="font-semibold truncate text-peach2">{produk_checkout.product_name}</p>
+                        {:else}
+                            <p class="font-semibold truncate">{produk_checkout.product_name}</p>
+                        {/if}
                         <p class="flex font-semibold ml-8"><MoneyConverter value={produk_checkout.sell_price} currency={true} decimal={true}></MoneyConverter>/{produk_checkout.product_unit}</p>
+                        {#if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout.product_detail_id) != null)}
+                            {@const promo_produk = promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout.product_detail_id)}
+                            {#if (promo_produk["Promo"].promo_type_id == 1)}
+                                {#if (produk_checkout.jumlah >= promo_produk["Promo"].x_amount)}
+                                    <p class="font-semibold ml-8">{(parseInt(produk_checkout.jumlah/promo_produk["Promo"].x_amount)*promo_produk["Promo"].y_amount) + " Free " + produk_checkout.product_unit + " from Promo"}</p>
+                                    <p class="font-semibold ml-8 text-peach2">Promo Applied.</p>
+                                {:else}
+                                    <p class="font-semibold ml-8 text-peach2">This item has a promo! Promo not yet applied.</p>
+                                {/if}
+                            {:else if (promo_produk["Promo"].promo_type_id == 2)}
+                                <p class="font-semibold ml-8">{"Discount " + promo_produk["Promo"].promo_percentage + "% off"}</p>
+                                <p class="font-semibold ml-8 text-peach2">Promo Applied.</p>
+                            {:else if (promo_produk["Promo"].promo_type_id == 3)}
+                                <p class="font-semibold ml-8">{"Discount Rp" + all_promo[index]["Promo"].promo_discount + " off"}</p>
+                                <p class="font-semibold ml-8 text-peach2">Promo Applied.</p>
+                            {/if}
+                       {/if}
+                        
                     </div>
                     <div class="w-3/12 text-center">
                         <span class="text-peach font-semibold"><MoneyConverter value={produk_checkout.sell_price*produk_checkout.jumlah} currency={true} decimal={true}></MoneyConverter></span>
                         <div class="flex">
                             <button on:click={() => {
                                 let index = checkout.findIndex(produk_c => produk_c.product_name == produk_checkout.product_name);
+                                let index_promo = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout.product_detail_id);
                                 if (checkout[index].jumlah > 1){
                                     checkout[index].jumlah-=1;
                                 } else{
                                     checkout.splice(index,1);
                                     checkout = checkout;
-                                    console.log(checkout);
+
+                                    promos.splice(index_promo,1);
+                                    promos = promos;
+                                    // console.log(checkout);
+                                    // console.log("promos-",promos);
                                 }
-                                sumTotal()
+                                sumTotal();
+                                countPromoApplied();
+                                checkPromoAppliedType1();
                             }} 
                             type="button" class="bg-peach rounded-s-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
                                 </svg>
                             </button>
-                            <input on:change={() => sumTotal()} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
+                            <input on:change={() =>{ sumTotal(); countPromoApplied();checkPromoAppliedType1()}} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
                             <button on:click={() => {
                                 let index = checkout.findIndex(produk_c => produk_c.product_name == produk_checkout.product_name);
                                 checkout[index].jumlah+=1;
-                                sumTotal()
+                                sumTotal(); 
+                                checkPromoAppliedType1();
                             }} 
                             type="button" class="bg-peach rounded-e-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
@@ -325,55 +427,6 @@
                 </div>
             {/each}
             
-            
-            <!-- <div class="flex py-1 my-1 w-full">
-                <div class="w-9/12 text-white">
-                    <p class="font-semibold truncate">Beras Pandan Wangi</p>
-                    <p class="font-semibold ml-8">2200 grams (Rp 16.65/grams)</p>
-                </div>
-                <div class="w-3/12 text-center">
-                    <span class="text-peach font-semibold">Rp 36,630.00</span>
-                    <div class="flex">
-                        <button on:click={() => minus("produk2")} type="button" class="bg-peach rounded-s-xl h-8 p-2">
-                            <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
-                            </svg>
-                        </button>
-                        <input id="produk2" value=1 type="text" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16" required />
-                        <button on:click={() => plus("produk2")} type="button" class="bg-peach rounded-e-xl h-8 p-2">
-                            <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div> -->
-
-            <!-- PROMO -->
-            <!-- <div class="flex py-1 my-1 w-full">
-                <div class="w-9/12 text-white">
-                    <p class="font-semibold truncate text-peach2">Sabun Mandi 750ml</p>
-                    <p class="font-semibold ml-8">1 unit (Rp 30,000.00/unit)</p>
-                    <p class="font-semibold ml-8 text-peach2">This item has a promo! Promo not yet applied.</p>
-                </div>
-                <div class="w-3/12 text-center">
-                    <span class="text-peach font-semibold">Rp 30,000.00</span>
-                    <div class="flex">
-                        <button on:click={() => minus("produk3")} type="button" class="bg-peach rounded-s-xl h-8 p-2">
-                            <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
-                            </svg>
-                        </button>
-                        <input id="produk3" value=1 type="text" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16" required />
-                        <button on:click={() => plus("produk3")} type="button" class="bg-peach rounded-e-xl h-8 p-2">
-                            <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div> -->
-            
 
         </div>
 
@@ -381,7 +434,7 @@
             <span class="text-peach font-semibold"><MoneyConverter bind:value={total} currency={true} decimal={true}></MoneyConverter></span>
 
         </div>
-        <button class="w-auto bg-peach2 text-darkGray p-2 px-auto rounded-2xl mx-3 my-2 font-semibold">1 item(s) with promo, 0 promo(s) applied</button>
+        <button class="w-auto bg-peach2 text-darkGray p-2 px-auto rounded-2xl mx-3 my-2 font-semibold">{promos.length} item(s) with promo, {count_promo_app} promo(s) applied</button>
         
         <button class="w-48 bg-peach text-darkGray p-2 px-auto rounded-2xl mx-auto mt-2 mb-4 font-semibold">Pay</button>
         
