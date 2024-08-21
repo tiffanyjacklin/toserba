@@ -64,6 +64,7 @@ e.GET("/cashier/members/transaction/:member_id", controller.GetTransactionIDByMe
 e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
 e.GET("/transaction/last", controller.GetLastTransaction)
 e.GET("/transaction", controller.GetAllTransaction)
+e.GET("/transaction/detail/:transaction_id", controller.GetTransactionDetailByTransactionID)
 
 e.POST("/transaction/details/add/:user_id/:role_id", controller.InsertTransactionDetails) 
 [
@@ -211,6 +212,10 @@ e.POST("/promos/product/all/:promo_id", controller.UpdatePromoToAllProducts)
 
 e.GET("/roles/:roles_id", controller.GetRolesByID)
 e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
+
+
+// Verify
+e.PUT("/orders/delivery/verify/:deliveryorder_id", controller.VerifyDeliveryOrders)
 
 ================================================= Owner =================================================
 e.GET("/store_warehouses/:store_warehouse_id", controller.GetStoreWarehouseByID)
