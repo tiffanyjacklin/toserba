@@ -114,6 +114,26 @@ e.GET("/products/stock/card/product/exp/early/:product_id/:sw_id", controller.Ge
 e.GET("products/stock/card/product/total_stock/all/:product_id", controller.GetTotalStockByProductID)
 e.GET("products/stock/card/product/total_stock/:product_id/:sw_id", controller.GetTotalStockByProductIDSWID)
 
+// Delivery Order
+e.GET("/orders/delivery/:delivery_order_id", controller.GetDeliveryOrderByID)
+e.GET("/orders/delivery/last", controller.GetLastDeliveryOrder)
+e.GET("/orders/delivery/warehouse/:sw_from_id", controller.GetDeliveryOrderBySWFromID)
+e.GET("/orders/delivery/storewarehouse/:sw_from_id/:sw_to_id", controller.GetDOFromSWIDToSWID)
+e.GET("/orders/delivery/detail/:delivery_order_id", controller.GetDeliveryOrderDetailByDOID)
+e.POST("/orders/delivery/add", controller.InsertDeliveryOrderDetails) 
+[
+    {
+        "product_detail_id": 4,
+        "quantity": 5
+    }
+]
+e.PUT("/orders/delivery/update/:deliveryorder_id", controller.InsertDeliveryOrders)
+{
+    "store_warehouse_from": 2,
+    "store_warehouse_to": 1,
+    "user_id_from": 3
+}
+
 ================================================= Admin =================================================
 e.POST("/products/category/add", controller.InsertProductCategory)
 [
@@ -125,10 +145,10 @@ e.POST("/products/category/add", controller.InsertProductCategory)
     }
 ]
 
-e.GET("/products/:product_id", controller.GetProductByID) 
-e.GET("/products/code/:product_code", controller.GetProductByCode) 
-e.GET("/products/name/:product_name", controller.GetProductByName) 
-e.GET("/products", controller.GetAllProducts) 
+e.GET("/products/:product_id/:user_id/:role_id", controller.GetProductByID) 
+e.GET("/products/code/:product_code/:user_id/:role_id", controller.GetProductByCode)
+e.GET("/products/name/:product_name/:user_id/:role_id", controller.GetProductByName) 
+e.GET("/products/:user_id/:role_id", controller.GetAllProducts)  
 
 // Nambah produk baru
 e.POST("/products/add/:store_warehouse_id", controller.InsertProductDetails)
