@@ -3,14 +3,154 @@
     import TransactionHistory from "$lib/TransactionHistory.svelte"
     import TransactionHistoryDetails from "$lib/TransactionHistoryDetails.svelte"
     import ProdukMain from "$lib/ProdukMain.svelte"
-
+    import TaskModal from '$lib/TaskModal.svelte';
+    import MoneyInput from '$lib/MoneyInput.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
+    import DateConverter from '$lib/DateConverter.svelte';
+    import { getFormattedDate } from '$lib/DateNow.js';
     import { onMount } from 'svelte';
     import img_produk from "$lib/assets/produk.png";
+    import { goto } from '$app/navigation';
+    export let data;
+    let sessionId = data.sessionId;
+    let roleId = data.roleId;
+    let userId = data.userId;
+
+    // CLOSE SESSION
+    let showTable = false;
+    let showModal = null; 
+    let session = [];
     
+    function handleClick(id) {
+        showModal = id;
+        console.log("click", showModal);
+        console.log(this_session);
+
+    }
+    function toggleTable() {
+        showTable = !showTable;
+    }
+    function closeModal() {
+        showModal = null;
+        console.log("close", showModal);
+    }
+    
+    let this_session = {"session_id":1,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"0000-00-00 00:00:00","last_update_time":"0000-00-00 00:00:00","opening_cash":20000,"total_income":100000,"expected_closing_cash":120000,"actual_closing_cash":100000,"actual_difference":20000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"};
+    
+    async function thisSession(){
+        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/${sessionId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('last session fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch last', data);
+            return;
+        }
+
+        this_session = data.data;
+        this_session.last_update_time = getFormattedDate();
+        console.log(this_session);
+    }
+
+    $: {
+        this_session.actual_difference = this_session.actual_closing_cash - this_session.expected_closing_cash;
+        this_session.deposit_difference = this_session.actual_closing_cash - this_session.deposit_money;
+    }
+
+    async function CloseSession(session_id, this_session) {
+        try {
+            const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/close/${session_id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "end_time": this_session.last_update_time, 
+                    "expected_closing_cash": this_session.expected_closing_cash,
+                    "actual_closing_cash": this_session.actual_closing_cash,
+                    "actual_difference": this_session.actual_difference,
+                    "deposit_money": this_session.deposit_money,
+                    "deposit_difference": this_session.deposit_difference,
+                    "closing_notes": this_session.closing_notes,
+                })
+            });
+            if (!response.ok) {
+                const errorDetails = await response.text();
+                console.error('CloseSession failed:', response.status, response.statusText, errorDetails);
+                Swal.fire({
+                    title: "Error",
+                    text: `CloseSession failed: ${response.statusText}`,
+                    icon: "error",
+                    confirmButtonColor: '#F2AA7E'
+                });
+                return;
+            }
+
+            console.log('Session closed successfully');
+
+            closeModal();
+            goto(`/session_history/${userId}/${roleId}`);
+
+        } catch (error) {
+            console.error('Request failed:', error);
+            Swal.fire({
+                title: "Error",
+                text: `Request failed: ${error.message}`,
+                icon: "error",
+                confirmButtonColor: '#F2AA7E'
+            });
+        }
+    }
+
+    // VIEW ALL PROMO
+    let all_promo = [];
+    async function fetchAllPromo(){
+        const response = await fetch(`http://leap.crossnet.co.id:8888/promos`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch promo failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch promo', data);
+            return;
+        }
+
+        all_promo = data.data;
+        console.log(all_promo);
+    }
+
+    // GATAU ALEX
 
     let all_produk = [];
     let checkout = [];
+    $: total = 0;
+    
+    function sumTotal(){
+        total = checkout.reduce((sum, item) => {
+        return sum + (item.sell_price * item.jumlah);
+        }, 0);
+        total = total
+        // console.log(total); 
+    }
 
     async function fetchProduk() {
         const response = await fetch(`http://leap.crossnet.co.id:8888/products`, {
@@ -38,26 +178,22 @@
 
     onMount(async () => {
         fetchProduk();
+        thisSession();
+        fetchAllPromo();
+
     });
 
     let window = "payment";
 
-    function plus(idBarang){
-        var value = document.getElementById(idBarang).value;
-        value++;
-        document.getElementById(idBarang).value = value;
-    }
-    
-    function minus(idBarang){
-        var value = document.getElementById(idBarang).value;
-        if (value > 1){
-            value--;
-        }
-        document.getElementById(idBarang).value = value;
-    }
-
     function addtoCheckout(produk){
-        checkout.push(produk)
+        if (checkout.find(({ product_name }) => product_name === produk.product_name) != null){
+            let index = checkout.findIndex(produk_c => produk_c.product_name == produk.product_name);
+            checkout[index].jumlah+=1;
+        } else{
+            produk.jumlah = 1;
+            checkout.push(produk)
+        }
+        
         checkout = checkout;
         console.log("checkout : ", checkout);
     }
@@ -79,7 +215,9 @@
 <div class="flex h-screen">
     <div class="w-7/12 bg-gray-100 flex flex-col">
         <div class="h-auto text-darkGray text-lg font-semibold my-2 mx-6">
-            <button class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Close Session</button>
+            <button class="mx-3 hover:bg-gray-300 p-2 rounded-lg"
+            on:click={() => handleClick(1)}>
+            <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Close Session</button>
             <button on:click={() => window = "session_history"} class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-regular fa-clock mr-1"></i>Session History</button>
         </div>
         <div class="h-auto overflow-auto no-scrollbar">
@@ -87,7 +225,8 @@
             <TransactionHistory></TransactionHistory>
             <!-- <TransactionHistoryDetails></TransactionHistoryDetails> -->
             {:else if window == "session_history"}
-                <SessionHistory></SessionHistory>
+                <SessionHistory ></SessionHistory>            
+            <!-- <SessionHistory session={this_session} userId={userId} roleId={roleId}></SessionHistory>             -->
             {:else if window == "payment"}
                 <div class="mx-8 flex flex-col items-center my-10">
                     <label for="voice-search" class="sr-only">Search</label>
@@ -108,7 +247,7 @@
                     
                     <div class="grid grid-cols-3 gap-4 mt-6 mx-8">
                         {#each all_produk as produk}
-                        <button on:click={() => addtoCheckout(produk)} class="w-full border-2 border-black rounded-lg bg-white">
+                        <button on:click={() => {addtoCheckout(produk); sumTotal()}} class="w-full border-2 border-black rounded-lg bg-white">
                             <div class="p-3 w-full flex flex-col items-center">
                                 <img class="rounded-lg w-10/12 h-10/12" src={img_produk} alt="">
                                 <p class="w-full truncate text-black font-semibold my-1 text-center">{produk.product_name}</p>
@@ -130,7 +269,9 @@
         <div class="flex justify-around text-white font-semibold mt-4 mb-2">
             <button on:click={() =>  window = "payment"} class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-dollar-sign mr-2" style="color: #F2AA7E;"></i></span>Payment</button>
             <button on:click={() =>  window = "transaction_list"} class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-list mr-2" style="color: #F2AA7E;"></i></span>View Transaction List</button>
-            <button class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray flex"><span class="mr-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <button 
+            on:click={() => handleClick(2)}
+            class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray flex"><span class="mr-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <rect width="24" height="24" fill="url(#pattern0_434_939)"/>
                 <defs>
                 <pattern id="pattern0_434_939" patternContentUnits="objectBoundingBox" width="1" height="1">
@@ -147,18 +288,34 @@
                 <div class="flex py-1 my-1 w-full">
                     <div class="w-9/12 text-white">
                         <p class="font-semibold truncate">{produk_checkout.product_name}</p>
-                        <p class="font-semibold ml-8">2 unit (Rp 35,000.00/unit)</p>
+                        <p class="flex font-semibold ml-8"><MoneyConverter value={produk_checkout.sell_price} currency={true} decimal={true}></MoneyConverter>/{produk_checkout.product_unit}</p>
                     </div>
                     <div class="w-3/12 text-center">
-                        <span class="text-peach font-semibold">Rp 70,000.00</span>
+                        <span class="text-peach font-semibold"><MoneyConverter value={produk_checkout.sell_price*produk_checkout.jumlah} currency={true} decimal={true}></MoneyConverter></span>
                         <div class="flex">
-                            <button on:click={() => minus("produk1")} type="button" class="bg-peach rounded-s-xl h-8 p-2">
+                            <button on:click={() => {
+                                let index = checkout.findIndex(produk_c => produk_c.product_name == produk_checkout.product_name);
+                                if (checkout[index].jumlah > 1){
+                                    checkout[index].jumlah-=1;
+                                } else{
+                                    checkout.splice(index,1);
+                                    checkout = checkout;
+                                    console.log(checkout);
+                                }
+                                sumTotal()
+                            }} 
+                            type="button" class="bg-peach rounded-s-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
                                 </svg>
                             </button>
-                            <input id="produk1" value=1 type="text" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16" required />
-                            <button on:click={() => plus("produk1")} type="button" class="bg-peach rounded-e-xl h-8 p-2">
+                            <input on:change={() => sumTotal()} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
+                            <button on:click={() => {
+                                let index = checkout.findIndex(produk_c => produk_c.product_name == produk_checkout.product_name);
+                                checkout[index].jumlah+=1;
+                                sumTotal()
+                            }} 
+                            type="button" class="bg-peach rounded-e-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
                                 </svg>
@@ -168,7 +325,7 @@
                 </div>
             {/each}
             
-
+            
             <!-- <div class="flex py-1 my-1 w-full">
                 <div class="w-9/12 text-white">
                     <p class="font-semibold truncate">Beras Pandan Wangi</p>
@@ -220,8 +377,9 @@
 
         </div>
 
-        <div class="text-end">
-            <span class="text-peach font-semibold">Total: Rp 136,630.00</span>
+        <div class="text-end"> 
+            <span class="text-peach font-semibold"><MoneyConverter bind:value={total} currency={true} decimal={true}></MoneyConverter></span>
+
         </div>
         <button class="w-auto bg-peach2 text-darkGray p-2 px-auto rounded-2xl mx-3 my-2 font-semibold">1 item(s) with promo, 0 promo(s) applied</button>
         
@@ -229,3 +387,192 @@
         
     </div>
 </div>
+
+{#if showModal === 1}
+<TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+    <div class="flex items-center justify-center pt-8">
+       <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Session #{this_session.session_id}</div>
+    </div>
+    
+    <form class="p-4 md:p-5" >
+       <div class="grid gap-3 font-roboto font-semibold">
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Cashier</div>
+             <div class="text-white">{this_session.user_fullname}</div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Start time</div>
+             <div class="text-white">
+                   <DateConverter value={this_session.start_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
+             </div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Closing time</div>
+             <div class="text-white">
+                <DateConverter value={this_session.last_update_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
+             </div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Opening cash</div>
+             <div class="text-white"><MoneyConverter value={this_session.opening_cash} currency={true} decimal={true}/></div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Total Income
+                <button on:click={toggleTable} class="ml-2">
+                   {#if showTable}
+                      <i class="fa-solid fa-caret-up"></i>
+                   {:else}
+                      <i class="fa-solid fa-caret-down"></i>
+                   {/if}
+                </button>
+             </div>
+             <div class="text-white"><MoneyConverter value={this_session.total_income} currency={true} decimal={true}/></div>
+          </div>
+    
+          {#if showTable}
+          <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+             <table class="w-full text-sm text-left rtl:text-right">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                      <tr class="border-b-2 border-black">
+                         <th scope="col" class="px-6 py-3 text-sm font-bold">
+                            TRANSACTION ID
+                         </th>
+                         <th scope="col" class="px-6 py-3 text-sm font-bold">
+                            TIME
+                         </th>
+                         <th scope="col" class="px-6 py-3 text-sm font-bold">
+                            TOTAL
+                         </th>
+                      </tr>
+                </thead>
+                <tbody>
+                      <tr class="bg-yellow-100">
+                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            5432112345
+                         </th>
+                         <td class="px-6 py-4">
+                            15:40 PM
+                         </td>
+                         <td class="px-6 py-4">
+                            Rp 16.000,00
+                         </td>
+                      </tr>
+                      <tr class="bg-white">
+                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            5432112345
+                         </th>
+                         <td class="px-6 py-4">
+                            15:40 PM
+                         </td>
+                         <td class="px-6 py-4">
+                            Rp 16.000,00
+                         </td>
+                      </tr>
+                      <tr class="bg-yellow-100">
+                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            5432112345
+                         </th>
+                         <td class="px-6 py-4">
+                            15:40 PM
+                         </td>
+                         <td class="px-6 py-4">
+                            Rp 16.000,00
+                         </td>
+                      </tr>
+                </tbody>
+             </table>
+          </div>
+          {/if}
+
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Expected closing cash</div>
+             <div class="text-white"><MoneyConverter value={this_session.expected_closing_cash} currency={true} decimal={true}/></div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Actual closing cash</div>
+                <MoneyInput bind:value={this_session.actual_closing_cash} />
+                </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Actual difference</div>
+             <div class="text-white"><MoneyConverter value={this_session.actual_difference} currency={true} decimal={true}/></div>
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Deposit money</div>
+             <MoneyInput bind:value={this_session.deposit_money} />
+          </div>
+          <div class="flex justify-between">
+             <div class="text-[#f7d4b2]">Deposit Difference</div>
+             <div class="text-white"><MoneyConverter value={this_session.deposit_difference} currency={true} decimal={true}/></div>
+          </div>
+          <div class="text-[#f7d4b2]">
+             <div class="pb-3">Opening notes</div>
+             <textarea id="opening_notes" rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5" bind:value={this_session.opening_notes} readonly></textarea>                    
+          </div>
+          <div class="text-[#f7d4b2]">
+             <div class="pb-3">Closing notes</div>
+             <textarea id="closing_notes" rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5" bind:value={this_session.closing_notes}></textarea>                    
+          </div>
+ 
+          <div class="flex items-center justify-center">
+             <button
+             on:click={() => CloseSession(this_session.session_id, this_session)}
+                type="submit" 
+                class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
+                Save
+             </button>
+          </div>
+       </div>
+    </form>
+ </TaskModal>
+{:else if showModal === 2}
+    <TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+        <div class="flex items-center justify-center pt-8">
+            <svg width="136" height="35" viewBox="0 0 136 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_i_1156_3148)">
+                <path d="M6.52728 5.21416V14.9342H9.90228C12.6473 14.9342 14.4923 13.7642 14.4923 9.66916C14.4923 5.79916 12.9623 5.21416 9.40728 5.21416H6.52728ZM6.52728 34.0142H0.227282V0.264157H13.0973C19.1273 0.264157 20.9723 5.12416 20.9723 9.84916C20.9723 12.7292 20.2073 15.9692 17.8223 17.8592C15.8423 19.4342 13.1873 19.9292 10.7573 19.8842H6.52728V34.0142ZM30.4972 8.63416V13.1342H30.5872C31.3072 11.2892 32.0272 10.2542 32.8822 9.53416C34.5472 8.13916 35.6722 8.22916 36.5272 8.18416V15.1142C33.2872 14.7992 30.8122 15.6092 30.7222 19.3442V34.0142H24.8722V8.63416H30.4972ZM45.3925 17.2742V25.7342C45.3925 28.8392 45.6625 30.1892 48.4975 30.1892C51.1975 30.1892 51.4225 28.8392 51.4225 25.7342V17.2742C51.4225 14.8892 51.4225 12.4592 48.4975 12.4592C45.3925 12.4592 45.3925 14.8892 45.3925 17.2742ZM48.4975 34.6892C40.8025 34.8242 39.4975 31.0442 39.5425 22.2242C39.5875 13.5392 39.6775 7.95916 48.4975 7.95916C57.1825 7.95916 57.2275 13.5392 57.2725 22.2242C57.3175 31.0442 56.0575 34.8242 48.4975 34.6892ZM68.4775 8.63416V11.2442H68.5675C69.8725 8.45416 72.2575 8.04916 74.1475 7.95916C76.3075 7.91416 79.1875 8.85916 79.5475 11.2442H79.6375C80.7625 9.03916 82.6075 7.95916 85.4875 7.95916C89.8075 7.95916 91.6975 10.6592 91.6975 13.3592V34.0142H85.8475V16.8692C85.8475 14.5742 85.6225 12.3242 83.0575 12.4592C80.5375 12.5942 80.0875 14.3492 80.0875 17.3192V34.0142H74.2375V16.5542C74.2375 14.3042 74.0575 12.4142 71.3575 12.4592C68.6125 12.5042 68.4775 14.5292 68.4775 17.3192V34.0142H62.6275V8.63416H68.4775ZM102.917 17.2742V25.7342C102.917 28.8392 103.187 30.1892 106.022 30.1892C108.722 30.1892 108.947 28.8392 108.947 25.7342V17.2742C108.947 14.8892 108.947 12.4592 106.022 12.4592C102.917 12.4592 102.917 14.8892 102.917 17.2742ZM106.022 34.6892C98.3269 34.8242 97.0219 31.0442 97.0669 22.2242C97.1119 13.5392 97.2019 7.95916 106.022 7.95916C114.707 7.95916 114.752 13.5392 114.797 22.2242C114.842 31.0442 113.582 34.8242 106.022 34.6892ZM118.487 25.6442H124.337C123.887 30.3242 125.687 30.1892 127.037 30.1892C128.702 30.1892 129.872 28.9742 129.467 27.3542C129.377 25.9142 127.712 25.1042 126.587 24.3392L123.392 22.1342C120.467 20.1092 118.577 17.7692 118.577 14.1242C118.577 10.2092 121.682 7.95916 127.307 7.95916C132.977 7.95916 135.587 10.9292 135.452 16.3742H129.602C129.737 13.5392 128.927 12.4592 126.902 12.4592C125.507 12.4592 124.427 13.0892 124.427 14.5292C124.427 16.0142 125.507 16.6892 126.632 17.4542L131.402 20.6942C132.887 21.5492 135.227 23.9792 135.407 25.6892C135.902 30.0992 134.822 34.6892 126.722 34.6892C123.617 34.6892 117.812 33.3842 118.487 25.6442Z" fill="white"/>
+                </g>
+                <defs>
+                <filter id="filter0_i_1156_3148" x="0.226562" y="0.26416" width="135.672" height="38.5601" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dy="4"/>
+                <feGaussianBlur stdDeviation="2"/>
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                <feBlend mode="normal" in2="shape" result="effect1_innerShadow_1156_3148"/>
+                </filter>
+                </defs>
+            </svg>
+         </div>
+        <div class="p-4 md:p-5 font-roboto font-semibold" >
+        {#each all_promo as promo}
+            <div class="py-3">
+                <div class="text-[#f7d4b2] text-xl">
+                    {promo.ProductDetail.product_name}
+                </div>
+                <div class="indent-8 text-white text-xl ">
+                    {#if (promo.Promo.promo_percentage !== 0)}
+                        Discount {promo.Promo.promo_percentage}% off.
+                    {:else if (promo.Promo.promo_discount !== 0)}
+                        Discount <MoneyConverter value={promo.Promo.promo_discount} currency={true} decimal={true}></MoneyConverter>
+                        
+                    {:else}
+                        Buy {promo.Promo.x_amount} get {promo.Promo.y_amount} free.
+                    {/if}
+                    
+                </div>
+                <div class="indent-8 text-2xl text-[#f7d4b2]">
+                    {promo.Promo.promo_term_and_cond}
+                </div>
+                
+                
+            </div>
+        {/each}
+        </div>
+    </TaskModal>
+{:else}
+    <TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+
+    </TaskModal>
+{/if}

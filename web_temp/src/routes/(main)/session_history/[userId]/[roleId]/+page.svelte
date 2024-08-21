@@ -33,4 +33,4 @@
 
 </script>
 
-<SessionHistory session={session} userId={data.userId}></SessionHistory>
+<SessionHistory session={session} userId={data.userId} roleId={data.roleId}></SessionHistory>
