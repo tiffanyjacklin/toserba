@@ -222,6 +222,7 @@ e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
 e.PUT("/orders/delivery/verify/:deliveryorder_id", controller.VerifyDeliveryOrders)
 
 ================================================= Owner =================================================
+e.GET("/store_warehouses/:user_id/:role_id", controller.GetStoreWarehouseByUIDRID)
 e.GET("/store_warehouses/:store_warehouse_id", controller.GetStoreWarehouseByID)
 e.POST("/store_warehouses/add", controller.InsertStoreWarehouse)
 {
