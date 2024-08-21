@@ -20,7 +20,7 @@ class SessionHistoryPage extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              Text('Session History', style : TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: ColorPalleteLogin.PrimaryColor)),
+              Text('Session History', style : TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: ColorPalleteLogin.PrimaryColor)),
               Container(
                 width: MediaQuery.of(context).size.width * 0.70,
                 child: SearchBar(       
