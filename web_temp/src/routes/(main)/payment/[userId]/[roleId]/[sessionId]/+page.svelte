@@ -1,8 +1,113 @@
 <script>
     let tampilan = "awal";
+    import TaskModal from '$lib/TaskModal.svelte';
+    import { onMount } from 'svelte';
+    import DateConverter from '$lib/DateConverter.svelte';
+    import { getFormattedDate } from '$lib/DateNow.js';
+    export let data;
+    let sessionId = data.sessionId;
+    let roleId = data.roleId;
+    let userId = data.userId;
+    let showModal = null; 
+    let member_name = "";
+    let member_phone_number = "";
+    let member_join_date = getFormattedDate();
+    $: member_points = 0;
+    let member = [];
+    let use = false;
+    function handleClick(id) {
+        showModal = id;
+    }
+    function closeModal() {
+        showModal = null;
+    }
+    // onMount(async () => {
+    //     fetchPhoneNumber();
+    // });
+    function toggleUse() {
+        if (member.member_points > 0){
+            use = !use;
+        }else{
+            use = false;
+        }
+    }
+    async function fetchPhoneNumber() {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/members/phone_number/${member_phone_number}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
+        if (!response.ok) {
+            console.error('member fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch member', data);
+            return;
+        }
+
+        member = data.data;
+        return member;
+    }
+    async function checkPhoneNumber() {
+        const memberData = await fetchPhoneNumber();
+        
+        if (!memberData || memberData.length === 0) {
+            // Phone number does not exist, show SweetAlert
+            Swal.fire({
+                title: "Phone Number Not Found",
+                text: "The phone number doesn't exist. Please create a member.",
+                icon: "warning",
+                confirmButtonText: "Create Member",
+                color: "white",
+                background: "#364445",
+                confirmButtonColor: '#F2AA7E'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Open the Create Membership modal and autofill phone number
+                    handleClick(1);
+                }
+            });
+        } else {
+            // Phone number exists, open the member information modal
+            handleClick(3);
+        }
+    }
+    async function NewMember() {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/members/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                member_name,
+                member_phone_number,
+                member_join_date,
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new member gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new member', data);
+            return;
+        }
+        closeModal();
+    }
+    function usePoints(){
+        member_points = member.member_points;
+        closeModal();
+    }
 </script>
 
+<!-- {member_points} -->
 <div class="flex h-screen">
     <div class="w-1/2 h-full flex flex-col">
         <div class="flex my-2 mx-8">
@@ -21,8 +126,12 @@
 
             <div class="w-full flex flex-col items-center">
                 <span class="text-4xl font-bold text-darkGray my-4">Membership</span>
-                <button class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Create Membership</button>
-                <button class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Use Membership</button>
+                <button 
+                on:click={() => handleClick(1)}
+                class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Create Membership</button>
+                <button 
+                on:click={() => handleClick(2)}
+                class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Use Membership</button>
             </div>
         </div>
     </div>
@@ -98,3 +207,180 @@
         </div>
     </div>
 </div>
+
+{#if showModal === 1}
+<TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+    <div class="flex items-center justify-center pt-8">
+        <svg width="281" height="36" viewBox="0 0 281 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g filter="url(#filter0_i_464_2202)">
+            <path d="M14.2529 22.985H20.5979C20.5529 23.615 20.5079 24.29 20.4629 24.92C20.1479 31.085 18.0779 35.81 11.0579 35.81C0.707892 35.81 0.032892 29.24 0.032892 20.24V15.425C0.302892 6.83 0.977892 0.44 11.0579 0.44C16.6829 0.529999 19.8329 3.41 20.2829 9.17C20.3729 10.025 20.4629 10.88 20.4179 11.735H14.2079C13.9379 9.575 14.1629 5.525 11.0579 5.525C6.10789 5.525 6.51289 11.42 6.51289 14.03V23.39C6.51289 26.18 6.73789 30.725 11.0579 30.725C14.5229 30.725 14.1179 25.145 14.2529 22.985ZM30.8878 9.62V14.12H30.9778C31.6978 12.275 32.4178 11.24 33.2728 10.52C34.9378 9.125 36.0628 9.215 36.9178 9.17V16.1C33.6778 15.785 31.2028 16.595 31.1128 20.33V35H25.2628V9.62H30.8878ZM39.9331 25.01V18.35C39.6631 12.365 42.7231 8.945 48.4831 8.945C56.6281 8.945 57.4831 13.175 57.4831 20.105V23.525H45.7831V27.215C45.8281 30.545 47.0881 31.175 48.8431 31.175C51.0031 31.175 51.6331 29.6 51.5431 26.405H57.3931C57.6181 32.075 55.2781 35.675 49.2931 35.675C42.5431 35.675 39.7981 32.48 39.9331 25.01ZM45.7831 19.025H51.6331V16.82C51.5881 14.255 50.9131 13.445 48.5731 13.445C45.6481 13.445 45.7831 15.695 45.7831 17.99V19.025ZM79.8481 35H74.3131C73.9081 34.19 73.8631 33.29 73.9531 32.39H73.8631C73.1881 33.425 72.4231 34.28 71.5231 34.82C70.6681 35.36 69.7231 35.675 68.7331 35.675C64.0081 35.675 61.9381 33.29 61.9381 28.07C61.9381 22.265 66.0331 20.87 70.6231 18.98C73.0981 17.945 73.9981 16.82 73.5031 14.75C73.2331 13.625 72.3331 13.445 70.7581 13.445C68.1031 13.445 67.6531 14.84 67.6981 17.135H62.1181C62.0731 12.32 63.6481 8.945 70.9831 8.945C78.9481 8.945 79.4431 13.13 79.3531 16.46V31.445C79.3531 32.66 79.5331 33.83 79.8481 35ZM73.5031 24.38V21.635C72.0631 22.625 70.3081 23.615 68.7781 24.875C67.9231 25.595 67.7881 26.855 67.7881 27.935C67.7881 29.87 68.3731 31.175 70.5331 31.175C73.9981 31.175 73.3681 26.81 73.5031 24.38ZM93.8881 30.5V35.09C90.4231 35.495 85.5631 35.81 85.5631 31.085V13.895H83.1781V9.62H85.5181V2.645H91.4131V9.62H93.8881V13.895H91.4131V29.645C91.5481 30.725 93.1681 30.59 93.8881 30.5ZM97.4575 25.01V18.35C97.1875 12.365 100.248 8.945 106.008 8.945C114.153 8.945 115.008 13.175 115.008 20.105V23.525H103.308V27.215C103.353 30.545 104.613 31.175 106.368 31.175C108.528 31.175 109.158 29.6 109.068 26.405H114.918C115.143 32.075 112.803 35.675 106.818 35.675C100.068 35.675 97.3225 32.48 97.4575 25.01ZM103.308 19.025H109.158V16.82C109.113 14.255 108.438 13.445 106.098 13.445C103.173 13.445 103.308 15.695 103.308 17.99V19.025ZM138.138 24.38V35H131.838V1.25H141.873L145.248 16.91C145.788 19.475 146.148 22.085 146.418 24.695H146.508C146.823 21.365 147.048 19.115 147.498 16.91L150.873 1.25H160.863V35H154.563V24.38C154.563 17.675 154.698 10.97 155.103 4.265H155.013L148.263 35H144.438L137.823 4.265H137.598C138.003 10.97 138.138 17.675 138.138 24.38ZM166.232 25.01V18.35C165.962 12.365 169.022 8.945 174.782 8.945C182.927 8.945 183.782 13.175 183.782 20.105V23.525H172.082V27.215C172.127 30.545 173.387 31.175 175.142 31.175C177.302 31.175 177.932 29.6 177.842 26.405H183.692C183.917 32.075 181.577 35.675 175.592 35.675C168.842 35.675 166.097 32.48 166.232 25.01ZM172.082 19.025H177.932V16.82C177.887 14.255 177.212 13.445 174.872 13.445C171.947 13.445 172.082 15.695 172.082 17.99V19.025ZM195.167 9.62V12.23H195.257C196.562 9.44 198.947 9.035 200.837 8.945C202.997 8.9 205.877 9.845 206.237 12.23H206.327C207.452 10.025 209.297 8.945 212.177 8.945C216.497 8.945 218.387 11.645 218.387 14.345V35H212.537V17.855C212.537 15.56 212.312 13.31 209.747 13.445C207.227 13.58 206.777 15.335 206.777 18.305V35H200.927V17.54C200.927 15.29 200.747 13.4 198.047 13.445C195.302 13.49 195.167 15.515 195.167 18.305V35H189.317V9.62H195.167ZM230.101 19.07V26.675C230.101 29.6 231.046 31.175 232.936 31.175C234.736 31.175 235.366 29.24 235.501 26.81V18.35C235.321 15.83 235.591 13.445 232.846 13.445C230.101 13.445 230.011 17.045 230.101 19.07ZM224.251 35V1.25H230.101V9.35C230.101 10.16 230.011 10.97 229.966 12.185H230.056C231.226 9.755 232.801 8.9 235.276 8.945C239.056 9.035 241.216 10.97 241.351 17.945V27.125C241.216 31.175 240.226 35.675 235.276 35.675C232.846 35.54 231.226 34.82 229.921 32.3H229.831V35H224.251ZM246.256 25.01V18.35C245.986 12.365 249.046 8.945 254.806 8.945C262.951 8.945 263.806 13.175 263.806 20.105V23.525H252.106V27.215C252.151 30.545 253.411 31.175 255.166 31.175C257.326 31.175 257.956 29.6 257.866 26.405H263.716C263.941 32.075 261.601 35.675 255.616 35.675C248.866 35.675 246.121 32.48 246.256 25.01ZM252.106 19.025H257.956V16.82C257.911 14.255 257.236 13.445 254.896 13.445C251.971 13.445 252.106 15.695 252.106 17.99V19.025ZM274.696 9.62V14.12H274.786C275.506 12.275 276.226 11.24 277.081 10.52C278.746 9.125 279.871 9.215 280.726 9.17V16.1C277.486 15.785 275.011 16.595 274.921 20.33V35H269.071V9.62H274.696Z" fill="white"/>
+            </g>
+            <defs>
+            <filter id="filter0_i_464_2202" x="0.03125" y="0.440002" width="280.695" height="39.37" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+            <feOffset dy="4"/>
+            <feGaussianBlur stdDeviation="2"/>
+            <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+            <feBlend mode="normal" in2="shape" result="effect1_innerShadow_464_2202"/>
+            </filter>
+            </defs>
+        </svg>
+    </div>
+    <form class="p-4 md:p-5" >
+        <div class="my-5">
+            <div class="w-full">
+                <div class="text-[#f7d4b2] font-semibold font-lg">Name</div>
+                <div class="relative">
+                    <input type="text" placeholder="" class="shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full  py-2 text-sm leading-6 text-slate-900 rounded-md" bind:value={member_name} required>
+                </div>
+            </div>
+        </div>
+        <div class="my-5">
+            <div class="w-full">
+                <div class="text-[#f7d4b2] font-semibold font-lg">Phone number</div>
+                <div class="relative">
+                    <input type="text" placeholder="" class="shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full  py-2 text-sm leading-6 text-slate-900 rounded-md" bind:value={member_phone_number} required>
+                </div>
+            </div>
+        </div>
+        <div class="my-5">
+            <div class="w-full">
+                <div class="text-[#f7d4b2] font-semibold font-lg">Join Date</div>
+                <div class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stroke-[2px] absolute h-5 w-5 top-2.5 left-3 text-[#3d4c52] ">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                    </svg>
+                    <input type="text" placeholder="" class="shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full px-10 py-2 text-sm leading-6 text-slate-900 rounded-md " bind:value={member_join_date} readonly>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center justify-center font-roboto">
+            <button
+            on:click={() => NewMember()}
+               type="submit" 
+               class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
+               Save
+            </button>
+         </div>
+
+    </form>
+ </TaskModal>
+{:else if showModal === 2}
+    <TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+        <div class="flex items-center justify-center pt-8">
+            <svg width="307" height="43" viewBox="0 0 307 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_i_464_2317)">
+                <path d="M15.983 23.245V0.249997H22.283V23.785C22.283 31.255 19.853 34.81 11.618 34.81C3.29301 34.81 0.863009 31.255 0.863009 23.785V0.249997H7.16301V23.245C7.16301 26.485 7.38801 29.725 11.663 29.725C15.758 29.725 15.983 26.485 15.983 23.245ZM26.6178 25.63H32.4678C32.0178 30.31 33.8178 30.175 35.1678 30.175C36.8328 30.175 38.0028 28.96 37.5978 27.34C37.5078 25.9 35.8428 25.09 34.7178 24.325L31.5228 22.12C28.5978 20.095 26.7078 17.755 26.7078 14.11C26.7078 10.195 29.8128 7.945 35.4378 7.945C41.1078 7.945 43.7178 10.915 43.5828 16.36H37.7328C37.8678 13.525 37.0578 12.445 35.0328 12.445C33.6378 12.445 32.5578 13.075 32.5578 14.515C32.5578 16 33.6378 16.675 34.7628 17.44L39.5328 20.68C41.0178 21.535 43.3578 23.965 43.5378 25.675C44.0328 30.085 42.9528 34.675 34.8528 34.675C31.7478 34.675 25.9428 33.37 26.6178 25.63ZM47.6929 24.01V17.35C47.4229 11.365 50.4829 7.945 56.2429 7.945C64.3879 7.945 65.2429 12.175 65.2429 19.105V22.525H53.5429V26.215C53.5879 29.545 54.8479 30.175 56.6029 30.175C58.7629 30.175 59.3929 28.6 59.3029 25.405H65.1529C65.3779 31.075 63.0379 34.675 57.0529 34.675C50.3029 34.675 47.5579 31.48 47.6929 24.01ZM53.5429 18.025H59.3929V15.82C59.3479 13.255 58.6729 12.445 56.3329 12.445C53.4079 12.445 53.5429 14.695 53.5429 16.99V18.025ZM88.3729 23.38V34H82.0729V0.249997H92.1079L95.4829 15.91C96.0229 18.475 96.3829 21.085 96.6529 23.695H96.7429C97.0579 20.365 97.2829 18.115 97.7329 15.91L101.108 0.249997H111.098V34H104.798V23.38C104.798 16.675 104.933 9.97 105.338 3.265H105.248L98.4979 34H94.6729L88.0579 3.265H87.8329C88.2379 9.97 88.3729 16.675 88.3729 23.38ZM116.467 24.01V17.35C116.197 11.365 119.257 7.945 125.017 7.945C133.162 7.945 134.017 12.175 134.017 19.105V22.525H122.317V26.215C122.362 29.545 123.622 30.175 125.377 30.175C127.537 30.175 128.167 28.6 128.077 25.405H133.927C134.152 31.075 131.812 34.675 125.827 34.675C119.077 34.675 116.332 31.48 116.467 24.01ZM122.317 18.025H128.167V15.82C128.122 13.255 127.447 12.445 125.107 12.445C122.182 12.445 122.317 14.695 122.317 16.99V18.025ZM145.402 8.62V11.23H145.492C146.797 8.44 149.182 8.035 151.072 7.945C153.232 7.9 156.112 8.845 156.472 11.23H156.562C157.687 9.025 159.532 7.945 162.412 7.945C166.732 7.945 168.622 10.645 168.622 13.345V34H162.772V16.855C162.772 14.56 162.547 12.31 159.982 12.445C157.462 12.58 157.012 14.335 157.012 17.305V34H151.162V16.54C151.162 14.29 150.982 12.4 148.282 12.445C145.537 12.49 145.402 14.515 145.402 17.305V34H139.552V8.62H145.402ZM180.337 18.07V25.675C180.337 28.6 181.282 30.175 183.172 30.175C184.972 30.175 185.602 28.24 185.737 25.81V17.35C185.557 14.83 185.827 12.445 183.082 12.445C180.337 12.445 180.247 16.045 180.337 18.07ZM174.487 34V0.249997H180.337V8.35C180.337 9.16 180.247 9.97 180.202 11.185H180.292C181.462 8.755 183.037 7.9 185.512 7.945C189.292 8.035 191.452 9.97 191.587 16.945V26.125C191.452 30.175 190.462 34.675 185.512 34.675C183.082 34.54 181.462 33.82 180.157 31.3H180.067V34H174.487ZM196.492 24.01V17.35C196.222 11.365 199.282 7.945 205.042 7.945C213.187 7.945 214.042 12.175 214.042 19.105V22.525H202.342V26.215C202.387 29.545 203.647 30.175 205.402 30.175C207.562 30.175 208.192 28.6 208.102 25.405H213.952C214.177 31.075 211.837 34.675 205.852 34.675C199.102 34.675 196.357 31.48 196.492 24.01ZM202.342 18.025H208.192V15.82C208.147 13.255 207.472 12.445 205.132 12.445C202.207 12.445 202.342 14.695 202.342 16.99V18.025ZM224.932 8.62V13.12H225.022C225.742 11.275 226.462 10.24 227.317 9.52C228.982 8.125 230.107 8.215 230.962 8.17V15.1C227.722 14.785 225.247 15.595 225.157 19.33V34H219.307V8.62H224.932ZM232.897 25.63H238.747C238.297 30.31 240.097 30.175 241.447 30.175C243.112 30.175 244.282 28.96 243.877 27.34C243.787 25.9 242.122 25.09 240.997 24.325L237.802 22.12C234.877 20.095 232.987 17.755 232.987 14.11C232.987 10.195 236.092 7.945 241.717 7.945C247.387 7.945 249.997 10.915 249.862 16.36H244.012C244.147 13.525 243.337 12.445 241.312 12.445C239.917 12.445 238.837 13.075 238.837 14.515C238.837 16 239.917 16.675 241.042 17.44L245.812 20.68C247.297 21.535 249.637 23.965 249.817 25.675C250.312 30.085 249.232 34.675 241.132 34.675C238.027 34.675 232.222 33.37 232.897 25.63ZM260.182 34H254.332V0.249997H260.182V11.23H260.272C261.937 8.26 264.277 7.945 265.537 7.945C268.867 7.945 271.567 9.88 271.387 14.425V34H265.537V16.63C265.537 14.155 265.267 12.535 263.062 12.445C260.857 12.355 260.092 14.425 260.182 17.125V34ZM283.267 34H277.417V8.62H283.267V34ZM283.267 5.56H277.417V0.249997H283.267V5.56ZM295.072 18.07V25.675C295.072 28.6 296.017 30.175 297.907 30.175C299.707 30.175 300.337 28.24 300.472 25.81V17.35C300.292 14.83 300.562 12.445 297.817 12.445C295.072 12.445 294.982 16.045 295.072 18.07ZM295.072 8.62V11.275H295.162C296.242 8.8 297.817 7.9 300.247 7.945C304.027 8.035 306.187 10.06 306.322 17.035V26.215C306.187 30.265 305.197 34.675 300.247 34.675C297.952 34.54 296.332 33.955 294.892 31.39H294.802V42.505H289.222V8.62H295.072Z" fill="white"/>
+                </g>
+                <defs>
+                <filter id="filter0_i_464_2317" x="0.859375" y="0.25" width="305.461" height="46.255" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dy="4"/>
+                <feGaussianBlur stdDeviation="2"/>
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                <feBlend mode="normal" in2="shape" result="effect1_innerShadow_464_2317"/>
+                </filter>
+                </defs>
+            </svg>
+        </div>
+        <form class="p-4 md:p-5 font-roboto" >
+            <div class="my-5">
+                <div class="w-full">
+                    <div class="text-[#f7d4b2] font-semibold font-lg">Phone number</div>
+    
+                    <div class="relative">
+                        <input type="text" placeholder="" class="shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full  py-2 text-sm leading-6 text-slate-900 rounded-md" bind:value={member_phone_number} required>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-center">
+                <button
+                on:click={() => checkPhoneNumber()}
+                   type="submit" 
+                   class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
+                   Load
+                </button>
+             </div>
+        </form>
+    </TaskModal>
+{:else}
+    <TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+        <div class="flex items-center justify-center pt-8 pb-4">
+            <svg width="307" height="43" viewBox="0 0 307 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_i_464_2317)">
+                <path d="M15.983 23.245V0.249997H22.283V23.785C22.283 31.255 19.853 34.81 11.618 34.81C3.29301 34.81 0.863009 31.255 0.863009 23.785V0.249997H7.16301V23.245C7.16301 26.485 7.38801 29.725 11.663 29.725C15.758 29.725 15.983 26.485 15.983 23.245ZM26.6178 25.63H32.4678C32.0178 30.31 33.8178 30.175 35.1678 30.175C36.8328 30.175 38.0028 28.96 37.5978 27.34C37.5078 25.9 35.8428 25.09 34.7178 24.325L31.5228 22.12C28.5978 20.095 26.7078 17.755 26.7078 14.11C26.7078 10.195 29.8128 7.945 35.4378 7.945C41.1078 7.945 43.7178 10.915 43.5828 16.36H37.7328C37.8678 13.525 37.0578 12.445 35.0328 12.445C33.6378 12.445 32.5578 13.075 32.5578 14.515C32.5578 16 33.6378 16.675 34.7628 17.44L39.5328 20.68C41.0178 21.535 43.3578 23.965 43.5378 25.675C44.0328 30.085 42.9528 34.675 34.8528 34.675C31.7478 34.675 25.9428 33.37 26.6178 25.63ZM47.6929 24.01V17.35C47.4229 11.365 50.4829 7.945 56.2429 7.945C64.3879 7.945 65.2429 12.175 65.2429 19.105V22.525H53.5429V26.215C53.5879 29.545 54.8479 30.175 56.6029 30.175C58.7629 30.175 59.3929 28.6 59.3029 25.405H65.1529C65.3779 31.075 63.0379 34.675 57.0529 34.675C50.3029 34.675 47.5579 31.48 47.6929 24.01ZM53.5429 18.025H59.3929V15.82C59.3479 13.255 58.6729 12.445 56.3329 12.445C53.4079 12.445 53.5429 14.695 53.5429 16.99V18.025ZM88.3729 23.38V34H82.0729V0.249997H92.1079L95.4829 15.91C96.0229 18.475 96.3829 21.085 96.6529 23.695H96.7429C97.0579 20.365 97.2829 18.115 97.7329 15.91L101.108 0.249997H111.098V34H104.798V23.38C104.798 16.675 104.933 9.97 105.338 3.265H105.248L98.4979 34H94.6729L88.0579 3.265H87.8329C88.2379 9.97 88.3729 16.675 88.3729 23.38ZM116.467 24.01V17.35C116.197 11.365 119.257 7.945 125.017 7.945C133.162 7.945 134.017 12.175 134.017 19.105V22.525H122.317V26.215C122.362 29.545 123.622 30.175 125.377 30.175C127.537 30.175 128.167 28.6 128.077 25.405H133.927C134.152 31.075 131.812 34.675 125.827 34.675C119.077 34.675 116.332 31.48 116.467 24.01ZM122.317 18.025H128.167V15.82C128.122 13.255 127.447 12.445 125.107 12.445C122.182 12.445 122.317 14.695 122.317 16.99V18.025ZM145.402 8.62V11.23H145.492C146.797 8.44 149.182 8.035 151.072 7.945C153.232 7.9 156.112 8.845 156.472 11.23H156.562C157.687 9.025 159.532 7.945 162.412 7.945C166.732 7.945 168.622 10.645 168.622 13.345V34H162.772V16.855C162.772 14.56 162.547 12.31 159.982 12.445C157.462 12.58 157.012 14.335 157.012 17.305V34H151.162V16.54C151.162 14.29 150.982 12.4 148.282 12.445C145.537 12.49 145.402 14.515 145.402 17.305V34H139.552V8.62H145.402ZM180.337 18.07V25.675C180.337 28.6 181.282 30.175 183.172 30.175C184.972 30.175 185.602 28.24 185.737 25.81V17.35C185.557 14.83 185.827 12.445 183.082 12.445C180.337 12.445 180.247 16.045 180.337 18.07ZM174.487 34V0.249997H180.337V8.35C180.337 9.16 180.247 9.97 180.202 11.185H180.292C181.462 8.755 183.037 7.9 185.512 7.945C189.292 8.035 191.452 9.97 191.587 16.945V26.125C191.452 30.175 190.462 34.675 185.512 34.675C183.082 34.54 181.462 33.82 180.157 31.3H180.067V34H174.487ZM196.492 24.01V17.35C196.222 11.365 199.282 7.945 205.042 7.945C213.187 7.945 214.042 12.175 214.042 19.105V22.525H202.342V26.215C202.387 29.545 203.647 30.175 205.402 30.175C207.562 30.175 208.192 28.6 208.102 25.405H213.952C214.177 31.075 211.837 34.675 205.852 34.675C199.102 34.675 196.357 31.48 196.492 24.01ZM202.342 18.025H208.192V15.82C208.147 13.255 207.472 12.445 205.132 12.445C202.207 12.445 202.342 14.695 202.342 16.99V18.025ZM224.932 8.62V13.12H225.022C225.742 11.275 226.462 10.24 227.317 9.52C228.982 8.125 230.107 8.215 230.962 8.17V15.1C227.722 14.785 225.247 15.595 225.157 19.33V34H219.307V8.62H224.932ZM232.897 25.63H238.747C238.297 30.31 240.097 30.175 241.447 30.175C243.112 30.175 244.282 28.96 243.877 27.34C243.787 25.9 242.122 25.09 240.997 24.325L237.802 22.12C234.877 20.095 232.987 17.755 232.987 14.11C232.987 10.195 236.092 7.945 241.717 7.945C247.387 7.945 249.997 10.915 249.862 16.36H244.012C244.147 13.525 243.337 12.445 241.312 12.445C239.917 12.445 238.837 13.075 238.837 14.515C238.837 16 239.917 16.675 241.042 17.44L245.812 20.68C247.297 21.535 249.637 23.965 249.817 25.675C250.312 30.085 249.232 34.675 241.132 34.675C238.027 34.675 232.222 33.37 232.897 25.63ZM260.182 34H254.332V0.249997H260.182V11.23H260.272C261.937 8.26 264.277 7.945 265.537 7.945C268.867 7.945 271.567 9.88 271.387 14.425V34H265.537V16.63C265.537 14.155 265.267 12.535 263.062 12.445C260.857 12.355 260.092 14.425 260.182 17.125V34ZM283.267 34H277.417V8.62H283.267V34ZM283.267 5.56H277.417V0.249997H283.267V5.56ZM295.072 18.07V25.675C295.072 28.6 296.017 30.175 297.907 30.175C299.707 30.175 300.337 28.24 300.472 25.81V17.35C300.292 14.83 300.562 12.445 297.817 12.445C295.072 12.445 294.982 16.045 295.072 18.07ZM295.072 8.62V11.275H295.162C296.242 8.8 297.817 7.9 300.247 7.945C304.027 8.035 306.187 10.06 306.322 17.035V26.215C306.187 30.265 305.197 34.675 300.247 34.675C297.952 34.54 296.332 33.955 294.892 31.39H294.802V42.505H289.222V8.62H295.072Z" fill="white"/>
+                </g>
+                <defs>
+                <filter id="filter0_i_464_2317" x="0.859375" y="0.25" width="305.461" height="46.255" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dy="4"/>
+                <feGaussianBlur stdDeviation="2"/>
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                <feBlend mode="normal" in2="shape" result="effect1_innerShadow_464_2317"/>
+                </filter>
+                </defs>
+            </svg>
+        </div>
+        <form class="p-4 md:p-5 font-roboto" >
+            <div class="grid gap-3 font-roboto font-semibold">
+                <div class="flex justify-between">
+                    <div class="text-[#f7d4b2]">Phone number</div>
+                    <div class="text-white">{member.member_phone_number}</div>
+                 </div>
+                <div class="flex justify-between">
+                  <div class="text-[#f7d4b2]">Name</div>
+                  <div class="text-white">{member.member_name}</div>
+               </div>
+               
+               <div class="flex justify-between">
+                  <div class="text-[#f7d4b2]">Join date</div>
+                  <div class="text-white">
+                    <DateConverter value={member.member_join_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                  </div>
+               </div>
+               <div class="flex justify-between">
+                    <div class="text-[#f7d4b2]">Points</div>
+                    <div class="text-white">{member.member_points}</div>
+               </div>
+               <div class="flex justify-between">
+                    <div class="text-[#f7d4b2]">Use points</div>
+                    <button on:click={toggleUse} class="ml-2">
+                    {#if !use}
+                        <i class="text-white fa-regular fa-square-check fa-lg"></i>
+                    {:else}
+                        <i class="text-[#f7d4b2] fa-solid fa-square-check fa-lg"></i>
+                    {/if}
+                    </button>
+
+               </div>
+               
+               <div class="flex items-center justify-center">
+                    {#if member.member_points > 0}  
+                <button
+                  on:click={() => {usePoints()}}
+                     type="submit" 
+                     class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
+                     Save
+                  </button>
+                  {:else}
+                    <button
+                        on:click={() => closeModal()}
+                        type="button" 
+                        class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
+                        Close
+                    </button>
+                  {/if}
+               </div>
+            </div>
+         </form>
+    </TaskModal>
+{/if}

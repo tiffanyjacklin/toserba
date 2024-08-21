@@ -23,16 +23,12 @@
     
     function handleClick(id) {
         showModal = id;
-        console.log("click", showModal);
-        console.log(this_session);
-
     }
     function toggleTable() {
         showTable = !showTable;
     }
     function closeModal() {
         showModal = null;
-        console.log("close", showModal);
     }
     
     let this_session = {"session_id":1,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"0000-00-00 00:00:00","last_update_time":"0000-00-00 00:00:00","opening_cash":20000,"total_income":100000,"expected_closing_cash":120000,"actual_closing_cash":100000,"actual_difference":20000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"};
@@ -569,6 +565,14 @@
                 
             </div>
         {/each}
+        <div class="flex items-center justify-center">
+            <button
+            on:click={() => closeModal()}
+               type="submit" 
+               class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
+               Close
+            </button>
+         </div>
         </div>
     </TaskModal>
 {:else}
