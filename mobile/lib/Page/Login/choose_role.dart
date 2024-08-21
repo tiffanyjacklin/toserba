@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
 import 'package:flutter_app_all/Page/Login/login_tablet.dart';
 import 'package:flutter_app_all/Page/main_page.dart';
@@ -41,9 +42,8 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                 fontSize: 24,
                 color: ColorPalleteLogin.PrimaryColor),
           ),
-
           Container(
-            height: 350,
+            height: 400,
             width: double.maxFinite,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -62,11 +62,20 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                       _roleValidate(widget.userId, index + 1).then((hasil) => {
                             if (hasil != null)
                               {
-                                // pindah halaman dengan kirim data user
-                                Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            MainPage(hasil)))
+                                // getting also the priviledges and passing it
+                                _fetchPriviledge(widget.userId, index + 1)
+                                    .then((listPrivileges) => {
+                                          if (listPrivileges != null)
+                                            {
+                                              // pindah halaman dengan kirim data user
+                                              Navigator.of(context)
+                                                  .pushReplacement(
+                                                      MaterialPageRoute(
+                                                          builder: (BuildContext
+                                                                  context) =>
+                                                              MainPage(hasil, listPrivileges)))
+                                            }
+                                        }),
                               },
                             // print(hasil.runtimeType)
                           });
@@ -109,27 +118,15 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
               ),
             ),
           ),
-
-          // // button back
-          // Container(
-          //   child: TextButton(
-          //     style: TextButton.styleFrom(
-          //       backgroundColor: ColorPalleteLogin.PrimaryColor,
-          //     ),
-          //     child: Text('BACK', style: TextStyle(color: ColorPalleteLogin.OrangeColor),),
-          //     onPressed: (){
-          //       // Navigator.of(context).pop();
-          //     },
-          //     ),
-          // ),
         ],
       ),
     );
   }
 
+  // API Function
   Future _roleValidate(int userId, int roleId) async {
     // link api
-    final link = 'http://localhost:8888/user/$userId/$roleId';
+    final link = 'http://leap.crossnet.co.id:8888/user/$userId/$roleId';
 
     // call api (method GET)
     final response = await http.get(Uri.parse(link));
@@ -138,8 +135,6 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
     if (response.statusCode == 200) {
       // misal oke berati masuk
       Map<String, dynamic> temp = json.decode(response.body);
-      // decode?
-      // print(response.body);
 
       // ambil data yang ada
       FetchUsers userData = FetchUsers.fromJson(temp);
@@ -153,17 +148,43 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
         content: const Text('Akses ditolak'),
       ));
       return null;
-    } 
-    else {
+    } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
       // throw Exception('Login Failed, Try Again');
+
       print('Error, Try Again');
 
       // show snackbar
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: const Text('Wrong Username/Password'),
       ));
+      return null;
+    }
+  }
+
+  Future _fetchPriviledge(int userId, int roleId) async {
+    // link api
+    final link = 'http://leap.crossnet.co.id:8888/user/privileges/$userId/$roleId';
+
+    // call api (method GET)
+    final response = await http.get(Uri.parse(link));
+
+    // cek status
+    if (response.statusCode == 200) {
+      // misal oke berati masuk
+      Map<String, dynamic> temp = json.decode(response.body);
+
+      // ambil data yang ada
+      FetchPrivileges privilegesData = FetchPrivileges.fromJson(temp);
+
+      if (temp['data'].length != 0) {
+        // ambil list priviledges
+        return privilegesData.data;
+      }
+      return null;
+    } else {
+      print('Error, Try Again');
       return null;
     }
   }

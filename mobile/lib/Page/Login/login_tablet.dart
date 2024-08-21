@@ -277,23 +277,16 @@ class _LoginTabletState extends State<LoginTablet> {
       });
     }
   }
-  // const response = await fetch(`http://localhost:2681/user/login?username=${entries.username}&password=${entries.password}`, {
-  // 		method: 'PUT',
-  // 		headers: {
-  // 			'Content-Type': 'application/json'
-  // 		}
-  // 	});		if (!response.ok) {
-  //           return fail(response.status, { message: 'Login failed.' });
-  //       }
-
   // CEK USER
   Future _fetchUser() async {
-    // link api
+    // link api http://leap.crossnet.co.id:8888/user/1/1
+    // link localhost -> http://localhost:8888/user/
     final link =
-        'http://localhost:8888/user/login?username=${usernameController.text}&password=${passwordController.text}';
+        'http://leap.crossnet.co.id:8888/user/login?username=${usernameController.text}&password=${passwordController.text}';
 
     // call api (method PUT)
     final response = await http.put(Uri.parse(link));
+    print('---> response ' + response.statusCode.toString());
 
     // cek status
     if (response.statusCode == 200) {
