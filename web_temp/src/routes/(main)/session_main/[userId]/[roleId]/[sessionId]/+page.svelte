@@ -131,6 +131,7 @@
         }
 
         all_promo = data.data;
+
         console.log(all_promo);
     }
 
@@ -149,7 +150,7 @@
     }
 
     async function fetchProduk() {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/products`, {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/products/${userId}/${roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -173,9 +174,9 @@
     }
 
     onMount(async () => {
-        fetchProduk();
-        thisSession();
-        fetchAllPromo();
+        await fetchProduk();
+        await thisSession();
+        await fetchAllPromo();
 
     });
 
@@ -218,11 +219,14 @@
         </div>
         <div class="h-auto overflow-auto no-scrollbar">
             {#if window == "transaction_list"}
-            <TransactionHistory></TransactionHistory>
+              <TransactionHistory userId={userId} roleId={roleId} sessionId={sessionId}></TransactionHistory>
+
+            <!-- <TransactionHistory></TransactionHistory> -->
             <!-- <TransactionHistoryDetails></TransactionHistoryDetails> -->
             {:else if window == "session_history"}
-                <SessionHistory ></SessionHistory>            
-            <!-- <SessionHistory session={this_session} userId={userId} roleId={roleId}></SessionHistory>             -->
+                <!-- <SessionHistory ></SessionHistory>             -->
+                <SessionHistory sessionId={sessionId} userId={data.userId} roleId={data.roleId}></SessionHistory>
+                <!-- <SessionHistory session={this_session} userId={userId} roleId={roleId}></SessionHistory>             -->
             {:else if window == "payment"}
                 <div class="mx-8 flex flex-col items-center my-10">
                     <label for="voice-search" class="sr-only">Search</label>
@@ -385,141 +389,141 @@
 </div>
 
 {#if showModal === 1}
-<TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
-    <div class="flex items-center justify-center pt-8">
-       <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Session #{this_session.session_id}</div>
-    </div>
-    
-    <form class="p-4 md:p-5" >
-       <div class="grid gap-3 font-roboto font-semibold">
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Cashier</div>
-             <div class="text-white">{this_session.user_fullname}</div>
-          </div>
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Start time</div>
-             <div class="text-white">
-                   <DateConverter value={this_session.start_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
-             </div>
-          </div>
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Closing time</div>
-             <div class="text-white">
-                <DateConverter value={this_session.last_update_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
-             </div>
-          </div>
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Opening cash</div>
-             <div class="text-white"><MoneyConverter value={this_session.opening_cash} currency={true} decimal={true}/></div>
-          </div>
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Total Income
-                <button on:click={toggleTable} class="ml-2">
-                   {#if showTable}
-                      <i class="fa-solid fa-caret-up"></i>
-                   {:else}
-                      <i class="fa-solid fa-caret-down"></i>
-                   {/if}
-                </button>
-             </div>
-             <div class="text-white"><MoneyConverter value={this_session.total_income} currency={true} decimal={true}/></div>
-          </div>
-    
-          {#if showTable}
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-             <table class="w-full text-sm text-left rtl:text-right">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                      <tr class="border-b-2 border-black">
-                         <th scope="col" class="px-6 py-3 text-sm font-bold">
-                            TRANSACTION ID
-                         </th>
-                         <th scope="col" class="px-6 py-3 text-sm font-bold">
-                            TIME
-                         </th>
-                         <th scope="col" class="px-6 py-3 text-sm font-bold">
-                            TOTAL
-                         </th>
-                      </tr>
-                </thead>
-                <tbody>
-                      <tr class="bg-yellow-100">
-                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            5432112345
-                         </th>
-                         <td class="px-6 py-4">
-                            15:40 PM
-                         </td>
-                         <td class="px-6 py-4">
-                            Rp 16.000,00
-                         </td>
-                      </tr>
-                      <tr class="bg-white">
-                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            5432112345
-                         </th>
-                         <td class="px-6 py-4">
-                            15:40 PM
-                         </td>
-                         <td class="px-6 py-4">
-                            Rp 16.000,00
-                         </td>
-                      </tr>
-                      <tr class="bg-yellow-100">
-                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            5432112345
-                         </th>
-                         <td class="px-6 py-4">
-                            15:40 PM
-                         </td>
-                         <td class="px-6 py-4">
-                            Rp 16.000,00
-                         </td>
-                      </tr>
-                </tbody>
-             </table>
-          </div>
-          {/if}
-
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Expected closing cash</div>
-             <div class="text-white"><MoneyConverter value={this_session.expected_closing_cash} currency={true} decimal={true}/></div>
-          </div>
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Actual closing cash</div>
-                <MoneyInput bind:value={this_session.actual_closing_cash} />
+    <TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
+        <div class="flex items-center justify-center pt-8">
+        <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Session #{this_session.session_id}</div>
+        </div>
+        
+        <form class="p-4 md:p-5" >
+        <div class="grid gap-3 font-roboto font-semibold">
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Cashier</div>
+                <div class="text-white">{this_session.user_fullname}</div>
+            </div>
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Start time</div>
+                <div class="text-white">
+                    <DateConverter value={this_session.start_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
                 </div>
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Actual difference</div>
-             <div class="text-white"><MoneyConverter value={this_session.actual_difference} currency={true} decimal={true}/></div>
-          </div>
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Deposit money</div>
-             <MoneyInput bind:value={this_session.deposit_money} />
-          </div>
-          <div class="flex justify-between">
-             <div class="text-[#f7d4b2]">Deposit Difference</div>
-             <div class="text-white"><MoneyConverter value={this_session.deposit_difference} currency={true} decimal={true}/></div>
-          </div>
-          <div class="text-[#f7d4b2]">
-             <div class="pb-3">Opening notes</div>
-             <textarea id="opening_notes" rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5" bind:value={this_session.opening_notes} readonly></textarea>                    
-          </div>
-          <div class="text-[#f7d4b2]">
-             <div class="pb-3">Closing notes</div>
-             <textarea id="closing_notes" rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5" bind:value={this_session.closing_notes}></textarea>                    
-          </div>
- 
-          <div class="flex items-center justify-center">
-             <button
-             on:click={() => CloseSession(this_session.session_id, this_session)}
-                type="submit" 
-                class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
-                Save
-             </button>
-          </div>
-       </div>
-    </form>
- </TaskModal>
+            </div>
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Closing time</div>
+                <div class="text-white">
+                    <DateConverter value={this_session.last_update_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
+                </div>
+            </div>
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Opening cash</div>
+                <div class="text-white"><MoneyConverter value={this_session.opening_cash} currency={true} decimal={true}/></div>
+            </div>
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Total Income
+                    <button on:click={toggleTable} class="ml-2">
+                    {#if showTable}
+                        <i class="fa-solid fa-caret-up"></i>
+                    {:else}
+                        <i class="fa-solid fa-caret-down"></i>
+                    {/if}
+                    </button>
+                </div>
+                <div class="text-white"><MoneyConverter value={this_session.total_income} currency={true} decimal={true}/></div>
+            </div>
+        
+            {#if showTable}
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-left rtl:text-right">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                        <tr class="border-b-2 border-black">
+                            <th scope="col" class="px-6 py-3 text-sm font-bold">
+                                TRANSACTION ID
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-sm font-bold">
+                                TIME
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-sm font-bold">
+                                TOTAL
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-yellow-100">
+                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                5432112345
+                            </th>
+                            <td class="px-6 py-4">
+                                15:40 PM
+                            </td>
+                            <td class="px-6 py-4">
+                                Rp 16.000,00
+                            </td>
+                        </tr>
+                        <tr class="bg-white">
+                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                5432112345
+                            </th>
+                            <td class="px-6 py-4">
+                                15:40 PM
+                            </td>
+                            <td class="px-6 py-4">
+                                Rp 16.000,00
+                            </td>
+                        </tr>
+                        <tr class="bg-yellow-100">
+                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                5432112345
+                            </th>
+                            <td class="px-6 py-4">
+                                15:40 PM
+                            </td>
+                            <td class="px-6 py-4">
+                                Rp 16.000,00
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {/if}
+
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Expected closing cash</div>
+                <div class="text-white"><MoneyConverter value={this_session.expected_closing_cash} currency={true} decimal={true}/></div>
+            </div>
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Actual closing cash</div>
+                    <MoneyInput bind:value={this_session.actual_closing_cash} />
+                    </div>
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Actual difference</div>
+                <div class="text-white"><MoneyConverter value={this_session.actual_difference} currency={true} decimal={true}/></div>
+            </div>
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Deposit money</div>
+                <MoneyInput bind:value={this_session.deposit_money} />
+            </div>
+            <div class="flex justify-between">
+                <div class="text-[#f7d4b2]">Deposit Difference</div>
+                <div class="text-white"><MoneyConverter value={this_session.deposit_difference} currency={true} decimal={true}/></div>
+            </div>
+            <div class="text-[#f7d4b2]">
+                <div class="pb-3">Opening notes</div>
+                <textarea id="opening_notes" rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5" bind:value={this_session.opening_notes} readonly></textarea>                    
+            </div>
+            <div class="text-[#f7d4b2]">
+                <div class="pb-3">Closing notes</div>
+                <textarea id="closing_notes" rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5" bind:value={this_session.closing_notes}></textarea>                    
+            </div>
+    
+            <div class="flex items-center justify-center">
+                <button
+                on:click={() => CloseSession(this_session.session_id, this_session)}
+                    type="submit" 
+                    class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center ">
+                    Save
+                </button>
+            </div>
+        </div>
+        </form>
+    </TaskModal>
 {:else if showModal === 2}
     <TaskModal open={showModal} onClose={() => closeModal()} color={"#3d4c52"}>
         <div class="flex items-center justify-center pt-8">

@@ -47,11 +47,20 @@
             hours = hours % 12 || 12;
         }
 
+        let separator = monthNumber ? (dash ? '-' : '/') : ' ';
+
         let monthDisplay = monthNumber ? (dash ? monthStr + '-' : monthStr + '') :
         dateObj.toLocaleString('default', { month: 'long' });
 
+        let datePartFormatted;
+        if (monthNumber) {
+            // Ensure the separator is placed correctly between day, month, and year
+            datePartFormatted = `${dayStr}${separator}${monthStr}${separator}${yearStr}`;
+        } else {
+            datePartFormatted = `${dayStr} ${dateObj.toLocaleString('default', { month: 'long' })} ${yearStr}`;
+        }
+
         // console.log(`Month: ${monthNumber}, Dash: ${dash}`);
-        let separator = monthNumber ? (dash ? '-' : '/') : ' ';
         // console.log(separator);
         let timePartFormatted = `${hoursStr}:${minutesStr}`;
         if (second) {
@@ -59,7 +68,7 @@
         }
         timePartFormatted += ampm ? ` ${ampmText}` : '';
 
-        let datePartFormatted = `${dayStr}${separator}${monthDisplay}${separator}${yearStr}`;
+        // let datePartFormatted = `${dayStr}${separator}${monthDisplay}${separator}${yearStr}`;
         
         // console.log("Formatted Date Part:", datePartFormatted); // Debugging: Check formatted date part
         // console.log("Formatted Time Part:", timePartFormatted); // Debugging: Check formatted time part

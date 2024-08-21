@@ -30,9 +30,9 @@
             console.error('Invalid user roles', data);
             return;
         }
-        // console.log(data.data[0].roles_name);
-        full_name = data.data[0].user_fullname;
-        role_name = data.data[0].roles_name;
+        // console.log(data.data.user_fullname);
+        full_name = data.data.user_fullname;
+        role_name = data.data.roles_name;
     }
 
     async function fetchPrivileges(userId, roleId) {

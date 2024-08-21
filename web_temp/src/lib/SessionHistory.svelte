@@ -5,9 +5,11 @@
    import DateConverter from '$lib/DateConverter.svelte';
    import { getFormattedDate, isInTimeRange } from '$lib/DateNow.js';
 	import { goto } from '$app/navigation';
+   import { onMount } from 'svelte';
    export let userId = 0;
    export let roleId = 0;
-   export let session = [{"session_id":1,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"0000-00-00 00:00:00","last_update_time":"0000-00-00 00:00:00","opening_cash":20000,"total_income":100000,"expected_closing_cash":120000,"actual_closing_cash":100000,"actual_difference":20000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"},{"session_id":3,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"2024-01-01 11:11:11","last_update_time":"2024-01-01 12:11:11","opening_cash":30000,"total_income":100000,"expected_closing_cash":130000,"actual_closing_cash":100000,"actual_difference":30000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"}];
+   export let sessionId = 0;
+   // export let session = [];
 
    let user_otp = "";
    let selectedItem = null;
@@ -28,6 +30,33 @@
    $: session.forEach(item => {
       item.actual_difference = item.actual_closing_cash - item.expected_closing_cash;
       item.deposit_difference = item.actual_closing_cash - item.deposit_money;
+   });
+   let session = [];
+   async function fetchSession() {
+      const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session`, {
+         method: 'GET',
+         headers: {
+               'Content-Type': 'application/json'
+         }
+      });
+
+      if (!response.ok) {
+         console.error(' session fetch failed', response);
+         return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+         console.error('Invalid fetch ', data);
+         return;
+      }
+
+      session = data.data;
+   //   console.log(session);
+   }
+   onMount(() => {
+      fetchSession();
    });
 
    // INI BUTUH DIGANTI BUAT REDIRECT BALIK KE PAGE TRANSAKSI YA BOS!! BUTUH UPDATE

@@ -1,13 +1,18 @@
 <script>
     import TaskModal from '$lib/TaskModal.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
+    import DateConverter from '$lib/DateConverter.svelte';
 
     import { goto } from '$app/navigation';
+    import { onMount } from 'svelte';
     
     export let userId = 0;
     export let roleId = 0;
-
+    export let sessionId = 0;
+    console.log(sessionId);
     let showModal = false;
+    let transactions = [];
+    let searchActive = false;
     function closeModal() {
        showModal = false;
     }
@@ -20,6 +25,46 @@
         const url = `/transaction_history/${userId}/${roleId}/${transactionId}`;
         // Use goto to navigate to the constructed URL
         goto(url);
+    }
+    
+    onMount(async () => {
+      await fetchTransactions();
+      // console.log(transactions)
+    });
+    async function fetchTransactions() {
+        let response;
+
+        if (sessionId === 0){
+          response = await fetch(`http://leap.crossnet.co.id:8888/transaction`, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          });
+        } else{
+          response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/transaction/${sessionId}`, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          });
+        } 
+
+        if (!response.ok) {
+            console.error('get all transactions fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch transactions', data);
+            return;
+        }
+
+        transactions = data.data;
+        // console.log(transactions);
+        // return transactions;
     }
  </script>
  
@@ -112,74 +157,37 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="bg-yellow-100">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            5432112345
-                        </th>
-                        <td class="px-6 py-4">
-                            06/08/2024
-                        </td>
-                        <td class="px-6 py-4">
-                            15:40 PM
-                        </td>
-                        <td class="px-6 py-4">
-                          <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
-                        </td>
-                        <td class="px-6 py-4">
-                            Budi Maneh
-                        </td>
-                        <td class="py-2">
-                            <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full" on:click={() => navigateToTransaction(1)}>
-                                View
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="bg-white-100">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            5432112345
-                        </th>
-                        <td class="px-6 py-4">
-                            06/08/2024
-                        </td>
-                        <td class="px-6 py-4">
-                            15:40 PM
-                        </td>
-                        <td class="px-6 py-4">
-                          <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
-                        </td>
-                        <td class="px-6 py-4">
-                            Budi Maneh
-                        </td>
-                        <td class="py-2">
-                            <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full"
-                            on:click={() => navigateToTransaction(1)}>
-                                View
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="bg-yellow-100">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            5432112345
-                        </th>
-                        <td class="px-6 py-4">
-                            06/08/2024
-                        </td>
-                        <td class="px-6 py-4">
-                            15:40 PM
-                        </td>
-                        <td class="px-6 py-4">
-                          <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
-                        </td>
-                        <td class="px-6 py-4">
-                            Budi Maneh
-                        </td>
-                        <td class="py-2">
-                            <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full"
-                            on:click={() => navigateToTransaction(1)}>
-                                View
-                            </button>
-                        </td>
-                    </tr>
+                    {#if (transactions.length === 0) || (searchActive && transactions.length === 0)}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">No transactions found.</td>
+                        </tr>
+                    {:else}
+                        {#each transactions as transaction, i}
+                          <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
+                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                              {transaction.transaction_id}
+                          </th>
+                          <td class="px-6 py-4">
+                            <DateConverter value={transaction.transaction_timestamp} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                          </td>
+                          <td class="px-6 py-4">
+                            <DateConverter value={transaction.transaction_timestamp} date={false} hour={true} second={false} ampm={true} monthNumber={false} dash={false} dateFirst={false}/>
+                          </td>
+                          <td class="px-6 py-4">
+                              <MoneyConverter value={transaction.transaction_total_price} currency={true} decimal={true}></MoneyConverter>
+                          </td>
+                          <td class="px-6 py-4">
+                              {transaction.transaction_user}
+                          </td>
+                          <td class="py-2">
+                              <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full" on:click={() => navigateToTransaction(transaction.transaction_id)}>
+                                  View
+                              </button>
+                          </td>  
+                        </tr>
+                        {/each}
+                    {/if}
+                    
                 </tbody>
             </table>
         </div>
