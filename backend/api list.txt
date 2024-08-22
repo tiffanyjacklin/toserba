@@ -126,8 +126,21 @@ e.GET("/products/stock/card/product/total_stock/:product_id/:sw_id/:exp_date", c
 
 e.GET("/products/stock/min/:product_id/:store_warehouse_id", controller.CheckMinStock)
 
-e.GET("/products/stock/opname", controller.GetDataforStockOpname)
-e.GET("/products/stock/opname/store_warehouse/:sw_id", controller.GetDataforStockOpnameBySWID)
+e.GET("/products/stock/opname/data", controller.GetDataforStockOpname)
+e.GET("/products/stock/opname/data/store_warehouse/:sw_id", controller.GetDataforStockOpnameBySWID)
+e.GET("/products/stock/opname/store_warehouse/:sw_id", controller.GetStockOpnameBySWID)
+e.GET("/products/stock/opname", controller.GetAllStockOpname)
+e.POST("/products/stock/opname/add", controller.InsertStockOpname)
+[
+    {
+        "product_detail_id": 4,
+        "batch": "1",
+        "expired_date": "2025-08-25",
+        "actual_stock": 15,
+        "unit_type": "gram",
+        "store_warehouse_id": 2
+    }
+]
 
 // Delivery Order
 e.GET("/orders/delivery/:delivery_order_id", controller.GetDeliveryOrderByID)
