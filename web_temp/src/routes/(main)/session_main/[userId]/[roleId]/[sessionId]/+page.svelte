@@ -11,6 +11,8 @@
     import { onMount } from 'svelte';
     import img_produk from "$lib/assets/produk.png";
     import { goto } from '$app/navigation';
+	import { json } from "@sveltejs/kit";
+    
     export let data;
     let sessionId = data.sessionId;
     let roleId = data.roleId;
@@ -146,6 +148,7 @@
     let promos = [];
     $: total = 0;
     $: count_promo_app = 0;
+
 
     function checkPromo(){
         for (let i = 0; i < checkout.length; i++) {
@@ -285,6 +288,11 @@
         all_produk = all_produk;
         checkout = checkout;
         console.log("checkout : ", checkout);
+    }
+
+    function pay(){
+        sessionStorage.setItem('checkout', JSON.stringify(checkout));
+        goto(`/payment/${userId}/${roleId}/${sessionId}/${total}`);
     }
 
     let transactionByID = [];
@@ -485,7 +493,7 @@
         </div>
         <button on:click={() => handleClick(3)} class="w-auto bg-peach2 text-darkGray p-2 px-auto rounded-2xl mx-3 my-2 font-semibold">{promos.length} item(s) with promo, {count_promo_app} promo(s) applied</button>
         
-        <button class="w-48 bg-peach text-darkGray p-2 px-auto rounded-2xl mx-auto mt-2 mb-4 font-semibold">Pay</button>
+        <button on:click={() => pay()} class="w-48 bg-peach text-darkGray p-2 px-auto rounded-2xl mx-auto mt-2 mb-4 font-semibold">Pay</button>
         
     </div>
 </div>

@@ -1,13 +1,29 @@
 <script>
-    let tampilan = "awal";
+    $: tampilan = "awal";
     import TaskModal from '$lib/TaskModal.svelte';
     import { onMount } from 'svelte';
     import DateConverter from '$lib/DateConverter.svelte';
+    import MoneyConverter from '$lib/MoneyConverter.svelte';
     import { getFormattedDate } from '$lib/DateNow.js';
-    export let data;
+	import { goto } from '$app/navigation';
+
+    export let data
     let sessionId = data.sessionId;
     let roleId = data.roleId;
     let userId = data.userId;
+    let totalAmount = data.totalAmount;
+    let checkout = [];
+
+    if (typeof window !== 'undefined') {
+        const storedData = sessionStorage.getItem('checkout');
+        checkout = storedData ? JSON.parse(storedData) : [];
+    }
+    // $: checkout = JSON.parse(sessionStorage.getItem('checkout' || '[]'));
+    console.log("isi checkout", checkout)
+
+    $: received = 0;
+    $: change = 0;
+
     let showModal = null; 
     let member_name = "";
     let member_phone_number = "";
@@ -101,9 +117,23 @@
         }
         closeModal();
     }
+
     function usePoints(){
         member_points = member.member_points;
         closeModal();
+    }
+
+    function handleChange(){
+        let total_bayar = totalAmount-member_points;
+        console.log(total_bayar)
+        if(received >= total_bayar){
+            change = received-total_bayar;
+            return change;
+        }
+    }
+
+    function validate(){
+        
     }
 </script>
 
@@ -111,7 +141,7 @@
 <div class="flex h-screen">
     <div class="w-1/2 h-full flex flex-col">
         <div class="flex my-2 mx-8">
-            <button class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Back</button>
+            <button on:click={() => goto(`/session_main/${userId}/${roleId}/${sessionId}`)} class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Back</button>
             <button class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-user mr-2"></i>Budi</button>
         </div>
 
@@ -139,30 +169,34 @@
             {#if tampilan == "awal"}
             <div class="h-3/6 bg-gray-100 mt-16 mx-2 flex flex-col items-center justify-center">
                 <span class="text-3xl text-darkGray font-bold mb-2">Total Amount</span>
-                <span class="text-7xl text-darkGray font-bold">Rp 406,630.00</span>
+                <span class="text-7xl text-darkGray font-bold"><MoneyConverter value={totalAmount} currency={true} decimal={true}></MoneyConverter></span>
             </div>
             {:else if tampilan == "cash"}
             <div class="h-3/6 bg-gray-100 mt-16 mx-2 flex flex-col items-center justify-center">
                 <div class="w-full p-6">
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
                         <span>Total Amount</span>
-                        <span>Rp 406,630.00</span>
+                        <span><MoneyConverter value={totalAmount} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
                         <span>Membership Points</span>
-                        <span>Rp 5,000.00</span>
+                        <span><MoneyConverter value={member_points} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
                         <span>Total to Pay</span>
-                        <span>Rp 401,630.00</span>
+                        <span><MoneyConverter value={totalAmount-member_points} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
                     <div class="w-full flex flex-col my-2">
                         <span class="font-semibold text-darkGray text-lg mb-1">Received (Rp)</span>
-                        <input type="text" name="" id="" class="w-4/12 rounded-lg focus:ring-darkGray" value=0>
+                        <input type="text" name="" id="" class="w-4/12 rounded-lg focus:ring-darkGray" bind:value={received} on:input={() => handleChange()}>
                     </div>
                     <div class="w-full flex flex-col my-2">
                         <span class="font-semibold text-darkGray text-lg mb-1">Change</span>
-                        <span class="font-semibold text-darkGray text-lg">Rp 0.00</span>
+                        {#if received >=  (totalAmount-member_points)}
+                            <span class="font-semibold text-darkGray text-lg"><MoneyConverter value={change} currency={true} decimal={true}></MoneyConverter></span>
+                        {:else}
+                            <span class="font-bold text-red-500 text-lg">Uang yang diterima kurang</span>
+                        {/if}
                     </div>
                 </div>
             </div>
@@ -171,15 +205,15 @@
                 <div class="w-1/2">
                     <div class="w-full flex flex-col text-darkGray font-semibold text-lg my-2">
                         <span>Total Amount</span>
-                        <span>Rp 406,630.00</span>
+                        <span><MoneyConverter value={totalAmount} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
                     <div class="w-full flex flex-col text-darkGray font-semibold text-lg my-2">
                         <span>Membership Points</span>
-                        <span>Rp 5,000.00</span>
+                        <span><MoneyConverter value={member_points} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
                     <div class="w-full flex flex-col text-darkGray font-semibold text-lg my-2">
                         <span>Total to Pay</span>
-                        <span>Rp 401,630.00</span>
+                        <span><MoneyConverter value={totalAmount-member_points} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
                 </div>
                 <div class="w-1/2">
@@ -194,16 +228,22 @@
                         </svg>
                 </div>
             </div>
+            {:else if tampilan == "validasi"}
+            <button class="w-full h-3/6 bg-gray-100 mt-16 flex flex-col items-center justify-center">
+                <span class="text-8xl text-darkGray font-bold mb-2">PRINT</span>
+            </button>
             {/if}
         <div class="h-2/6 my-8">
-            {#if tampilan != "awal"}
             <div class="h-full flex justify-center items-center">
-                <button class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">
+                <button on:click={() => {tampilan = "validasi"; tampilan = tampilan;}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">
+                    {#if tampilan == "cash" && (received >=  (totalAmount-member_points)) || tampilan == "qr"}
                     <span class="text-white text-6xl font-bold">Validate</span>
-                    <i class="fa-regular fa-circle-check fa-5x" style="color: #ffffff;"></i>                
+                    <i class="fa-regular fa-circle-check fa-5x" style="color: #ffffff;"></i>       
+                    {:else if tampilan == "validasi"}   
+                    <span class="text-white text-8xl font-bold">NEXT ORDER</span>
+                    {/if}      
                 </button>
             </div>
-            {/if}
         </div>
     </div>
 </div>
