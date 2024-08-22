@@ -2,9 +2,11 @@
   import TaskModal from '$lib/TaskModal.svelte';
   import MoneyConverter from '$lib/MoneyConverter.svelte';
   import DateConverter from '$lib/DateConverter.svelte';
-
+  import flatpickr from "flatpickr";
+  import "flatpickr/dist/flatpickr.css";
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
+  import { getFormattedDate} from '$lib/DateNow.js';
   
   export let userId = 0;
   export let roleId = 0;
@@ -68,17 +70,49 @@
       transactions = data.data;
       filteredTransactions = transactions;
   }
-  $: if (searchQuery.length > 0) {
-      filteredTransactions = transactions.filter(item => 
-         item.transaction_user.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         item.transaction_id.toString().includes(searchQuery)
-      );
+  function isDateWithinRange(transactionDate) {
+    const date = new Date(transactionDate);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+    const todayDate = new Date(today);
+    if (start && end && start.getDate() === end.getDate()) {
+      return date.getDate() === start.getDate();
+    }
+    if (start && end) {
+      return date.getDate() >= start.getDate() && date.getDate() <= end.getDate();
+    }
+    // If only startDate is provided
+    if (start) {
+      return date.getDate() >= start.getDate();
+    }
+    // If only endDate is provided
+    if (end) {
+      return date.getDate() <= end.getDate();
+    } 
+    else {
+      return true;
+    }
+  }
+  $: if (searchQuery.length > 0 || endDate !== '' || startDate !== '')  {
+    filteredTransactions = transactions.filter(item => {
+      const matchesSearch = item.transaction_user.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            item.transaction_id.toString().includes(searchQuery);
+      const matchesDate = isDateWithinRange(item.transaction_timestamp); // Assuming `transaction_date` is the date field in your data
+
+      return matchesSearch && matchesDate;
+    });
   } else {
       filteredTransactions = transactions;  // Reset to show all transactions
   }
-  
+  let showDatePicker = false;
+  let startDate = '';
+  let endDate = '';
+  let today = getFormattedDate();
+  function toggleDatePicker() {
+    showDatePicker = !showDatePicker;
+  }
 </script>
- 
+
  <div class="mx-8  mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Transaction History</span>
     
@@ -91,12 +125,29 @@
             bind:value={searchQuery}
             class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
             placeholder="Search..."/>
-          <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-3">
+            <button 
+            type="button" 
+            class="absolute inset-y-0 end-0 flex items-center pe-3 " 
+            on:click={toggleDatePicker}>
             <i class="fa-solid fa-sliders fa-xl mr-2"></i>
           </button>
+          {#if showDatePicker}
+            <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-64 bg-gray-100 p-4 rounded-lg font-roboto">
+              <label class="block mb-2 font-semibold text-gray-700">Start Date</label>
+              <input type="date" bind:value={startDate} class="w-full mb-4 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded" />
+              
+              <label class="block mb-2 font-semibold text-gray-700">End Date</label>
+              <input type="date" bind:value={endDate} class="w-full mb-4 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded" />
+              
+              <div class="flex justify-between font-semibold">
+                <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ''; endDate = ''; }}>Clear</button>
+                <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={toggleDatePicker}>Apply</button>
+              </div>
+            </div>
+          {/if}
        </div>
     <!-- </form> -->
- 
+    
     <nav class="my-8 ">
        <ul class="flex items-center -space-x-px h-8 text-sm">
          <li>
