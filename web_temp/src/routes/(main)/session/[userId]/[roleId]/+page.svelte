@@ -97,7 +97,7 @@
       }
 
    function backToSession() {
-      goto(`/session_main/${user_id}/${roleId}`);
+      goto(`/session_main/${user_id}/${roleId}/${last_session.session_id}`);
    }
 
     async function fetchUser(userId,roleId) {
