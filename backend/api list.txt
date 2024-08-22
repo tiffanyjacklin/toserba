@@ -126,6 +126,9 @@ e.GET("/products/stock/card/product/total_stock/:product_id/:sw_id/:exp_date", c
 
 e.GET("/products/stock/min/:product_id/:store_warehouse_id", controller.CheckMinStock)
 
+e.GET("/products/stock/opname", controller.GetDataforStockOpname)
+e.GET("/products/stock/opname/store_warehouse/:sw_id", controller.GetDataforStockOpnameBySWID)
+
 // Delivery Order
 e.GET("/orders/delivery/:delivery_order_id", controller.GetDeliveryOrderByID)
 e.GET("/orders/delivery/last", controller.GetLastDeliveryOrder)
@@ -282,3 +285,9 @@ e.POST("/payment/method/add", controller.InsertPaymentMethod)
 
 e.GET("/notification", controller.GetAllNotification)
 e.POST("/notification/add", controller.InsertNotification)
+{
+    "user_id": 1,
+    "roles_id": 1,
+    "description": "Transaksi baru bos",
+    "notification_type_id": 11
+}
