@@ -5,9 +5,13 @@
    import DateConverter from '$lib/DateConverter.svelte';
    import { getFormattedDate, isInTimeRange } from '$lib/DateNow.js';
 	import { goto } from '$app/navigation';
+   import { onMount } from 'svelte';
    export let userId = 0;
    export let roleId = 0;
-   export let session = [{"session_id":1,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"0000-00-00 00:00:00","last_update_time":"0000-00-00 00:00:00","opening_cash":20000,"total_income":100000,"expected_closing_cash":120000,"actual_closing_cash":100000,"actual_difference":20000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"},{"session_id":3,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"2024-01-01 11:11:11","last_update_time":"2024-01-01 12:11:11","opening_cash":30000,"total_income":100000,"expected_closing_cash":130000,"actual_closing_cash":100000,"actual_difference":30000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"}];
+   export let sessionId = 0;
+   // export let session = [];
+   let filteredSessions = [];
+   let searchQuery = '';
 
    let user_otp = "";
    let selectedItem = null;
@@ -29,7 +33,43 @@
       item.actual_difference = item.actual_closing_cash - item.expected_closing_cash;
       item.deposit_difference = item.actual_closing_cash - item.deposit_money;
    });
+   let session = [];
+   async function fetchSession() {
+      const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session`, {
+         method: 'GET',
+         headers: {
+               'Content-Type': 'application/json'
+         }
+      });
 
+      if (!response.ok) {
+         console.error(' session fetch failed', response);
+         return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+         console.error('Invalid fetch ', data);
+         return;
+      }
+
+      session = data.data;
+      filteredSessions = session;
+   //   console.log(session);
+   }
+   $: if (searchQuery.length > 0) {
+      filteredSessions = session.filter(item => 
+         item.user_fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         item.session_id.toString().includes(searchQuery)
+      );
+   } else {
+      filteredSessions = session;  // Show all if search query is empty
+   }
+
+   onMount(() => {
+      fetchSession();
+   });
    // INI BUTUH DIGANTI BUAT REDIRECT BALIK KE PAGE TRANSAKSI YA BOS!! BUTUH UPDATE
    function backToTransaction(last_session){
       closeModal();
@@ -188,21 +228,26 @@
  </script>
  
  <div class="mx-8 mt-[90px] mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg">
-    <span class="text-3xl font-bold font-poppins text-black my-10">Session History</span>
-    
+    <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Session History</span>
+
     <!-- <form class="flex items-center max-w-lg mx-auto">    -->
        <label for="voice-search" class="sr-only">Search</label>
        <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
-         <input type="text" id="voice-search" class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " placeholder="Search..."/>
-          <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-3">
+         <input 
+         type="text" 
+         id="voice-search" 
+         class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+         placeholder="Search by Session ID..."
+         bind:value={searchQuery} />          
+         <!-- <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-3">
            
-          </button>
+          </button> -->
        </div>
     <!-- </form> -->
  
    <!-- di sini ada navbar  -->
 
-   {#each session as item}
+   {#each filteredSessions as item}
    <div class="bg-darkGray border-8 border-darkGray rounded-lg w-[96%] my-5">
       <div class=" flex">
          <div class="w-4/5 p-3 text-darkGray bg-white rounded-tl-lg rounded-bl-lg shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">

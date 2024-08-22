@@ -7,6 +7,7 @@ import 'package:flutter_app_all/Model/UserData.dart';
 import 'package:flutter_app_all/Page/Cashier/sessionHistory_page.dart';
 import 'package:flutter_app_all/Page/Cashier/session_page.dart';
 import 'package:flutter_app_all/Page/Login/login_tablet.dart';
+import 'package:flutter_app_all/Page/Store%20Inventory/accept_order_page.dart';
 import 'package:flutter_app_all/Page/Store%20Inventory/inventory_taking_page.dart';
 import 'package:flutter_app_all/Page/Store%20Inventory/product_page.dart';
 import 'package:http/http.dart' as http;
@@ -216,6 +217,7 @@ class SidebarMainPage extends StatelessWidget {
   }
 }
 
+// SIDE MENU
 class MenuPage extends StatelessWidget {
   const MenuPage({
     super.key,
@@ -227,7 +229,7 @@ class MenuPage extends StatelessWidget {
         flex: 8,
         child: Container(
           decoration: BoxDecoration(color: Colors.grey[100]),
-          child: ProductPage(),
+          child: AcceptOrderPage(),
         ));
   }
 }

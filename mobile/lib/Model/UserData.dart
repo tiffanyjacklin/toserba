@@ -1,19 +1,14 @@
 class FetchUsers {
   int? status;
   String? message;
-  List<Data>? data;
+  Data? data;
 
   FetchUsers({this.status, this.message, this.data});
 
   FetchUsers.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    if (json['data'] != null) {
-      data = <Data>[];
-      json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
-      });
-    }
+    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -21,7 +16,7 @@ class FetchUsers {
     data['status'] = this.status;
     data['message'] = this.message;
     if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
+      data['data'] = this.data!.toJson();
     }
     return data;
   }
@@ -41,6 +36,9 @@ class Data {
   UserPhotoProfile? userLoginTimestamp;
   int? roleId;
   String? rolesName;
+  String? userOtp;
+  String? otpExp;
+  int? storeWarehouseId;
 
   Data(
       {this.userId,
@@ -55,7 +53,10 @@ class Data {
       this.userPhotoProfile,
       this.userLoginTimestamp,
       this.roleId,
-      this.rolesName});
+      this.rolesName,
+      this.userOtp,
+      this.otpExp,
+      this.storeWarehouseId});
 
   Data.fromJson(Map<String, dynamic> json) {
     userId = json['user_id'];
@@ -75,6 +76,9 @@ class Data {
         : null;
     roleId = json['role_id'];
     rolesName = json['roles_name'];
+    userOtp = json['user_otp'];
+    otpExp = json['otp_exp'];
+    storeWarehouseId = json['store_warehouse_id'];
   }
 
   Map<String, dynamic> toJson() {
@@ -96,6 +100,9 @@ class Data {
     }
     data['role_id'] = this.roleId;
     data['roles_name'] = this.rolesName;
+    data['user_otp'] = this.userOtp;
+    data['otp_exp'] = this.otpExp;
+    data['store_warehouse_id'] = this.storeWarehouseId;
     return data;
   }
 }

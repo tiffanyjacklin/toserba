@@ -1,5 +1,4 @@
 <script>
-    // @ts-nocheck
     export let open = false;
     export let onClose = () => {};
     export let color = "#f7d4b2";

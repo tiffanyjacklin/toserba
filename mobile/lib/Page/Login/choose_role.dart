@@ -141,13 +141,14 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
 
       if (temp['data'].length != 0) {
         // masukin data login ke dalam sharedpreference
-        return userData.data!.first;
+        return userData.data;
       }
       // kasih error kalo dia ga punya akses
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: const Text('Akses ditolak'),
       ));
       return null;
+
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -157,7 +158,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
 
       // show snackbar
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('Wrong Username/Password'),
+        content: const Text('Try Again'),
       ));
       return null;
     }

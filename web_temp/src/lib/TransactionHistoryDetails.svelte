@@ -1,7 +1,10 @@
 <script>
     import TaskModal from '$lib/TaskModal.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
+    import DateConverter from '$lib/DateConverter.svelte';
     import receipt from '$lib/assets/receipt-1.png';
+    import { goto } from '$app/navigation';
+    import { onMount } from 'svelte';
     
     export let transactionId = 1;
     export let userId = 0;
@@ -14,23 +17,157 @@
     function handleClick() {
       showModal = true;
     }
+    function backToTransactionHistory(){
+      console.log("Navigating to transaction history..."); // For debugging
+      goto(`/transaction_history/${userId}/${roleId}`);
+    }
+
+    let transaction_detail = [];
+    let transaction = [];
+    let payment_method = [];
+    let user = [];
+    let cashier_id = 0;
+    let store_warehouse = [];
+    let products = [];
+    onMount(async () => {
+      await fetchTransaction();
+      await fetchTransactionDetail();
+      await getStoreWarehouse();
+      await fetchAllProduct();
+      filterProductsBasedOnTransactionDetails();
+
+    });
+    async function fetchTransactionDetail() {
+        let response;
+
+        response = await fetch(`http://leap.crossnet.co.id:8888/transaction/detail/${transactionId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all transactions fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch transactions', data);
+            return;
+        }
+
+        transaction_detail = data.data;
+        console.log(transaction_detail);
+    }
+
+    async function fetchTransaction() {
+        let response;
+
+        response = await fetch(`http://leap.crossnet.co.id:8888/transaction/${transactionId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all transactions fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch transactions', data);
+            return;
+        }
+
+        transaction = data.data.Transaction;
+        payment_method = data.data.PaymentMethod;
+        user = data.data.UserData;
+        cashier_id = data.data.UserData.user_id;
+    }
+    async function fetchAllProduct() {
+        let response;
+
+        response = await fetch(`http://leap.crossnet.co.id:8888/products/${cashier_id}/1`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all products fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch products', data);
+            return;
+        }
+
+        products = data.data;
+    }
+    async function getStoreWarehouse() {
+        let response;
+        response = await fetch(`http://leap.crossnet.co.id:8888/store_warehouses/${cashier_id}/1`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all store_warehouses fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch store_warehouses', data);
+            return;
+        }
+
+        store_warehouse = data.data;
+        // console.log(transaction_detail);
+    }
+    function filterProductsBasedOnTransactionDetails() {
+        const transactionProductIds = transaction_detail.map(detail => detail.product_detail_id);
+        products = products.filter(product => transactionProductIds.includes(product.product_detail_id));
+
+        console.log(products);
+    }
+    function getProductSellPrice(product_detail_id) {
+        const product = products.find(p => p.product_detail_id === product_detail_id);
+        return product ? product.sell_price : 0;
+    }
   </script>
   
   <div class="select-none font-roboto text-[#364445] mx-8 mt-[90px] mb-10 flex flex-col items-center justify-center bg-white shadow-[0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
-    <div class="flex flex-col w-full pb-10 items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
-      <div class="text-lg">
-        <i class="fa-solid fa-angle-left"></i>
-        Back
-      </div>
-      <span class="text-4xl font-bold   mt-10">TRANSACTION #5260560369532650</span>
-          
-      <div class="w-full p-10 font-semibold text-xl ">
+    <div class="flex flex-col w-full pb-10 justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
+      <div class="flex mt-10 justify-between mx-10 relative">
+        <button type="button" on:click={backToTransactionHistory} class="text-lg z-10 hover:text-[#f2b082]">
+          <i class="fa-solid fa-angle-left"></i>
+          Back
+        </button>
+        <div class="absolute inset-0 text-center"> 
+          <span class="text-4xl font-bold mt-10">TRANSACTION #{transaction.transaction_id}</span>
+        </div>      
+      </div>      
+      <div class="w-full p-10 font-semibold text-xl mt-5 ">
         <div class="flex justify-between mb-3">
           <div class="">
             Cashier
           </div>
           <div class="">
-            Budi Setiawan
+            {user.user_fullname}
           </div>
         </div>
         <div class="flex justify-between mb-3">
@@ -38,7 +175,7 @@
               Time
             </div>
             <div class="">
-              08:03 AM, 12 July 2024
+              <DateConverter value={transaction.transaction_timestamp} date={true} hour={true} second={false} ampm={true} monthNumber={false} dash={false} dateFirst={false}/>
             </div>
         </div>
         <div class="flex justify-between">
@@ -50,24 +187,36 @@
   
             </div>
         </div>
-        <div class="flex justify-between mb-3">
-            <div class="indent-8">
-                Permen karet x2
+        {#each transaction_detail as detail}
+          <div class="flex justify-between mb-3">
+              <div class="indent-8">
+                {detail.product_detail_name} x{detail.quantity}
+              </div>
+              <MoneyConverter value={detail.sell_price} currency={true} decimal={true}></MoneyConverter>
+          </div>
+          {#if detail.discount_price}
+            <div class="flex justify-between mb-3 text-gray-500">
+              <div class="indent-8">
+                DISCOUNT {detail.product_detail_name} x{detail.quantity}
+              </div>
+              <div class="flex justify-end">
+                -<MoneyConverter value={detail.discount_price} currency={true} decimal={true}></MoneyConverter>
+              </div>
             </div>
-            <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
-      </div>
+          {/if}
+        {/each}
         <div class="flex justify-between mb-3">
             <div class="">
               Total amount 
             </div>
-            <MoneyConverter value={16000} currency={true} decimal={true}></MoneyConverter>
-        </div>
+            <MoneyConverter value={transaction.transaction_total_price} currency={true} decimal={true}></MoneyConverter>
+          </div>
         <div class="flex justify-between">
             <div class="">
               Payment method
             </div>
             <div class="">
-              Cash
+              {payment_method.payment_method_name}
             </div>
         </div>
       </div>
@@ -101,36 +250,49 @@
       </svg>
     </div>
     <div class="select-none	mx-8 bg-white p-3 font-roboto text-lg">
-      <div class="flex justify-center my-2">
-        Toserba XYZ
+      <div class="flex justify-center my-2 uppercase">
+        {store_warehouse.store_warehouse_name}
       </div>
-      <div class="flex justify-center">
-        Jl. X No. X-XXI KEL. X KEC. X SURABAYA
-      </div>
-      <div>
-        ==================================================
-      </div>
-      <div class="flex justify-between">
-        <div>BON XYXY-123-XYZ123XYZ</div>
-        <div>Kasir: Budi</div>
+      <div class="flex justify-center uppercase">
+        {store_warehouse.store_warehouse_address}
       </div>
       <div>
         ==================================================
       </div>
       <div class="flex justify-between">
-        <div class="uppercase flex-[1.5_1.5_0%]">
-          Permen Karet
-        </div>
-        <div class="flex flex-1 justify-end">
-          2
-        </div>
-        <div class="flex flex-1 justify-end">
-            <MoneyConverter value={8000} currency={false} decimal={false}></MoneyConverter>
-        </div>
-        <div class="flex flex-1 justify-end">
-            <MoneyConverter value={16000} currency={false} decimal={false}></MoneyConverter>
-        </div>
+        <div>BON {transaction.transaction_id}</div>
+        <div>Kasir: {user.user_fullname}</div>
       </div>
+      <div>
+        ==================================================
+      </div>
+      {#each transaction_detail as detail}
+        <div class="flex justify-between">
+          <div class="uppercase flex-[1.5_1.5_0%]">
+            {detail.product_detail_name}
+          </div>
+          <div class="flex flex-1 justify-end">
+            {detail.quantity}
+          </div>
+          <div class="flex flex-1 justify-end">
+              <MoneyConverter value={getProductSellPrice(detail.product_detail_id)} currency={false} decimal={false}></MoneyConverter>
+          </div>
+          <div class="flex flex-1 justify-end">
+              <MoneyConverter value={detail.sell_price} currency={false} decimal={false}></MoneyConverter>
+          </div>
+        </div>
+        {#if detail.discount_price}
+        <div class="flex justify-between">
+          <div class="uppercase flex-[1.5_1.5_0%]">
+            DISCOUNT {detail.product_detail_name}
+          </div>
+          
+          <div class="flex flex-1 justify-end">
+              -<MoneyConverter value={detail.discount_price} currency={false} decimal={false}></MoneyConverter>
+          </div>
+        </div>
+        {/if}
+      {/each}
       <div>
         ==================================================
       </div>
@@ -140,7 +302,7 @@
             Total item
           </div>
           <div>
-            2
+            {transaction.transaction_total_item}
           </div>
         </div>
         <div>
@@ -152,30 +314,34 @@
           Total belanja
         </div>
         <div>
-            <MoneyConverter value={16000} currency={false} decimal={false}></MoneyConverter>
+            <MoneyConverter value={transaction.transaction_total_price} currency={false} decimal={false}></MoneyConverter>
         </div>
       </div>
       <div class="flex justify-between my-2">
         <div>
-          Tunai
+          {payment_method.payment_method_name}
         </div>
         <div>
-            <MoneyConverter value={20000} currency={false} decimal={false}></MoneyConverter>
+            <MoneyConverter value={transaction.transaction_payment} currency={false} decimal={false}></MoneyConverter>
         </div>
       </div>
+      {#if (Number(transaction.transaction_change) > 0)}
       <div class="flex justify-between my-2">
         <div>
           Kembalian
         </div>
         <div>
-            <MoneyConverter value={4000} currency={false} decimal={false}></MoneyConverter>
+            <MoneyConverter value={transaction.transaction_change} currency={false} decimal={false}></MoneyConverter>
         </div>
       </div>
+      {/if}
       <div>
         ==================================================
       </div>
       <div class="flex justify-center my-2">
-        Tgl. 01-01-2024 06:54:17
+        Tgl. <DateConverter value={transaction.transaction_timestamp} date={true} hour={true} second={true} ampm={false} monthNumber={true} dash={true} dateFirst={true}/>
+
+        <!-- Tgl. 01-01-2024 06:54:17 -->
       </div>
       <!-- <img src={receipt} class=""> -->
     </div>
