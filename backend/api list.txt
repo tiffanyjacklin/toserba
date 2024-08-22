@@ -31,6 +31,7 @@ e.POST("/cashier/session/new", controller.InsertNewSession)
 e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
 {
     "end_time": "2024-02-01 11:11:11",
+    "total_income": 100000
     "expected_closing_cash": 120000,
     "actual_closing_cash": 110000,
     "actual_difference": 10000, // expected_closing_cash - actual_closing_cash
@@ -75,7 +76,8 @@ e.POST("/transaction/details/add/:user_id/:role_id", controller.InsertTransactio
         "quantity": 2,
         "sell_price": 44000,
         "discount_price": 6600,
-        "total_price": 37400
+        "total_price": 37400,
+        "quantity_free": 1
     }, 
     {
         "product_detail_id": 2,
@@ -296,8 +298,9 @@ e.POST("/payment/method/add", controller.InsertPaymentMethod)
     }
 ]
 
-e.GET("/notification", controller.GetAllNotification)
-e.POST("/notification/add", controller.InsertNotification)
+e.GET("/notifications", controller.GetAllNotification)
+e.GET("/notifications/:role_id", controller.GetAllNotification)
+e.POST("/notifications/add", controller.InsertNotification)
 {
     "user_id": 1,
     "roles_id": 1,
