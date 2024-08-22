@@ -31,6 +31,7 @@
 
     $: received = 0;
     $: change = 0;
+    $: transaction_payment_method_id = 1;
 
     let showModal = null; 
     let member_name = "";
@@ -222,7 +223,48 @@
             }
         }
         console.log("transaction arr:",JSON.stringify(transaction));
-        InsertTransaction(transaction);
+        await InsertTransaction(transaction);
+        
+        //update table transaction
+        let last_transaction_id = await getLastTransactionId();
+        let member_id = 0;
+        let member_points = 0;
+
+        if (member.length > 0){
+            member_id = member.member_id
+            if(member.member_points <= totalAmount){
+                member_points = -(member.member_points);
+                console.log(member_points);
+            } else if (member.member_points > totalAmount){
+                member_points = -(totalAmount);
+                console.log(member_points);
+            }
+        }
+
+        let transaction_timestamp = new Date();
+        transaction_timestamp = transaction_timestamp.getUTCFullYear() + '-' +
+        ('00' + (transaction_timestamp.getUTCMonth()+1)).slice(-2) + '-' +
+        ('00' + transaction_timestamp.getUTCDate()).slice(-2) + ' ' + 
+        ('00' + (transaction_timestamp.getUTCHours()+7)).slice(-2) + ':' + 
+        ('00' + transaction_timestamp.getUTCMinutes()).slice(-2) + ':' + 
+        ('00' + transaction_timestamp.getUTCSeconds()).slice(-2);
+        transaction_timestamp = String(transaction_timestamp)
+
+        let transaction_payment = parseInt(received);
+        let transaction_change = change;
+
+        let transaction_item = 
+        {
+            transaction_timestamp,
+            transaction_payment_method_id,
+            transaction_payment,
+            transaction_change,
+            member_points
+        }
+        console.log(JSON.stringify(transaction_item));
+
+        await updateLastTransaction(last_transaction_id,sessionId,member_id,transaction_item);
+        
     }
 
     async function InsertTransaction(transaction_arr) {
@@ -242,8 +284,55 @@
             console.error('Invalid post transaction', data);
             return;
         }
-        console.log(data);
+        console.log("insert transaction detail",data);
       }
+
+      async function updateLastTransaction(last_transaction_id,session_id,member_id,transaction) {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/transaction/update/${last_transaction_id}/${session_id}/${member_id}`, {
+            method: 'PUT',
+            headers: {
+                    'Content-Type': 'application/json',
+                },
+            body: JSON.stringify(transaction)
+        });
+
+        if (!response.ok) {
+            console.error('PUT transaction gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid put transaction', data);
+            return;
+        }
+        console.log("put transaction",data);
+      }
+
+      async function getLastTransactionId(){
+        const response = await fetch(`http://leap.crossnet.co.id:8888/transaction/last`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch promo failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch promo', data);
+            return;
+        }
+        console.log("last_id",data.data.transaction_id);
+        let last_id = data.data.transaction_id;
+        return last_id;
+    }
 </script>
 
 <!-- {member_points} -->
@@ -256,11 +345,12 @@
 
         <hr class="border-2 border-darkGray mx-auto w-11/12 mb-2">
 
+        {#if tampilan != "validasi"}
         <div class="h-full flex flex-col items-center justify-around mb-12">
             <div class="w-full flex flex-col items-center">
                 <span class="text-4xl font-bold text-darkGray my-4">Payment Method</span>
-                <button on:click={() => {tampilan = "cash"; tampilan = tampilan}}  class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Cash</button>
-                <button on:click={() => {tampilan = "qr"; tampilan = tampilan}} class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Generate QR</button>    
+                <button on:click={() => {tampilan = "cash"; tampilan = tampilan; transaction_payment_method_id = 1; transaction_payment_method_id = transaction_payment_method_id;}}  class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Cash</button>
+                <button on:click={() => {tampilan = "qr"; tampilan = tampilan; transaction_payment_method_id = 2;transaction_payment_method_id = transaction_payment_method_id;}} class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Generate QR</button>    
             </div>
 
             <div class="w-full flex flex-col items-center">
@@ -273,6 +363,10 @@
                 class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Use Membership</button>
             </div>
         </div>
+        {:else}
+        
+        {/if}
+        
     </div>
     <div class="w-1/2 h-full bg-darkGray border-l-8 border-l-peach">
             {#if tampilan == "awal"}

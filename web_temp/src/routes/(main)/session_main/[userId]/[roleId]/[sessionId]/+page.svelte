@@ -376,14 +376,16 @@
                     <div class="grid grid-cols-3 gap-4 mt-6 mx-8">
                         {#each all_produk as produk}
                             {@const tmp_produk = {...produk}}
-                        <button on:click={() => {addtoCheckout(tmp_produk); sumTotal(); checkPromo(); checkPromoAppliedType1(); countPromoApplied();}} class="w-full border-2 border-black rounded-lg bg-white">
-                            <div class="p-3 w-full flex flex-col items-center">
-                                <img class="rounded-lg w-10/12 h-10/12" src={img_produk} alt="">
-                                <p class="w-full truncate text-black font-semibold my-1 text-center">{produk.product_name}</p>
-                                <p class="truncate text-peach2 font-semibold mb-1"><MoneyConverter value={produk.sell_price} currency={true} decimal={true}></MoneyConverter></p>
-                                <p class="truncate text-black font-semibold mb-1">{produk.product_stock} {produk.product_unit}</p>
-                            </div>
-                        </button>
+                            {#if produk.product_stock >= 1}
+                            <button on:click={() => {addtoCheckout(tmp_produk); sumTotal(); checkPromo(); checkPromoAppliedType1(); countPromoApplied();}} class="w-full border-2 border-black rounded-lg bg-white">
+                                <div class="p-3 w-full flex flex-col items-center">
+                                    <img class="rounded-lg w-10/12 h-10/12" src={img_produk} alt="">
+                                    <p class="w-full truncate text-black font-semibold my-1 text-center">{produk.product_name}</p>
+                                    <p class="truncate text-peach2 font-semibold mb-1"><MoneyConverter value={produk.sell_price} currency={true} decimal={true}></MoneyConverter></p>
+                                    <p class="truncate text-black font-semibold mb-1">{produk.product_stock} {produk.product_unit}</p>
+                                </div>
+                            </button>
+                            {/if}
                     {/each}
                 
                     </div>
