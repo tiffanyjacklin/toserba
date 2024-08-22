@@ -113,10 +113,18 @@ e.POST("/products/stock/card/add", controller.InsertStockCards)
 
 e.GET("/products/stock/card/:stock_card_id", controller.GetStockCardByID)
 e.GET("/products/stock/card/product/:product_id", controller.GetStockCardByProductID)
+e.GET("/products/stock/card/product/store_warehouse/:product_id/:storewarehouse_id", controller.GetStockCardByStoreWarehouse)
+e.GET("/products/stock/card/product/store_warehouse/exp/:exp_date/:storewarehouse_id", controller.GetStockCardByStoreWarehouseEXPDate)
+e.GET("/products/stock/card/product/store_warehouse/batch/:exp_date/:storewarehouse_id", controller.GetStockCardByStoreWarehouseBatch)
 e.GET("/products/stock/card/product/:product_id/:exp_date", controller.GetStockCardByEXPDate)
 e.GET("/products/stock/card/product/exp/early/:product_id/:sw_id", controller.GetEarliestEXPByProductID)
 e.GET("products/stock/card/product/total_stock/all/:product_id", controller.GetTotalStockByProductID)
 e.GET("products/stock/card/product/total_stock/:product_id/:sw_id", controller.GetTotalStockByProductIDSWID)
+e.GET("/products/stock/card/product/total_stock/batch/:sw_id/:batch", controller.GetTotalStockByBatchSWID)
+e.GET("/products/stock/card/product/total_stock/batch/:product_id/:sw_id/:batch", controller.GetTotalStockByBatchPIDSWID)
+e.GET("/products/stock/card/product/total_stock/:product_id/:sw_id/:exp_date", controller.GetTotalStockByEXPPIDSWID)
+
+e.GET("/products/stock/min/:product_id/:store_warehouse_id", controller.CheckMinStock)
 
 // Delivery Order
 e.GET("/orders/delivery/:delivery_order_id", controller.GetDeliveryOrderByID)
@@ -154,6 +162,7 @@ e.GET("/products/:product_id/:user_id/:role_id", controller.GetProductByID)
 e.GET("/products/code/:product_code/:user_id/:role_id", controller.GetProductByCode)
 e.GET("/products/name/:product_name/:user_id/:role_id", controller.GetProductByName) 
 e.GET("/products/:user_id/:role_id", controller.GetAllProducts)  
+e.GET("/products/store_warehouse/:user_id/:role_id", controller.GetAllProductsInStoreWarehouse) 
 
 // Nambah produk baru
 e.POST("/products/add/:store_warehouse_id", controller.InsertProductDetails)
@@ -270,3 +279,6 @@ e.POST("/payment/method/add", controller.InsertPaymentMethod)
         "payment_method_name": "Cash"
     }
 ]
+
+e.GET("/notification", controller.GetAllNotification)
+e.POST("/notification/add", controller.InsertNotification)
