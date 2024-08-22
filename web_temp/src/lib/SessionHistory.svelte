@@ -240,7 +240,7 @@
          placeholder="Search by Session ID..."
          bind:value={searchQuery} />          
          <!-- <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-3">
-           
+                  <i class="fa-solid fa-sliders fa-xl mr-2"></i>
           </button> -->
        </div>
     <!-- </form> -->
