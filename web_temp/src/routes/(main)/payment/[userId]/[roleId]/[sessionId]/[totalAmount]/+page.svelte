@@ -6,6 +6,7 @@
     import MoneyConverter from '$lib/MoneyConverter.svelte';
     import { getFormattedDate } from '$lib/DateNow.js';
 	import { goto } from '$app/navigation';
+	import { json } from '@sveltejs/kit';
 
     export let data
     let sessionId = data.sessionId;
@@ -13,13 +14,20 @@
     let userId = data.userId;
     let totalAmount = data.totalAmount;
     let checkout = [];
+    let promos = [];
+
+    let transaction = [];
 
     if (typeof window !== 'undefined') {
-        const storedData = sessionStorage.getItem('checkout');
-        checkout = storedData ? JSON.parse(storedData) : [];
+        const storedCheckout = sessionStorage.getItem('checkout');
+        checkout = storedCheckout ? JSON.parse(storedCheckout) : [];
+
+        const storedPromos = sessionStorage.getItem('promos');
+        promos = storedPromos ? JSON.parse(storedPromos) : [];
     }
     // $: checkout = JSON.parse(sessionStorage.getItem('checkout' || '[]'));
     console.log("isi checkout", checkout)
+    console.log("isi promos", promos)
 
     $: received = 0;
     $: change = 0;
@@ -118,6 +126,32 @@
         closeModal();
     }
 
+    async function getPromoProductId(product_detail_id){
+        const response = await fetch(`http://leap.crossnet.co.id:8888/promos/product/${product_detail_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch promo failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch promo', data);
+            return;
+        }
+        // console.log(data.data[0]);
+        // console.log(data.data[0].promo_product_id);
+        let promo_product_id = data.data[0].promo_product_id;
+        return promo_product_id;
+        
+    }
+
     function usePoints(){
         member_points = member.member_points;
         closeModal();
@@ -132,9 +166,84 @@
         }
     }
 
-    function validate(){
-        
+    async function validate(){
+        for (let i = 0; i < checkout.length; i++) {
+            // cek apakah produk_checkout ada di array promos
+            if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i].product_detail_id) != null){
+                // jika ada, ambil index di array promos
+                let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i].product_detail_id);
+                
+                let product_detail_id = promos[index]["ProductDetail"].product_detail_id;
+                let promo_product_id = await getPromoProductId(product_detail_id);
+                promo_product_id = promo_product_id;
+                let quantity = checkout[i].jumlah;
+                let sell_price = promos[index]["ProductDetail"].sell_price;
+                let discount_price = ((promos[index]["ProductDetail"].sell_price)-(checkout[i].sell_price))*quantity;
+                let total_price = (sell_price-discount_price)*quantity;
+                let quantity_free = 0;
+                if (promos[index]["Promo"].promo_type_id == 1){
+                    quantity_free = (parseInt(quantity/promos[index]["Promo"].x_amount)*promos[index]["Promo"].y_amount);
+                    quantity_free = quantity_free;
+                }
+
+                let produk_transaksi = 
+                {
+                    product_detail_id,
+                    promo_product_id,
+                    quantity,
+                    sell_price,
+                    discount_price,
+                    total_price,
+                    quantity_free
+                }
+                transaction.push(produk_transaksi);
+                transaction = transaction;
+            } else {
+                let product_detail_id = checkout[i].product_detail_id;
+                let promo_product_id = 0;
+                let quantity = checkout[i].jumlah;
+                let sell_price = checkout[i].sell_price;
+                let discount_price = 0;
+                let total_price = (sell_price-discount_price)*quantity;
+                let quantity_free = 0;
+
+                let produk_transaksi = 
+                {
+                    product_detail_id,
+                    promo_product_id,
+                    quantity,
+                    sell_price,
+                    discount_price,
+                    total_price,
+                    quantity_free
+                }
+                transaction.push(produk_transaksi);
+                transaction = transaction;
+            }
+        }
+        console.log("transaction arr:",JSON.stringify(transaction));
+        InsertTransaction(transaction);
     }
+
+    async function InsertTransaction(transaction_arr) {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/transaction/details/add/${userId}/${roleId}`, {
+            method: 'POST',
+            body: JSON.stringify(transaction_arr)
+        });
+
+        if (!response.ok) {
+            console.error('POST transaction gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post transaction', data);
+            return;
+        }
+        console.log(data);
+      }
 </script>
 
 <!-- {member_points} -->
@@ -235,7 +344,7 @@
             {/if}
         <div class="h-2/6 my-8">
             <div class="h-full flex justify-center items-center">
-                <button on:click={() => {tampilan = "validasi"; tampilan = tampilan;}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">
+                <button on:click={() => {validate(); tampilan = "validasi"; tampilan = tampilan;}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">
                     {#if tampilan == "cash" && (received >=  (totalAmount-member_points)) || tampilan == "qr"}
                     <span class="text-white text-6xl font-bold">Validate</span>
                     <i class="fa-regular fa-circle-check fa-5x" style="color: #ffffff;"></i>       

@@ -292,6 +292,7 @@
 
     function pay(){
         sessionStorage.setItem('checkout', JSON.stringify(checkout));
+        sessionStorage.setItem('promos', JSON.stringify(promos));
         goto(`/payment/${userId}/${roleId}/${sessionId}/${total}`);
     }
 
