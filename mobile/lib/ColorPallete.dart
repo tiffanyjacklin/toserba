@@ -8,3 +8,4 @@ class ColorPalleteLogin {
   static const OrangeLightColor = Color(0xFFfacfad);
   static const TableColor = Color(0xFFfff2cc);
 }
+

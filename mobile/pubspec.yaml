@@ -24,6 +24,8 @@ dependencies:
   permission_handler: ^11.3.1
   path_provider: ^2.1.4
   provider: ^6.1.2
+  share_plus: ^10.0.2
+  file_selector: ^1.0.3
 
 dev_dependencies:
   flutter_test:
@@ -35,10 +37,10 @@ flutter:
   assets:
     - .env
     - assets/logo2.png
-  
+
   fonts:
     - family: Helvetica
-    - fonts:
+      fonts:
       - asset: assets/fonts/Helvetica.ttf
       - asset: assets/fonts/Helvetica-Bold.ttf
         weight: 700

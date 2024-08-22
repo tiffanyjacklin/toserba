@@ -1,13 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/ColorPallete.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+// import 'package:share_plus/share_plus.dart';
 
 class DeliveryOrderDetailPopUp extends StatefulWidget {
   DeliveryOrderDetailPopUp({
@@ -36,10 +35,10 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
           color: ColorPalleteLogin.PrimaryColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(
-              color: ColorPalleteLogin.OrangeColor,
-              offset: Offset(0, 6),
-            ),
+            // BoxShadow(
+            //   color: ColorPalleteLogin.OrangeColor,
+            //   offset: Offset(0, 6),
+            // ),
           ],
         ),
         child: Padding(
@@ -141,7 +140,7 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                           if (bytes != null) {
                             // panggil woe
                             saveImage(bytes, 'DeliveryOrder');
-                            saveAndShare(bytes, 'DeliveryOrder');
+                            // saveAndShare(bytes, 'DeliveryOrder');
                           }
                         }).catchError((onError) {
                           debugPrint(onError);
@@ -214,7 +213,7 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                                 if (bytes != null) {
                                   // panggil woe
                                   saveImage(bytes, 'StockCard');
-                                  saveAndShare(bytes, 'StockCard');
+                                  // saveAndShare(bytes, 'StockCard');
                                 }
                               }).catchError((onError) {
                                 debugPrint(onError);
@@ -334,7 +333,9 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
         ? await getExternalStorageDirectory()
         : await getApplicationDocumentsDirectory();
 
-    final image = File('${dir!.path}/$name1$time.png');
+    // final image = File('${dir!.path}/$name1$time.png');
+    // image.writeAsBytes(bytes);
+    // await Share.shareXFiles([XFile(image.path)]);
   }
 }
 
@@ -464,7 +465,7 @@ class TableAcceptStockForm extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        '10000',
+                        '-',
                         style: TextStyle(
                           fontSize: 12,
                         ),
@@ -495,7 +496,7 @@ class TableAcceptStockForm extends StatelessWidget {
                             fillColor: Colors.white,
                             border: OutlineInputBorder(
                               borderRadius: const BorderRadius.all(
-                                const Radius.circular(25.0),
+                                const Radius.circular(10.0),
                               ),
                               borderSide: new BorderSide(
                                 color: Colors.black,

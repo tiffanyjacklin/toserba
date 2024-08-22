@@ -3,67 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_all/ColorPallete.dart';
 
-class DataStock extends DataTableSource{
-  final List<Map<String, dynamic>> _data = List.generate(
-    20, 
-    (index) => {
-      "No" : index+1,
-      "Product Name" : 'Test',
-      "Batch" : 'coba',
-      "Expiry Date" : '01/01/2024',
-      "Expected Stock" : 20,
-      "Unit Type" : 'Unit',
-                  //       DataColumn(label: Text('Expected Stock')),
-                  // DataColumn(label: Text('Actual Stock')),
-                  // DataColumn(label: Text('Unit Type')),
-                  // DataColumn(label: Text('Information')),
-    });
-
-  @override
-  DataRow? getRow(int index) {
-    TextEditingController controller = TextEditingController();
-    return DataRow(cells: [
-      DataCell(Text(_data[index]['No'].toString())),
-      DataCell(Text(_data[index]['Product Name'].toString())),
-      DataCell(Text(_data[index]['Batch'].toString())),
-      DataCell(Text(_data[index]['Expiry Date'].toString())),
-      DataCell(Text(_data[index]['Expected Stock'].toString())),
-      DataCell(TextFormField(
-        controller: controller,
-        onChanged: (value){
-          print(value);
-        },
-        keyboardType: TextInputType.number,
-        inputFormatters: <TextInputFormatter>[
-          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-        ],
-      )),
-      DataCell(Text(_data[index]['No'].toString())),
-      DataCell(Text(_data[index]['No'].toString())),
-      DataCell(Text(_data[index]['No'].toString())),
-    ]);
-  }
-  
-  @override
-  // TODO: implement isRowCountApproximate
-  bool get isRowCountApproximate => false;
-  
-  @override
-  // TODO: implement rowCount
-  int get rowCount =>  _data.length;
-  
-  @override
-  // TODO: implement selectedRowCount
-  int get selectedRowCount => 0;
-
-}
-
-
 class InventoryTakingPage extends StatelessWidget {
   const InventoryTakingPage({super.key});
 
   @override
-  Widget build(BuildContext context) {  
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(20.0),
       child: Container(
@@ -74,54 +18,109 @@ class InventoryTakingPage extends StatelessWidget {
         ),
         width: MediaQuery.of(context).size.width,
         child: Padding(
-          padding: const EdgeInsets.only( left: 8.0, right: 8.0, top: 16.0, bottom: 8.0),
+          padding: const EdgeInsets.only(
+              left: 20.0, right: 20.0, top: 16.0, bottom: 8.0),
           child: Column(
             children: [
-              Text('Inventory Taking', style : TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: ColorPalleteLogin.PrimaryColor)),
-              SizedBox(height: 10,),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.70,
-                child: CupertinoSearchTextField(       
-                  // trailing: Icon(Icons.abc),
-                ),
+              Text('Inventory Taking',
+                  style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: ColorPalleteLogin.PrimaryColor)),
+              SizedBox(
+                height: 10,
               ),
-              SizedBox(height: 10,),
               Container(
-                child: PaginatedDataTable(
-                  rowsPerPage: 5,
-                  columnSpacing: 20,
-                  dataRowMinHeight: 20,
-                  dataRowMaxHeight: 40,
-                  columns: [
-                    DataColumn(label: Text('No')),
-                    DataColumn(label: Text('Product Name')),
-                    DataColumn(label: Text('Batch')),
-                    DataColumn(label: Text('Expiry Date')),
-                    DataColumn(label: Text('Expected Stock')),
-                    DataColumn(label: Text('Actual Stock')),
-                    DataColumn(label: Text('Unit Type')),
-                    DataColumn(label: Text('Fill')),
-                    DataColumn(label: Text('Detail')),
-                  ], 
-                  source: DataStock()),
+                // width: MediaQuery.of(context).size.width * 0.70,
+                child: CupertinoSearchTextField(
+                    // trailing: Icon(Icons.abc),
+                    ),
+              ),
+              SizedBox(
+                height: 10,
               ),
 
-              SizedBox(height: 20,),
-              // 
+              TableInventoryTaking(),
+
+              SizedBox(
+                height: 20,
+              ),
+
+              // Action Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ButtonTheme(
-                    child: ElevatedButton( 
-                      onPressed: (){},
-                      child: Text('Discard'),
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.PrimaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Discard',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.OrangeColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          // keluarin popup discard
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) => DiscardPopup(),
+                          );
+                        },
+                      ),
                     ),
                   ),
-                  SizedBox(width: 20,),
-                  ButtonTheme(
-                    child: ElevatedButton( 
-                      onPressed: (){},
-                      child: Text('Save'),
+                  SizedBox(
+                    width: 30,
+                  ),
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.OrangeDarkColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Save',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.PrimaryColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          // masuk ke popup lanjutan untuk buat stok card
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) => InventoryTakingFormPopUp(),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -130,6 +129,1103 @@ class InventoryTakingPage extends StatelessWidget {
           ),
         ),
       ),
-      );
+    );
+  }
+}
+
+class DetailProductInventoryTakingPopup extends StatelessWidget {
+  DetailProductInventoryTakingPopup({
+    super.key,
+  });
+
+  // controller
+  var locationController = TextEditingController();
+  var informationController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.55,
+        // height: MediaQuery.of(context).size.height * 0.3,
+        decoration: BoxDecoration(
+          color: ColorPalleteLogin.PrimaryColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                child: GestureDetector(
+                  onTap: () {
+                    // help pop
+                    Navigator.of(context).pop();
+                  },
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+                alignment: Alignment.topRight,
+              ),
+              Center(
+                  child: Text(
+                'Product Detail',
+                style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                          blurRadius: 2.0,
+                          color: Colors.black,
+                          offset: Offset(1, 1)),
+                    ]),
+              )),
+              SizedBox(
+                height: 20,
+              ),
+
+              // input
+              // location
+              Text(
+                'Location',
+                style: TextStyle(
+                    fontSize: 16,
+                    color: ColorPalleteLogin.OrangeLightColor,
+                    fontWeight: FontWeight.bold),
+              ),
+
+              Padding(
+                  padding: EdgeInsets.all(8.0),
+                  // >> note : BELUM DI LIMIT CHARACTER
+                  child: TextField(
+                    keyboardType: TextInputType.multiline,
+                    controller: locationController,
+                    minLines: 3,
+                    maxLines: 3,
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: ColorPalleteLogin.PrimaryColor,
+                        fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(5.0),
+                      isDense: true,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                          const Radius.circular(15.0),
+                        ),
+                        borderSide: new BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  )),
+
+              SizedBox(
+                height: 15,
+              ),
+
+              // Information
+              Text(
+                'Information',
+                style: TextStyle(
+                    fontSize: 16,
+                    color: ColorPalleteLogin.OrangeLightColor,
+                    fontWeight: FontWeight.bold),
+              ),
+
+              Padding(
+                  padding: EdgeInsets.all(8.0),
+                  // >> note : BELUM DI LIMIT CHARACTER
+                  child: TextField(
+                    keyboardType: TextInputType.multiline,
+                    controller: informationController,
+                    minLines: 3,
+                    maxLines: 3,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: ColorPalleteLogin.PrimaryColor,
+                        fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(5.0),
+                      isDense: true,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                          const Radius.circular(15.0),
+                        ),
+                        borderSide: new BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  )),
+
+              SizedBox(
+                height: 30,
+              ),
+
+              // Action Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.PrimaryColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              side: BorderSide(
+                                  color: ColorPalleteLogin.OrangeLightColor)),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Back',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.OrangeLightColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.OrangeLightColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Save',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.PrimaryColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          // Note: GANTI
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class InventoryTakingFormPopUp extends StatefulWidget {
+  const InventoryTakingFormPopUp({
+    super.key,
+  });
+
+  @override
+  State<InventoryTakingFormPopUp> createState() =>
+      _InventoryTakingFormPopUpState();
+}
+
+class _InventoryTakingFormPopUpState extends State<InventoryTakingFormPopUp> {
+  var _customTileExpanded = false;
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.7,
+        decoration: BoxDecoration(
+          color: ColorPalleteLogin.PrimaryColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child:  Scrollbar(
+            thickness: 1,
+            thumbVisibility: false,
+            child: SingleChildScrollView(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                child: GestureDetector(
+                  onTap: () {
+                    // help pop
+                    Navigator.of(context).pop();
+                  },
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+                alignment: Alignment.topRight,
+              ),
+              Center(
+                  child: Text(
+                'Inventory Taking',
+                style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                          blurRadius: 2.0,
+                          color: Colors.black,
+                          offset: Offset(1, 1)),
+                    ]),
+              )),
+              SizedBox(
+                height: 20,
+              ),
+
+              // detail inventory taking
+              InventoryTakingDetailsChild(
+                judul: 'Responsible Person',
+                data: 'Budi Setiawan',
+              ),
+              InventoryTakingDetailsChild(
+                judul: 'Date',
+                data: '07:54 PM, 01 July 2024',
+              ),
+
+              // changes untuk yg udah di input actual stock (buat tabel)
+              Theme(
+                data: Theme.of(context)
+                    .copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  tilePadding: EdgeInsets.only(left: 8.0),
+                  
+                  trailing: Icon(
+                    _customTileExpanded
+                        ? Icons.arrow_drop_down_circle
+                        : Icons.arrow_drop_down,
+                    color: ColorPalleteLogin.OrangeColor,
+                  ),
+                  title: Text(
+                    'Changes',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: ColorPalleteLogin.OrangeLightColor,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  children: [
+                    TableInventoryTakingPopUp(),
+                    SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                
+                  onExpansionChanged: (value) {
+                    setState(() {
+                      _customTileExpanded = !_customTileExpanded;
+                    });
+                  },
+                ),
+              ),
+
+              SizedBox(
+                height: 30,
+              ),
+
+              // Action Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.PrimaryColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              side: BorderSide(
+                                  color: ColorPalleteLogin.OrangeLightColor)),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Back',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.OrangeLightColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.OrangeLightColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Submit',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.PrimaryColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          // Note: GANTI
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+        ),
+      ),
+    );
+  }
+}
+
+class DiscardPopup extends StatelessWidget {
+  const DiscardPopup({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.4,
+        decoration: BoxDecoration(
+          color: ColorPalleteLogin.PrimaryColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                child: GestureDetector(
+                  onTap: () {
+                    // help pop
+                    Navigator.of(context).pop();
+                  },
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+                alignment: Alignment.topRight,
+              ),
+              Center(
+                  child: Text(
+                'Discard',
+                style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                          blurRadius: 2.0,
+                          color: Colors.black,
+                          offset: Offset(1, 1)),
+                    ]),
+              )),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text(''),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Text(
+                      'Are you sure you want to discard the changes you\'ve made?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: ColorPalleteLogin.OrangeLightColor,
+                          shadows: [
+                            Shadow(
+                                blurRadius: 2.0,
+                                color: Colors.black,
+                                offset: Offset(1, 1)),
+                          ]),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(''),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 30,
+              ),
+
+              // Action Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.PrimaryColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              side: BorderSide(
+                                  color: ColorPalleteLogin.OrangeLightColor)),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Back',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.OrangeLightColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.OrangeLightColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Discard',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.PrimaryColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          // Note: GANTI
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TableInventoryTaking extends StatelessWidget {
+  const TableInventoryTaking({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Table(
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          columnWidths: {
+            0: FlexColumnWidth(2),
+            1: FlexColumnWidth(6),
+            2: FlexColumnWidth(3),
+            3: FlexColumnWidth(3),
+            4: FlexColumnWidth(3),
+            5: FlexColumnWidth(3),
+            6: FlexColumnWidth(2),
+            7: FlexColumnWidth(2),
+            8: FlexColumnWidth(2),
+          },
+          children: [
+            // making the judul
+            const TableRow(
+              decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.black))),
+              children: [
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text('NO',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('PRODUCT NAME',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('BATCH',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('EXPIRY DATE',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('EXPECTED STOCK',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('ACTUAL STOCK',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('UNIT TYPE',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('FILL',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(6.0),
+                    child: Text('DETAIL',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+
+            // making the content
+            ...List.generate(
+              5,
+              (index) => TableRow(
+                decoration: (index + 1) % 2 == 0
+                    ? BoxDecoration(
+                        color: ColorPalleteLogin.TableColor,
+                      )
+                    : null,
+                children: [
+                  TableCell(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Nama Produk',
+                          style: TextStyle(
+                            fontSize: 12,
+                          )),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('B010101',
+                          style: TextStyle(
+                            fontSize: 12,
+                          )),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('10/10/2024',
+                          style: TextStyle(
+                            fontSize: 12,
+                          )),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '10000',
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        // >> note : BELUM DI LIMIT
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.end,
+                          style: TextStyle(fontSize: 12),
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(5.0),
+                            isDense: true,
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: const BorderRadius.all(
+                                const Radius.circular(10.0),
+                              ),
+                              borderSide: new BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        )),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Unit',
+                          style: TextStyle(
+                            fontSize: 12,
+                          )),
+                    ),
+                  ),
+
+                  // action button
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 8.0, right: 8.0, top: 2, bottom: 2),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.all(0),
+                          backgroundColor: ColorPalleteLogin.OrangeLightColor,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.black),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.fast_forward_sharp,
+                          color: ColorPalleteLogin.PrimaryColor,
+                        ),
+                        onPressed: () {},
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 8.0, right: 8.0, top: 2, bottom: 2),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.all(0),
+                          backgroundColor: ColorPalleteLogin.PrimaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.remove_red_eye_outlined,
+                          color: ColorPalleteLogin.OrangeColor,
+                        ),
+                        onPressed: () {
+                          // keluarin popup detail
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) =>
+                                DetailProductInventoryTakingPopup(),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TableInventoryTakingPopUp extends StatelessWidget {
+  const TableInventoryTakingPopUp({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Table(
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          columnWidths: {
+            0: FlexColumnWidth(2),
+            1: FlexColumnWidth(7),
+            2: FlexColumnWidth(3),
+            3: FlexColumnWidth(3),
+            4: FlexColumnWidth(3),
+            5: FlexColumnWidth(3),
+            6: FlexColumnWidth(2),
+            7: FlexColumnWidth(4),
+          },
+          children: [
+            // making the judul
+            const TableRow(
+              decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.black))),
+              children: [
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text('NO',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('PRODUCT NAME',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('BATCH',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('EXPIRY DATE',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('EXPECTED STOCK',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('ACTUAL STOCK',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('UNIT TYPE',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('INFORMATION',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+
+            // making the content
+            ...List.generate(
+              5,
+              (index) => TableRow(
+                decoration: (index + 1) % 2 == 0
+                    ? BoxDecoration(
+                        color: ColorPalleteLogin.TableColor,
+                      )
+                    : null,
+                children: [
+                  TableCell(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Nama Produk',
+                          style: TextStyle(
+                            fontSize: 12,
+                          )),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('B010101',
+                          style: TextStyle(
+                            fontSize: 12,
+                          )),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('10/10/2024',
+                          style: TextStyle(
+                            fontSize: 12,
+                          )),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '10000',
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '10000',
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Unit',
+                          style: TextStyle(
+                            fontSize: 12,
+                          )),
+                    ),
+                  ),
+
+                    TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Lokasi Kuuuuu',
+                          style: TextStyle(
+                            fontSize: 12,
+                          )),
+                    ),
+                  ),
+
+                  
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class InventoryTakingDetailsChild extends StatelessWidget {
+  String judul;
+  String data;
+
+  InventoryTakingDetailsChild({
+    this.judul = '',
+    this.data = '',
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            this.judul,
+            style: TextStyle(
+                fontSize: 16,
+                color: ColorPalleteLogin.OrangeLightColor,
+                fontWeight: FontWeight.bold),
+          ),
+          Text(
+            this.data,
+            style: TextStyle(
+                fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
   }
 }

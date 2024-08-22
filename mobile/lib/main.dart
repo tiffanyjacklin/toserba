@@ -2,17 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/Page/Login/login_tablet.dart';
-import 'package:flutter_app_all/Page/main_page.dart';
 
 
 
 void main() {
   runApp(const MainApp());
 }
-
-
-
-
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
