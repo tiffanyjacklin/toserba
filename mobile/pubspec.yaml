@@ -17,14 +17,31 @@ dependencies:
   shared_preferences: ^2.3.2
   cached_network_image: ^3.2.1
   stroke_text: ^0.0.3
+  google_fonts: ^6.2.1
+
+  screenshot: ^3.0.0
+  image_gallery_saver: ^2.0.3
+  permission_handler: ^11.3.1
+  path_provider: ^2.1.4
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
   
-assets:
-  - .env
-  
 flutter:
   uses-material-design: true
+  assets:
+    - .env
+    - assets/logo2.png
+  
+  fonts:
+    - family: Helvetica
+    - fonts:
+      - asset: assets/fonts/Helvetica.ttf
+      - asset: assets/fonts/Helvetica-Bold.ttf
+        weight: 700
+      - asset: assets/fonts/helvetica-light-587ebe5a59211.ttf
+        weight: 300
+    
