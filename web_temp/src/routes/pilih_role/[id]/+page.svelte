@@ -46,8 +46,12 @@
         console.log("role : " + selectedRole);
 
         const user_role = selectedRole;
-
-        goto(`/dashboard/${userId}/${selectedRole}`);
+        if (role_id === 1){
+            goto(`/session/${userId}/${selectedRole}`);
+        }
+        else{
+            goto(`/dashboard/${userId}/${selectedRole}`);
+        }
         if (browser) {
             localStorage.setItem('userId', userId);
             localStorage.setItem('user_role', user_role);

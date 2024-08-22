@@ -93,6 +93,7 @@
    }
    function handleClick(sessionId) {
       showModal = sessionId;
+      fetchTransactionBySession(sessionId);
    }
    function closeModal() {
         showModal = null;
@@ -225,6 +226,30 @@
             });
         }
    }
+   let transactionByID = [];
+   async function fetchTransactionBySession(sessionIdnya) {
+      const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/transaction/${sessionIdnya}`, {
+         method: 'GET',
+         headers: {
+               'Content-Type': 'application/json'
+         }
+      });
+
+      if (!response.ok) {
+         console.error('transaction by id fetch failed', response);
+         return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+         console.error('Invalid fetch transaction by id ', data);
+         return;
+      }
+
+      transactionByID = data.data;
+      console.log(transactionByID);
+   }
  </script>
  
  <div class="mx-8 mt-[90px] mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg">
@@ -275,7 +300,7 @@
             {/if}
             
          </div>
-         <div class="w-1/5 bg-darkGray flex items-center">
+         <div class="w-1/5 min-w-1/5 bg-darkGray flex items-center">
             {#if item.end_time && isWithinThirtyMinutes(item.end_time)}
                <button 
                   on:click={async () => { 
@@ -367,6 +392,7 @@
                      </div>
                      <div class="flex justify-between">
                         <div class="text-[#f7d4b2]">Total Income
+                           {#if transactionByID.length > 0}
                            <button on:click={toggleTable} class="ml-2">
                               {#if showTable}
                                  <i class="fa-solid fa-caret-up"></i>
@@ -374,10 +400,11 @@
                                  <i class="fa-solid fa-caret-down"></i>
                               {/if}
                            </button>
+                           {/if}
                         </div>
                         <div class="text-white">Rp {item.total_income.toLocaleString()}</div>
                      </div>
-                     {#if showTable}
+                     {#if showTable && transactionByID.length > 0}
                      <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                         <table class="w-full text-sm text-left rtl:text-right">
                            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
@@ -394,39 +421,20 @@
                                  </tr>
                            </thead>
                            <tbody>
-                                 <tr class="bg-yellow-100">
+                              {#each transactionByID as transaction, i}
+                                 <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
                                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                       5432112345
+                                          {transaction.transaction_id}
                                     </th>
                                     <td class="px-6 py-4">
-                                       15:40 PM
+                                       <DateConverter value={transaction.transaction_timestamp} date={false} hour={true} second={false} ampm={true} monthNumber={false} dash={false} dateFirst={false}/>
                                     </td>
                                     <td class="px-6 py-4">
-                                       Rp 16.000,00
+                                       <MoneyConverter value={transaction.transaction_total_price} currency={true} decimal={true}/>
                                     </td>
                                  </tr>
-                                 <tr class="bg-white">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                       5432112345
-                                    </th>
-                                    <td class="px-6 py-4">
-                                       15:40 PM
-                                    </td>
-                                    <td class="px-6 py-4">
-                                       Rp 16.000,00
-                                    </td>
-                                 </tr>
-                                 <tr class="bg-yellow-100">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                       5432112345
-                                    </th>
-                                    <td class="px-6 py-4">
-                                       15:40 PM
-                                    </td>
-                                    <td class="px-6 py-4">
-                                       Rp 16.000,00
-                                    </td>
-                                 </tr>
+                              {/each}
+                                 
                            </tbody>
                         </table>
                      </div>
@@ -504,6 +512,7 @@
                   </div>
                   <div class="flex justify-between">
                      <div class="text-[#f7d4b2]">Total Income
+                        {#if transactionByID.length > 0}
                         <button on:click={toggleTable} class="ml-2">
                            {#if showTable}
                               <i class="fa-solid fa-caret-up"></i>
@@ -511,11 +520,12 @@
                               <i class="fa-solid fa-caret-down"></i>
                            {/if}
                         </button>
+                        {/if}
                      </div>
                      <div class="text-white"><MoneyConverter value={item.total_income} currency={true} decimal={true}/></div>
                   </div>
             
-                  {#if showTable}
+                  {#if showTable && transactionByID.length > 0}
                   <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                      <table class="w-full text-sm text-left rtl:text-right">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-100">
@@ -532,39 +542,19 @@
                               </tr>
                         </thead>
                         <tbody>
-                              <tr class="bg-yellow-100">
+                           {#each transactionByID as transaction, i}
+                              <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
                                  <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                    5432112345
+                                       {transaction.transaction_id}
                                  </th>
                                  <td class="px-6 py-4">
-                                    15:40 PM
+                                    <DateConverter value={transaction.transaction_timestamp} date={false} hour={true} second={false} ampm={true} monthNumber={false} dash={false} dateFirst={false}/>
                                  </td>
                                  <td class="px-6 py-4">
-                                    Rp 16.000,00
+                                    <MoneyConverter value={transaction.transaction_total_price} currency={true} decimal={true}/>
                                  </td>
                               </tr>
-                              <tr class="bg-white">
-                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                    5432112345
-                                 </th>
-                                 <td class="px-6 py-4">
-                                    15:40 PM
-                                 </td>
-                                 <td class="px-6 py-4">
-                                    Rp 16.000,00
-                                 </td>
-                              </tr>
-                              <tr class="bg-yellow-100">
-                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                    5432112345
-                                 </th>
-                                 <td class="px-6 py-4">
-                                    15:40 PM
-                                 </td>
-                                 <td class="px-6 py-4">
-                                    Rp 16.000,00
-                                 </td>
-                              </tr>
+                           {/each}
                         </tbody>
                      </table>
                   </div>

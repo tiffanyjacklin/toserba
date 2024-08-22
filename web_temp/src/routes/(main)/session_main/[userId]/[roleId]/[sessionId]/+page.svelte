@@ -23,6 +23,9 @@
     
     function handleClick(id) {
         showModal = id;
+        if (Number(id) === 1){
+            fetchTransactionBySession(sessionId);
+        }
     }
     function toggleTable() {
         showTable = !showTable;
@@ -72,6 +75,7 @@
                 },
                 body: JSON.stringify({
                     "end_time": this_session.last_update_time, 
+                    "total_income": this_session.total_income,
                     "expected_closing_cash": this_session.expected_closing_cash,
                     "actual_closing_cash": this_session.actual_closing_cash,
                     "actual_difference": this_session.actual_difference,
@@ -283,7 +287,38 @@
         console.log("checkout : ", checkout);
     }
 
+    let transactionByID = [];
+    async function fetchTransactionBySession(sessionIdnya) {
+        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/transaction/${sessionIdnya}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
+        if (!response.ok) {
+            console.error('transaction by id fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch transaction by id ', data);
+            return;
+        }
+
+        transactionByID = data.data;
+        console.log(transactionByID);
+        const sumOfTransactionTotalPrice = transactionByID.length > 0 ? transactionByID.reduce((sum, transaction) => sum + transaction.transaction_total_price, 0) : 0;
+
+        // Update this_session properties
+        this_session.total_income = sumOfTransactionTotalPrice;
+        this_session.expected_closing_cash = this_session.total_income + this_session.opening_cash;
+
+        console.log('Total Income:', this_session.total_income);
+        console.log('Expected Closing Cash:', this_session.expected_closing_cash);
+    }
 </script>
 
 <style>
@@ -485,6 +520,7 @@
             </div>
             <div class="flex justify-between">
                 <div class="text-[#f7d4b2]">Total Income
+                    {#if transactionByID.length > 0}
                     <button on:click={toggleTable} class="ml-2">
                     {#if showTable}
                         <i class="fa-solid fa-caret-up"></i>
@@ -492,11 +528,12 @@
                         <i class="fa-solid fa-caret-down"></i>
                     {/if}
                     </button>
+                    {/if}
                 </div>
                 <div class="text-white"><MoneyConverter value={this_session.total_income} currency={true} decimal={true}/></div>
             </div>
         
-            {#if showTable}
+            {#if showTable && transactionByID.length > 0}
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table class="w-full text-sm text-left rtl:text-right">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-100">
@@ -513,39 +550,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="bg-yellow-100">
+                        {#each transactionByID as transaction, i}
+                            <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
                             <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                5432112345
+                                    {transaction.transaction_id}
                             </th>
                             <td class="px-6 py-4">
-                                15:40 PM
+                                <DateConverter value={transaction.transaction_timestamp} date={false} hour={true} second={false} ampm={true} monthNumber={false} dash={false} dateFirst={false}/>
                             </td>
                             <td class="px-6 py-4">
-                                Rp 16.000,00
+                                <MoneyConverter value={transaction.transaction_total_price} currency={true} decimal={true}/>
                             </td>
-                        </tr>
-                        <tr class="bg-white">
-                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                5432112345
-                            </th>
-                            <td class="px-6 py-4">
-                                15:40 PM
-                            </td>
-                            <td class="px-6 py-4">
-                                Rp 16.000,00
-                            </td>
-                        </tr>
-                        <tr class="bg-yellow-100">
-                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                5432112345
-                            </th>
-                            <td class="px-6 py-4">
-                                15:40 PM
-                            </td>
-                            <td class="px-6 py-4">
-                                Rp 16.000,00
-                            </td>
-                        </tr>
+                            </tr>
+                        {/each}
                     </tbody>
                 </table>
             </div>

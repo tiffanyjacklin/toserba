@@ -2,8 +2,6 @@
   import TaskModal from '$lib/TaskModal.svelte';
   import MoneyConverter from '$lib/MoneyConverter.svelte';
   import DateConverter from '$lib/DateConverter.svelte';
-  import flatpickr from "flatpickr";
-  import "flatpickr/dist/flatpickr.css";
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { getFormattedDate} from '$lib/DateNow.js';

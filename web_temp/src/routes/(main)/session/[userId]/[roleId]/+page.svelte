@@ -121,7 +121,7 @@
             return;
         }
         // console.log(data.data[0].roles_name);
-        full_name = data.data[0].user_fullname;
+        full_name = data.data.user_fullname;
     }
 
     onMount(() => {
