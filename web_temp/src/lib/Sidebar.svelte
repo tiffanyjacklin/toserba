@@ -3,16 +3,16 @@
     import { browser } from '$app/environment';
     import { goto } from '$app/navigation';
 
-    export let userId;
-    export let roleId;
-    import { uri } from '$lib/uri.js';
+    // export let userId;
+    // export let roleId;
+    import { uri, userId, roleId, sessionId } from '$lib/uri.js';
 
     let full_name = "Loading...";
     let role_name = "Loading...";
     let privileges = [];
 
-    async function fetchUser(userId,roleId) {
-        const response = await fetch(`http://${$uri}:8888/user/${userId}/${roleId}`, {
+    async function fetchUser() {
+        const response = await fetch(`http://${$uri}:8888/user/${$userId}/${$roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -36,8 +36,8 @@
         role_name = data.data.roles_name;
     }
 
-    async function fetchPrivileges(userId, roleId) {
-        const response = await fetch(`http://${$uri}:8888/user/privileges/${userId}/${roleId}`, {
+    async function fetchPrivileges() {
+        const response = await fetch(`http://${$uri}:8888/user/privileges/${$userId}/${$roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -62,14 +62,19 @@
     }
  
    onMount(async () => {
-      fetchPrivileges(userId,roleId);
-      fetchUser(userId,roleId);
+      fetchPrivileges();
+      fetchUser();
    });
 
    function handleLogout() {
       goto('/login');
       if (browser){
-         localStorage.removeItem('userId');
+        localStorage.removeItem('uri');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('roleId');
+        localStorage.removeItem('sessionId');
+        localStorage.removeItem('transactionId');
+        localStorage.removeItem('totalAmount');
       }
     }
 </script>
@@ -117,7 +122,7 @@
         {#each privileges as privilege}
            <li>
                 {#if privilege.navbar != 0}
-                <a href={`/${privilege.privileges_name.replace(/ /g, '_')}/${userId}/${roleId}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
+                <a href={`/${privilege.privileges_name.replace(/ /g, '_')}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
                     <p class="text-center" style="text-transform: capitalize;">{privilege.privileges_name}</p>
                 </a>
                 {/if}

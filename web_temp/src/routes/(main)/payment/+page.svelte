@@ -4,16 +4,19 @@
     import { onMount } from 'svelte';
     import DateConverter from '$lib/DateConverter.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
+    import MoneyInput from '$lib/MoneyInput.svelte';
     import { getFormattedDate } from '$lib/DateNow.js';
 	import { goto } from '$app/navigation';
 	import { json } from '@sveltejs/kit';
-    import { uri } from '$lib/uri.js';
+    import { uri, userId, roleId, sessionId, totalAmount } from '$lib/uri.js';
+    import { get } from 'svelte/store';
 
-    export let data
-    let sessionId = data.sessionId;
-    let roleId = data.roleId;
-    let userId = data.userId;
-    let totalAmount = data.totalAmount;
+    // export let data
+    // let sessionId = data.sessionId;
+    // let roleId = data.roleId;
+    // let userId = data.userId;
+    // let total_amount = get(get(totalAmount));
+    // console.log(total_amount);
     let checkout = [];
     let promos = [];
 
@@ -158,15 +161,22 @@
         member_points = member.member_points;
         closeModal();
     }
-
-    function handleChange(){
-        let total_bayar = totalAmount-member_points;
-        console.log(total_bayar)
-        if(received >= total_bayar){
-            change = received-total_bayar;
-            return change;
+    $: total_bayar = get(totalAmount)-member_points;
+    $: {
+        if (received >= total_bayar) {
+        change = received - total_bayar;
+        } else {
+        change = 0;
         }
     }
+    // function handleChange(){
+    //     let total_bayar = get(totalAmount)-member_points;
+    //     console.log(total_bayar)
+    //     if(received >= total_bayar){
+    //         change = received-total_bayar;
+    //         return change;
+    //     }
+    // }
 
     async function validate(){
         for (let i = 0; i < checkout.length; i++) {
@@ -233,11 +243,11 @@
 
         if (member.length > 0){
             member_id = member.member_id
-            if(member.member_points <= totalAmount){
+            if(member.member_points <= get(totalAmount)){
                 member_points = -(member.member_points);
                 console.log(member_points);
-            } else if (member.member_points > totalAmount){
-                member_points = -(totalAmount);
+            } else if (member.member_points > get(totalAmount)){
+                member_points = -(get(totalAmount));
                 console.log(member_points);
             }
         }
@@ -264,7 +274,7 @@
         }
         console.log(JSON.stringify(transaction_item));
 
-        await updateLastTransaction(last_transaction_id,sessionId,member_id,transaction_item);
+        await updateLastTransaction(last_transaction_id,$sessionId,member_id,transaction_item);
         
     }
 
@@ -340,7 +350,7 @@
 <div class="flex h-screen">
     <div class="w-1/2 h-full flex flex-col">
         <div class="flex my-2 mx-8">
-            <button on:click={() => goto(`/session_main/${userId}/${roleId}/${sessionId}`)} class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Back</button>
+            <button on:click={() => goto(`/session_main`)} class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Back</button>
             <button class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-user mr-2"></i>Budi</button>
         </div>
 
@@ -373,14 +383,14 @@
             {#if tampilan == "awal"}
             <div class="h-3/6 bg-gray-100 mt-16 mx-2 flex flex-col items-center justify-center">
                 <span class="text-3xl text-darkGray font-bold mb-2">Total Amount</span>
-                <span class="text-7xl text-darkGray font-bold"><MoneyConverter value={totalAmount} currency={true} decimal={true}></MoneyConverter></span>
+                <span class="text-7xl text-darkGray font-bold"><MoneyConverter value={get(totalAmount)} currency={true} decimal={true}></MoneyConverter></span>
             </div>
             {:else if tampilan == "cash"}
             <div class="h-3/6 bg-gray-100 mt-16 mx-2 flex flex-col items-center justify-center">
                 <div class="w-full p-6">
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
                         <span>Total Amount</span>
-                        <span><MoneyConverter value={totalAmount} currency={true} decimal={true}></MoneyConverter></span>
+                        <span><MoneyConverter value={get(totalAmount)} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
                         <span>Membership Points</span>
@@ -388,15 +398,16 @@
                     </div>
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
                         <span>Total to Pay</span>
-                        <span><MoneyConverter value={totalAmount-member_points} currency={true} decimal={true}></MoneyConverter></span>
+                        <span><MoneyConverter value={get(totalAmount)-member_points} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
-                    <div class="w-full flex flex-col my-2">
-                        <span class="font-semibold text-darkGray text-lg mb-1">Received (Rp)</span>
-                        <input type="text" name="" id="" class="w-4/12 rounded-lg focus:ring-darkGray" bind:value={received} on:input={() => handleChange()}>
+                    <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
+                        <span class="">Received (Rp)</span>
+                        <MoneyInput bind:value={received} />
+                        <!-- <input type="text" name="" id="" class="w-4/12 rounded-lg focus:ring-darkGray" bind:value={received} on:input={() => handleChange()}> -->
                     </div>
-                    <div class="w-full flex flex-col my-2">
+                    <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
                         <span class="font-semibold text-darkGray text-lg mb-1">Change</span>
-                        {#if received >=  (totalAmount-member_points)}
+                        {#if received >=  (get(totalAmount)-member_points)}
                             <span class="font-semibold text-darkGray text-lg"><MoneyConverter value={change} currency={true} decimal={true}></MoneyConverter></span>
                         {:else}
                             <span class="font-bold text-red-500 text-lg">Uang yang diterima kurang</span>
@@ -409,7 +420,7 @@
                 <div class="w-1/2">
                     <div class="w-full flex flex-col text-darkGray font-semibold text-lg my-2">
                         <span>Total Amount</span>
-                        <span><MoneyConverter value={totalAmount} currency={true} decimal={true}></MoneyConverter></span>
+                        <span><MoneyConverter value={get(totalAmount)} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
                     <div class="w-full flex flex-col text-darkGray font-semibold text-lg my-2">
                         <span>Membership Points</span>
@@ -417,7 +428,7 @@
                     </div>
                     <div class="w-full flex flex-col text-darkGray font-semibold text-lg my-2">
                         <span>Total to Pay</span>
-                        <span><MoneyConverter value={totalAmount-member_points} currency={true} decimal={true}></MoneyConverter></span>
+                        <span><MoneyConverter value={get(totalAmount)-member_points} currency={true} decimal={true}></MoneyConverter></span>
                     </div>
                 </div>
                 <div class="w-1/2">
@@ -440,7 +451,7 @@
         <div class="h-2/6 my-8">
             <div class="h-full flex justify-center items-center">
                 <button on:click={() => {validate(); tampilan = "validasi"; tampilan = tampilan;}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">
-                    {#if tampilan == "cash" && (received >=  (totalAmount-member_points)) || tampilan == "qr"}
+                    {#if tampilan == "cash" && (received >=  (get(totalAmount)-member_points)) || tampilan == "qr"}
                     <span class="text-white text-6xl font-bold">Validate</span>
                     <i class="fa-regular fa-circle-check fa-5x" style="color: #ffffff;"></i>       
                     {:else if tampilan == "validasi"}   

@@ -6,4 +6,4 @@
    
 </script>
 
-<SessionHistory sessionId={0} userId={data.userId} roleId={data.roleId}></SessionHistory>
+<SessionHistory sessionId={0}></SessionHistory>

@@ -5,12 +5,12 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { getFormattedDate} from '$lib/DateNow.js';
-  import { uri } from '$lib/uri.js';
+  import { uri, userId, roleId, sessionId } from '$lib/uri.js';
 
-  export let userId = 0;
-  export let roleId = 0;
-  export let sessionId = 0;
-  console.log(sessionId);
+  // export let userId = 0;
+  // export let roleId = 0;
+  // export let sessionId = 0;
+  // console.log(sessionId);
   
   let showModal = false;
   let transactions = [];
@@ -26,7 +26,7 @@
   }
 
   function navigateToTransaction(transactionId) {
-      const url = `/transaction_history/${userId}/${roleId}/${transactionId}`;
+      const url = `/transaction_history/${transactionId}`;
       goto(url);
   }
 
@@ -37,8 +37,9 @@
   // Function to fetch all transactions or filter based on search
   async function fetchTransactions() {
       let response;
+      console.log($sessionId);
 
-      if (sessionId === 0) {
+      if ($sessionId === String(0) || $sessionId === '') {
           response = await fetch(`http://${$uri}:8888/transaction`, {
               method: 'GET',
               headers: {
@@ -46,7 +47,8 @@
               }
           });
       } else {
-          response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${sessionId}`, {
+          
+          response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${$sessionId}`, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json'

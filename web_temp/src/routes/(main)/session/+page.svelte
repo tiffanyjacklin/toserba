@@ -8,9 +8,9 @@
 	import { stringify } from 'postcss';
 	import { goto } from '$app/navigation';
    // import { goto } from '$app/navigation';
-   import { uri } from '$lib/uri.js';
-
-   
+   import { uri, userId, roleId, sessionId } from '$lib/uri.js';
+   import { get } from 'svelte/store';
+   let opening_notes = "Session starting earlier than expected.";
    let showModal = false;
    function closeModal() {
       showModal = false;
@@ -29,11 +29,10 @@
    }
 
    let opening_cash = 0;
-   console.log(opening_cash);
-   let opening_notes = "";
-   export let data;
-   let user_id = parseInt(data.userId);
-   let roleId = data.roleId;
+   // console.log(opening_cash);
+   // let opening_notes = "";
+   // let $userId = parseInt(data.userId);
+   // let roleId = data.roleId;
 
    let last_session = [];
    let full_name = "Loading...";
@@ -72,63 +71,72 @@
     }
 
     async function NewSession() {
-        const response = await fetch(`http://${$uri}:8888/cashier/session/new`, {
+      const user_id = get(userId);
+      
+      const response = await fetch(`http://${$uri}:8888/cashier/session/new`, {
             method: 'POST',
             body: JSON.stringify({
-               user_id,
-               start_time,
-               opening_cash,
-               opening_notes,
+               "user_id": user_id,
+               "start_time": start_time,
+               "opening_cash": opening_cash,
+               "opening_notes": opening_notes,
             })
-        });
+      });
 
-        if (!response.ok) {
-            console.error('POST new session gagal', response);
-            return;
-        }
-
-        const data = await response.json();
-
-        if (data.status !== 200) {
-            console.error('Invalid post new session', data);
-            return;
-        }
-        console.log(data);
-        closeModal();
-        goto(`/session_main/${user_id}/${roleId}/${data.data.session_id}`);
+      if (!response.ok) {
+         console.error('POST new session gagal', response);
+         return;
       }
 
-   function backToSession() {
-      goto(`/session_main/${user_id}/${roleId}/${last_session.session_id}`);
+      const data = await response.json();
+
+      if (data.status !== 200) {
+         console.error('Invalid post new session', data);
+         return;
+      }
+      console.log(data);
+      sessionId.set(String(data.data.session_id));
+      closeModal();
+      goto(`/session_main`);
+      // goto(`/session_main`);
    }
 
-    async function fetchUser(userId,roleId) {
-        const response = await fetch(`http://${$uri}:8888/user/${userId}/${roleId}`, {
+   function backToSession() {
+      sessionId.set(String(last_session.session_id));
+      goto(`/session_main`);
+   }
+
+    async function fetchUser() {
+      // const user_id = get(userId);
+      // const role_id = get(roleId);
+
+      const response = await fetch(`http://${$uri}:8888/user/${$userId}/${$roleId}`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+               'Content-Type': 'application/json'
             }
-        });
+      });
 
-        if (!response.ok) {
-            console.error('Roles fetch failed', response);
+      if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Roles fetch failed', response.status, errorText);
             return;
-        }
+      }
 
-        const data = await response.json();
-        // console.log("data", data);
+      const data = await response.json();
 
-        if (data.status !== 200) {
+      if (data.status !== 200) {
             console.error('Invalid user roles', data);
             return;
-        }
-        // console.log(data.data[0].roles_name);
-        full_name = data.data.user_fullname;
+      }
+
+      full_name = data.data.user_fullname;
+      
     }
 
     onMount(() => {
         fetchLast();
-        fetchUser(user_id,roleId);
+        fetchUser();
     });
 
 
@@ -212,7 +220,7 @@
          </div>
 
          <div class="flex items-center justify-center  pt-12 ">
-            {#if (last_session.end_time === "0000-00-00 00:00:00" && last_session.user_id === user_id)}
+            {#if (last_session.end_time === "0000-00-00 00:00:00" && last_session.$userId === $userId)}
             <button type="button" 
                on:click={() => backToSession()}
                class="h-10 w-1/2 px-6 text-xl inline-flex items-center justify-center font-bold rounded-md bg-[#f7d4b2] hover:bg-[#f2b082] text-[#3d4c52] hover:shadow-2xl">
@@ -288,8 +296,9 @@
             </div>
          </div>
          <div class="text-[#f7d4b2]">
-            <div class="pb-3">Additional notes</div>
-            <textarea id="additional_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " value="Session starting earlier than expected."></textarea>                    
+            <div class="pb-3">Opening notes</div>
+            <textarea id="opening_notes" rows="4" class="shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " 
+            bind:value={opening_notes}></textarea>                    
          </div>
 
          <div class="flex items-center justify-center">

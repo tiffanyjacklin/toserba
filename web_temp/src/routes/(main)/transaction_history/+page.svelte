@@ -5,5 +5,5 @@
 </script>
 
 <div class="mt-[90px]">
-  <TransactionHistory userId={data.userId} roleId={data.roleId} sessionId={0}></TransactionHistory>
+  <TransactionHistory sessionId={0}></TransactionHistory>
 </div>

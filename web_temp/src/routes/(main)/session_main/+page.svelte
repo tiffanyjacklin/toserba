@@ -12,12 +12,12 @@
     import img_produk from "$lib/assets/produk.png";
     import { goto } from '$app/navigation';
 	import { json } from "@sveltejs/kit";
-    import { uri } from '$lib/uri.js';
+    import { uri, userId, roleId, sessionId, totalAmount } from '$lib/uri.js';
 
-    export let data;
-    let sessionId = data.sessionId;
-    let roleId = data.roleId;
-    let userId = data.userId;
+    // export let data;
+    // let sessionId = data.sessionId;
+    // let roleId = data.roleId;
+    // let userId = data.userId;
 
     // CLOSE SESSION
     let showTable = false;
@@ -27,7 +27,7 @@
     function handleClick(id) {
         showModal = id;
         if (Number(id) === 1){
-            fetchTransactionBySession(sessionId);
+            fetchTransactionBySession($sessionId);
         }
     }
     function toggleTable() {
@@ -40,7 +40,7 @@
     let this_session = {"session_id":1,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"0000-00-00 00:00:00","last_update_time":"0000-00-00 00:00:00","opening_cash":20000,"total_income":100000,"expected_closing_cash":120000,"actual_closing_cash":100000,"actual_difference":20000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"};
     
     async function thisSession(){
-        const response = await fetch(`http://${$uri}:8888/cashier/session/${sessionId}`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/session/${$sessionId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -102,7 +102,9 @@
             console.log('Session closed successfully');
 
             closeModal();
-            goto(`/session_history/${userId}/${roleId}`);
+            sessionId.set('');
+            totalAmount.set(''); 
+            goto(`/session_history`);
 
         } catch (error) {
             console.error('Request failed:', error);
@@ -235,7 +237,7 @@
     }
 
     async function fetchProduk() {
-        const response = await fetch(`http://${$uri}:8888/products/${userId}/${roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/products/${$userId}/${$roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -294,7 +296,8 @@
     function pay(){
         sessionStorage.setItem('checkout', JSON.stringify(checkout));
         sessionStorage.setItem('promos', JSON.stringify(promos));
-        goto(`/payment/${userId}/${roleId}/${sessionId}/${total}`);
+        totalAmount.set(String(total));
+        goto(`/payment`);
     }
 
     let transactionByID = [];
@@ -354,13 +357,13 @@
         </div>
         <div class="h-auto overflow-auto no-scrollbar">
             {#if window == "transaction_list"}
-              <TransactionHistory userId={userId} roleId={roleId} sessionId={sessionId}></TransactionHistory>
+              <TransactionHistory></TransactionHistory>
 
             <!-- <TransactionHistory></TransactionHistory> -->
             <!-- <TransactionHistoryDetails></TransactionHistoryDetails> -->
             {:else if window == "session_history"}
                 <!-- <SessionHistory ></SessionHistory>             -->
-                <SessionHistory sessionId={sessionId} userId={data.userId} roleId={data.roleId}></SessionHistory>
+                <SessionHistory></SessionHistory>
                 <!-- <SessionHistory session={this_session} userId={userId} roleId={roleId}></SessionHistory>             -->
             {:else if window == "payment"}
                 <div class="mx-8 flex flex-col items-center my-10">

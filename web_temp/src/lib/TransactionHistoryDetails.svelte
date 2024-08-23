@@ -8,8 +8,6 @@
     import { uri } from '$lib/uri.js';
 
     export let transactionId = 1;
-    export let userId = 0;
-    export let roleId = 0;
 
     let showModal = false;
     function closeModal() {
@@ -20,7 +18,7 @@
     }
     function backToTransactionHistory(){
       console.log("Navigating to transaction history..."); // For debugging
-      goto(`/transaction_history/${userId}/${roleId}`);
+      goto(`/transaction_history`);
     }
 
     let transaction_detail = [];

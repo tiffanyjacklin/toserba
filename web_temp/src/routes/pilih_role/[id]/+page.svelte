@@ -2,19 +2,21 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { browser } from '$app/environment';
-    import { uri } from '$lib/uri.js';
+    import { uri, userId, roleId } from '$lib/uri.js';
+    import { get } from 'svelte/store';
 
     export let data;
     let json;
     let roles = [];
-    let userId = data.id;
-    console.log(userId);
+    userId.set(String(data.id));
+    // let userId = data.id;
+    // console.log($userId);
     let selectedRole = '';
   
-    console.log("user id : " + userId);
+    // console.log("user id : " + $userId);
 
-    async function fetchRoles(userId) {
-        const response = await fetch(`http://${$uri}:8888/user/roles/${userId}`, {
+    async function fetchRoles() {
+        const response = await fetch(`http://${$uri}:8888/user/roles/${$userId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -35,27 +37,26 @@
         }
         
         roles = data.data;
+        console.log(roles);
     }
 
     onMount(() => {
-        fetchRoles(userId);
+        fetchRoles();
     });
 
     function ChooseRole(role_id) {
         selectedRole = role_id;
-        console.log("role : " + selectedRole);
+        roleId.set(String(role_id));
+        roleId.subscribe(value => {
+            if (value === String(1)){
+            // console.log("role : " + value);
 
-        const user_role = selectedRole;
-        if (role_id === 1){
-            goto(`/session/${userId}/${selectedRole}`);
+            goto(`/session/`);
         }
         else{
-            goto(`/dashboard/${userId}/${selectedRole}`);
+            goto(`/dashboard/`);
         }
-        if (browser) {
-            localStorage.setItem('userId', userId);
-            localStorage.setItem('user_role', user_role);
-        }
+        });
     }
 </script>
 <svelte:head>

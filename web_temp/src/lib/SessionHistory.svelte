@@ -6,13 +6,12 @@
    import { getFormattedDate, isInTimeRange } from '$lib/DateNow.js';
 	import { goto } from '$app/navigation';
    import { onMount } from 'svelte';
-   export let userId = 0;
-   export let roleId = 0;
-   export let sessionId = 0;
-   import { uri } from '$lib/uri.js';
+   import { uri, userId, roleId, sessionId } from '$lib/uri.js';
+   // export let userId = 0;
+   // export let roleId = 0;
+   // export let sessionId = 0;
+   // import { uri } from '$lib/uri.js';
 
-   // let uri = 'leap.crossnet.co.id';
-   // let uri = 'localhost';
    // export let session = [];
    let filteredSessions = [];
    let searchQuery = '';
@@ -76,8 +75,9 @@
    });
    // INI BUTUH DIGANTI BUAT REDIRECT BALIK KE PAGE TRANSAKSI YA BOS!! BUTUH UPDATE
    function backToTransaction(last_session){
+      sessionId.set(String(last_session));
       closeModal();
-      goto(`/session_main/${userId}/${roleId}/${last_session}`);
+      goto(`/session_main`);
    }
    function isWithinThirtyMinutes(endTime) {
       const currentTime = new Date();
@@ -104,7 +104,7 @@
         showModal12 = null;
    }
    async function sendOTP() {
-         const response = await fetch(`http://${$uri}:8888/cashier/session/edit/sendotp/${userId}`, {
+         const response = await fetch(`http://${$uri}:8888/cashier/session/edit/sendotp/${$userId}`, {
                method: 'PUT'
               
          });
@@ -124,7 +124,7 @@
    }
    async function VerifOTP(session_id) {
         console.log("Sending OTP:", user_otp);  // Log the OTP value
-        const response = await fetch(`http://${$uri}:8888/cashier/session/edit/verifotp/${userId}`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/session/edit/verifotp/${$userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -284,7 +284,7 @@
             <p class="font-semibold">Session start: 
                <DateConverter value={item.start_time} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={false} dateFirst={false}/>
             </p>
-            {#if item.end_time === "0000-00-00 00:00:00"}
+            {#if item.end_time === "0000-00-00 00:00:00" || item.end_time === "0001-01-01T00:00:00Z"}
                <p class="font-semibold">Session close: -</p>
             {:else}
                <p class="font-semibold">Session close: 
@@ -321,7 +321,7 @@
                      </div>
                   </div>
                </button>
-            {:else if (item.end_time === "0000-00-00 00:00:00" && item.user_id === Number(userId))}
+            {:else if ((item.end_time === "0000-00-00 00:00:00" || item.end_time === "0001-01-01T00:00:00Z") && item.user_id === Number($userId))}
                <button 
                   on:click={() => backToTransaction(item.session_id)} 
                   class="border-8 bg-peach2 border-peach2 mx-6 my-2 rounded-lg w-full">

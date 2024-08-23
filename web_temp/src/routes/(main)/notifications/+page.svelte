@@ -3,12 +3,10 @@
     import DateConverter from '$lib/DateConverter.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
     import { onMount } from 'svelte';
-    import { uri } from '$lib/uri.js';
+    import { uri, userId, roleId } from '$lib/uri.js';
 
     import { goto } from '$app/navigation';
     
-    export let userId = 0;
-    export let roleId = 0;
     let notifications = [];
     onMount(async () => {
         fetchNotifications();
