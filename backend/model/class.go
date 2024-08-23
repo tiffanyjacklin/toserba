@@ -34,6 +34,7 @@ type UserData struct {
 	RoleName string `json:"roles_name"`
 	UserOTP string `json:"user_otp"`
 	OTPExp string `json:"otp_exp"`
+	StoreWarehouseID int `json:"store_warehouse_id"`
 }
 
 type UserRoles struct {
@@ -41,8 +42,7 @@ type UserRoles struct {
 	UserId int `json:"user_id"`
 	RoleId int `json:"role_id"`
 	RoleName string `json:"roles_name"`
-	StoreId sql.NullInt32 `json:"store_id"`
-	WarehouseId sql.NullInt32 `json:"warehouse_id"`
+	StoreWarehouseID int `json:"store_warehouse_id"`
 	Custom int `json:"custom"`
 }
 
@@ -108,7 +108,7 @@ type ProductDetails struct {
 	ProductCategoryId int `json:"product_category_id"`
 	ProductName string `json:"product_name"`
 	SupplierId int `json:"supplier_id"`
-	ProductBatch int `json:"product_batch"`
+	ProductBatch string `json:"product_batch"`
 	BuyPrice int `json:"buy_price"`
 	SellPrice int `json:"sell_price"`
 	ExpiryDate string `json:"expiry_date"`
@@ -129,17 +129,26 @@ type Transaction struct {
 	TransactionChange int `json:"transaction_change"`
 	TotalItem int `json:"transaction_total_item"`
 	TransactionUser string `json:"transaction_user"`
+	MemberPoints int `json:"member_points"`
 }
 
 type TransactionDetails struct {
 	TransactionDetailId int `json:"transaction_detail_id"`
 	TransactionId int `json:"transaction_id"`
 	ProductDetailId int `json:"product_detail_id"`
+	ProductDetailName string `json:"product_detail_name"`
 	PromoProductId int `json:"promo_product_id"`
 	Quantity int `json:"quantity"`
 	SellPrice int `json:"sell_price"`
 	DiscountPrice int `json:"discount_price"`
 	TotalPrice int `json:"total_price"`
+	QuantityFree int `json:"quantity_free"`
+}
+
+type TransactionAttribute struct {
+	Transaction Transaction
+	PaymentMethod PaymentMethod
+	UserData UserData
 }
 
 type SessionTransaction struct {
@@ -172,6 +181,11 @@ type Promos struct {
 	YAmount int `json:"y_amount"`
 }
 
+type PromoProductsss struct {
+	Promo Promos
+	ProductDetail ProductDetails
+}
+
 type PromoProducts struct {
 	PromoProductId int `json:"promo_product_id"`
 	ProductDetailId int `json:"product_detail_id"`
@@ -189,12 +203,63 @@ type StockCards struct {
 	StockDate string `json:"stock_date"`
 	StockDescription string `json:"stock_description"`
 	ProductName string `json:"product_name"`
-	ProductBatch int `json:"product_batch"`
+	ProductBatch string `json:"product_batch"`
 	ProductStock int `json:"product_stock"`
+	ProductUnit string `json:"product_unit"`
 	ExpiredDate string `json:"expired_date"`
 	StockIn int `json:"stock_in"`
 	StockOut int `json:"stock_out"`
 	StoreWarehouseID int `json:"store_warehouse_id"`
+}
+
+type StockOpname struct {
+	StockOpnameID int `json:"stock_opname_id"`
+	ProductDetailID int `json:"product_detail_id"`
+	ProductName string `json:"product_name"`
+	Batch string `json:"batch"`
+	ExpiredDate string `json:"expired_date"`
+	ExpectedStock int `json:"expected_stock"`
+	ActualStock int `json:"actual_stock"`
+	UnitType string `json:"unit_type"`
+	Timestamp string `json:"timestamp"`
+	StoreWarehouseID int `json:"store_warehouse_id"`
+}
+
+type DeliveryOrders struct {
+	DeliveryOrderID int `json:"delivery_order_id"`
+	StoreWarehouseFrom int `json:"store_warehouse_from"`
+	StoreWarehouseTo int `json:"store_warehouse_to"`
+	OrderTimestamp string `json:"order_timestamp"`
+	AcceptTimestamp string `json:"accept_timestamp"`
+	StatusAccept int `json:"status_accept"`
+	UserIDFrom int `json:"user_id_from"`
+	UserIDTo int `json:"user_id_to"`
+	StatusVerify int `json:"status_verify"`
+	Batch int `json:"batch"`
+}
+
+type DeliveryOrderDetails struct {
+	DeliveryOrderDetailID int `json:"delivery_order_detail_id"`
+	DeliveryOrderID int `json:"delivery_order_id"`
+	ProductDetailID int `json:"product_detail_id"`
+	ProductName string `json:"product_name"`
+	Quantity int `json:"quantity"`
+	ExpiredDate string `json:"expired_date"`
+}
+
+type Notifications struct {
+	NotificationID int `json:"notification_id"`
+	NotificationTypeID int `json:"notification_type_id"`
+	UserID int `json:"user_id"`
+	RolesID int `json:"roles_id"`
+	NotificationTypeName string `json:"notification_type_name"`
+	Timestamp string `json:"timestamp"`
+	Description string `json:"description"`
+}
+
+type NotifUser struct {
+	Notifications Notifications
+	UserData UserData
 }
 
 type StoreWarehouses struct {
