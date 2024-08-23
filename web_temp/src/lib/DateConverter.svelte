@@ -16,13 +16,29 @@
 
     function formatDate(value) {
         // console.log("Raw value:", value);
-        if (!value || !/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/.test(value)) {
+        if (!value || 
+            !/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/.test(value) && 
+            !/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)$/.test(value)) {
             return "Invalid Date";
         }
 
-        let [datePart, timePart] = value.split(' ');
+        // Handle splitting based on the format
+        let datePart, timePart;
+
+        if (value.includes(' ')) {
+            // Handle "YYYY-MM-DD HH:MM:SS"
+            [datePart, timePart] = value.split(' ');
+        } else if (value.includes('T')) {
+            // Handle "YYYY-MM-DDTHH:MM:SSZ"
+            [datePart, timePart] = value.split('T');
+            // Remove trailing "Z" from the time part
+            timePart = timePart.replace('Z', '');
+        }
+
+        // Validate the splitting worked
         if (!datePart || !timePart) return "Invalid Date";
 
+        // Further extract date and time components
         let [year, month, day] = datePart.split('-').map(Number);
         let [hours, minutes, seconds] = timePart.split(':').map(Number);
 
