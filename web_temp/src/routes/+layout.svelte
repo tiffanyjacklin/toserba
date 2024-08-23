@@ -1,6 +1,7 @@
 <script>
 	// @ts-nocheck
 	import '../app.css';
+	let uris = 'localhost';
 </script>
 
 <!-- <svelte:head>

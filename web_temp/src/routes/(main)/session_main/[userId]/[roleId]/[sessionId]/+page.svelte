@@ -12,7 +12,8 @@
     import img_produk from "$lib/assets/produk.png";
     import { goto } from '$app/navigation';
 	import { json } from "@sveltejs/kit";
-    
+    import { uri } from '$lib/uri.js';
+
     export let data;
     let sessionId = data.sessionId;
     let roleId = data.roleId;
@@ -39,7 +40,7 @@
     let this_session = {"session_id":1,"user_id":1,"start_time":"2015-09-02 08:04:00","end_time":"0000-00-00 00:00:00","last_update_time":"0000-00-00 00:00:00","opening_cash":20000,"total_income":100000,"expected_closing_cash":120000,"actual_closing_cash":100000,"actual_difference":20000,"deposit_money":0,"deposit_difference":0,"opening_notes":"","closing_notes":"Finished"};
     
     async function thisSession(){
-        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/${sessionId}`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/session/${sessionId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -70,7 +71,7 @@
 
     async function CloseSession(session_id, this_session) {
         try {
-            const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/close/${session_id}`, {
+            const response = await fetch(`http://${$uri}:8888/cashier/session/close/${session_id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +118,7 @@
     // VIEW ALL PROMO
     let all_promo = [];
     async function fetchAllPromo(){
-        const response = await fetch(`http://leap.crossnet.co.id:8888/promos`, {
+        const response = await fetch(`http://${$uri}:8888/promos`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -234,7 +235,7 @@
     }
 
     async function fetchProduk() {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/products/${userId}/${roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/products/${userId}/${roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -298,7 +299,7 @@
 
     let transactionByID = [];
     async function fetchTransactionBySession(sessionIdnya) {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/transaction/${sessionIdnya}`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${sessionIdnya}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

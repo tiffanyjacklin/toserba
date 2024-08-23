@@ -5,7 +5,8 @@
     import receipt from '$lib/assets/receipt-1.png';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
-    
+    import { uri } from '$lib/uri.js';
+
     export let transactionId = 1;
     export let userId = 0;
     export let roleId = 0;
@@ -40,7 +41,7 @@
     async function fetchTransactionDetail() {
         let response;
 
-        response = await fetch(`http://leap.crossnet.co.id:8888/transaction/detail/${transactionId}`, {
+        response = await fetch(`http://${$uri}:8888/transaction/detail/${transactionId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -66,7 +67,7 @@
     async function fetchTransaction() {
         let response;
 
-        response = await fetch(`http://leap.crossnet.co.id:8888/transaction/${transactionId}`, {
+        response = await fetch(`http://${$uri}:8888/transaction/${transactionId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -93,7 +94,7 @@
     async function fetchAllProduct() {
         let response;
 
-        response = await fetch(`http://leap.crossnet.co.id:8888/products/${cashier_id}/1`, {
+        response = await fetch(`http://${$uri}:8888/products/${cashier_id}/1`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -116,7 +117,7 @@
     }
     async function getStoreWarehouse() {
         let response;
-        response = await fetch(`http://leap.crossnet.co.id:8888/store_warehouses/${cashier_id}/1`, {
+        response = await fetch(`http://${$uri}:8888/store_warehouses/${cashier_id}/1`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

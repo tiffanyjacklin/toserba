@@ -4,14 +4,17 @@ import { onMount } from 'svelte';
 import { fail, redirect } from '@sveltejs/kit';
 import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
+import { uri } from '$lib/uri.js';
+import { get } from 'svelte/store';
 
 /** @type {import('./$types').Actions} */
 export const actions = {
 	login: async ({ request, cookies }) => {
 		const formData = await request.formData();
 		const entries = Object.fromEntries(formData);
+		const baseUri = get(uri);
 		
-		const response = await fetch(`http://leap.crossnet.co.id:8888/user/login?username=${entries.username}&password=${entries.password}`, {
+		const response = await fetch(`http://${baseUri}:8888/user/login?username=${entries.username}&password=${entries.password}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json'

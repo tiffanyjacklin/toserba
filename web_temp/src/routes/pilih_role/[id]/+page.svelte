@@ -2,10 +2,10 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { browser } from '$app/environment';
+    import { uri } from '$lib/uri.js';
 
     export let data;
     let json;
-
     let roles = [];
     let userId = data.id;
     console.log(userId);
@@ -14,7 +14,7 @@
     console.log("user id : " + userId);
 
     async function fetchRoles(userId) {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/user/roles/${userId}`, {
+        const response = await fetch(`http://${$uri}:8888/user/roles/${userId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

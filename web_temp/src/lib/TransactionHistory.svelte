@@ -5,7 +5,8 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { getFormattedDate} from '$lib/DateNow.js';
-  
+  import { uri } from '$lib/uri.js';
+
   export let userId = 0;
   export let roleId = 0;
   export let sessionId = 0;
@@ -38,14 +39,14 @@
       let response;
 
       if (sessionId === 0) {
-          response = await fetch(`http://leap.crossnet.co.id:8888/transaction`, {
+          response = await fetch(`http://${$uri}:8888/transaction`, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json'
               }
           });
       } else {
-          response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/transaction/${sessionId}`, {
+          response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${sessionId}`, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json'

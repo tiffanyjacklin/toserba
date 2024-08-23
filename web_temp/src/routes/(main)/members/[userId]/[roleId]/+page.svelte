@@ -3,6 +3,7 @@
     import DateConverter from '$lib/DateConverter.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
     import { onMount } from 'svelte';
+    import { uri } from '$lib/uri.js';
 
     import { goto } from '$app/navigation';
     
@@ -14,7 +15,7 @@
         fetchMembers();
     });
     async function fetchMembers() {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/members`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/members`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -40,7 +41,7 @@
     // Function to fetch member by phone number
     async function fetchPhoneNumber(search_phone_number) {
         try {
-            const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/members/phone_number/${search_phone_number}`, {
+            const response = await fetch(`http://${$uri}:8888/cashier/members/phone_number/${search_phone_number}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

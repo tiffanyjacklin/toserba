@@ -8,6 +8,8 @@
 	import { stringify } from 'postcss';
 	import { goto } from '$app/navigation';
    // import { goto } from '$app/navigation';
+   import { uri } from '$lib/uri.js';
+
    
    let showModal = false;
    function closeModal() {
@@ -46,7 +48,7 @@
       start_time = String(start_time)
 
    async function fetchLast() {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/last`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/session/last`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -70,7 +72,7 @@
     }
 
     async function NewSession() {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/new`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/session/new`, {
             method: 'POST',
             body: JSON.stringify({
                user_id,
@@ -101,7 +103,7 @@
    }
 
     async function fetchUser(userId,roleId) {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/user/${userId}/${roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/user/${userId}/${roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

@@ -9,6 +9,10 @@
    export let userId = 0;
    export let roleId = 0;
    export let sessionId = 0;
+   import { uri } from '$lib/uri.js';
+
+   // let uri = 'leap.crossnet.co.id';
+   // let uri = 'localhost';
    // export let session = [];
    let filteredSessions = [];
    let searchQuery = '';
@@ -35,7 +39,7 @@
    });
    let session = [];
    async function fetchSession() {
-      const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session`, {
+      const response = await fetch(`http://${$uri}:8888/cashier/session`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'
@@ -100,7 +104,7 @@
         showModal12 = null;
    }
    async function sendOTP() {
-         const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/edit/sendotp/${userId}`, {
+         const response = await fetch(`http://${$uri}:8888/cashier/session/edit/sendotp/${userId}`, {
                method: 'PUT'
               
          });
@@ -120,7 +124,7 @@
    }
    async function VerifOTP(session_id) {
         console.log("Sending OTP:", user_otp);  // Log the OTP value
-        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/edit/verifotp/${userId}`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/session/edit/verifotp/${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -186,7 +190,7 @@
    }
    async function EditSession(session_id, item) {
         try {
-            const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/edit/${session_id}`, {
+            const response = await fetch(`http://${$uri}:8888/cashier/session/edit/${session_id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -228,7 +232,7 @@
    }
    let transactionByID = [];
    async function fetchTransactionBySession(sessionIdnya) {
-      const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/session/transaction/${sessionIdnya}`, {
+      const response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${sessionIdnya}`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'

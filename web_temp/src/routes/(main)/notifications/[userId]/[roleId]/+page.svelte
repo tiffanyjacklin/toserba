@@ -3,6 +3,7 @@
     import DateConverter from '$lib/DateConverter.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
     import { onMount } from 'svelte';
+    import { uri } from '$lib/uri.js';
 
     import { goto } from '$app/navigation';
     
@@ -13,7 +14,7 @@
         fetchNotifications();
     });
     async function fetchNotifications() {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/notification`, {
+        const response = await fetch(`http://${$uri}:8888/notifications`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

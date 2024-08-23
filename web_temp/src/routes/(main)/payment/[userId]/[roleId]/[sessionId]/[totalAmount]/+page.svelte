@@ -7,6 +7,7 @@
     import { getFormattedDate } from '$lib/DateNow.js';
 	import { goto } from '$app/navigation';
 	import { json } from '@sveltejs/kit';
+    import { uri } from '$lib/uri.js';
 
     export let data
     let sessionId = data.sessionId;
@@ -57,7 +58,7 @@
         }
     }
     async function fetchPhoneNumber() {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/members/phone_number/${member_phone_number}`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/members/phone_number/${member_phone_number}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -104,7 +105,7 @@
         }
     }
     async function NewMember() {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/cashier/members/add`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/members/add`, {
             method: 'POST',
             body: JSON.stringify({
                 member_name,
@@ -128,7 +129,7 @@
     }
 
     async function getPromoProductId(product_detail_id){
-        const response = await fetch(`http://leap.crossnet.co.id:8888/promos/product/${product_detail_id}`, {
+        const response = await fetch(`http://${$uri}:8888/promos/product/${product_detail_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -268,7 +269,7 @@
     }
 
     async function InsertTransaction(transaction_arr) {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/transaction/details/add/${userId}/${roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/transaction/details/add/${userId}/${roleId}`, {
             method: 'POST',
             body: JSON.stringify(transaction_arr)
         });
@@ -288,7 +289,7 @@
       }
 
       async function updateLastTransaction(last_transaction_id,session_id,member_id,transaction) {
-        const response = await fetch(`http://leap.crossnet.co.id:8888/transaction/update/${last_transaction_id}/${session_id}/${member_id}`, {
+        const response = await fetch(`http://${$uri}:8888/transaction/update/${last_transaction_id}/${session_id}/${member_id}`, {
             method: 'PUT',
             headers: {
                     'Content-Type': 'application/json',
@@ -311,7 +312,7 @@
       }
 
       async function getLastTransactionId(){
-        const response = await fetch(`http://leap.crossnet.co.id:8888/transaction/last`, {
+        const response = await fetch(`http://${$uri}:8888/transaction/last`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
