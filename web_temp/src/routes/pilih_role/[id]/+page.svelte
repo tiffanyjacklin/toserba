@@ -49,13 +49,14 @@
         roleId.set(String(role_id));
         roleId.subscribe(value => {
             if (value === String(1)){
-            // console.log("role : " + value);
-
-            goto(`/session/`);
-        }
-        else{
-            goto(`/dashboard/`);
-        }
+                goto(`/session`);
+            }
+            else if (value === String(4)){
+                goto(`/products`);
+            }
+            else{
+                goto(`/dashboard/`);
+            }
         });
     }
 </script>

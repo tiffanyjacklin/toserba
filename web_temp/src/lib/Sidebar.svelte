@@ -4,18 +4,17 @@
     import { goto } from '$app/navigation';
     import { get } from 'svelte/store';
 
-    // export let userId;
-    // export let roleId;
-    import { uri, userId, roleId, sessionId, privileges, user } from '$lib/uri.js';
+    import { uri, userId, roleId, sessionId, privileges, user, totalAmount } from '$lib/uri.js';
 
+    export let pathname = "";
     let full_name = "Loading...";
     let role_name = "Loading...";
-
+    let privilegess ;
     $: {
         full_name = $user.user_fullname;
         role_name = $user.roles_name;
+        privilegess = $privileges;
     }
-    // let privileges = [];
 
     async function fetchUser() {
         const response = await fetch(`http://${$uri}:8888/user/${$userId}/${$roleId}`, {
@@ -38,9 +37,6 @@
             return;
         }
         user.set(data.data);
-        // console.log(data.data.user_fullname);
-        // full_name = data.data.user_fullname;
-        // role_name = data.data.roles_name;
     }
 
     async function fetchPrivileges() {
@@ -57,40 +53,24 @@
         }
 
         const data = await response.json();
-        // console.log("data", data);
-
-        // if (data.status !== 200) {
-        //     console.error('Invalid user roles', data);
-        //     return;
-        // }
-        
-        // console.log("check 1", get(privileges));
         privileges.set(data.data);
-
-        // privileges = data.data;
-        // privileges = privileges;
     }
  
    onMount(async () => {
-        // if (get(privileges) === ''){
-            fetchPrivileges();
-        // }
-        // if (get(user) === ''){
-            fetchUser();
-        // }
+        fetchPrivileges();
+        fetchUser();
    });
 
    function handleLogout() {
-      goto('/login');
-      if (browser){
-        localStorage.removeItem('uri');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('user');
-        localStorage.removeItem('roleId');
-        localStorage.removeItem('privileges');
-        localStorage.removeItem('sessionId');
-        localStorage.removeItem('totalAmount');
-      }
+        userId.set('');
+        user.set('');
+        roleId.set('');
+        privileges.set('');
+        sessionId.set('');
+        totalAmount.set('');
+
+        goto('/login');
+
     }
 </script>
 
@@ -134,10 +114,10 @@
         <p class="text-center">Role: {role_name}</p>
      </div>
      <ul class="space-y-2 font-medium mt-5">
-        {#each get(privileges) as privilege}
+        {#each privilegess as privilege}
            <li>
                 {#if privilege.navbar !== 0 && privilege.privileges_name !== 'notifications'}
-                <a href={`/${privilege.privileges_name.replace(/ /g, '_').toLowerCase()}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
+                <a href={`/${privilege.privileges_name.replace(/ /g, '_').toLowerCase()}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group {pathname === `${privilege.privileges_name.replace(/ /g, '_').toLowerCase()}` ? 'bg-coklat_hover' : ''}">
                     <p class="text-center" style="text-transform: capitalize;">{privilege.privileges_name}</p>
                 </a>
                 {/if}

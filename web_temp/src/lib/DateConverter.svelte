@@ -18,8 +18,9 @@
         // console.log("Raw value:", value);
         if (!value || 
             !/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/.test(value) && 
-            !/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)$/.test(value)) {
-            return "Invalid Date";
+            !/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)$/.test(value) && 
+            !/^(\d{4}-\d{2}-\d{2})$/.test(value)) {
+            return "Invalid Date 1";
         }
 
         // Handle splitting based on the format
@@ -34,20 +35,33 @@
             // Remove trailing "Z" from the time part
             timePart = timePart.replace('Z', '');
         }
-
+        // console.log(value);
         // Validate the splitting worked
-        if (!datePart || !timePart) return "Invalid Date";
+        // if (!datePart || !timePart) return "Invalid Date 2";
+        if (!datePart || !timePart) {
+            datePart = value;
+            // return datePart;
+        };
 
         // Further extract date and time components
-        let [year, month, day] = datePart.split('-').map(Number);
-        let [hours, minutes, seconds] = timePart.split(':').map(Number);
+        let [year, month, day] = [0,0,0];
+        let [hours, minutes, seconds] = [0,0,0];
 
-        if (isNaN(year) || isNaN(month) || isNaN(day) || isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
-            return "Invalid Date";
+        if (datePart) {
+            [year, month, day] = datePart.split('-').map(Number);
         }
+        if (timePart) {
+            [hours, minutes, seconds] = timePart.split(':').map(Number);
+        }
+        if ((year === 0 || month === 0 || day === 0) || (timePart && (hours === 0 && minutes === 0 && seconds === 0))) {
+            return "-";
+        }
+        // if (isNaN(year) || isNaN(month) || isNaN(day) || isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
+            // return "Invalid Date 3";
+        // }
 
         let dateObj = new Date(year, month - 1, day, hours, minutes, seconds || 0);
-        if (isNaN(dateObj.getTime())) return "Invalid Date";
+        if (isNaN(dateObj.getTime())) return "Invalid Date 4";
 
         let dayStr = day.toString().padStart(2, '0');
         let monthStr = (month).toString().padStart(2, '0');

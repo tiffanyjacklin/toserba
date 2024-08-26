@@ -6,7 +6,7 @@
 	import { page } from '$app/stores';
 
 	$: hide = $page.url.pathname.startsWith('/session_main') ||  $page.url.pathname.startsWith('/payment');
-	
+	$: pathname = $page.url.pathname.replace('/', '');
 	if (hide){
 		console.log("ini main")
 	}
@@ -24,7 +24,7 @@
 		 
 	</Navbar>
 
-	<Sidebar>
+	<Sidebar pathname={pathname} >
 	</Sidebar>
 
 	<div class="ml-64 mt-16">

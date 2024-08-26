@@ -213,10 +213,10 @@
                       <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
                           <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{transaction.transaction_id}</th>
                           <td class="px-6 py-4">
-                              <DateConverter value={transaction.transaction_timestamp} date={true} />
+                              <DateConverter value={transaction.transaction_timestamp} date={true} hour={false} dash={false} monthNumber={true}/>
                           </td>
                           <td class="px-6 py-4">
-                              <DateConverter value={transaction.transaction_timestamp} date={false} hour={true} ampm={true} />
+                              <DateConverter value={transaction.transaction_timestamp} date={false} hour={true} ampm={true} second={false} />
                           </td>
                           <td class="px-6 py-4">
                               <MoneyConverter value={transaction.transaction_total_price} currency={true} decimal={true}></MoneyConverter>
