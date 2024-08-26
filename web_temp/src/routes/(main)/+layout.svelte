@@ -6,10 +6,6 @@
 	import { page } from '$app/stores';
 
 	$: hide = $page.url.pathname.startsWith('/session_main') ||  $page.url.pathname.startsWith('/payment');
-
-	export let data;
-	let userId = data.userId;
-	let roleId = data.roleId;
 	
 	if (hide){
 		console.log("ini main")
@@ -25,16 +21,20 @@
 {#if !hide}
 	<Navbar title="Toserba" href="/">
 		<!-- <Menu title="Home" href="/"></Menu> -->
+		 
 	</Navbar>
 
-	<Sidebar userId={userId} roleId={roleId}>
+	<Sidebar>
 	</Sidebar>
 
 	<div class="ml-64 mt-16">
 		<slot />
+		
 	</div>
+	
 	{:else if hide}
 	<slot />
+
 {/if}
 
 

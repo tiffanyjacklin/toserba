@@ -106,7 +106,6 @@
    async function sendOTP() {
          const response = await fetch(`http://${$uri}:8888/cashier/session/edit/sendotp/${$userId}`, {
                method: 'PUT'
-              
          });
 
          if (!response.ok) {
@@ -123,7 +122,7 @@
          console.log(data);
    }
    async function VerifOTP(session_id) {
-        console.log("Sending OTP:", user_otp);  // Log the OTP value
+      //   console.log("Sending OTP:", user_otp);  // Log the OTP value
         const response = await fetch(`http://${$uri}:8888/cashier/session/edit/verifotp/${$userId}`, {
             method: 'PUT',
             headers: {
