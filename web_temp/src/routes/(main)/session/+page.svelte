@@ -71,12 +71,11 @@
     }
 
     async function NewSession() {
-      const user_id = get(userId);
       
       const response = await fetch(`http://${$uri}:8888/cashier/session/new`, {
             method: 'POST',
             body: JSON.stringify({
-               "user_id": user_id,
+               "user_id": Number($userId),
                "start_time": start_time,
                "opening_cash": opening_cash,
                "opening_notes": opening_notes,
