@@ -72,12 +72,12 @@
     }
  
    onMount(async () => {
-        if (get(privileges) === ''){
+        // if (get(privileges) === ''){
             fetchPrivileges();
-        }
-        if (get(user) === ''){
+        // }
+        // if (get(user) === ''){
             fetchUser();
-        }
+        // }
    });
 
    function handleLogout() {
@@ -137,7 +137,7 @@
         {#each get(privileges) as privilege}
            <li>
                 {#if privilege.navbar !== 0 && privilege.privileges_name !== 'notifications'}
-                <a href={`/${privilege.privileges_name.replace(/ /g, '_')}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
+                <a href={`/${privilege.privileges_name.replace(/ /g, '_').toLowerCase()}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group">
                     <p class="text-center" style="text-transform: capitalize;">{privilege.privileges_name}</p>
                 </a>
                 {/if}
