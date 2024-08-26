@@ -1,12 +1,56 @@
 ================================================= User =================================================
+// Pengecekkan validasi user ketika login
 e.PUT("/user/login", controller.GetUser) // body form-data username & password
 /user/login?username=tipani&password=tipaja
 
+// Mengambil semua data user
+e.GET("/user", controller.GetAllUser)
+
+// Mengambil semua user berdasarkan role
+e.GET("/user/roles/data/:role_id", controller.GetAllUserByRoleID)
+
+// Mengambil semua user berdasarkan user ID
+e.GET("/user/:user_id", controller.GetUserByID)
+
+// Mengambil semua user berdasarkan store/warehouse ID
+e.GET("/user/store_warehouse/:sw_id", controller.GetUserByStoreWarehouseID)
+
+// Mengambil semua user berdasarkan nama, bukan username
+e.GET("/user/name/:user_name", controller.GetUserByName)
+
+// Mengambil data user berdasarkan user dan role
 e.GET("/user/:user_id/:role_id", controller.GetDataUser)
+
+// Mengambil role user
 e.GET("/user/roles/:user_id", controller.GetRoles)
+
+// Menambah role baru untuk user
+e.POST("/user/roles/add", controller.InsertNewUserRoles)
+{
+    "user_id": 3,
+    "role_id": 1,
+    "store_warehouse_id": 1,
+    "custom": 0
+}
+
+// Mengubah role untuk user tertentu. Yang di uri role id sebelumnya, yang di body role id setelah
+e.PUT("/user/roles/update/:user_id/:role_id", controller.UpdateUserRoles)
+{
+    "role_id": 3,
+    "store_warehouse_id": 2,
+    "custom": 0
+}
+
+// Mengubah lokasi store/warehouse untuk user 
+e.PUT("/user/roles/update/:user_id/:role_id/:sw_id", controller.UpdateUserStoreWarehouse)
+
+// Mengambil privilege berdasarkan user dan role
 e.GET("/user/privileges/:user_id/:role_id", controller.GetPriv)
 
+// Mengirim OTP 
 e.PUT("/cashier/session/edit/sendotp/:user_id", controller.AccountSendOTP)
+
+// Verifikasi OTP yang telah dikirimkan
 e.PUT("/cashier/session/edit/verifotp/:user_id", controller.OTPVerification)
 {
     "user_otp": "107228"
@@ -15,11 +59,19 @@ e.PUT("/cashier/session/edit/verifotp/:user_id", controller.OTPVerification)
 ================================================= Cashier =================================================
 
 // Session
-
+// Mengambil session berdasarkan ID
 e.GET("/cashier/session/:session_id", controller.GetSessionByID)
+
+// Mengambil semua session
 e.GET("/cashier/session", controller.GetAllSession)
+
+// Mengambil session terakhir
 e.GET("/cashier/session/last", controller.GetLastSession)
+
+// Mengambil transaksi berdasarkan session ID
 e.GET("/cashier/session/transaction/:session_id", controller.GetTransactionIDBySessionID)
+
+// Menambah session / membuka session
 e.POST("/cashier/session/new", controller.InsertNewSession) 
 {
     "user_id": 1,
@@ -28,6 +80,7 @@ e.POST("/cashier/session/new", controller.InsertNewSession)
     "opening_notes" : "Start"
 }
 
+// Menutup session
 e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
 {
     "end_time": "2024-02-01 11:11:11",
@@ -40,6 +93,7 @@ e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
     "closing_notes": "Finished"
 }
 
+// Update session data. Batas 30 menit setelah close session
 e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
 {
     "last_update_time": "2024-01-01 12:11:11",
@@ -52,22 +106,39 @@ e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
 
 // Transaction, Member & Product
 
+// Mengambil member berdasarkan member ID
 e.GET("/cashier/members/:member_id", controller.GetMemberByID)
+
+// Mengambil semua data member
 e.GET("/cashier/members", controller.GetAllMember)
+
+// Mengambil member berdasarkan nomor telefon
 e.GET("/cashier/members/phone_number/:phonenumber", controller.GetMemberByPhoneNumber)
+
+// Menambah member baru
 e.POST("/cashier/members/add", controller.InsertNewMember)
 {
     "member_name": "Vina",
     "member_phone_number": "081229075436",
     "member_join_date": "2024-08-13 15:56:00"
 }
+
+// Mengambil transaksi berdasarkan member ID
 e.GET("/cashier/members/transaction/:member_id", controller.GetTransactionIDByMemberID)
 
+// Mengambil transaksi berdasarkan ID
 e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
+
+// Mengambil transaksi terakhir
 e.GET("/transaction/last", controller.GetLastTransaction)
+
+// Mengambil semua transaksi
 e.GET("/transaction", controller.GetAllTransaction)
+
+// Mengambil data produk transaksi pada transaksi ID tertentu
 e.GET("/transaction/detail/:transaction_id", controller.GetTransactionDetailByTransactionID)
 
+// Menambah data produk bada transaksi
 e.POST("/transaction/details/add/:user_id/:role_id", controller.InsertTransactionDetails) 
 [
     {
@@ -89,19 +160,22 @@ e.POST("/transaction/details/add/:user_id/:role_id", controller.InsertTransactio
     }
 ]
 
-// Kalau ga ada member, member_id = 0
+// Menambah data transaksi, setelah menambah produk. Kalau ga ada member, member_id = 0
 e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.InsertTransaction)
 {
     "transaction_timestamp": "2024-06-06 11:11:11",
     "transaction_payment_method_id": 2,
     "transaction_payment": 50000,
     "transaction_change": 6000,
-    "member_points": -500
+    "member_point_in": 50,
+    "member_point_out": -500
 }
 
+// Menerima (accept) surat jalan
 e.PUT("/store/orders/delivery/accept/:deliveryorder_id/:user_id", controller.AcceptDeliveryOrders)
 
 ================================================= Warehouse =================================================
+// Menambah data stock card baru
 e.POST("/products/stock/card/add", controller.InsertStockCards)
 [
     {
@@ -114,25 +188,58 @@ e.POST("/products/stock/card/add", controller.InsertStockCards)
     }
 ]
 
+// Mengambil data stock card berdasarkan stock card ID
 e.GET("/products/stock/card/:stock_card_id", controller.GetStockCardByID)
+
+// Mengambil data stock card berdasarkan produk ID
 e.GET("/products/stock/card/product/:product_id", controller.GetStockCardByProductID)
+
+// Mengambil data stock card berdasarkan store/warehouse tertentu
 e.GET("/products/stock/card/product/store_warehouse/:product_id/:storewarehouse_id", controller.GetStockCardByStoreWarehouse)
+
+// Mengambil data stock card berdasarkan store/warehouse pada exp date tertentu
 e.GET("/products/stock/card/product/store_warehouse/exp/:exp_date/:storewarehouse_id", controller.GetStockCardByStoreWarehouseEXPDate)
-e.GET("/products/stock/card/product/store_warehouse/batch/:exp_date/:storewarehouse_id", controller.GetStockCardByStoreWarehouseBatch)
+
+// Mengambil data stock card berdasarkan store/warehouse pada batch tertentu
+e.GET("/products/stock/card/product/store_warehouse/batch/:batch/:storewarehouse_id", controller.GetStockCardByStoreWarehouseBatch)
+
+// Mengambil data stock card berdasarkan produk pada exp date tertentu
 e.GET("/products/stock/card/product/:product_id/:exp_date", controller.GetStockCardByEXPDate)
+
+// Mengambil exp date yang paling dekat pada produk tertentu
 e.GET("/products/stock/card/product/exp/early/:product_id/:sw_id", controller.GetEarliestEXPByProductID)
+
+// Mengambil total stok berdasarkan produk id
 e.GET("products/stock/card/product/total_stock/all/:product_id", controller.GetTotalStockByProductID)
+
+// Mengambil total stok berdasarkan produk id store/warehouse tertentu
 e.GET("products/stock/card/product/total_stock/:product_id/:sw_id", controller.GetTotalStockByProductIDSWID)
+
+// Mengambil total stok berdasarkan exp date dan store/warehouse tertentu
 e.GET("/products/stock/card/product/total_stock/batch/:sw_id/:batch", controller.GetTotalStockByBatchSWID)
+
+// Mengambil total stok berdasarkan batch, produk id, dan store/warehouse tertentu
 e.GET("/products/stock/card/product/total_stock/batch/:product_id/:sw_id/:batch", controller.GetTotalStockByBatchPIDSWID)
+
+// Mengambil total stok berdasarkan exp date, produk id, dan store/warehouse tertentu
 e.GET("/products/stock/card/product/total_stock/:product_id/:sw_id/:exp_date", controller.GetTotalStockByEXPPIDSWID)
 
+// Mengambil minimal stok pada produk tertentu pada store/warehouse tertentu
 e.GET("/products/stock/min/:product_id/:store_warehouse_id", controller.CheckMinStock)
 
+// Mengambil semua data produk untuk tampilan di table stock opname (tanpa actual stock)
 e.GET("/products/stock/opname/data", controller.GetDataforStockOpname)
+
+// Mengambil semua data produk pada store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock)
 e.GET("/products/stock/opname/data/store_warehouse/:sw_id", controller.GetDataforStockOpnameBySWID)
+
+// Mengambil semua data stock opname pada store/warehouse tertentu
 e.GET("/products/stock/opname/store_warehouse/:sw_id", controller.GetStockOpnameBySWID)
+
+// Mengambil semua data stock opname
 e.GET("/products/stock/opname", controller.GetAllStockOpname)
+
+// Menambah stock opname
 e.POST("/products/stock/opname/add", controller.InsertStockOpname)
 [
     {
@@ -145,28 +252,64 @@ e.POST("/products/stock/opname/add", controller.InsertStockOpname)
     }
 ]
 
+// Transfer Notes
+// Mengambil transfer note berdasarkan ID
+e.GET("/orders/transfer/notes/:transfernote_id", controller.GetTransferNoteByID)
+
+// Mengambil transfer note terakhir
+e.GET("/orders/transfer/notes/last", controller.GetLastTransferNote)
+
+// Mengambil semua transfer note
+e.GET("/orders/transfer/notes/all", controller.GetAllTransferNotes)
+
+// Mengambil sisa stok dari suatu produk dalam suatu transfer note yang belum dikirimkan
+e.GET("/orders/transer/notes/stock/left/:product_id/:transfernote_id", controller.GetStockLeftInTransferNotes)
+
+// Menambahkan produk pada suatu transfer note
+e.POST("/orders/transfer/notes/add/:user_id/:role_id", controller.InsertTransferNoteDetails) 
+
+// Menambah detail transfer InsertTransferNotes, setelah menambah semua produk
+e.PUT("/orders/transfer/notes/update/:transfernote_id", controller.InsertTransferNotes)
+
+
 // Delivery Order
+// Mengambil data surat jalan berdasarkan ID
 e.GET("/orders/delivery/:delivery_order_id", controller.GetDeliveryOrderByID)
+
+// Mengambil data surat jalan terakhir
 e.GET("/orders/delivery/last", controller.GetLastDeliveryOrder)
+
+// Mengambil data surat jalan berdasarkan asal pengiriman
 e.GET("/orders/delivery/warehouse/:sw_from_id", controller.GetDeliveryOrderBySWFromID)
+
+// Mengambil data surat jalan berdasarkan asal dan tujuan pengiriman
 e.GET("/orders/delivery/storewarehouse/:sw_from_id/:sw_to_id", controller.GetDOFromSWIDToSWID)
+
+// Mengambil data surat jalan berdasarkan ID transfer note
+e.GET("/orders/delivery/transfernote/:transfernote_id", controller.GetDeliveryOrderByTNID)
+
+// Mengambil produk dalam surat jalan berdasarkan ID surat jalan
 e.GET("/orders/delivery/detail/:delivery_order_id", controller.GetDeliveryOrderDetailByDOID)
-e.POST("/orders/delivery/add", controller.InsertDeliveryOrderDetails) 
+
+// Menambah produk pada suatu surat jalan
+e.POST("/orders/delivery/add/:transfernote_id", controller.InsertDeliveryOrderDetails) 
 [
     {
         "product_detail_id": 4,
         "quantity": 5,
-        "expired_date" : "2024-08-20"
+        "expired_date" : "2024-08-20",
+        "batch": 1
     }
 ]
+
+// Menambah detail surat jalan, setelah menambah semua produk
 e.PUT("/orders/delivery/update/:deliveryorder_id", controller.InsertDeliveryOrders)
 {
-    "store_warehouse_to": 1,
-    "user_id_from": 3,
-    "batch": 1
+    "user_id_from": 3
 }
 
 ================================================= Admin =================================================
+// Menambah kategori produk baru
 e.POST("/products/category/add", controller.InsertProductCategory)
 [
     {
@@ -177,13 +320,22 @@ e.POST("/products/category/add", controller.InsertProductCategory)
     }
 ]
 
+// Mengambil data produk berdasarkan ID produk
 e.GET("/products/:product_id/:user_id/:role_id", controller.GetProductByID) 
+
+// Mengambil data produk berdasarkan kode produk
 e.GET("/products/code/:product_code/:user_id/:role_id", controller.GetProductByCode)
+
+// Mengambil data produk berdasarkan nama
 e.GET("/products/name/:product_name/:user_id/:role_id", controller.GetProductByName) 
+
+// Mengambil semua data produk
 e.GET("/products/:user_id/:role_id", controller.GetAllProducts)  
+
+// Mengambil data produk berdasarkan lokasi store/warehouse user
 e.GET("/products/store_warehouse/:user_id/:role_id", controller.GetAllProductsInStoreWarehouse) 
 
-// Nambah produk baru
+// Menambah produk baru
 e.POST("/products/add/:store_warehouse_id", controller.InsertProductDetails)
 [
     {
@@ -202,6 +354,7 @@ e.POST("/products/add/:store_warehouse_id", controller.InsertProductDetails)
     }
 ]
 
+// Menambah jenis promo baru
 e.POST("/promos/type/add", controller.InsertPromoType)
 [
     {
@@ -212,8 +365,16 @@ e.POST("/promos/type/add", controller.InsertPromoType)
     }
 ]
 
+// Mengambil promo berdasarkan ID
 e.GET("/promos/:promo_id", controller.GetPromoByID)
+
+// Mengambil semua promo yang tersedia
 e.GET("/promos", controller.GetAllPromos)  
+
+// Mengambil semua promo yang masih aktif
+e.GET("/promos/active", controller.GetAllActivePromos)
+
+// Menambah promo baru
 e.POST("/promos/add", controller.InsertPromos)
 [
     {
@@ -226,7 +387,10 @@ e.POST("/promos/add", controller.InsertPromos)
     }
 ]
 
+// Mengambil promo pada produk tertentu
 e.GET("/promos/product/:product_id", controller.GetPromoIDByProductID)
+
+// Menambah promo untuk produk tertentu
 e.POST("promos/product/add", controller.InsertPromoProducts)
 [
     {
@@ -242,16 +406,32 @@ e.POST("promos/product/add", controller.InsertPromoProducts)
 // Menerapkan promo untuk semua produk
 e.POST("/promos/product/all/:promo_id", controller.UpdatePromoToAllProducts)
 
+// Mengambil role berdasarkan id
 e.GET("/roles/:roles_id", controller.GetRolesByID)
+
+// Mengambil privilege berdasarkan id
 e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
 
+// Mengambil surat jalan yang  belum diverify
+e.GET("/orders/transfer/notes/not_verified", controller.GetNotVerifiedTransferNote)
 
-// Verify
-e.PUT("/orders/delivery/verify/:deliveryorder_id", controller.VerifyDeliveryOrders)
+// Verify deliver order
+e.PUT("/orders/transfer/notes/verify/:transfernote_id", controller.VerifyTransferNotes)
 
 ================================================= Owner =================================================
+// Mengambil semua store atau warehouse. sw_type = store / warehouse
+e.GET("/store_warehouses/type/:sw_type", controller.GetAllByStoreWarehouseType)
+
+// Mengambil data store/warehouse berdasarkan user dan role user yang sedang login
 e.GET("/store_warehouses/:user_id/:role_id", controller.GetStoreWarehouseByUIDRID)
+
+// Mengambil data store/warehouse berdasarkan id
 e.GET("/store_warehouses/:store_warehouse_id", controller.GetStoreWarehouseByID)
+
+// Mengambil data store/warehouse berdasarkan nama
+e.GET("/store_warehouses/name/:sw_name", controller.GetStoreWarehouseByName)
+
+// Menambah data store/warehouse baru
 e.POST("/store_warehouses/add", controller.InsertStoreWarehouse)
 {
     "store_warehouse_type": "STORE", // STORE || WAREHOUSE
@@ -260,6 +440,7 @@ e.POST("/store_warehouses/add", controller.InsertStoreWarehouse)
     "store_warehouse_phone_number": "081555666888"
 }
 
+// Menambah role baru
 e.POST("/owner/roles/add", controller.InsertRoles)
 [
     {
@@ -267,6 +448,7 @@ e.POST("/owner/roles/add", controller.InsertRoles)
     }
 ]
 
+// Menambah privilege baru
 e.POST("/privileges/add", controller.InsertPrivileges)
 [
     {
@@ -275,6 +457,7 @@ e.POST("/privileges/add", controller.InsertPrivileges)
     }
 ]
 
+// Menambah privilege untuk role default
 e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
 [
     {
@@ -283,6 +466,7 @@ e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
     }
 ]
 
+// Menambah supplier baru
 e.POST("suppliers/add", controller.InsertSupplier)
 {
     "supplier_name": "Rumah Tani",
@@ -290,8 +474,10 @@ e.POST("suppliers/add", controller.InsertSupplier)
     "supplier_address": "Jl. Semangka II No. 3, Surabaya"
 }
 
+// Mengambil data jenis pembayaran yang tersedia
 e.GET("/payment/method", controller.GetAllPaymentMethod)
-e.POST("/payment/method/add", controller.InsertPaymentMethod)
+
+// Menambah jenis pembayaran baru
 e.POST("/payment/method/add", controller.InsertPaymentMethod)
 [
     {
@@ -299,8 +485,13 @@ e.POST("/payment/method/add", controller.InsertPaymentMethod)
     }
 ]
 
+// Mengambil semua data notifikasi
 e.GET("/notifications", controller.GetAllNotification)
-e.GET("/notifications/:role_id", controller.GetAllNotification)
+
+// Mengambil notifikasi berdasarkan role
+e.GET("/notifications/:role_id", controller.GetNotificationByRoleId)
+
+// Menambah notifikasi baru
 e.POST("/notifications/add", controller.InsertNotification)
 {
     "user_id": 1,

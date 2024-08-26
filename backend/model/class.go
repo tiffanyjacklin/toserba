@@ -120,6 +120,12 @@ type ProductDetails struct {
 	WarehousePlacement string `json:"warehouse_placement"`
 }
 
+type ProductCombine struct {
+	ProductDetails ProductDetails
+	ProductCategories ProductCategories
+	Suppliers Suppliers
+}
+
 type Transaction struct {
 	TransactionId int `json:"transaction_id"`
 	TransactionTotalPrice int `json:"transaction_total_price"`
@@ -129,7 +135,8 @@ type Transaction struct {
 	TransactionChange int `json:"transaction_change"`
 	TotalItem int `json:"transaction_total_item"`
 	TransactionUser string `json:"transaction_user"`
-	MemberPoints int `json:"member_points"`
+	MemberPointIn int `json:"member_point_in"`
+	MemberPointOut int `json:"member_point_out"`
 }
 
 type TransactionDetails struct {
@@ -225,6 +232,25 @@ type StockOpname struct {
 	StoreWarehouseID int `json:"store_warehouse_id"`
 }
 
+type TransferNotes struct {
+	TransferNoteID int `json:"transfer_note_id"`
+	StoreWarehouseFrom int `json:"store_warehouse_from"`
+	StoreWarehouseTo int `json:"store_warehouse_to"`
+	CreatedAt string `json:"created_at"`
+	StatusVerify int `json:"status_verify"`
+	StatusSend int `json:"status_send"`
+	UserIDFrom int `json:"user_id_from"`
+}
+
+type TransferNoteDetails struct {
+	TransferNoteDetailID int `json:"transfer_note_detail_id"`
+	TransferNoteID int `json:"transfer_note_id"`
+	ProductDetailID int `json:"product_detail_id"`
+	Batch string `json:"batch"`
+	ExpiredDate string `json:"expired_date"`
+	Quantity int `json:"quantity"`
+}
+
 type DeliveryOrders struct {
 	DeliveryOrderID int `json:"delivery_order_id"`
 	StoreWarehouseFrom int `json:"store_warehouse_from"`
@@ -234,8 +260,7 @@ type DeliveryOrders struct {
 	StatusAccept int `json:"status_accept"`
 	UserIDFrom int `json:"user_id_from"`
 	UserIDTo int `json:"user_id_to"`
-	StatusVerify int `json:"status_verify"`
-	Batch int `json:"batch"`
+	TransferNoteID int `json:"transfer_note_id"`
 }
 
 type DeliveryOrderDetails struct {
@@ -245,6 +270,7 @@ type DeliveryOrderDetails struct {
 	ProductName string `json:"product_name"`
 	Quantity int `json:"quantity"`
 	ExpiredDate string `json:"expired_date"`
+	Batch string `json:"batch"`
 }
 
 type Notifications struct {

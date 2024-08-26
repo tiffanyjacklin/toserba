@@ -27,8 +27,16 @@ func Init() *echo.Echo {
 
 	// User
 	e.PUT("/user/login", controller.GetUser) // body form-data username & password
+	e.GET("/user", controller.GetAllUser)
+	e.GET("/user/roles/data/:role_id", controller.GetAllUserByRoleID)
+	e.GET("/user/:user_id", controller.GetUserByID)
+	e.GET("/user/store_warehouse/:sw_id", controller.GetUserByStoreWarehouseID)
+	e.GET("/user/name/:user_name", controller.GetUserByName)
 	e.GET("/user/:user_id/:role_id", controller.GetDataUser)
 	e.GET("/user/roles/:user_id", controller.GetUserRoles)
+	e.POST("/user/roles/add", controller.InsertNewUserRoles)
+	e.PUT("/user/roles/update/:user_id/:role_id", controller.UpdateUserRoles)
+	e.PUT("/user/roles/update/:user_id/:role_id/:sw_id", controller.UpdateUserStoreWarehouse)
 	e.GET("/user/privileges/:user_id/:role_id", controller.GetUserPriv)
 
 	e.PUT("/cashier/session/edit/sendotp/:user_id", controller.AccountSendOTP)
@@ -66,7 +74,7 @@ func Init() *echo.Echo {
 	e.GET("/products/stock/card/product/:product_id", controller.GetStockCardByProductID)
 	e.GET("/products/stock/card/product/store_warehouse/:product_id/:storewarehouse_id", controller.GetStockCardByStoreWarehouse)
 	e.GET("/products/stock/card/product/store_warehouse/exp/:exp_date/:storewarehouse_id", controller.GetStockCardByStoreWarehouseEXPDate)
-	e.GET("/products/stock/card/product/store_warehouse/batch/:exp_date/:storewarehouse_id", controller.GetStockCardByStoreWarehouseBatch)
+	e.GET("/products/stock/card/product/store_warehouse/batch/:batch/:storewarehouse_id", controller.GetStockCardByStoreWarehouseBatch)
 	e.GET("/products/stock/card/product/exp/:product_id/:exp_date", controller.GetStockCardByEXPDate)
 	e.GET("/products/stock/card/product/exp/early/:product_id/:sw_id", controller.GetEarliestEXPByProductID)
 	e.GET("/products/stock/card/product/total_stock/all/:product_id", controller.GetTotalStockByProductID)
@@ -84,12 +92,20 @@ func Init() *echo.Echo {
 	e.GET("/products/stock/opname", controller.GetAllStockOpname)
 	e.POST("/products/stock/opname/add", controller.InsertStockOpname)
 
+	e.GET("/orders/transfer/notes/:transfernote_id", controller.GetTransferNoteByID)
+	e.GET("/orders/transfer/notes/last", controller.GetLastTransferNote)
+	e.GET("/orders/transfer/notes/all", controller.GetAllTransferNotes)
+	e.GET("/orders/transer/notes/stock/left/:product_id/:transfernote_id", controller.GetStockLeftInTransferNotes)
+	e.POST("/orders/transfer/notes/add/:user_id/:role_id", controller.InsertTransferNoteDetails) 
+	e.PUT("/orders/transfer/notes/update/:transfernote_id", controller.InsertTransferNotes)
+
 	e.GET("/orders/delivery/:delivery_order_id", controller.GetDeliveryOrderByID)
 	e.GET("/orders/delivery/last", controller.GetLastDeliveryOrder)
 	e.GET("/orders/delivery/warehouse/:sw_from_id", controller.GetDeliveryOrderBySWFromID)
 	e.GET("/orders/delivery/storewarehouse/:sw_from_id/:sw_to_id", controller.GetDOFromSWIDToSWID)
+	e.GET("/orders/delivery/transfernote/:transfernote_id", controller.GetDeliveryOrderByTNID)
 	e.GET("/orders/delivery/detail/:delivery_order_id", controller.GetDeliveryOrderDetailByDOID)
-	e.POST("/orders/delivery/add/:user_id/:role_id", controller.InsertDeliveryOrderDetails) 
+	e.POST("/orders/delivery/add/:transfernote_id", controller.InsertDeliveryOrderDetails) 
 	e.PUT("/orders/delivery/update/:deliveryorder_id", controller.InsertDeliveryOrders)
 
 	// Admin
@@ -103,6 +119,7 @@ func Init() *echo.Echo {
 	e.POST("/promos/type/add", controller.InsertPromoType)
 	e.GET("/promos/:promo_id", controller.GetPromoByID)
 	e.GET("/promos", controller.GetAllPromos)  
+	e.GET("/promos/active", controller.GetAllActivePromos)  
 	e.POST("/promos/add", controller.InsertPromos) 
 	e.GET("/promos/product/:product_id", controller.GetPromoIDByProductID)
 	e.POST("/promos/product/add", controller.InsertPromoProducts) 
@@ -110,11 +127,14 @@ func Init() *echo.Echo {
 	e.GET("/roles/:roles_id", controller.GetRolesByID)
 	e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
 
-	e.PUT("/orders/delivery/verify/:deliveryorder_id", controller.VerifyDeliveryOrders)
+	e.GET("/orders/transfer/notes/not_verified", controller.GetNotVerifiedTransferNote)
+	e.PUT("/orders/transfer/notes/verify/:transfernote_id", controller.VerifyTransferNotes)
 
 	// Owner 
+	e.GET("/store_warehouses/type/:sw_type", controller.GetAllByStoreWarehouseType)
 	e.GET("/store_warehouses/:user_id/:role_id", controller.GetStoreWarehouseByUIDRID)
 	e.GET("/store_warehouses/:store_warehouse_id", controller.GetStoreWarehouseByID)
+	e.GET("/store_warehouses/name/:sw_name", controller.GetStoreWarehouseByName)
 	e.POST("/store_warehouses/add", controller.InsertStoreWarehouse)
 	e.POST("/roles/add", controller.InsertRoles)
 	e.POST("/privileges/add", controller.InsertPrivileges)

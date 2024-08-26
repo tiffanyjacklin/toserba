@@ -110,6 +110,60 @@ func GetUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetAllUser(c echo.Context) error {
+	result, err := model.GetAllUser()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllUser", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllUserByRoleID(c echo.Context) error {
+	rid := c.Param("role_id")
+	result, err := model.GetAllUserByRoleID(rid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllUserByRoleID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetUserByID(c echo.Context) error {
+	rid := c.Param("user_id")
+	result, err := model.GetUserByID(rid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetUserByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetUserByStoreWarehouseID(c echo.Context) error {
+	rid := c.Param("sw_id")
+	result, err := model.GetUserByStoreWarehouseID(rid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetUserByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetUserByName(c echo.Context) error {
+	rid := c.Param("user_name")
+	result, err := model.GetUserByName(rid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetUserByName", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetDataUser(c echo.Context) error {
 	uid := c.Param("user_id")
 	rid := c.Param("role_id")
@@ -130,6 +184,49 @@ func GetUserRoles(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetRole", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertNewUserRoles(c echo.Context) error {
+	urole, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertNewUserRoles(string(urole))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertNewUserRole", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func UpdateUserRoles(c echo.Context) error {
+	uid := c.Param("user_id")
+	rid := c.Param("role_id")
+	urole, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.UpdateUserRoles(uid, rid, string(urole))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UpdateUserRoles", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func UpdateUserStoreWarehouse(c echo.Context) error {
+	uid := c.Param("user_id")
+	rid := c.Param("role_id")
+	swid := c.Param("sw_id")
+	result, err := model.UpdateUserStoreWarehouse(uid, rid, swid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UpdateUserStoreWarehouse", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -257,22 +354,6 @@ func InsertNewMember(c echo.Context) error {
 	model.InsertLog(ip, "InsertNewMember", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
-
-// func InsertTransaction(c echo.Context) error {
-// 	sid := c.Param("session_id")
-// 	mid := c.Param("member_id")
-// 	trs, err := io.ReadAll(c.Request().Body)
-// 	if err != nil {
-// 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
-// 	}
-// 	result, err := model.InsertTransaction(string(trs), sid, mid)
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
-// 	}
-// 	ip := c.RealIP()
-// 	model.InsertLog(ip, "InsertTransaction", result.Data, 3)
-// 	return c.JSON(http.StatusOK, result)
-// }
 
 func GetTransactionIDBySessionID(c echo.Context) error {
 	sid := c.Param("session_id")
@@ -525,6 +606,16 @@ func GetAllPromos(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetAllPromos", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllActivePromos(c echo.Context) error {
+	result, err := model.GetAllActivePromos()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllActivePromos", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -854,6 +945,80 @@ func CheckMinStock(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetTransferNoteByID(c echo.Context) error {
+	wid := c.Param("transfernote_id")
+	result, err := model.GetTransferNoteByID(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetTransferNoteByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetLastTransferNote(c echo.Context) error {
+	result, err := model.GetLastTransferNote()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetLastTransferNote", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertTransferNotes(c echo.Context) error {
+	tid := c.Param("transfernote_id")
+	delo, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertTransferNotes(tid, string(delo))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertTransferNotes", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertTransferNoteDetails(c echo.Context) error {
+	trd, err := io.ReadAll(c.Request().Body)
+	uid := c.Param("user_id")
+	rid := c.Param("role_id")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertTransferNoteDetails(string(trd), uid, rid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertTransferNoteDetails", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func VerifyTransferNotes(c echo.Context) error {
+	doi := c.Param("transfernote_id")
+
+	result, err := model.VerifyTransferNotes(doi)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "VerifyTransferNotes", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetNotVerifiedTransferNote(c echo.Context) error {
+	result, err := model.GetNotVerifiedTransferNote()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetNotVerifiedTransferNote", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetDeliveryOrderByID(c echo.Context) error {
 	wid := c.Param("delivery_order_id")
 	result, err := model.GetDeliveryOrderByID(wid)
@@ -909,6 +1074,27 @@ func GetLastDeliveryOrder(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetAllTransferNotes(c echo.Context) error {
+	result, err := model.GetAllTransferNotes()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllTransferNotes", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetDeliveryOrderByTNID(c echo.Context) error {
+	wid := c.Param("transfernote_id")
+	result, err := model.GetDeliveryOrderByTNID(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetLastDelriveryOrder", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func InsertDeliveryOrders(c echo.Context) error {
 	tid := c.Param("deliveryorder_id")
 	delo, err := io.ReadAll(c.Request().Body)
@@ -926,12 +1112,11 @@ func InsertDeliveryOrders(c echo.Context) error {
 
 func InsertDeliveryOrderDetails(c echo.Context) error {
 	trd, err := io.ReadAll(c.Request().Body)
-	uid := c.Param("user_id")
-	rid := c.Param("role_id")
+	uid := c.Param("transfernote_id")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
 	}
-	result, err := model.InsertDeliveryOrderDetails(string(trd), uid, rid)
+	result, err := model.InsertDeliveryOrderDetails(string(trd), uid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -940,15 +1125,15 @@ func InsertDeliveryOrderDetails(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func VerifyDeliveryOrders(c echo.Context) error {
-	doi := c.Param("deliveryorder_id")
-
-	result, err := model.VerifyDeliveryOrders(doi)
+func GetStockLeftInTransferNotes(c echo.Context) error {
+	pid := c.Param("product_id")
+	tid := c.Param("transfernote_id")
+	result, err := model.GetStockLeftInTransferNotes(pid, tid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	ip := c.RealIP()
-	model.InsertLog(ip, "VerifyDeliveryOrders", result.Data, 3)
+	model.InsertLog(ip, "GetStockLeftInTransferNotes", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -975,6 +1160,17 @@ func GetNotAcceptedDeliveryOrder(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetAllByStoreWarehouseType(c echo.Context) error {
+	sw := c.Param("sw_type")
+	result, err := model.GetAllByStoreWarehouseType(sw)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllByStoreWarehouseType", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetStoreWarehouseByUIDRID(c echo.Context) error {
 	wid := c.Param("user_id")
 	rid := c.Param("role_id")
@@ -995,6 +1191,17 @@ func GetStoreWarehouseByID(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetStoreWarehouseByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetStoreWarehouseByName(c echo.Context) error {
+	rid := c.Param("sw_name")
+	result, err := model.GetStoreWarehouseByName(rid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetStoreWarehouseByName", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
