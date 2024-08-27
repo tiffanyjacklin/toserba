@@ -28,6 +28,7 @@
     let cashier_id = 0;
     let store_warehouse = [];
     let products = [];
+    $: total_free = 0;
     onMount(async () => {
       await fetchTransaction();
       await fetchTransactionDetail();
@@ -59,6 +60,7 @@
         }
 
         transaction_detail = data.data;
+        countFreeItem();
         console.log(transaction_detail);
     }
 
@@ -85,6 +87,7 @@
         }
 
         transaction = data.data.Transaction;
+        console.log("ini isi transaction",transaction);
         payment_method = data.data.PaymentMethod;
         user = data.data.UserData;
         cashier_id = data.data.UserData.user_id;
@@ -147,6 +150,14 @@
         const product = products.find(p => p.product_detail_id === product_detail_id);
         return product ? product.sell_price : 0;
     }
+
+    function countFreeItem(){
+        for (let i = 0; i < transaction_detail.length; i++) {
+            if (transaction_detail[i].quantity_free > 0){
+                total_free += transaction_detail[i].quantity_free;
+            }
+        }
+    }
   </script>
   
   <div class="select-none font-roboto text-[#364445] mx-8 mt-[90px] mb-10 flex flex-col items-center justify-center bg-white shadow-[0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
@@ -200,6 +211,13 @@
               </div>
               <div class="flex justify-end">
                 -<MoneyConverter value={detail.discount_price} currency={true} decimal={true}></MoneyConverter>
+              </div>
+            </div>
+          {/if}
+          {#if detail.quantity_free > 0}
+            <div class="flex justify-between mb-3 text-gray-500">
+              <div class="indent-8">
+                FREE {detail.quantity_free}
               </div>
             </div>
           {/if}
@@ -291,6 +309,16 @@
           </div>
         </div>
         {/if}
+        {#if detail.quantity_free > 0}
+          <div class="flex justify-start">
+            <div class="w-24">
+              FREE
+            </div>
+            <div class="">
+              {detail.quantity_free}
+            </div>
+          </div>
+        {/if}
       {/each}
       <div>
         ==================================================
@@ -305,7 +333,17 @@
           </div>
         </div>
         <div>
-            <MoneyConverter value={16000} currency={false} decimal={false}></MoneyConverter>
+          <MoneyConverter value={transaction.transaction_total_price} currency={false} decimal={false}></MoneyConverter>
+        </div>
+      </div>
+      <div class="flex justify-between my-2">
+        <div class="flex ">
+          <div class="w-24">
+            Total free
+          </div>
+          <div>
+            {total_free}
+          </div>
         </div>
       </div>
       <div class="flex justify-between my-2">

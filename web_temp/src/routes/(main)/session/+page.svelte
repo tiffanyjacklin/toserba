@@ -8,7 +8,7 @@
 	import { stringify } from 'postcss';
 	import { goto } from '$app/navigation';
    // import { goto } from '$app/navigation';
-   import { uri, userId, roleId, sessionId } from '$lib/uri.js';
+   import { uri, userId, roleId, sessionId, user } from '$lib/uri.js';
    import { get } from 'svelte/store';
    let opening_notes = "Session starting earlier than expected.";
    let showModal = false;

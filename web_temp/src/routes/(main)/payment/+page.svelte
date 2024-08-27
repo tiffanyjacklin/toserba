@@ -37,6 +37,16 @@
     $: change = 0;
     $: transaction_payment_method_id = 1;
 
+    // BUAT STRUK
+    let transaction_detail = [];
+    let transaction_struk = [];
+    let payment_method = [];
+    let user = [];
+    let cashier_id = 0;
+    let store_warehouse = [];
+    let products = [];
+    $: total_free = 0;
+
     let showModal = null; 
     let member_name = "";
     let member_phone_number = "";
@@ -60,6 +70,7 @@
             use = false;
         }
     }
+
     async function fetchPhoneNumber() {
         const response = await fetch(`http://${$uri}:8888/cashier/members/phone_number/${member_phone_number}`, {
             method: 'GET',
@@ -181,16 +192,16 @@
     async function validate(){
         for (let i = 0; i < checkout.length; i++) {
             // cek apakah produk_checkout ada di array promos
-            if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i].product_detail_id) != null){
+            if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id) != null){
                 // jika ada, ambil index di array promos
-                let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i].product_detail_id);
+                let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id);
                 
                 let product_detail_id = promos[index]["ProductDetail"].product_detail_id;
                 let promo_product_id = await getPromoProductId(product_detail_id);
                 promo_product_id = promo_product_id;
                 let quantity = checkout[i].jumlah;
                 let sell_price = promos[index]["ProductDetail"].sell_price;
-                let discount_price = ((promos[index]["ProductDetail"].sell_price)-(checkout[i].sell_price))*quantity;
+                let discount_price = ((promos[index]["ProductDetail"].sell_price)-(checkout[i]["ProductDetails"].sell_price))*quantity;
                 let total_price = (sell_price-discount_price)*quantity;
                 let quantity_free = 0;
                 if (promos[index]["Promo"].promo_type_id == 1){
@@ -211,10 +222,10 @@
                 transaction.push(produk_transaksi);
                 transaction = transaction;
             } else {
-                let product_detail_id = checkout[i].product_detail_id;
+                let product_detail_id = checkout[i]["ProductDetails"].product_detail_id;
                 let promo_product_id = 0;
                 let quantity = checkout[i].jumlah;
-                let sell_price = checkout[i].sell_price;
+                let sell_price = checkout[i]["ProductDetails"].sell_price;
                 let discount_price = 0;
                 let total_price = (sell_price-discount_price)*quantity;
                 let quantity_free = 0;
@@ -272,14 +283,28 @@
             transaction_change,
             member_points
         }
-        console.log(JSON.stringify(transaction_item));
+        console.log("isi transaction item",JSON.stringify(transaction_item));
 
         await updateLastTransaction(last_transaction_id,$sessionId,member_id,transaction_item);
-        
+
+        await fetchTransaction(last_transaction_id);
+        await fetchTransactionDetail(last_transaction_id);
+
+        await getStoreWarehouse();
+        await fetchAllProduct();
+
+    }
+
+    function countFreeItem(){
+        for (let i = 0; i < transaction_detail.length; i++) {
+            if (transaction_detail[i].quantity_free > 0){
+                total_free += transaction_detail[i].quantity_free;
+            }
+        }
     }
 
     async function InsertTransaction(transaction_arr) {
-        const response = await fetch(`http://${$uri}:8888/transaction/details/add/${userId}/${roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/transaction/details/add/${$userId}/${$roleId}`, {
             method: 'POST',
             body: JSON.stringify(transaction_arr)
         });
@@ -344,6 +369,116 @@
         let last_id = data.data.transaction_id;
         return last_id;
     }
+
+    async function getStoreWarehouse() {
+        let response;
+        response = await fetch(`http://${$uri}:8888/store_warehouses/${cashier_id}/1`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all store_warehouses fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch store_warehouses', data);
+            return;
+        }
+
+        store_warehouse = data.data;
+        // console.log(transaction_detail);
+    }
+
+    async function fetchTransaction(transactionId) {
+        let response;
+
+        response = await fetch(`http://${$uri}:8888/transaction/${transactionId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all transactions fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch transactions', data);
+            return;
+        }
+
+        transaction_struk = data.data.Transaction;
+        payment_method = data.data.PaymentMethod;
+        user = data.data.UserData;
+        cashier_id = data.data.UserData.user_id;
+    }
+
+    async function fetchTransactionDetail(transactionId) {
+        let response;
+
+        response = await fetch(`http://${$uri}:8888/transaction/detail/${transactionId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all transactions fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch transactions', data);
+            return;
+        }
+
+        transaction_detail = data.data;
+        countFreeItem();
+        console.log("isi transaction detail :",transaction_detail);
+    }
+
+    async function fetchAllProduct() {
+        let response;
+
+        response = await fetch(`http://${$uri}:8888/products/${cashier_id}/1`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all products fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch products', data);
+            return;
+        }
+
+        products = data.data;
+    }
+
+    function getProductSellPrice(product_detail_id) {
+        const product = products.find(p => p.product_detail_id === product_detail_id);
+        return product ? product.sell_price : 0;
+    }
 </script>
 
 <!-- {member_points} -->
@@ -360,8 +495,8 @@
         <div class="h-full flex flex-col items-center justify-around mb-12">
             <div class="w-full flex flex-col items-center">
                 <span class="text-4xl font-bold text-darkGray my-4">Payment Method</span>
-                <button on:click={() => {tampilan = "cash"; tampilan = tampilan; transaction_payment_method_id = 1; transaction_payment_method_id = transaction_payment_method_id;}}  class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Cash</button>
-                <button on:click={() => {tampilan = "qr"; tampilan = tampilan; transaction_payment_method_id = 2;transaction_payment_method_id = transaction_payment_method_id;}} class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Generate QR</button>    
+                <button on:click={() => {tampilan = "cash"; tampilan = tampilan; transaction_payment_method_id = 2; transaction_payment_method_id = transaction_payment_method_id;}}  class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Cash</button>
+                <button on:click={() => {tampilan = "qr"; tampilan = tampilan; transaction_payment_method_id = 1;transaction_payment_method_id = transaction_payment_method_id;}} class="w-8/12 px-auto py-4 bg-white hover:bg-darkGray hover:text-peach2 focus:bg-darkGray focus:text-peach2 rounded-2xl text-xl font-bold border-b-4 border-b-peach my-2 shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)]">Generate QR</button>    
             </div>
 
             <div class="w-full flex flex-col items-center">
@@ -375,7 +510,122 @@
             </div>
         </div>
         {:else}
-        
+        <div class="select-none	mx-8 bg-white p-3 font-roboto text-lg w-3/5">
+            <div class="flex justify-center my-2 uppercase">
+              {store_warehouse.store_warehouse_name}
+            </div>
+            <div class="flex justify-center uppercase">
+              {store_warehouse.store_warehouse_address}
+            </div>
+            <div>
+              =========================================================
+            </div>
+            <div class="flex justify-between">
+              <div>BON {transaction_struk.transaction_id}</div>
+              <div>Kasir: {user.user_fullname}</div>
+            </div>
+            <div>
+                =========================================================
+            </div>
+            {#each transaction_detail as detail}
+              <div class="flex justify-between">
+                <div class="uppercase flex-[1.5_1.5_0%]">
+                  {detail.product_detail_name}
+                </div>
+                <div class="flex flex-1 justify-end">
+                  {detail.quantity}
+                </div>
+                <div class="flex flex-1 justify-end">
+                    <MoneyConverter value={getProductSellPrice(detail.product_detail_id)} currency={false} decimal={false}></MoneyConverter>
+                </div>
+                <div class="flex flex-1 justify-end">
+                    <MoneyConverter value={detail.sell_price} currency={false} decimal={false}></MoneyConverter>
+                </div>
+              </div>
+              {#if detail.discount_price}
+              <div class="flex justify-between">
+                <div class="uppercase flex-[1.5_1.5_0%]">
+                  DISCOUNT {detail.product_detail_name}
+                </div>
+                
+                <div class="flex flex-1 justify-end">
+                    -<MoneyConverter value={detail.discount_price} currency={false} decimal={false}></MoneyConverter>
+                </div>
+              </div>
+              {/if}
+              {#if detail.quantity_free > 0}
+                <div class="flex justify-start">
+                    <div class="w-24">
+                    FREE
+                    </div>
+                    <div class="">
+                    {detail.quantity_free}
+                    </div>
+                </div>
+              {/if}
+            {/each}
+            <div>
+                =========================================================
+            </div>
+            <div class="flex justify-between my-2">
+              <div class="flex ">
+                <div class="w-24">
+                  Total item
+                </div>
+                <div>
+                  {transaction_struk.transaction_total_item}
+                </div>
+              </div>
+              <div>
+                <MoneyConverter value={transaction_struk.transaction_total_price} currency={false} decimal={false}></MoneyConverter>
+              </div>
+            </div>
+            <div class="flex justify-between my-2">
+              <div class="flex ">
+                <div class="w-24">
+                  Total free
+                </div>
+                <div>
+                  {total_free}
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-between my-2">
+              <div>
+                Total belanja
+              </div>
+              <div>
+                  <MoneyConverter value={transaction_struk.transaction_total_price} currency={false} decimal={false}></MoneyConverter>
+              </div>
+            </div>
+            <div class="flex justify-between my-2">
+              <div>
+                {payment_method.payment_method_name}
+              </div>
+              <div>
+                  <MoneyConverter value={transaction_struk.transaction_payment} currency={false} decimal={false}></MoneyConverter>
+              </div>
+            </div>
+            {#if (Number(transaction_struk.transaction_change) > 0)}
+            <div class="flex justify-between my-2">
+              <div>
+                Kembalian
+              </div>
+              <div>
+                  <MoneyConverter value={transaction_struk.transaction_change} currency={false} decimal={false}></MoneyConverter>
+              </div>
+            </div>
+            {/if}
+            <div>
+                =========================================================
+            </div>
+            <div class="flex justify-center my-2">
+              Tgl. <DateConverter value={transaction_struk.transaction_timestamp} date={true} hour={true} second={true} ampm={false} monthNumber={true} dash={true} dateFirst={true}/>
+      
+              <!-- Tgl. 01-01-2024 06:54:17 -->
+            </div>
+            <!-- <img src={receipt} class=""> -->
+        </div>
         {/if}
         
     </div>
@@ -455,11 +705,13 @@
                     {#if tampilan == "cash" && (received >=  (get(totalAmount)-member_points)) || tampilan == "qr"}
                     <span class="text-white text-6xl font-bold">Validate</span>
                     <i class="fa-regular fa-circle-check fa-5x" style="color: #ffffff;"></i>       
-                    {:else if tampilan == "validasi"}   
-                    <span class="text-white text-8xl font-bold">NEXT ORDER</span>
                     {/if}      
                 </button>
+                    {#if tampilan == "validasi"}   
+                        <span class="text-white text-8xl font-bold">NEXT ORDER</span>
+                    {/if}
                 {/if}
+                
             </div>
         </div>
     </div>
