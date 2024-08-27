@@ -6,8 +6,8 @@
   import { uri, userId, roleId } from '$lib/uri.js';
   import img_produk from "$lib/assets/produk.png";
 
-  let products = [];
-  let all_produk = [];
+  let tf_notes = [];
+  let transfer_notes = [];
   let stock_card = [];
   let searchQuery = '';
   let showModal = null; 
@@ -77,18 +77,19 @@
           return;
       }
 
-      products = [...data.data];  
-      all_produk = [...products];
-      console.log(all_produk);
+      tf_notes = [...data.data];  
+      transfer_notes = [...tf_notes];
+      console.log(transfer_notes);
   }
 
   $: if (searchQuery.length > 0) {
-      all_produk = products.filter(item => 
-          product.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.ProductDetails.product_detail_id.toString().includes(searchQuery)
+      transfer_notes = tf_notes.filter(item => 
+        tf_notes.transfer_note_id.toLowerCase().includes(searchQuery)
+          // product.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          // product.ProductDetails.product_detail_id.toString().includes(searchQuery)
       );
   } else {
-      all_produk = [...products];
+      transfer_notes = [...tf_notes];
   }
 </script>
 
@@ -158,35 +159,58 @@
  
     <div class="w-[96%] my-5 font-roboto">
       <div class="relative overflow-x-auto sm:rounded-lg">
-        {#each all_produk as product}
+        {#each transfer_notes as note}
         <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3">                        
-          <div class="m-4 w-1/12 flex items-center">
-            <i class="fa-regular fa-file-lines"></i>
+          <div class=" w-1/12 flex justify-center items-center">
+            <!-- <i class="fa-regular fa-file-lines fa-xl"></i> -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+            </svg>
+            
           </div>
-          <div class="py-4 w-8/12">
-              <div class="font-bold text-[#f2b082] whitespace-nowrap">
-                <!-- #{product.ProductDetails.product_detail_id} -->
+          <div class="py-4 w-9/12">
+              <div class="font-bold whitespace-nowrap">
+                Stock Transfer Note #{note.transfer_note_id}
               </div>
               <div class="font-semibold">
-                <!-- {product.ProductDetails.product_name} -->
+                <DateConverter value={note.created_at} date={true} hour={true} second={false} ampm={true} monthNumber={true} dash={true} dateFirst={true}/>
               </div>
+              <div class="flex font-semibold gap-1">
+                {#if note.status_verify === 0}
+                  <div class="">
+                    Not Verified, 
+                  </div>
+                {:else}
+                  <div class="text-[#f2b082]">
+                    Verified, 
+                  </div>
+                {/if}
+                {#if note.status_send === 0}
+                  <div class="">
+                    Not Sent.
+                  </div>
+                {:else}
+                  <div class="text-[#f2b082]">
+                    Sent. 
+                  </div>
+                {/if}
+              </div>
+
           </div>
-          <div class="px-6 py-4 font-semibold w-3/12">
+          <div class="font-semibold w-2/12">
             <div class="flex justify-center">
               <!-- Stock: {product.ProductDetails.product_stock} {product.ProductDetails.product_unit} -->
             </div>
-            <div  class="flex items-center justify-start py-2 w-full">
-              <button 
-              on:click={() => handleClick(product.transfer_note_id)}
-              type="button" 
-              class="h-10 px-4 w-full inline-flex items-center justify-start font-bold rounded-md bg-[#3d4c52] text-[#f2b082] hover:shadow-2xl">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                  <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                  <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" />
-                </svg>
-                <div class="text-lg ml-6 text-white font-semibold">View</div>
-              </button>
-            </div>
+            <button 
+            on:click={() => handleClick(note.transfer_note_id)}
+            type="button" 
+            class="flex items-center justify-center py-2 w-full h-full px-4 font-bold bg-[#3d4c52] text-[#f2b082] hover:bg-darkGray ">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="size-10">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              </svg>
+            
+            </button>
           </div>
       </div>
         {/each}
@@ -236,8 +260,8 @@
      
  </div>
 
-{#each all_produk as product} 
-  {#if showModal === product.ProductDetails.product_detail_id}
+{#each transfer_notes as note} 
+  {#if showModal === note.transfer_note_id}
     <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
       <div class="flex items-center justify-center pt-8">
         <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Product detail</div>
@@ -245,53 +269,17 @@
       <form class=" mt-8 p-4 md:p-5">
           <div class="grid gap-3 font-roboto font-semibold">
             <div class="">
-                <div class="text-[#f7d4b2]">Product ID</div>
-                <div class="text-white">{product.ProductDetails.product_detail_id}</div>
+                <div class="text-[#f7d4b2]">Stock Transfer Note ID</div>
+                <div class="text-white">{note.transfer_note_id}</div>
             </div>
             <div class="">
-              <div class="text-[#f7d4b2]">Product Name</div>
-              <div class="text-white">{product.ProductDetails.product_name}</div>
-            </div>
-            <div class="">
-              <div class="text-[#f7d4b2]">Product Brand</div>
-              <div class="text-white">{product.Suppliers.supplier_name}</div>
-            </div>
-            <div class="">
-              <div class="text-[#f7d4b2]">Product Type</div>
-              <div class="text-white">{product.ProductCategories.product_category_name}</div>
-            </div>
-            <div class="">
-              <div class="text-[#f7d4b2]">Date Added</div>
-              <div class="text-white">
-                {#if product.ProductDetails.product_timestamp.length > 1}
-                  <DateConverter value={product.ProductDetails.product_timestamp} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
-                {:else}
-                  -
-                {/if}
-              </div>
-            </div>
-            <div class="">
-              <div class="text-[#f7d4b2]">Expiration Date</div>
-              <div class="text-white">
-                {#if product.ProductDetails.expiry_date.length > 1}
-                  <DateConverter value={product.ProductDetails.expiry_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
-                {:else}
-                  -
-                {/if}
-              </div>
-            </div>
-            <div class="">
-              <div class="text-[#f7d4b2]">Current Stock</div>
-              <div class="text-white">{product.ProductDetails.product_stock} {product.ProductDetails.product_unit}</div>
-            </div>
-            <div class="">
-              <div class="text-[#f7d4b2]">Last Inventory Taking</div>
-              <div class="text-white">{product.ProductDetails.product_name}</div>
+              <div class="text-[#f7d4b2]">Created at</div>
+              <DateConverter value={note.created_at} date={true} hour={true} second={false} ampm={true} monthNumber={false} dash={false} dateFirst={false}/>
             </div>
             <div class="">
               <div class="text-[#f7d4b2]">
                 Stock Card
-                <button on:click={() => toggleTable(product.ProductDetails.product_detail_id)} class="ml-2">
+                <button on:click={() => toggleTable(note.transfer_note_id)} class="ml-2">
                   {#if showTable}
                      <i class="fa-solid fa-caret-up"></i>
                   {:else}
@@ -299,19 +287,17 @@
                   {/if}
                </button>
               </div>
+              {showTable}
               {#if showTable && stock_card.length > 0}
               <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table class="w-full text-sm text-left rtl:text-right">
                   <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                     <tr class="border-b-2 border-black">
                       <th scope="col" class="px-3 py-2 text-sm font-bold uppercase text-center">
-                          No
+                        No
                       </th>
                       <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                          Batch
-                      </th>
-                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                          Expiry Date
+                        Product Name
                       </th>
                       <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
                         In
@@ -323,10 +309,10 @@
                         Unit Type
                       </th>
                       <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                        Reason
+                        Batch Number
                       </th>
                       <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                        Date
+                        Expiry Date
                       </th>
                     </tr>
                   </thead>
@@ -337,10 +323,7 @@
                               {i+1}
                         </th>
                         <td class="px-1 py-2 text-center">
-                          {stock.product_batch}
-                        </td>
-                        <td class="px-1 py-2 text-center">
-                          <DateConverter value={stock.expired_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                          {stock.product_name}
                         </td>
                         <td class="px-1 py-2 text-center">
                           {stock.stock_in}
@@ -352,10 +335,10 @@
                           {stock.product_unit}
                         </td>
                         <td class="px-1 py-2 text-center">
-                          {stock.stock_description}
+                          {stock.product_batch}
                         </td>
                         <td class="px-1 py-2 text-center">
-                          <DateConverter value={stock.stock_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                          <DateConverter value={stock.expired_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
                         </td>
                       </tr>
                     {/each}
@@ -364,22 +347,33 @@
               </div>
               {/if}
             </div>
+            <div class="flex items-center justify-start">
+              <button type="button" on:click={() => closeModal()} class="mt-2 flex w-2/4 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
+                <div class="w-2/12 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                  </svg>
+                </div>
+                <div class="w-10/12 text-start">
+                  Print stock card
+                </div>
+              </button>
+            </div>
+
             <div class="">
-              <div class="text-[#f7d4b2]">Buy Price</div>
-              <div class="text-white">
-                <MoneyConverter value={product.ProductDetails.buy_price} currency={true} decimal={true}></MoneyConverter>
+              <div class="text-[#f7d4b2]">Delivery Order</div>
+              <div class="flex items-center justify-start">
+                <button type="button" on:click={() => closeModal()} class="mt-2 flex w-2/4 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
+                  <div class="w-2/12 flex justify-center">
+                    <i class="fa-solid fa-plus"></i>
+                  </div>
+                  <div class="w-10/12 text-start">
+                    Create delivery order
+                  </div>
+                </button>
               </div>
             </div>
-            <div class="">
-              <div class="text-[#f7d4b2]">Sell Price</div>
-              <div class="text-white">
-                <MoneyConverter value={product.ProductDetails.sell_price} currency={true} decimal={true}></MoneyConverter>
-              </div>
-            </div>
-            <div class="">
-              <div class="text-[#f7d4b2]">Minimum Stock</div>
-              <div class="text-white">{product.ProductDetails.min_stock}</div>
-            </div>
+            
             
             <div class="flex items-center justify-center">
                 <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">

@@ -14,6 +14,10 @@ export const sessionId = writable(loadFromLocalStorage('sessionId', ''));
 // export const transactionId = writable(loadFromLocalStorage('transactionId', ''));
 export const totalAmount = writable(loadFromLocalStorage('totalAmount', ''));
 
+// warehouse operational employee
+export const storeId = writable(loadFromLocalStorage('storeId', ''));
+export const sw_name = writable(loadFromLocalStorage('sw_name', ''));
+
 // Subscribe to changes and save to localStorage only in the browser
 if (browser) {
     uri.subscribe(value => saveToLocalStorage('uri', value));
@@ -24,4 +28,8 @@ if (browser) {
     privileges.subscribe(value => saveToLocalStorage('privileges', value));
     // transactionId.subscribe(value => saveToLocalStorage('transactionId', value));
     totalAmount.subscribe(value => saveToLocalStorage('totalAmount', value));
+
+    // warehouse operational employee
+    storeId.subscribe(value => saveToLocalStorage('storeId', value));
+    sw_name.subscribe(value => saveToLocalStorage('sw_name', value));
 }
