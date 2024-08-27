@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Page/Store%20Inventory/accept_order_popup_page.dart';
 
 import 'package:stroke_text/stroke_text.dart';
@@ -24,13 +24,7 @@ class AcceptOrderPage extends StatelessWidget {
               left: 8.0, right: 8.0, top: 16.0, bottom: 8.0),
           child: Column(
             children: [
-              Text('Accept Order',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: ColorPalleteLogin.PrimaryColor,
-                    fontFamily: 'Helvetica',
-                  )),
+              TitlePage(name: 'Accept Order'),
               SizedBox(
                 height: 20,
               ),

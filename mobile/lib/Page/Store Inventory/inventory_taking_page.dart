@@ -1,10 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Template.dart';
+import 'package:number_paginator/number_paginator.dart';
 
-class InventoryTakingPage extends StatelessWidget {
-  const InventoryTakingPage({super.key});
+class InventoryTakingPage extends StatefulWidget {
+  InventoryTakingPage({super.key});
+
+  @override
+  State<InventoryTakingPage> createState() => _InventoryTakingPageState();
+}
+
+class _InventoryTakingPageState extends State<InventoryTakingPage> {
+  final NumberPaginatorController _controller = NumberPaginatorController();
+
+  var _currentPage = 1;
+  var contentTableInventory = [];
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +33,7 @@ class InventoryTakingPage extends StatelessWidget {
               left: 20.0, right: 20.0, top: 16.0, bottom: 8.0),
           child: Column(
             children: [
-              Text('Inventory Taking',
-                  style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: ColorPalleteLogin.PrimaryColor)),
+              TitlePage(name: 'Inventory Taking'),
               SizedBox(
                 height: 10,
               ),
@@ -40,12 +47,50 @@ class InventoryTakingPage extends StatelessWidget {
                 height: 10,
               ),
 
-              TableInventoryTaking(),
+              NumberPaginator(
+                // by default, the paginator shows numbers as center content
+                numberPages: 100,
+                onPageChange: (int index) {
+                  setState(() {
+                    _currentPage =
+                        index; // _currentPage is a variable within State of StatefulWidget
+                  });
+                },
+                // show/hide the prev/next buttons
+                showPrevButton: true,
+                showNextButton: true, // defaults to true
+                // custom content of the prev/next buttons, maintains their behavior
+                nextButtonBuilder: (context) => TextButton(
+                  onPressed: _controller.currentPage > 0
+                      ? () => _controller.prev()
+                      : null, // _controller must be passed to NumberPaginator
+                  child: const Row(
+                    children: [
+                      Text("Next"),
+                      Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+                // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                prevButtonBuilder: (context) => TextButton(
+                  onPressed: _controller.currentPage > 0
+                      ? () => _controller.prev()
+                      : null, // _controller must be passed to NumberPaginator
+                  child: const Row(
+                    children: [
+                      Icon(Icons.chevron_left),
+                      Text("Previous"),
+                    ],
+                  ),
+                ),
+              ),
 
+              TableInventoryTaking(
+                contentTable: contentTableInventory,
+              ),
               SizedBox(
                 height: 20,
               ),
-
               // Action Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -380,171 +425,171 @@ class _InventoryTakingFormPopUpState extends State<InventoryTakingFormPopUp> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child:  Scrollbar(
+          child: Scrollbar(
             thickness: 1,
             thumbVisibility: false,
             child: SingleChildScrollView(
               child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Align(
-                child: GestureDetector(
-                  onTap: () {
-                    // help pop
-                    Navigator.of(context).pop();
-                  },
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: 26,
-                  ),
-                ),
-                alignment: Alignment.topRight,
-              ),
-              Center(
-                  child: Text(
-                'Inventory Taking',
-                style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                          blurRadius: 2.0,
-                          color: Colors.black,
-                          offset: Offset(1, 1)),
-                    ]),
-              )),
-              SizedBox(
-                height: 20,
-              ),
-
-              // detail inventory taking
-              InventoryTakingDetailsChild(
-                judul: 'Responsible Person',
-                data: 'Budi Setiawan',
-              ),
-              InventoryTakingDetailsChild(
-                judul: 'Date',
-                data: '07:54 PM, 01 July 2024',
-              ),
-
-              // changes untuk yg udah di input actual stock (buat tabel)
-              Theme(
-                data: Theme.of(context)
-                    .copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  tilePadding: EdgeInsets.only(left: 8.0),
-                  
-                  trailing: Icon(
-                    _customTileExpanded
-                        ? Icons.arrow_drop_down_circle
-                        : Icons.arrow_drop_down,
-                    color: ColorPalleteLogin.OrangeColor,
-                  ),
-                  title: Text(
-                    'Changes',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: ColorPalleteLogin.OrangeLightColor,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  children: [
-                    TableInventoryTakingPopUp(),
-                    SizedBox(
-                      height: 10,
-                    ),
-                  ],
-                
-                  onExpansionChanged: (value) {
-                    setState(() {
-                      _customTileExpanded = !_customTileExpanded;
-                    });
-                  },
-                ),
-              ),
-
-              SizedBox(
-                height: 30,
-              ),
-
-              // Action Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Center(
-                    child: Container(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorPalleteLogin.PrimaryColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                              side: BorderSide(
-                                  color: ColorPalleteLogin.OrangeLightColor)),
-                        ),
-                        child: Wrap(
-                          spacing: 12,
-                          children: [
-                            Text(
-                              'Back',
-                              style: TextStyle(
-                                color: ColorPalleteLogin.OrangeLightColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                  Align(
+                    child: GestureDetector(
+                      onTap: () {
+                        // help pop
+                        Navigator.of(context).pop();
+                      },
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 26,
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 20,
+                    alignment: Alignment.topRight,
                   ),
                   Center(
-                    child: Container(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorPalleteLogin.OrangeLightColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                      child: Text(
+                    'Inventory Taking',
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                              blurRadius: 2.0,
+                              color: Colors.black,
+                              offset: Offset(1, 1)),
+                        ]),
+                  )),
+                  SizedBox(
+                    height: 20,
+                  ),
+
+                  // detail inventory taking
+                  InventoryTakingDetailsChild(
+                    judul: 'Responsible Person',
+                    data: 'Budi Setiawan',
+                  ),
+                  InventoryTakingDetailsChild(
+                    judul: 'Date',
+                    data: '07:54 PM, 01 July 2024',
+                  ),
+
+                  // changes untuk yg udah di input actual stock (buat tabel)
+                  Theme(
+                    data: Theme.of(context)
+                        .copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.only(left: 8.0),
+                      trailing: Icon(
+                        _customTileExpanded
+                            ? Icons.arrow_drop_down_circle
+                            : Icons.arrow_drop_down,
+                        color: ColorPalleteLogin.OrangeColor,
+                      ),
+                      title: Text(
+                        'Changes',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: ColorPalleteLogin.OrangeLightColor,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      children: [
+                        TableInventoryTakingPopUp(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                      onExpansionChanged: (value) {
+                        setState(() {
+                          _customTileExpanded = !_customTileExpanded;
+                        });
+                      },
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: 30,
+                  ),
+
+                  // Action Button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorPalleteLogin.PrimaryColor,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  side: BorderSide(
+                                      color:
+                                          ColorPalleteLogin.OrangeLightColor)),
+                            ),
+                            child: Wrap(
+                              spacing: 12,
+                              children: [
+                                Text(
+                                  'Back',
+                                  style: TextStyle(
+                                    color: ColorPalleteLogin.OrangeLightColor,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
                           ),
                         ),
-                        child: Wrap(
-                          spacing: 12,
-                          children: [
-                            Text(
-                              'Submit',
-                              style: TextStyle(
-                                color: ColorPalleteLogin.PrimaryColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Center(
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  ColorPalleteLogin.OrangeLightColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
                               ),
                             ),
-                          ],
+                            child: Wrap(
+                              spacing: 12,
+                              children: [
+                                Text(
+                                  'Submit',
+                                  style: TextStyle(
+                                    color: ColorPalleteLogin.PrimaryColor,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              // Note: GANTI
+                              Navigator.pop(context);
+                            },
+                          ),
                         ),
-                        onPressed: () {
-                          // Note: GANTI
-                          Navigator.pop(context);
-                        },
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
         ),
       ),
     );
@@ -716,8 +761,10 @@ class DiscardPopup extends StatelessWidget {
 }
 
 class TableInventoryTaking extends StatelessWidget {
-  const TableInventoryTaking({
+  var contentTable = [];
+  TableInventoryTaking({
     super.key,
+    required this.contentTable,
   });
 
   @override
@@ -1163,7 +1210,6 @@ class TableInventoryTakingPopUp extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
@@ -1173,8 +1219,7 @@ class TableInventoryTakingPopUp extends StatelessWidget {
                           )),
                     ),
                   ),
-
-                    TableCell(
+                  TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text('Lokasi Kuuuuu',
@@ -1183,8 +1228,6 @@ class TableInventoryTakingPopUp extends StatelessWidget {
                           )),
                     ),
                   ),
-
-                  
                 ],
               ),
             ),

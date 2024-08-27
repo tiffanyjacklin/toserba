@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/Session.dart';
 import 'package:flutter_app_all/Model/SessionList.dart';
 import 'package:flutter_app_all/Page/Cashier/WidgetChild/sessionClosing.dart';
