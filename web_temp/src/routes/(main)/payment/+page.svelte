@@ -450,6 +450,7 @@
             {/if}
         <div class="h-2/6 my-8">
             <div class="h-full flex justify-center items-center">
+                {#if tampilan != "awal"}
                 <button on:click={() => {validate(); tampilan = "validasi"; tampilan = tampilan;}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">
                     {#if tampilan == "cash" && (received >=  (get(totalAmount)-member_points)) || tampilan == "qr"}
                     <span class="text-white text-6xl font-bold">Validate</span>
@@ -458,6 +459,7 @@
                     <span class="text-white text-8xl font-bold">NEXT ORDER</span>
                     {/if}      
                 </button>
+                {/if}
             </div>
         </div>
     </div>

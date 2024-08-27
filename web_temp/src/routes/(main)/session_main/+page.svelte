@@ -140,7 +140,7 @@
         }
 
         all_promo = data.data;
-        // console.log(all_promo[0]["Promo"]);
+        console.log("all_promo",all_promo);
     }
 
     // GATAU ALEX
@@ -156,13 +156,13 @@
     function checkPromo(){
         for (let i = 0; i < checkout.length; i++) {
             // cek apakah produk promo pada checkout
-            let produk_promo = all_promo.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i].product_detail_id);
+            let produk_promo = all_promo.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id);
             // jika ada, di cek apakah udh ada di array promos atau blm, klo blm baru di push
             if (produk_promo != null){
                 if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_promo["ProductDetail"].product_detail_id) != null){
                     // console.log("produk promo udh ada di promos")
                 } else {
-                    produk_promo.promo_applied = checkout[i].promo_applied;
+                    produk_promo.promo_applied = checkout[i]["ProductDetails"].promo_applied;
                     promos.push(produk_promo);
                     promos = promos;
                 }
@@ -174,18 +174,18 @@
     function promoType2_3(produk_checkout){
 
         // cek apakah produk_checkout ada di array all promo
-        if (all_promo.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout.product_detail_id) != null){
+        if (all_promo.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id) != null){
             // jika ada, ambil index di array all promo
-            let index = all_promo.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout.product_detail_id);
+            let index = all_promo.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
 
             // type 2 discount
             if (all_promo[index]["Promo"].promo_type_id == 2){
-                produk_checkout.sell_price = produk_checkout.sell_price - (produk_checkout.sell_price*(all_promo[index]["Promo"].promo_percentage)/100)
-                produk_checkout.sell_price = produk_checkout.sell_price
+                produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price - (produk_checkout["ProductDetails"].sell_price*(all_promo[index]["Promo"].promo_percentage)/100)
+                produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price
                 produk_checkout.promo_applied = true;
             } else if (all_promo[index]["Promo"].promo_type_id == 3){
-                produk_checkout.sell_price = produk_checkout.sell_price - (all_promo[index]["Promo"].promo_discount)
-                produk_checkout.sell_price = produk_checkout.sell_price
+                produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price - (all_promo[index]["Promo"].promo_discount)
+                produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price
                 produk_checkout.promo_applied = true;
             } else {
                 produk_checkout.promo_applied = false;
@@ -207,9 +207,9 @@
 
     function checkPromoAppliedType1(){
         for (let i = 0; i < checkout.length; i++) {
-            if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i].product_detail_id) != null){
+            if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id) != null){
                 // jika ada, ambil index di array all promo
-                let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i].product_detail_id);
+                let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id);
 
                 if (checkout[i].jumlah >= promos[index]["Promo"].x_amount){
                     checkout[i].promo_applied = true;
@@ -230,7 +230,7 @@
 
     function sumTotal(){
         total = checkout.reduce((sum, item) => {
-        return sum + (item.sell_price * item.jumlah);
+        return sum + (item["ProductDetails"].sell_price * item.jumlah);
         }, 0);
         total = total
         // console.log(total); 
@@ -258,6 +258,7 @@
 
         products = data.data;
         all_produk = products;
+        console.log(all_produk)
     }
     let searchQuery = '';
 
@@ -280,8 +281,8 @@
     let window = "payment";
 
     function addtoCheckout(produk){
-        if (checkout.find(({ product_name }) => product_name === produk.product_name) != null){
-            let index = checkout.findIndex(produk_c => produk_c.product_name == produk.product_name);
+        if (checkout.find(( product ) => product["ProductDetails"].product_name === produk["ProductDetails"].product_name) != null){
+            let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_name == produk["ProductDetails"].product_name);
             checkout[index].jumlah+=1;
         } else{
             promoType2_3(produk);
@@ -379,18 +380,18 @@
                     
                     <div class="grid grid-cols-3 gap-4 mt-6 mx-8">
                         {#each all_produk as produk}
-                            {@const tmp_produk = {...produk}}
-                            {#if produk.product_stock >= 1}
-                            <button on:click={() => {addtoCheckout(tmp_produk); sumTotal(); checkPromo(); checkPromoAppliedType1(); countPromoApplied();}} class="w-full border-2 border-black rounded-lg bg-white">
+                        {@const tmp_produk = structuredClone(produk)}
+                            {#if produk["ProductDetails"].product_stock >= 1}
+                            <button on:click={() => { console.log(tmp_produk); addtoCheckout(tmp_produk); sumTotal(); checkPromo(); checkPromoAppliedType1(); countPromoApplied();}} class="w-full border-2 border-black rounded-lg bg-white">
                                 <div class="p-3 w-full flex flex-col items-center">
                                     <img class="rounded-lg w-10/12 h-10/12" src={img_produk} alt="">
-                                    <p class="w-full truncate text-black font-semibold my-1 text-center">{produk.product_name}</p>
-                                    <p class="truncate text-peach2 font-semibold mb-1"><MoneyConverter value={produk.sell_price} currency={true} decimal={true}></MoneyConverter></p>
-                                    <p class="truncate text-black font-semibold mb-1">{produk.product_stock} {produk.product_unit}</p>
+                                    <p class="w-full truncate text-black font-semibold my-1 text-center">{produk["ProductDetails"].product_name}</p>
+                                    <p class="truncate text-peach2 font-semibold mb-1"><MoneyConverter value={produk["ProductDetails"].sell_price} currency={true} decimal={true}></MoneyConverter></p>
+                                    <p class="truncate text-black font-semibold mb-1">{produk["ProductDetails"].product_stock} {produk["ProductDetails"].product_unit}</p>
                                 </div>
                             </button>
                             {/if}
-                    {/each}
+                        {/each}
                 
                     </div>
                 </div>
@@ -422,17 +423,17 @@
             {#each checkout as produk_checkout}
                 <div class="flex py-1 my-1 w-full">
                     <div class="w-9/12 text-white">
-                        {#if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout.product_detail_id) != null)}
-                            <p class="font-semibold truncate text-peach2">{produk_checkout.product_name}</p>
+                        {#if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id) != null)}
+                            <p class="font-semibold truncate text-peach2">{produk_checkout["ProductDetails"].product_name}</p>
                         {:else}
-                            <p class="font-semibold truncate">{produk_checkout.product_name}</p>
+                            <p class="font-semibold truncate">{produk_checkout["ProductDetails"].product_name}</p>
                         {/if}
-                        <p class="flex font-semibold ml-8"><MoneyConverter value={produk_checkout.sell_price} currency={true} decimal={true}></MoneyConverter>/{produk_checkout.product_unit}</p>
-                        {#if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout.product_detail_id) != null)}
-                            {@const promo_produk = promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout.product_detail_id)}
+                        <p class="flex font-semibold ml-8"><MoneyConverter value={produk_checkout["ProductDetails"].sell_price} currency={true} decimal={true}></MoneyConverter>/{produk_checkout["ProductDetails"].product_unit}</p>
+                        {#if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id) != null)}
+                            {@const promo_produk = promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id)}
                             {#if (promo_produk["Promo"].promo_type_id == 1)}
                                 {#if (produk_checkout.jumlah >= promo_produk["Promo"].x_amount)}
-                                    <p class="font-semibold ml-8">{(parseInt(produk_checkout.jumlah/promo_produk["Promo"].x_amount)*promo_produk["Promo"].y_amount) + " Free " + produk_checkout.product_unit + " from Promo"}</p>
+                                    <p class="font-semibold ml-8">{(parseInt(produk_checkout.jumlah/promo_produk["Promo"].x_amount)*promo_produk["Promo"].y_amount) + " Free " + produk_checkout["ProductDetails"].product_unit + " from Promo"}</p>
                                     <p class="font-semibold ml-8 text-peach2">Promo Applied.</p>
                                 {:else}
                                     <p class="font-semibold ml-8 text-peach2">This item has a promo! Promo not yet applied.</p>
@@ -448,11 +449,11 @@
                         
                     </div>
                     <div class="w-3/12 text-center">
-                        <span class="text-peach font-semibold"><MoneyConverter value={produk_checkout.sell_price*produk_checkout.jumlah} currency={true} decimal={true}></MoneyConverter></span>
+                        <span class="text-peach font-semibold"><MoneyConverter value={produk_checkout["ProductDetails"].sell_price*produk_checkout.jumlah} currency={true} decimal={true}></MoneyConverter></span>
                         <div class="flex">
                             <button on:click={() => {
-                                let index = checkout.findIndex(produk_c => produk_c.product_name == produk_checkout.product_name);
-                                let index_promo = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout.product_detail_id);
+                                let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_name == produk_checkout["ProductDetails"].product_name);
+                                let index_promo = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
                                 if (checkout[index].jumlah > 1){
                                     checkout[index].jumlah-=1;
                                 } else{
@@ -461,7 +462,7 @@
 
                                     promos.splice(index_promo,1);
                                     promos = promos;
-                                    // console.log(checkout);
+                                    console.log(checkout);
                                     // console.log("promos-",promos);
                                 }
                                 sumTotal();
@@ -475,11 +476,12 @@
                             </button>
                             <input on:change={() =>{ sumTotal(); checkPromoAppliedType1();countPromoApplied()}} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
                             <button on:click={() => {
-                                let index = checkout.findIndex(produk_c => produk_c.product_name == produk_checkout.product_name);
+                                let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_name == produk_checkout["ProductDetails"].product_name);
                                 checkout[index].jumlah+=1;
                                 sumTotal(); 
                                 checkPromoAppliedType1();
                                 countPromoApplied();
+                                console.log(checkout)
                             }} 
                             type="button" class="bg-peach rounded-e-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
