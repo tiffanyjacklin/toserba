@@ -519,6 +519,9 @@ e.GET("/orders/supplier/not_verified", controller.GetNotVerifiedAddStock)
 e.GET("/products/stock/subtract/not_verified", controller.GetNotVerifiedSubtractStock)
 
 ================================================= Owner =================================================
+// Mengambil semua store/warehouse
+e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
+
 // Mengambil semua store atau warehouse. sw_type = store / warehouse
 e.GET("/store_warehouses/type/:sw_type", controller.GetAllByStoreWarehouseType)
 
