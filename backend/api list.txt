@@ -224,6 +224,18 @@ e.GET("/products/stock/card/product/total_stock/batch/:product_id/:sw_id/:batch"
 // Mengambil total stok berdasarkan exp date, produk id, dan store/warehouse tertentu
 e.GET("/products/stock/card/product/total_stock/:product_id/:sw_id/:exp_date", controller.GetTotalStockByEXPPIDSWID)
 
+// Mengambil list expdate pada produk tertentu
+e.GET("/products/stock/card/exp_date/:product_id", controller.GetAllEXPDateByProductID)
+
+// Mengambil list expdate pada produk tertentu dan store/warehouse tertentu
+e.GET("/products/stock/card/exp_date/:product_id/:sw_id", controller.GetAllEXPDateByProductIDSWID)
+
+// Mengambil list batch pada produk tertentu
+e.GET("/products/stock/card/batch/:product_id", controller.GetAllBatchByProductID)
+
+// Mengambil list batch pada produk tertentu dan store/warehouse tertentu
+e.GET("/products/stock/card/batch/:product_id/:sw_id", controller.GetAllBatchByProductIDSWID)
+
 // Mengambil minimal stok pada produk tertentu pada store/warehouse tertentu
 e.GET("/products/stock/min/:product_id/:store_warehouse_id", controller.CheckMinStock)
 
@@ -270,9 +282,21 @@ e.GET("/orders/transfer/notes/detail/:transfernote_id", controller.GetTransferNo
 
 // Menambahkan produk pada suatu transfer note
 e.POST("/orders/transfer/notes/add/:user_id/:role_id", controller.InsertTransferNoteDetails) 
+[
+    {
+        "product_detail_id": 4,
+        "quantity": 5,
+        "expired_date" : "2025-08-25",
+        "batch": "1"
+    }
+]
 
 // Menambah detail transfer InsertTransferNotes, setelah menambah semua produk
 e.PUT("/orders/transfer/notes/update/:transfernote_id", controller.InsertTransferNotes)
+{
+    "store_warehouse_to": 1,
+    "user_id_from": 3
+}
 
 
 // Delivery Order
@@ -310,6 +334,23 @@ e.PUT("/orders/delivery/update/:deliveryorder_id", controller.InsertDeliveryOrde
 {
     "user_id_from": 3
 }
+
+// Mengambil semua data stock produk yang dikurangi
+e.GET("/products/stock/subtract/all", controller.GetAllSubtractStock)
+
+// Mengambil semua data stock produk yang dikurangi berdasarkan store/warehouse id
+e.GET("/products/stock/subtract/:sw_id", controller.GetSubtractStockBySWID)
+
+// Menambah subtract product baru
+e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractStock)
+[
+    {
+        "product_detail_id": 4,
+        "batch": "1",
+        "subtract_quantity": 1,
+        "notes": "Dimakan tikus pak bos"
+    }
+]
 
 ================================================= Admin =================================================
 // Menambah kategori produk baru
@@ -420,6 +461,9 @@ e.GET("/orders/transfer/notes/not_verified", controller.GetNotVerifiedTransferNo
 
 // Verify deliver order
 e.PUT("/orders/transfer/notes/verify/:transfernote_id", controller.VerifyTransferNotes)
+
+// Mengambil subtract stock yang belum diverify
+e.GET("/products/stock/subtract/not_verified", controller.GetNotVerifiedSubtractStock)
 
 ================================================= Owner =================================================
 // Mengambil semua store atau warehouse. sw_type = store / warehouse
