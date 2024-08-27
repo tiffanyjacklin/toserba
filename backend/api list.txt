@@ -129,6 +129,9 @@ e.GET("/cashier/members/transaction/:member_id", controller.GetTransactionIDByMe
 // Mengambil transaksi berdasarkan ID
 e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
 
+// Mengambil transaksi berdasarkan store ID
+e.GET("/transaction/store_warehouse/:sw_id", controller.GetTransactionBySWID)
+
 // Mengambil transaksi terakhir
 e.GET("/transaction/last", controller.GetLastTransaction)
 
@@ -338,6 +341,41 @@ e.PUT("/orders/delivery/update/:deliveryorder_id", controller.InsertDeliveryOrde
     "user_id_from": 3
 }
 
+// Mengambil semua add product
+e.GET("/orders/supplier/all", controller.GetAllAddStock)
+
+// Mengambil add product pada ID tertentu
+e.GET("/orders/supplier/:addstock_id", controller.GetAddStockByID)
+
+// Mengambil semua add product detail pada add product ID tertentu
+e.GET("/orders/supplier/detail/:addstock_id", controller.GetAddStockDetailByASID)
+
+// Menambah produk pada suatu add product
+e.POST("/orders/supplier/add/:user_id/:role_id", controller.InsertAddStockDetails)
+[
+    {
+        "product_detail_id":13,
+        "batch": "3",
+        "expired_date": "2025-09-11",
+        "quantity": 500,
+        "section_placement": "A13"
+    },
+    {
+        "product_detail_id":14,
+        "batch": "3",
+        "expired_date": "2025-09-12",
+        "quantity": 50,
+        "section_placement": "A14"
+    }
+]
+
+// Menambah detail add product, setelah menambah semua produk
+e.PUT("/orders/supplier/update/:addstock_id", controller.InsertAddStock)
+{
+    "delivery_order_supplier":"00123",
+    "supplier_id": 1
+}
+
 // Mengambil semua data stock produk yang dikurangi
 e.GET("/products/stock/subtract/all", controller.GetAllSubtractStock)
 
@@ -356,6 +394,15 @@ e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractSt
 ]
 
 ================================================= Admin =================================================
+// Mengambil data session berdasarkan store ID
+e.GET("/sessions/store_warehouse/:sw_id", controller.GetSessionBySWID)
+
+// Mengambil data yang belum diverifikasi dan actual closing cash != 0
+e.GET("/sessions/not_verified", controller.GetNotVerifiedSession)
+
+// Verifikasi Session
+e.PUT("/sessions/verify/:session_id", controller.VerifySession)
+
 // Menambah kategori produk baru
 e.POST("/products/category/add", controller.InsertProductCategory)
 [
@@ -465,6 +512,9 @@ e.GET("/orders/transfer/notes/not_verified", controller.GetNotVerifiedTransferNo
 // Verify deliver order
 e.PUT("/orders/transfer/notes/verify/:transfernote_id", controller.VerifyTransferNotes)
 
+// Mengambil add stock yang belum diverify
+e.GET("/orders/supplier/not_verified", controller.GetNotVerifiedAddStock)
+
 // Mengambil subtract stock yang belum diverify
 e.GET("/products/stock/subtract/not_verified", controller.GetNotVerifiedSubtractStock)
 
@@ -515,6 +565,9 @@ e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
         "privileges_id": 1
     }
 ]
+
+// Mengambil data supplier berdasarkan ID
+e.GET("/suppliers/:supplier_id", controller.GetSupplierByID)
 
 // Menambah supplier baru
 e.POST("suppliers/add", controller.InsertSupplier)
