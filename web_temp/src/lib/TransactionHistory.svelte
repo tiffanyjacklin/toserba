@@ -70,6 +70,7 @@
 
       transactions = data.data;
       filteredTransactions = transactions;
+      console.log(filteredTransactions);
   }
   function isDateWithinRange(transactionDate) {
     const date = new Date(transactionDate);
