@@ -195,7 +195,10 @@ e.GET("/products/stock/card/:stock_card_id", controller.GetStockCardByID)
 e.GET("/products/stock/card/product/:product_id", controller.GetStockCardByProductID)
 
 // Mengambil data stock card berdasarkan store/warehouse tertentu
-e.GET("/products/stock/card/product/store_warehouse/:product_id/:storewarehouse_id", controller.GetStockCardByStoreWarehouse)
+e.GET("/products/stock/card/product/store_warehouse/:storewarehouse_id", controller.GetStockCardByStoreWarehouse)
+
+// Mengambil data stock card berdasarkan product ID dan  store/warehouse tertentu
+e.GET("/products/stock/card/product/store_warehouse/:product_id/:storewarehouse_id", controller.GetStockCardByPIDStoreWarehouse)
 
 // Mengambil data stock card berdasarkan store/warehouse pada exp date tertentu
 e.GET("/products/stock/card/product/store_warehouse/exp/:exp_date/:storewarehouse_id", controller.GetStockCardByStoreWarehouseEXPDate)
