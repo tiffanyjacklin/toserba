@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Page/Login/choose_role.dart';
 import 'package:http/http.dart' as http;
 

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
 import 'package:flutter_app_all/Page/Login/login_tablet.dart';

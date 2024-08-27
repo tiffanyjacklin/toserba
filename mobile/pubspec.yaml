@@ -26,6 +26,7 @@ dependencies:
   provider: ^6.1.2
   share_plus: ^10.0.2
   file_selector: ^1.0.3
+  number_paginator: ^0.4.1
 
 dev_dependencies:
   flutter_test:
@@ -44,6 +45,7 @@ flutter:
       - asset: assets/fonts/Helvetica.ttf
       - asset: assets/fonts/Helvetica-Bold.ttf
         weight: 700
+        
       - asset: assets/fonts/helvetica-light-587ebe5a59211.ttf
         weight: 300
     

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/ColorPallete.dart';
+import 'package:flutter_app_all/Template.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
@@ -168,57 +168,63 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                             fontWeight: FontWeight.bold),
                       ),
                       children: [
-                        TableStockCard(),
+                        Screenshot(
+                          controller: controllerPrintStock,
+                          child: TableStockCard()
+                          ),
                         SizedBox(
                           height: 10,
                         ),
 
                         // button print table
-                        Container(
-                          // height: 50,
-                          width:
-                              MediaQuery.of(context).size.width * 0.55 * 0.45,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  ColorPalleteLogin.OrangeLightColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Container(
+                            // height: 50,
+                            width:
+                                MediaQuery.of(context).size.width * 0.55 * 0.45,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    ColorPalleteLogin.OrangeLightColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
                               ),
-                            ),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Wrap(
-                                spacing: 6,
-                                children: [
-                                  Icon(
-                                    Icons.print_outlined,
-                                    color: ColorPalleteLogin.PrimaryColor,
-                                  ),
-                                  Text(
-                                    'Print Stock Card',
-                                    style: TextStyle(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Wrap(
+                                  spacing: 6,
+                                  children: [
+                                    Icon(
+                                      Icons.print_outlined,
                                       color: ColorPalleteLogin.PrimaryColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
                                     ),
-                                  ),
-                                ],
+                                    Text(
+                                      'Print Stock Card',
+                                      style: TextStyle(
+                                        color: ColorPalleteLogin.PrimaryColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+                              onPressed: () async {
+                                await controllerPrintStock
+                                    .capture()
+                                    .then((bytes) {
+                                  if (bytes != null) {
+                                    // panggil woe
+                                    saveImage(bytes, 'StockCard');
+                                    // saveAndShare(bytes, 'StockCard');
+                                  }
+                                }).catchError((onError) {
+                                  debugPrint(onError);
+                                });
+                              },
                             ),
-                            onPressed: () async {
-                              await controllerPrintStock
-                                  .capture()
-                                  .then((bytes) {
-                                if (bytes != null) {
-                                  // panggil woe
-                                  saveImage(bytes, 'StockCard');
-                                  // saveAndShare(bytes, 'StockCard');
-                                }
-                              }).catchError((onError) {
-                                debugPrint(onError);
-                              });
-                            },
                           ),
                         ),
                       ],
@@ -374,7 +380,7 @@ class TableAcceptStockForm extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('NO',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -382,7 +388,7 @@ class TableAcceptStockForm extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('Product name',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -390,7 +396,7 @@ class TableAcceptStockForm extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('In',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -398,7 +404,7 @@ class TableAcceptStockForm extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('Out',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -406,7 +412,7 @@ class TableAcceptStockForm extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('Unit Type',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -414,7 +420,7 @@ class TableAcceptStockForm extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('Total Counted',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -436,7 +442,7 @@ class TableAcceptStockForm extends StatelessWidget {
                       child: Text(
                         '${index + 1}',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -446,7 +452,7 @@ class TableAcceptStockForm extends StatelessWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Text('Nama Produk',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                           )),
                     ),
                   ),
@@ -456,7 +462,7 @@ class TableAcceptStockForm extends StatelessWidget {
                       child: Text(
                         '10000',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -467,7 +473,7 @@ class TableAcceptStockForm extends StatelessWidget {
                       child: Text(
                         '-',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -477,7 +483,7 @@ class TableAcceptStockForm extends StatelessWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Text('Unit',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                           )),
                     ),
                   ),
@@ -488,7 +494,7 @@ class TableAcceptStockForm extends StatelessWidget {
                         child: TextField(
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(fontSize: 14),
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.all(5.0),
                             isDense: true,
@@ -553,7 +559,7 @@ class TableStockCard extends StatelessWidget {
                     child: Text(
                       'NO',
                       style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -562,7 +568,7 @@ class TableStockCard extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('Product name',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -571,7 +577,7 @@ class TableStockCard extends StatelessWidget {
                     child: Text(
                       'In',
                       style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -580,7 +586,7 @@ class TableStockCard extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('Out',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -588,7 +594,7 @@ class TableStockCard extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('Unit Type',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -596,7 +602,7 @@ class TableStockCard extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('Batch Number',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -604,7 +610,7 @@ class TableStockCard extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     child: Text('Expire Date',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -626,7 +632,7 @@ class TableStockCard extends StatelessWidget {
                       child: Text(
                         '${index + 1}',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -636,7 +642,7 @@ class TableStockCard extends StatelessWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Text('Nama Produk',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                           )),
                     ),
                   ),
@@ -646,7 +652,7 @@ class TableStockCard extends StatelessWidget {
                       child: Text(
                         '10000',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -657,7 +663,7 @@ class TableStockCard extends StatelessWidget {
                       child: Text(
                         '10000',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -667,7 +673,7 @@ class TableStockCard extends StatelessWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Text('Unit',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                           )),
                     ),
                   ),
@@ -676,7 +682,7 @@ class TableStockCard extends StatelessWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Text('123456789',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                           )),
                     ),
                   ),
@@ -685,7 +691,7 @@ class TableStockCard extends StatelessWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Text('10/10/2024',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                           )),
                     ),
                   ),
@@ -883,7 +889,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Text(
                   'No',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -892,7 +898,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Text('Nama Produk',
                     style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
             ),
             TableCell(
@@ -900,7 +906,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Text(
                   'Jumlah',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -909,7 +915,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Text('Satuan',
                     style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
             ),
             TableCell(
@@ -917,7 +923,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Text('Nomor Batch',
                     style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
             ),
             TableCell(
@@ -925,7 +931,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Text('Expire Date',
                     style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -942,7 +948,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                   child: Text(
                     '${index + 1}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -952,7 +958,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                   padding: EdgeInsets.all(8.0),
                   child: Text('Nama Produk',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                       )),
                 ),
               ),
@@ -962,7 +968,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                   child: Text(
                     '10000',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -972,7 +978,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                   padding: EdgeInsets.all(8.0),
                   child: Text('Unit',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                       )),
                 ),
               ),
@@ -981,7 +987,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                   padding: EdgeInsets.all(8.0),
                   child: Text('123456789',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                       )),
                 ),
               ),
@@ -990,7 +996,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
                   padding: EdgeInsets.all(8.0),
                   child: Text('10/10/2024',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                       )),
                 ),
               ),
