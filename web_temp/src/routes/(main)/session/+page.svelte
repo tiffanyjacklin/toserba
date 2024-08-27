@@ -173,6 +173,7 @@
       return jam + ", " + tmp_bulan[2] + " " + bulan + " " + tmp_bulan[0];
     }
 
+    
    
 </script>
 <!-- tes -->
@@ -301,14 +302,14 @@
          </div>
 
          <div class="flex items-center justify-center">
-            <button on:click={() => opening_cash == last_session.deposit_difference ? NewSession() : Swal.fire({
+            <button on:click={() => {console.log(last_session.deposit_difference);opening_cash == last_session.deposit_difference ? NewSession() : Swal.fire({
                title: "Opening Cash Invalid",
                text: "Opening Cash harus sama dengan Deposit Difference",
                icon: "error",
                color: "white",
                background: "#364445",
                confirmButtonColor: '#F2AA7E'
-             })} type="submit" class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+             })}} type="submit" class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                Save
             </button>
          </div>
