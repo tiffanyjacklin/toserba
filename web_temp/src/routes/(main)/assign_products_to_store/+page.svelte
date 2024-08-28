@@ -348,6 +348,8 @@
 
       console.log("Updated transfer note detail", data2);
     }
+    products_to_transfer = [];
+    closeModal();
     goto(`/stock_transfer_notes`);
   }
 
@@ -569,7 +571,7 @@
     
       </button>
     </div>
-    Stocks:
+    <!-- Stocks:
     {#each stocks as stock}
       {stock.product_detail_id}, {stock.batch} & 
     {/each}
@@ -589,7 +591,7 @@
       {stock.product_detail_id}, {stock.batch} & 
     {/each}
     <br>
-    ShowModal: {showModal}
+    ShowModal: {showModal} -->
     
     {#if showAddProduct}
     <div class="relative mt-8 flex items-center justify-center w-full">
