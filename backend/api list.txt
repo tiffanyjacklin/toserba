@@ -61,7 +61,6 @@ e.POST("/user/privileges/add/exist/:user_id/:role_id", controller.InsertExistUse
     }
 ]
 
-
 // Mengubah privilege. Yang di uri role id sebelumnya, yang di body role id setelah
 e.PUT("/user/privileges/update/:user_id/:role_id/:privilege_id", controller.UpdateUserPrivilege)
 {
