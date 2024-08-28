@@ -389,6 +389,7 @@ e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractSt
         "product_detail_id": 4,
         "batch": "1",
         "subtract_quantity": 1,
+        "expired_date": "2025-08-25"
         "notes": "Dimakan tikus pak bos"
     }
 ]
@@ -512,11 +513,34 @@ e.GET("/orders/transfer/notes/not_verified", controller.GetNotVerifiedTransferNo
 // Verify deliver order
 e.PUT("/orders/transfer/notes/verify/:transfernote_id", controller.VerifyTransferNotes)
 
+// Menambah produk untuk suatu tranfer note
+e.POST("/orders/transfer/detail/add/product/:transfernote_id", controller.InsertProductToTransferNoteDetails) 
+[
+    {
+        "product_detail_id": 13,
+        "quantity": 5,
+        "expired_date" : "2025-09-11",
+        "batch": "3"
+    }
+]
+
+// Mengganti kuantitas produk pada suatu transfer note
+e.PUT("/orders/transfer/detail/update/product/:transfernote_id/:product_id/:quantity", controller.UpdateProductQtyTransferNote)
+
+// Menghapus produk di suatu tranfer note 
+e.DELETE("/orders/transfer/detail/delete/product/:transfernote_id/:product_id", controller.DelProductFromTransferNote)
+
 // Mengambil add stock yang belum diverify
 e.GET("/orders/supplier/not_verified", controller.GetNotVerifiedAddStock)
 
+// Verify add product dari warehouse
+e.PUT("/orders/supplier/verify/:addstock_id", controller.VerifyAddStock)
+
 // Mengambil subtract stock yang belum diverify
 e.GET("/products/stock/subtract/not_verified", controller.GetNotVerifiedSubtractStock)
+
+// Verify subtract product dari warehouse
+e.PUT("/products/stock/subtract/verify/:subtract_id", controller.VerifySubtractStock)
 
 ================================================= Owner =================================================
 // Mengambil semua store/warehouse

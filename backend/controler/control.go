@@ -275,6 +275,17 @@ func GetSessionByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetSessionBySWID(c echo.Context) error {
+	sid := c.Param("sw_id")
+	result, err := model.GetSessionBySWID(sid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetSessionBySWID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetLastSession(c echo.Context) error {
 	result, err := model.GetLastSession()
 	if err != nil {
@@ -306,6 +317,28 @@ func InsertNewSession(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "InsertNewSession", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetNotVerifiedSession(c echo.Context) error {
+	result, err := model.GetNotVerifiedSession()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetNotVerifiedSession", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func VerifySession(c echo.Context) error {
+	doi := c.Param("session_id")
+
+	result, err := model.VerifySession(doi)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "VerifySession", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -385,6 +418,17 @@ func GetTransactionByID(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetTransactionByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetTransactionBySWID(c echo.Context) error {
+	tid := c.Param("sw_id")
+	result, err := model.GetTransactionBySWID(tid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetTransactionBySWID", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -709,12 +753,22 @@ func InsertStockCards(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
 	}
-	result, err := model.InsertStockCards(string(pay), false)
+	result, err := model.InsertStockCards(string(pay))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "InsertStockCards", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllStockCard(c echo.Context) error {
+	result, err := model.GetAllStockCard()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllStockCard", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -741,9 +795,20 @@ func GetStockCardByProductID(c echo.Context) error {
 }
 
 func GetStockCardByStoreWarehouse(c echo.Context) error {
+	wid := c.Param("storewarehouse_id")
+	result, err := model.GetStockCardByStoreWarehouse(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetStockCardByStoreWarehouse", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetStockCardByPIDStoreWarehouse(c echo.Context) error {
 	pid := c.Param("product_id")
 	wid := c.Param("storewarehouse_id")
-	result, err := model.GetStockCardByStoreWarehouse(pid, wid)
+	result, err := model.GetStockCardByPIDStoreWarehouse(pid, wid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -797,6 +862,52 @@ func GetEarliestEXPByProductID(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetEarliestEXPByProductID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllEXPDateByProductID(c echo.Context) error {
+	pid := c.Param("product_id")
+	result, err := model.GetAllEXPDateByProductID(pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllEXPDateByProductID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllEXPDateByProductIDSWID(c echo.Context) error {
+	pid := c.Param("product_id")
+	swid := c.Param("sw_id")
+	result, err := model.GetAllEXPDateByProductIDSWID(pid, swid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllEXPDateByProductID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllBatchByProductID(c echo.Context) error {
+	pid := c.Param("product_id")
+	result, err := model.GetAllBatchByProductID(pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllBatchByProductID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllBatchByProductIDSWID(c echo.Context) error {
+	pid := c.Param("product_id")
+	swid := c.Param("sw_id")
+	result, err := model.GetAllBatchByProductIDSWID(pid, swid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllBatchByProductIDSWID", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -872,6 +983,19 @@ func GetTotalStockByBatchPIDSWID(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetTotalStockByBatchPIDSWID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetProductForTransferNote(c echo.Context) error {
+	pid := c.Param("product_id")
+	swid := c.Param("sw_id")
+	qty := c.Param("quantity")
+	result, err := model.GetProductForTransferNote(pid, swid, qty)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetProductForTransferNote", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -966,6 +1090,17 @@ func GetLastTransferNote(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetTransferNoteDetailByTNID(c echo.Context) error {
+	wid := c.Param("transfernote_id")
+	result, err := model.GetTransferNoteDetailByTNID(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetTransferNoteDetailByTNID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func InsertTransferNotes(c echo.Context) error {
 	tid := c.Param("transfernote_id")
 	delo, err := io.ReadAll(c.Request().Body)
@@ -994,6 +1129,48 @@ func InsertTransferNoteDetails(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "InsertTransferNoteDetails", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertProductToTransferNoteDetails(c echo.Context) error {
+	trd, err := io.ReadAll(c.Request().Body)
+	uid := c.Param("transfernote_id")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertProductToTransferNoteDetails(string(trd), uid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertProductToTransferNoteDetails", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func UpdateProductQtyTransferNote(c echo.Context) error {
+	tid := c.Param("transfernote_id")
+	pid := c.Param("product_id")
+	qty := c.Param("quantity")
+
+	result, err := model.UpdateProductQtyTransferNote(tid, pid, qty)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "UpdateProductQtyTransferNote", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func DelProductFromTransferNote(c echo.Context) error {
+	tid := c.Param("transfernote_id")
+	pid := c.Param("product_id")
+
+	result, err := model.DelProductFromTransferNote(tid, pid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "DelProductFromTransferNote", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -1160,6 +1337,161 @@ func GetNotAcceptedDeliveryOrder(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetAllAddStock(c echo.Context) error {
+	result, err := model.GetAllAddStock()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllAddStock", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAddStockByID(c echo.Context) error {
+	wid := c.Param("addstock_id")
+	result, err := model.GetAddStockByID(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAddStockByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAddStockDetailByASID(c echo.Context) error {
+	wid := c.Param("addstock_id")
+	result, err := model.GetAddStockDetailByASID(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAddStockDetailByASID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertAddStock(c echo.Context) error {
+	tid := c.Param("addstock_id")
+	delo, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertAddStock(tid, string(delo))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertAddStock", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertAddStockDetails(c echo.Context) error {
+	trd, err := io.ReadAll(c.Request().Body)
+	uid := c.Param("user_id")
+	rid := c.Param("role_id")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertAddStockDetails(string(trd), uid, rid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertAddStockDetails", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetNotVerifiedAddStock(c echo.Context) error {
+	result, err := model.GetNotVerifiedAddStock()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetNotVerifiedAddStock", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func VerifyAddStock(c echo.Context) error {
+	doi := c.Param("addstock_id")
+
+	result, err := model.VerifyAddStock(doi)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "VerifyAddStock", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllSubtractStock(c echo.Context) error {
+	result, err := model.GetAllSubtractStock()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllSubtractStock", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetSubtractStockByID(c echo.Context) error {
+	wid := c.Param("subtractstock_id")
+	result, err := model.GetSubtractStockByID(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetSubtractStockByID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetSubtractStockBySWID(c echo.Context) error {
+	wid := c.Param("sw_id")
+	result, err := model.GetSubtractStockBySWID(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetSubtractStockBySWID", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func InsertSubtractStock(c echo.Context) error {
+	trd, err := io.ReadAll(c.Request().Body)
+	uid := c.Param("user_id")
+	rid := c.Param("role_id")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Gagal membaca body request"})
+	}
+	result, err := model.InsertSubtractStock(string(trd), uid, rid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "InsertSubtractStock", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetNotVerifiedSubtractStock(c echo.Context) error {
+	result, err := model.GetNotVerifiedSubtractStock()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetNotVerifiedSubtractStock", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func VerifySubtractStock(c echo.Context) error {
+	doi := c.Param("subtract_id")
+
+	result, err := model.VerifySubtractStock(doi)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "VerifySubtractStock", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetAllByStoreWarehouseType(c echo.Context) error {
 	sw := c.Param("sw_type")
 	result, err := model.GetAllByStoreWarehouseType(sw)
@@ -1168,6 +1500,16 @@ func GetAllByStoreWarehouseType(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "GetAllByStoreWarehouseType", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllStoreWarehouse(c echo.Context) error {
+	result, err := model.GetAllStoreWarehouse()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetAllStoreWarehouse", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 
@@ -1293,6 +1635,17 @@ func InsertRolesDefault(c echo.Context) error {
 	}
 	ip := c.RealIP()
 	model.InsertLog(ip, "UploadRolesDefault", result.Data, 3)
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetSupplierByID(c echo.Context) error {
+	wid := c.Param("supplier_id")
+	result, err := model.GetSupplierByID(wid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	ip := c.RealIP()
+	model.InsertLog(ip, "GetSupplierByID", result.Data, 3)
 	return c.JSON(http.StatusOK, result)
 }
 

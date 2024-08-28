@@ -87,6 +87,12 @@ type Session struct {
 	DepositDifference int `json:"deposit_difference"`
 	OpeningNotes string `json:"opening_notes"`
 	ClosingNotes string `json:"closing_notes"`
+	StatusVerify int `json:"status_verify"`
+}
+
+type SessionUser struct {
+	Session Session
+	UserData UserData
 }
 
 type Members struct {
@@ -112,8 +118,8 @@ type ProductDetails struct {
 	BuyPrice int `json:"buy_price"`
 	SellPrice int `json:"sell_price"`
 	ExpiryDate string `json:"expiry_date"`
-	MinStock int `json:"min_stock"`
-	ProductStock int `json:"product_stock"`
+	MinStock float64 `json:"min_stock"`
+	ProductStock float64 `json:"product_stock"`
 	ProductUnit string `json:"product_unit"`
 	ProductTimeStamp string `json:"product_timestamp"`
 	StoreWarehouseID int `json:"store_warehouse_id"`
@@ -145,11 +151,11 @@ type TransactionDetails struct {
 	ProductDetailId int `json:"product_detail_id"`
 	ProductDetailName string `json:"product_detail_name"`
 	PromoProductId int `json:"promo_product_id"`
-	Quantity int `json:"quantity"`
+	Quantity float64 `json:"quantity"`
 	SellPrice int `json:"sell_price"`
 	DiscountPrice int `json:"discount_price"`
 	TotalPrice int `json:"total_price"`
-	QuantityFree int `json:"quantity_free"`
+	QuantityFree float64 `json:"quantity_free"`
 }
 
 type TransactionAttribute struct {
@@ -211,11 +217,11 @@ type StockCards struct {
 	StockDescription string `json:"stock_description"`
 	ProductName string `json:"product_name"`
 	ProductBatch string `json:"product_batch"`
-	ProductStock int `json:"product_stock"`
+	ProductStock float64 `json:"product_stock"`
 	ProductUnit string `json:"product_unit"`
 	ExpiredDate string `json:"expired_date"`
-	StockIn int `json:"stock_in"`
-	StockOut int `json:"stock_out"`
+	StockIn float64 `json:"stock_in"`
+	StockOut float64 `json:"stock_out"`
 	StoreWarehouseID int `json:"store_warehouse_id"`
 }
 
@@ -225,8 +231,8 @@ type StockOpname struct {
 	ProductName string `json:"product_name"`
 	Batch string `json:"batch"`
 	ExpiredDate string `json:"expired_date"`
-	ExpectedStock int `json:"expected_stock"`
-	ActualStock int `json:"actual_stock"`
+	ExpectedStock float64 `json:"expected_stock"`
+	ActualStock float64 `json:"actual_stock"`
 	UnitType string `json:"unit_type"`
 	Timestamp string `json:"timestamp"`
 	StoreWarehouseID int `json:"store_warehouse_id"`
@@ -246,9 +252,10 @@ type TransferNoteDetails struct {
 	TransferNoteDetailID int `json:"transfer_note_detail_id"`
 	TransferNoteID int `json:"transfer_note_id"`
 	ProductDetailID int `json:"product_detail_id"`
+	ProductName string `json:"product_name"`
 	Batch string `json:"batch"`
 	ExpiredDate string `json:"expired_date"`
-	Quantity int `json:"quantity"`
+	Quantity float64 `json:"quantity"`
 }
 
 type DeliveryOrders struct {
@@ -268,9 +275,41 @@ type DeliveryOrderDetails struct {
 	DeliveryOrderID int `json:"delivery_order_id"`
 	ProductDetailID int `json:"product_detail_id"`
 	ProductName string `json:"product_name"`
-	Quantity int `json:"quantity"`
+	Quantity float64 `json:"quantity"`
 	ExpiredDate string `json:"expired_date"`
 	Batch string `json:"batch"`
+}
+
+type AddStockWH struct {
+	AddStockWHID int `json:"add_stock_id"`
+	DeliveryOrderSupplier string `json:"delivery_order_supplier"`
+	SupplierID int `json:"supplier_id"`
+	Timestamp string `json:"timestamp"`
+	StatusVerify int `json:"status_verify"`
+	UserID int `json:"user_id"`
+	StoreWarehouseID int `json:"store_warehouse_id"`
+}
+
+type AddStockWHDetails struct {
+	AddStockWHDetailID int `json:"add_stock_detail_id"`
+	ProductDetailID int `json:"product_detail_id"`
+	Batch string `json:"batch"`
+	ExpiredDate string `json:"expired_date"`
+	AddQty float64 `json:"quantity"`
+	SectionPlacement string `json:"section_placement"`
+}
+
+type SubtractStock struct {
+	SubtractStockID int `json:"subtract_stock_id"`
+	ProductDetailID int `json:"product_detail_id"`
+	Batch string `json:"batch"`
+	ExpiredDate string `json:"expired_date"`
+	SubtractQty float64 `json:"subtract_quantity"`
+	StatusVerify int `json:"status_verify"`
+	Notes string `json:"notes"`
+	UserID int `json:"user_id"`
+	StoreWarehouseID int `json:"store_warehouse_id"`
+	Timestamp string `json:"timestamp"`
 }
 
 type Notifications struct {

@@ -597,6 +597,13 @@ func GetDataUser(id_user, id_role string) (Response, error) {
 	rid, _ := strconv.Atoi(id_role)
 	err = stmt.QueryRow(uid, rid).Scan(&user.UserId, &user.Username, &user.Password, &user.UserFullName, &user.UserAddress, &user.UserGender, &user.UserBirthDate, &user.UserEmail, &user.UserPhoneNumber, &user.UserPhotoProfile, &user.LoginTimestamp, &user.RoleId, &user.RoleName, &user.StoreWarehouseID)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			user = UserData{}
+			res.Status = http.StatusOK
+			res.Message = "Data Not Exist"
+			res.Data = user
+			return res, nil
+		}
 		res.Status = 401
 		res.Message = "Data Not Exist"
 		res.Data = err.Error()
@@ -1059,6 +1066,13 @@ func GetSessionByID(id_session string) (Response, error) {
 	Id, _ := strconv.Atoi(id_session)
 	err = stmt.QueryRow(Id).Scan(&sess.SessionId, &sess.UserId, &sess.UserFullName, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime)
 	if err != nil {
+		if err == sql.ErrNoRows {
+           	sess = Session{}
+            res.Status = http.StatusOK
+            res.Message = "Data Not Exist"
+            res.Data = sess
+            return res, nil
+        }
 		res.Status = 401
 		res.Message = "Data Not Exist"
 		res.Data = err.Error()
@@ -1068,6 +1082,77 @@ func GetSessionByID(id_session string) (Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = sess
+	return res, nil
+}
+
+func GetSessionBySWID(id_sw string) (Response, error) {
+	var res Response
+	var sess SessionUser
+	var arrSess = []SessionUser{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetStoreWarehouseByID(id_sw)
+	swData, ok := check.Data.(StoreWarehouses)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if swData.StoreWarehouseId == 0 {
+		res.Status = 500
+		res.Message = "Store not exist"
+		return res, fmt.Errorf("store ID %s not exist", id_sw)
+	}
+
+	if swData.StoreWarehouseType != "STORE" {
+		res.Status = 500
+		res.Message = "Select a store"
+		return res, fmt.Errorf("sw %s is not a store", id_sw)
+	}
+
+	query := "SELECT s.session_id, s.user_id, u.user_fullname ,s.start_time, s.end_time, s.opening_cash, s.total_income, s.expected_closing_cash, s.actual_closing_cash, s.actual_difference, s.deposit_money, s.deposit_difference, s.opening_notes, s.closing_notes, s.last_update_time, ur.store_warehouse_id FROM sessions s JOIN users u ON s.user_id = u.user_id JOIN user_roles ur ON ur.user_id = s.user_id WHERE ur.roles_id = 1 AND ur.store_warehouse_id = ? GROUP BY s.session_id ASC"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	rid, _ := strconv.Atoi(id_sw)
+	rows, err := stmt.Query(rid)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sess.Session.SessionId, &sess.Session.UserId, &sess.Session.UserFullName, &sess.Session.StartTime, &sess.Session.EndTime, &sess.Session.OpeningCash, &sess.Session.TotalIncome, &sess.Session.ExpectedClosingCash, &sess.Session.ActualClosingCash, &sess.Session.ActualDifference, &sess.Session.DepositMoney, &sess.Session.DepositDifference, &sess.Session.OpeningNotes, &sess.Session.ClosingNotes, &sess.Session.LastUpdateTime, &sess.UserData.StoreWarehouseID)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSess = append(arrSess, sess)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSess
 	return res, nil
 }
 
@@ -1365,6 +1450,109 @@ func UpdateSessionData(id_session, session string) (Response, error) {
 
 	Id, _ := strconv.Atoi(id_session)
 	_, err = stmt.Exec(updateTime, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.ClosingNotes, Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sess
+	return res, nil
+}
+
+func GetNotVerifiedSession() (Response, error) {
+	var res Response
+	var sess Session
+	var arrSess = []Session{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT session_id, user_id, start_time, end_time, opening_cash, total_income, expected_closing_cash, actual_closing_cash, actual_difference, deposit_money, deposit_difference, opening_notes, closing_notes, last_update_time, status_verify FROM sessions WHERE status_verify = 0 AND actual_closing_cash != 0"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sess.SessionId, &sess.UserId, &sess.StartTime, &sess.EndTime, &sess.OpeningCash, &sess.TotalIncome, &sess.ExpectedClosingCash, &sess.ActualClosingCash, &sess.ActualDifference, &sess.DepositMoney, &sess.DepositDifference, &sess.OpeningNotes, &sess.ClosingNotes, &sess.LastUpdateTime, &sess.StatusVerify)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSess = append(arrSess, sess)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSess
+	return res, nil
+}
+
+func VerifySession(id_session string) (Response, error) {
+	var res Response
+	var sess Session
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	Id, _ := strconv.Atoi(id_session)
+
+	check, _ := GetSessionByID(id_session)
+	SessData, ok := check.Data.(Session)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if SessData.SessionId == 0 {
+		res.Status = 500
+		res.Message = "Session not exist"
+		return res, fmt.Errorf("session ID %s not exist", id_session)
+	}
+
+	query := "UPDATE sessions SET status_verify = 1 WHERE session_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(Id)
 	if err != nil {
 		res.Status = 401
 		res.Message = "exec gagal"
@@ -1708,6 +1896,7 @@ func GetProductByID(id_product, id_user, id_role string) (Response, error) {
 	Id, _ := strconv.Atoi(id_product)
 	err = stmt.QueryRow(Id).Scan(&prd.ProductDetails.ProductDetailId, &prd.ProductDetails.ProductCode, &prd.ProductCategories.ProductCategoryId, &prd.ProductCategories.ProductCategoryName, &prd.ProductDetails.ProductName, &prd.Suppliers.SupplierId, &prd.Suppliers.SupplierName, &prd.ProductDetails.BuyPrice, &prd.ProductDetails.SellPrice, &prd.ProductDetails.MinStock, &prd.ProductDetails.ProductUnit, &prd.ProductDetails.ProductTimeStamp, &prd.ProductDetails.StoreWarehouseID)
 	if err != nil {
+		fmt.Println("HAHAHHsssssA", err)
 		res.Status = 401
 		res.Message = "Data Not Exist"
 		res.Data = err.Error()
@@ -1725,7 +1914,6 @@ func GetProductByID(id_product, id_user, id_role string) (Response, error) {
 			return res, fmt.Errorf("unexpected data format")
 		}
 		prd.ProductDetails.ProductStock = stockData.ProductStock
-
 		if stockData.ProductStock > 0 {
 			check, _ = GetEarliestEXPByProductID(pid, wid)
 			expData, ok := check.Data.(StockCards)
@@ -2147,7 +2335,7 @@ func InsertProductDetails(product, id_sw string) (Response, error) {
 			res.Data = err.Error()
 			return res, err
 		}
-		_, _ = InsertStockCards(string(data), true)
+		_, _ = InsertStockCards(string(data))
 	}
 
 	res.Status = http.StatusOK
@@ -2254,6 +2442,77 @@ func GetTransactionByID(id_transaction string) (Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = trs
+	return res, nil
+}
+
+func GetTransactionBySWID(id_sw string) (Response, error) {
+	var res Response
+	var trs TransactionAttribute
+	var arrTrs = []TransactionAttribute{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetStoreWarehouseByID(id_sw)
+	swData, ok := check.Data.(StoreWarehouses)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if swData.StoreWarehouseId == 0 {
+		res.Status = 500
+		res.Message = "Store not exist"
+		return res, fmt.Errorf("store ID %s not exist", id_sw)
+	}
+
+	if swData.StoreWarehouseType != "STORE" {
+		res.Status = 500
+		res.Message = "Select a store"
+		return res, fmt.Errorf("sw %s is not a store", id_sw)
+	}
+
+	query := "SELECT t.transaction_id, t.transaction_total_price, t.transaction_timestamp, t.transaction_payment_method_id, t.transaction_payment, t.transaction_change, t.transaction_total_item, u.user_id, u.user_fullname, pm.payment_method_name, ur.store_warehouse_id FROM transactions t JOIN payment_method pm ON t.transaction_payment_method_id = pm.payment_method_id JOIN session_transactions st ON t.transaction_id = st.transaction_id JOIN sessions s ON st.session_id = s.session_id JOIN users u ON s.user_id = u.user_id JOIN user_roles ur ON ur.user_id = s.user_id WHERE ur.store_warehouse_id = ? AND ur.roles_id = 1 GROUP BY t.transaction_id ASC"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_sw)
+	rows, err := stmt.Query(Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&trs.Transaction.TransactionId, &trs.Transaction.TransactionTotalPrice, &trs.Transaction.TransactionTimeStamp, &trs.PaymentMethod.PaymentMethodId, &trs.Transaction.TransactionPayment, &trs.Transaction.TransactionChange, &trs.Transaction.TotalItem, &trs.UserData.UserId, &trs.UserData.UserFullName, &trs.PaymentMethod.PaymentMethodName, &trs.UserData.StoreWarehouseID)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrTrs = append(arrTrs, trs)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrTrs
 	return res, nil
 }
 
@@ -2438,7 +2697,7 @@ func InsertTransactionDetails(transaction, id_user, id_role string) (Response, e
 		if x.Quantity > stockData.ProductStock {
 			res.Status = 500
 			res.Message = "Not Enough Stock"
-			return res, fmt.Errorf("not enough stock for ID product %d: %d", x.ProductDetailId, stockData.ProductStock)
+			return res, fmt.Errorf("not enough stock for ID product %d: %f", x.ProductDetailId, stockData.ProductStock)
 		}
 	}
 
@@ -2478,7 +2737,7 @@ func InsertTransactionDetails(transaction, id_user, id_role string) (Response, e
 		arrTrd[i].TransactionDetailId = int(lastId)
 
 		data, err := json.Marshal([]map[string]interface{}{{
-			"product_detail_id":  lastId,
+			"product_detail_id":  x.ProductDetailId,
 			"stock_description":  "Purchase",
 			"stock_out":          x.Quantity,
 			"store_warehouse_id": userData.StoreWarehouseID,
@@ -2489,7 +2748,7 @@ func InsertTransactionDetails(transaction, id_user, id_role string) (Response, e
 			res.Data = err.Error()
 			return res, err
 		}
-		_, _ = InsertStockCards(string(data), false)
+		_, _ = InsertStockCards(string(data))
 	}
 
 	res.Status = http.StatusOK
@@ -2598,6 +2857,15 @@ func InsertTransaction(id_transaction, id_session, id_member, transaction string
 		return res, fmt.Errorf("unexpected data format")
 	}
 
+	_, _ = InsertSessionTransaction(Id, id_session)
+
+	if mid != 0 {
+		_, _ = InsertMemberTransaction(Id, id_member, trs.MemberPointIn, trs.MemberPointOut)
+		if trs.MemberPointIn != 0 || trs.MemberPointOut != 0 {
+			_, _ = UpdateMemberPoints(id_member, (trs.MemberPointIn + trs.MemberPointOut))
+		}
+	}
+
 	query := "UPDATE transactions SET transaction_total_price = ?, transaction_timestamp = NOW(), transaction_payment_method_id = ?, transaction_payment = ?, transaction_change = ?, transaction_total_item = ? WHERE transaction_id = ?"
 	stmt, err := con.Prepare(query)
 	if err != nil {
@@ -2614,15 +2882,6 @@ func InsertTransaction(id_transaction, id_session, id_member, transaction string
 		res.Message = "exec gagal"
 		res.Data = err.Error()
 		return res, err
-	}
-
-	_, _ = InsertSessionTransaction(Id, id_session)
-
-	if mid != 0 {
-		_, _ = InsertMemberTransaction(Id, id_member, trs.MemberPointIn, trs.MemberPointOut)
-		if trs.MemberPointIn != 0 || trs.MemberPointOut != 0 {
-			_, _ = UpdateMemberPoints(id_member, (trs.MemberPointIn + trs.MemberPointOut))
-		}
 	}
 
 	res.Status = http.StatusOK
@@ -3431,9 +3690,9 @@ func InsertPaymentMethod(payment string) (Response, error) {
 	return res, nil
 }
 
-func InsertStockCards(stockcard string, exp bool) (Response, error) {
+func InsertStockCards(stockcard string) (Response, error) {
 	var res Response
-	var totalStock int
+	var totalStock float64
 	var arrSC = []StockCards{}
 
 	err := json.Unmarshal([]byte(stockcard), &arrSC)
@@ -3475,7 +3734,7 @@ func InsertStockCards(stockcard string, exp bool) (Response, error) {
 		}
 
 		check, _ = GetProductByID(pid,"","")
-		productData, ok := check.Data.(ProductDetails)
+		productData, ok := check.Data.(ProductCombine)
 		if !ok {
 			res.Status = 500
 			res.Message = "Unexpected data format"
@@ -3496,6 +3755,7 @@ func InsertStockCards(stockcard string, exp bool) (Response, error) {
 		}
 
 		if (x.StockOut > 0 && x.ExpiredDate == "") {
+
 			check, _ = ProcessStockOut(pid, wid, x.StockOut, x.StockDescription, i, arrSC)
 			stockData, ok := check.Data.([]StockCards)
 			if !ok {
@@ -3507,7 +3767,7 @@ func InsertStockCards(stockcard string, exp bool) (Response, error) {
 			arrSC = stockData
 		} else {
 			expiredDate, _ := time.Parse("2006-01-02", x.ExpiredDate)
-			result, err := stmt.Exec(x.ProductDetailID, x.StockDescription, productData.ProductName, x.ProductBatch, totalStock, expiredDate, x.StockIn, x.StockOut, x.StoreWarehouseID)
+			result, err := stmt.Exec(x.ProductDetailID, x.StockDescription, productData.ProductDetails.ProductName, x.ProductBatch, totalStock, expiredDate, x.StockIn, x.StockOut, x.StoreWarehouseID)
 			if err != nil {
 				res.Status = 401
 				res.Message = "exec gagal"
@@ -3531,9 +3791,9 @@ func InsertStockCards(stockcard string, exp bool) (Response, error) {
 	return res, nil
 }
 
-func ProcessStockOut(pid string, wid string, stockOut int, desc string, i int, arrSC []StockCards) (Response, error) {
+func ProcessStockOut(pid string, wid string, stockOut float64, desc string, i int, arrSC []StockCards) (Response, error) {
 	var res Response
-	var totalStock int
+	var totalStock float64
 
     if stockOut <= 0 {
 		res.Status = 401
@@ -3562,14 +3822,33 @@ func ProcessStockOut(pid string, wid string, stockOut int, desc string, i int, a
     }
     defer stmt.Close()
 
+	check, _ := GetEarliestEXPByProductID(pid, wid)
+	expData, ok := check.Data.(StockCards)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
     for stockOut > 0 {
-        check, _ := GetTotalStockByEarliestEXPDate(pid, wid)
-        stockData, ok := check.Data.(StockCards)
-        if !ok {
-            res.Status = 500
-			res.Message = "Unexpected data format"
-			return res, fmt.Errorf("unexpected data format")
-        }
+		var stockData StockCards
+		if expData.ExpiredDate == "0000-00-00" {
+			check, _ := GetTotalStockByEarliestStockDate(pid, wid)
+			stockData, ok = check.Data.(StockCards)
+			if !ok {
+				res.Status = 500
+				res.Message = "Unexpected data format"
+				return res, fmt.Errorf("unexpected data format")
+			}
+		} else {
+			check, _ := GetTotalStockByEarliestEXPDate(pid, wid)
+			stockData, ok = check.Data.(StockCards)
+			if !ok {
+				res.Status = 500
+				res.Message = "Unexpected data format"
+				return res, fmt.Errorf("unexpected data format")
+			}
+		}
 
         if stockData.ProductStock == 0 {
 			res.Status = 500
@@ -3600,7 +3879,7 @@ func ProcessStockOut(pid string, wid string, stockOut int, desc string, i int, a
 		}
 
         deductedStock := math.Min(float64(stockOut), float64(stockData.ProductStock))
-		totalStock = lastSCData.ProductStock - int(deductedStock)
+		totalStock = lastSCData.ProductStock - deductedStock
 
         expiredDate, _ := time.Parse("2006-01-02", stockData.ExpiredDate)
         result, err := stmt.Exec(pid, desc, stockData.ProductName, stockData.ProductBatch, totalStock, expiredDate, 0, int(deductedStock), wid)
@@ -3620,13 +3899,63 @@ func ProcessStockOut(pid string, wid string, stockOut int, desc string, i int, a
 		}
 		arrSC[i].StockCardID = int(lastId)
 
-        stockOut -= int(deductedStock)
+        stockOut -= deductedStock
     }
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = arrSC
 
     return res, nil
+}
+
+func GetAllStockCard() (Response, error) {
+	var res Response
+	var sc StockCards
+	var arrSC = []StockCards{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT sc.stock_card_id, sc.product_detail_id, sc.stock_date, sc.stock_description, sc.product_name, sc.product_batch, sc.product_stock, sc.expired_date, sc.stock_in, sc.stock_out, sc.store_warehouse_id, pd.product_unit FROM stock_cards sc JOIN product_details pd ON sc.product_detail_id = pd.product_detail_id ORDER BY sc.stock_card_id ASC"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sc.StockCardID, &sc.ProductDetailID, &sc.StockDate, &sc.StockDescription, &sc.ProductName, &sc.ProductBatch, &sc.ProductStock, &sc.ExpiredDate, &sc.StockIn, &sc.StockOut, &sc.StoreWarehouseID, &sc.ProductUnit)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSC = append(arrSC, sc)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSC
+	return res, nil
 }
 
 func GetStockCardByID(id_stockcard string) (Response, error) {
@@ -3791,7 +4120,58 @@ func GetStockCardByEXPDate(id_product, expdate string) (Response, error) {
 	return res, nil
 }
 
-func GetStockCardByStoreWarehouse(id_product, id_warehouse string) (Response, error) {
+func GetStockCardByStoreWarehouse(id_warehouse string) (Response, error) {
+	var res Response
+	var sc StockCards
+	var arrSC = []StockCards{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT sc.stock_card_id, sc.product_detail_id, sc.stock_date, sc.stock_description, sc.product_name, sc.product_batch, sc.product_stock, sc.expired_date, sc.stock_in, sc.stock_out, sc.store_warehouse_id, pd.product_unit FROM stock_cards sc JOIN product_details pd ON sc.product_detail_id = pd.product_detail_id WHERE sc.store_warehouse_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	wId, _ := strconv.Atoi(id_warehouse)
+	rows, err := stmt.Query(wId)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sc.StockCardID, &sc.ProductDetailID, &sc.StockDate, &sc.StockDescription, &sc.ProductName, &sc.ProductBatch, &sc.ProductStock, &sc.ExpiredDate, &sc.StockIn, &sc.StockOut, &sc.StoreWarehouseID, &sc.ProductUnit)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSC = append(arrSC, sc)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSC
+	return res, nil
+}
+
+func GetStockCardByPIDStoreWarehouse(id_product, id_warehouse string) (Response, error) {
 	var res Response
 	var sc StockCards
 	var arrSC = []StockCards{}
@@ -3985,7 +4365,7 @@ func GetLastProductIDInStockCard(id_product, id_storewarehouse string) (Response
 	return res, nil
 }
 
-func GetEarliestEXPByProductID(id_produk, id_sw string) (Response, error) {
+func GetEarliestEXPByProductID(id_product, id_sw string) (Response, error) {
 	var res Response
 	var sc StockCards
 
@@ -4008,7 +4388,7 @@ func GetEarliestEXPByProductID(id_produk, id_sw string) (Response, error) {
 	}
 	defer stmt.Close()
 
-	pid, _ := strconv.Atoi(id_produk)
+	pid, _ := strconv.Atoi(id_product)
 	swid, _ := strconv.Atoi(id_sw)
 	err = stmt.QueryRow(pid, swid).Scan(&sc.ExpiredDate, &sc.ProductBatch)
 	if err != nil {
@@ -4021,6 +4401,279 @@ func GetEarliestEXPByProductID(id_produk, id_sw string) (Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = sc
+	return res, nil
+}
+
+func GetEarliestStockDateByProductID(id_product, id_sw string) (Response, error) {
+	var res Response
+	var sc StockCards
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT MIN(stock_date), product_batch FROM stock_cards WHERE product_detail_id = ? AND store_warehouse_id = ? GROUP BY stock_date HAVING SUM(stock_in) - SUM(stock_out) > 0"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	pid, _ := strconv.Atoi(id_product)
+	swid, _ := strconv.Atoi(id_sw)
+	err = stmt.QueryRow(pid, swid).Scan(&sc.StockDate, &sc.ProductBatch)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = ""
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sc
+	return res, nil
+}
+
+func GetAllEXPDateByProductID(id_product string) (Response, error) {
+	var res Response
+	var sc StockCards
+	var arrSC = []StockCards{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT expired_date FROM stock_cards WHERE product_detail_id = ? GROUP BY expired_date"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	wId, _ := strconv.Atoi(id_product)
+	rows, err := stmt.Query(wId)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sc.ExpiredDate)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSC = append(arrSC, sc)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSC
+	return res, nil
+}
+
+func GetAllEXPDateByProductIDSWID(id_product, id_sw string) (Response, error) {
+	var res Response
+	var sc StockCards
+	var arrSC = []StockCards{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetStoreWarehouseByID(id_sw)
+	swData, ok := check.Data.(StoreWarehouses)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if swData.StoreWarehouseId == 0 {
+		res.Status = 500
+		res.Message = "Store/Warehouse not exist"
+		return res, fmt.Errorf("store/warehouse ID %s not exist", id_sw)
+	}
+
+	query := "SELECT expired_date FROM stock_cards WHERE product_detail_id = ? AND store_warehouse_id = ? GROUP BY expired_date"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	pId, _ := strconv.Atoi(id_product)
+	wId, _ := strconv.Atoi(id_sw)
+	rows, err := stmt.Query(pId, wId)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sc.ExpiredDate)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSC = append(arrSC, sc)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSC
+	return res, nil
+}
+
+func GetAllBatchByProductID(id_product string) (Response, error) {
+	var res Response
+	var sc StockCards
+	var arrSC = []StockCards{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT product_batch FROM stock_cards WHERE product_detail_id = ? GROUP BY product_batch"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	wId, _ := strconv.Atoi(id_product)
+	rows, err := stmt.Query(wId)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sc.ProductBatch)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSC = append(arrSC, sc)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSC
+	return res, nil
+}
+
+func GetAllBatchByProductIDSWID(id_product, id_sw string) (Response, error) {
+	var res Response
+	var sc StockCards
+	var arrSC = []StockCards{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetStoreWarehouseByID(id_sw)
+	swData, ok := check.Data.(StoreWarehouses)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if swData.StoreWarehouseId == 0 {
+		res.Status = 500
+		res.Message = "Store/Warehouse not exist"
+		return res, fmt.Errorf("store/warehouse ID %s not exist", id_sw)
+	}
+
+	query := "SELECT product_batch FROM stock_cards WHERE product_detail_id = ? AND store_warehouse_id = ? GROUP BY product_batch"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	pId, _ := strconv.Atoi(id_product)
+	wId, _ := strconv.Atoi(id_sw)
+	rows, err := stmt.Query(pId, wId)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sc.ProductBatch)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSC = append(arrSC, sc)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSC
 	return res, nil
 }
 
@@ -4300,6 +4953,144 @@ func GetTotalStockByEarliestEXPDate(id_product, id_storewarehouse string) (Respo
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = sc
+	return res, nil
+}
+
+func GetTotalStockByEarliestStockDate(id_product, id_storewarehouse string) (Response, error) {
+	var res Response
+	var sc StockCards
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetEarliestStockDateByProductID(id_product, id_storewarehouse)
+	expData, ok := check.Data.(StockCards)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	query := "SELECT product_name, SUM(stock_in) - SUM(stock_out), stock_date, product_batch FROM stock_cards WHERE stock_date = ? AND product_detail_id = ? AND store_warehouse_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	pid, _ := strconv.Atoi(id_product)
+	swid, _ := strconv.Atoi(id_storewarehouse)
+	err = stmt.QueryRow(expData.StockDate, pid, swid).Scan(&sc.ProductName, &sc.ProductStock, &sc.ExpiredDate, &sc.ProductBatch)
+	if err != nil {
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sc
+	return res, nil
+}
+
+func GetProductForTransferNote(id_product string, id_storewarehouse string, quantity string) (Response, error) {
+	var res Response
+	var sc StockCards
+	var arrSC = []StockCards{}
+	var result = []StockCards{}
+	var query string
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetEarliestEXPByProductID(id_product, id_storewarehouse)
+	expData, ok := check.Data.(StockCards)
+	fmt.Println(expData, check)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if expData.ExpiredDate == "0000-00-00" {
+		query = "SELECT product_detail_id, store_warehouse_id, stock_date, expired_date, product_batch, SUM(stock_in) - SUM(stock_out) AS available_stock FROM stock_cards WHERE product_detail_id = ? AND store_warehouse_id = ? GROUP BY stock_date, product_batch ASC"
+	} else {
+		query = "SELECT product_detail_id, store_warehouse_id, stock_date, expired_date, product_batch, SUM(stock_in) - SUM(stock_out) AS available_stock FROM stock_cards WHERE product_detail_id = ? AND store_warehouse_id = ? GROUP BY expired_date, product_batch ASC"
+	}
+
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	pId, _ := strconv.Atoi(id_product)
+	swid, _ := strconv.Atoi(id_storewarehouse)
+	qty, _ := strconv.ParseFloat(quantity, 64)
+	rows, err := stmt.Query(pId, swid)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sc.ProductDetailID, &sc.StoreWarehouseID, &sc.StockDate, &sc.ExpiredDate, &sc.ProductBatch, &sc.ProductStock)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSC = append(arrSC, sc)
+	}
+
+	for _, stock := range arrSC {
+        if stock.ProductStock <= 0 {
+            continue
+        }
+
+		take := math.Min(stock.ProductStock, qty)
+		result = append(result, StockCards{
+            ProductDetailID:   stock.ProductDetailID,
+            ProductStock:    take,
+			StockDate: stock.StockDate,
+            ExpiredDate: stock.ExpiredDate,
+			ProductBatch: stock.ProductBatch,
+			StoreWarehouseID: stock.StoreWarehouseID,
+        })
+
+		qty -= take
+
+		if qty == 0 {
+            break
+        }
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = result
 	return res, nil
 }
 
@@ -4769,6 +5560,71 @@ func GetAllTransferNotes() (Response, error) {
 	return res, nil
 }
 
+func GetTransferNoteDetailByTNID(id_tn string) (Response, error) {
+	var res Response
+	var tranote TransferNoteDetails
+	var arrTN = []TransferNoteDetails{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetTransferNoteByID(id_tn)
+	tranoteData, ok := check.Data.(TransferNotes)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+	
+	if tranoteData.TransferNoteID == 0 {
+		res.Status = 500
+		res.Message = "Transfer note not exist"
+		return res, fmt.Errorf("transfer note ID %s not exist", id_tn)
+	}
+
+	query := "SELECT tn.transfer_note_detail_id, tn.transfer_note_id, tn.product_detail_id, pd.product_name, tn.batch, tn.expired_date, tn.quantity FROM transfer_notes_details tn JOIN product_details pd ON tn.product_detail_id = pd.product_detail_id WHERE transfer_note_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	swid, _ := strconv.Atoi(id_tn)
+	rows, err := stmt.Query(swid)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&tranote.TransferNoteDetailID, &tranote.TransferNoteID, &tranote.ProductDetailID, &tranote.ProductName, &tranote.Batch, &tranote.ExpiredDate, &tranote.Quantity)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrTN = append(arrTN, tranote)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrTN
+	return res, nil
+}
+
 func CreateTransferNotes(id_user, id_role string) (Response, error) {
 	var res Response
 	var tranote TransferNotes
@@ -4852,6 +5708,12 @@ func InsertTransferNoteDetails(transfernotes, id_user, id_role string) (Response
 		res.Message = "Unexpected data format"
 		return res, fmt.Errorf("unexpected data format")
 	}
+	
+	if userData.UserId == 0 {
+		res.Status = 500
+		res.Message = "User not exist"
+		return res, fmt.Errorf("user ID %s role ID %s not exist", id_user, id_role)
+	}
 
 	for _, x := range arrTN {
 		pid := strconv.Itoa(x.ProductDetailID)
@@ -4859,6 +5721,7 @@ func InsertTransferNoteDetails(transfernotes, id_user, id_role string) (Response
 		check, _ := GetTotalStockByEXPPIDSWID(pid, wid, x.ExpiredDate)
 		stockData, ok := check.Data.(StockCards)
 		if !ok {
+			fmt.Println("HHAsss")
 			res.Status = 500
 			res.Message = "Unexpected data format"
 			return res, fmt.Errorf("unexpected data format: got %T", check.Data)
@@ -4867,7 +5730,7 @@ func InsertTransferNoteDetails(transfernotes, id_user, id_role string) (Response
 		if x.Quantity > stockData.ProductStock {
 			res.Status = 500
 			res.Message = "Not Enough Stock"
-			return res, fmt.Errorf("not enough stock %s: %d", pid, stockData.ProductStock)
+			return res, fmt.Errorf("not enough stock %s: %f", pid, stockData.ProductStock)
 		}
 	}
 
@@ -4936,6 +5799,20 @@ func InsertTransferNotes(id_transfernote, transfernote string) (Response, error)
 
 	Id, _ := strconv.Atoi(id_transfernote)
 
+	check, _ := GetTransferNoteByID(id_transfernote)
+	tranoteData, ok := check.Data.(TransferNotes)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+	
+	if tranoteData.TransferNoteID == 0 {
+		res.Status = 500
+		res.Message = "Transfer note not exist"
+		return res, fmt.Errorf("transfer note ID %s not exist", id_transfernote)
+	}
+
 	query := "UPDATE transfer_notes SET sw_to = ?, created_at = NOW(), user_id_from = ? WHERE transfer_note_id = ?"
 	stmt, err := con.Prepare(query)
 	if err != nil {
@@ -4960,6 +5837,200 @@ func InsertTransferNotes(id_transfernote, transfernote string) (Response, error)
 	return res, nil
 }
 
+func InsertProductToTransferNoteDetails(transfernotes, id_transfernote string) (Response, error) {
+	var res Response
+	var arrTN = []TransferNoteDetails{}
+
+	err := json.Unmarshal([]byte(transfernotes), &arrTN)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetTransferNoteByID(id_transfernote)
+	tranoteData, ok := check.Data.(TransferNotes)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+	
+	if tranoteData.TransferNoteID == 0 {
+		res.Status = 500
+		res.Message = "Transfer note not exist"
+		return res, fmt.Errorf("transfer note ID %s not exist", id_transfernote)
+	}
+	
+	for _, x := range arrTN {
+		pid := strconv.Itoa(x.ProductDetailID)
+		wid := strconv.Itoa(tranoteData.StoreWarehouseFrom)
+		check, _ := GetTotalStockByEXPPIDSWID(pid, wid, x.ExpiredDate)
+		stockData, ok := check.Data.(StockCards)
+		if !ok {
+			res.Status = 500
+			res.Message = "Unexpected data format"
+			return res, fmt.Errorf("unexpected data format: got %T", check.Data)
+		}
+
+		if x.Quantity > stockData.ProductStock {
+			res.Status = 500
+			res.Message = "Not Enough Stock"
+			return res, fmt.Errorf("not enough stock %s: %f", pid, stockData.ProductStock)
+		}
+	}
+
+	query := "INSERT INTO transfer_notes_details(transfer_note_id, product_detail_id, batch, quantity, expired_date) VALUES(?,?,?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i, x := range arrTN {
+		result, err := stmt.Exec(tranoteData.TransferNoteID, x.ProductDetailID, x.Batch, x.Quantity, x.ExpiredDate)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrTN[i].TransferNoteDetailID = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrTN
+	return res, nil
+}
+
+func UpdateProductQtyTransferNote(id_transfernote, id_product, quantity string) (Response, error) {
+	var res Response
+	var tranote TransferNotes
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	tid, _ := strconv.Atoi(id_transfernote)
+	pid, _ := strconv.Atoi(id_product)
+	qty, _ := strconv.Atoi(quantity)
+
+	check, _ := GetTransferNoteByID(id_transfernote)
+	tranoteData, ok := check.Data.(TransferNotes)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+	
+	if tranoteData.TransferNoteID == 0 {
+		res.Status = 500
+		res.Message = "Transfer note not exist"
+		return res, fmt.Errorf("transfer note ID %s not exist", id_transfernote)
+	}
+
+	query := "UPDATE transfer_notes_details SET quantity = ? WHERE transfer_note_id = ? AND product_detail_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(qty, tid, pid)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = tranote
+	return res, nil
+}
+
+func DelProductFromTransferNote(id_transfernote, id_product string)(Response, error) {
+	var res Response
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetTransferNoteByID(id_transfernote)
+	tranoteData, ok := check.Data.(TransferNotes)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+	
+	if tranoteData.TransferNoteID == 0 {
+		res.Status = 500
+		res.Message = "Transfer note not exist"
+		return res, fmt.Errorf("transfer note ID %s not exist", id_transfernote)
+	}
+
+	query := "DELETE FROM transfer_notes_details WHERE transfer_note_id = ? AND product_detail_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	tid, _ := strconv.Atoi(id_transfernote)
+	pid, _ := strconv.Atoi(id_product)
+	_, err = stmt.Exec(tid, pid)
+	if err != nil {
+		res.Status = 401
+		res.Message = "failed"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = "Berhasil"
+	return res, nil
+}
+
 func VerifyTransferNotes(id_transfernote string) (Response, error) {
 	var res Response
 	var tranote TransferNotes
@@ -4975,7 +6046,7 @@ func VerifyTransferNotes(id_transfernote string) (Response, error) {
 
 	Id, _ := strconv.Atoi(id_transfernote)
 
-	check, _ := GetDeliveryOrderByID(id_transfernote)
+	check, _ := GetTransferNoteByID(id_transfernote)
 	DoData, ok := check.Data.(TransferNotes)
 	if !ok {
 		res.Status = 500
@@ -5001,7 +6072,7 @@ func VerifyTransferNotes(id_transfernote string) (Response, error) {
 		return res, err
 	}
 
-	check, _ = GetDeliveryOrderDetailByDOID(id_transfernote)
+	check, _ = GetTransferNoteDetailByTNID(id_transfernote)
 	DodData, ok := check.Data.([]TransferNoteDetails)
 	if !ok {
 		res.Status = 500
@@ -5030,7 +6101,7 @@ func VerifyTransferNotes(id_transfernote string) (Response, error) {
 		return res, err
 	}
 
-	_, err = InsertStockCards(string(data), true)
+	_, err = InsertStockCards(string(data))
 	if err != nil {
 		res.Status = 401
 		res.Message = "Insert stock card error"
@@ -5487,7 +6558,7 @@ func InsertDeliveryOrderDetails(deliveryorder, id_transfernote string) (Response
 		if x.Quantity > stockData.ProductStock {
 			res.Status = 500
 			res.Message = "Not Enough Stock"
-			return res, fmt.Errorf("not enough stock %s: %d", pid, stockData.ProductStock)
+			return res, fmt.Errorf("not enough stock %s: %f", pid, stockData.ProductStock)
 		}
 	}
 
@@ -5602,7 +6673,7 @@ func InsertDeliveryOrders(id_deliveryorder, deliveryorder string) (Response, err
 func GetStockLeftInTransferNotes(id_product, id_transfernote string) (Response, error) {
 	var res Response
 	var tranote TransferNoteDetails
-	var temp  int
+	var temp  float64
 
 	con, err := db.DbConnection()
 	if err != nil {
@@ -5730,7 +6801,7 @@ func AcceptDeliveryOrders(id_deliveryorder, id_user_to string) (Response, error)
 		return res, err
 	}
 
-	_, err = InsertStockCards(string(data), true)
+	_, err = InsertStockCards(string(data))
 	if err != nil {
 		res.Status = 401
 		res.Message = "Insert stock card error"
@@ -5791,6 +6862,850 @@ func GetNotAcceptedDeliveryOrder() (Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = arrDel
+	return res, nil
+}
+
+func GetAllAddStock() (Response, error) {
+	var res Response
+	var adds AddStockWH
+	var arrAdds = []AddStockWH{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT add_stock_wh_id, delivery_order_supplier_id, supplier_id, timestamp, status_verify, user_id, store_warehouse_id  FROM add_stock_wh GROUP BY add_stock_wh_id ASC"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&adds.AddStockWHID, &adds.DeliveryOrderSupplier, &adds.SupplierID, &adds.Timestamp, &adds.StatusVerify, &adds.UserID, &adds.StoreWarehouseID)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrAdds = append(arrAdds, adds)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrAdds
+	return res, nil
+}
+
+func GetAddStockByID(id_as string) (Response, error) {
+	var res Response
+	var adds AddStockWH
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT add_stock_wh_id, delivery_order_supplier_id, supplier_id, timestamp, status_verify, user_id, store_warehouse_id  FROM add_stock_wh WHERE add_stock_wh_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	swid, _ := strconv.Atoi(id_as)
+	err = stmt.QueryRow(swid).Scan(&adds.AddStockWHID, &adds.DeliveryOrderSupplier, &adds.SupplierID, &adds.Timestamp, &adds.StatusVerify, &adds.UserID, &adds.StoreWarehouseID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			adds = AddStockWH{}
+			res.Status = http.StatusOK
+			res.Message = "Data Not Exist"
+			res.Data = adds
+			return res, nil
+		}
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = adds
+	return res, nil
+}
+
+func GetAddStockDetailByASID(id_as string) (Response, error) {
+	var res Response
+	var adds AddStockWHDetails
+	var arrAdds = []AddStockWHDetails{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetAddStockByID(id_as)
+	AddSData, ok := check.Data.(AddStockWH)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if AddSData.AddStockWHID == 0 {
+		res.Status = 500
+		res.Message = "Add Stock not exist"
+		return res, fmt.Errorf("add stock ID %s not exist", id_as)
+	}
+
+	query := "SELECT add_stock_wh_detail_id, add_stock_wh_id, product_detail_id, batch, expired_date, quantity, section_placement FROM add_stock_wh_detail WHERE add_stock_wh_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	swid, _ := strconv.Atoi(id_as)
+	rows, err := stmt.Query(swid)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&adds.AddStockWHDetailID, &adds.ProductDetailID, &adds.ProductDetailID, &adds.Batch, &adds.ExpiredDate, &adds.AddQty, &adds.SectionPlacement)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrAdds = append(arrAdds, adds)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrAdds
+	return res, nil
+}
+
+func CreateAddStock(id_user, id_role string) (Response, error) {
+	var res Response
+	var adds AddStockWH
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetDataUser(id_user, id_role)
+	userData, ok := check.Data.(UserData)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	query := "INSERT INTO add_stock_wh(status_verify, user_id, store_warehouse_id) VALUES(0, ?, ?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(userData.UserId, userData.StoreWarehouseID)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		res.Status = 401
+		res.Message = "last id gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	adds.AddStockWHID = int(lastId)
+	adds.StoreWarehouseID = userData.StoreWarehouseID
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = adds
+	return res, nil
+}
+
+func InsertAddStockDetails(addstock, id_user, id_role string) (Response, error) {
+	var res Response
+	var arrAdd = []AddStockWHDetails{}
+
+	err := json.Unmarshal([]byte(addstock), &arrAdd)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := CreateAddStock(id_user, id_role)
+	AddSData, ok := check.Data.(AddStockWH)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format: got %T", check.Data)
+	}
+
+	query := "INSERT INTO add_stock_wh_detail(add_stock_wh_id, product_detail_id, batch, quantity, expired_date, section_placement) VALUES(?,?,?,?,?,?)"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	for i, x := range arrAdd {
+		result, err := stmt.Exec(AddSData.AddStockWHID, x.ProductDetailID, x.Batch, x.AddQty, x.ExpiredDate, x.SectionPlacement)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrAdd[i].AddStockWHDetailID = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrAdd
+	return res, nil
+}
+
+func InsertAddStock(id_addstock, addstock string) (Response, error) {
+	var res Response
+	var adds AddStockWH
+
+	err := json.Unmarshal([]byte(addstock), &adds)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	sid := strconv.Itoa(adds.SupplierID)
+	check, _ := GetSupplierByID(sid)
+	suppData, ok := check.Data.(Suppliers)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if suppData.SupplierId == 0 {
+		res.Status = 500
+		res.Message = "Supplier not exist"
+		return res, fmt.Errorf("supplier ID %s not exist", sid)
+	}
+
+	Id, _ := strconv.Atoi(id_addstock)
+
+	query := "UPDATE add_stock_wh SET timestamp = NOW(), delivery_order_supplier_id = ?, supplier_id = ? WHERE add_stock_wh_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(adds.DeliveryOrderSupplier, adds.SupplierID, Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = adds
+	return res, nil
+}
+
+func GetNotVerifiedAddStock() (Response, error) {
+	var res Response
+	var adds AddStockWH
+	var arrAdds = []AddStockWH{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT add_stock_wh_id, delivery_order_supplier_id, supplier_id, timestamp, status_verify, user_id, store_warehouse_id  FROM add_stock_wh WHERE status_verify = 0"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&adds.AddStockWHID, &adds.DeliveryOrderSupplier, &adds.SupplierID, &adds.Timestamp, &adds.StatusVerify, &adds.UserID, &adds.StoreWarehouseID)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrAdds = append(arrAdds, adds)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrAdds
+	return res, nil
+}
+
+func VerifyAddStock(id_addstock string) (Response, error) {
+	var res Response
+	var adds AddStockWH
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	Id, _ := strconv.Atoi(id_addstock)
+
+	check, _ := GetAddStockByID(id_addstock)
+	addsData, ok := check.Data.(AddStockWH)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+	if addsData.AddStockWHID == 0 {
+		res.Status = 500
+		res.Message = "Add Stock not Exist"
+		return res, fmt.Errorf("add stock ID %s not exist", id_addstock)
+	}
+
+	query := "UPDATE add_stock_wh SET status_verify = 1 WHERE add_stock_wh_id  = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	check, _ = GetAddStockDetailByASID(id_addstock)
+	DodData, _ := check.Data.([]AddStockWHDetails)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	dataSlice := make([]map[string]interface{}, len(DodData))
+
+	for i, item := range DodData {
+		dataSlice[i] = map[string]interface{}{
+			"product_detail_id":  item.ProductDetailID,      
+			"stock_description":  "Stock In",  
+			"expired_date":		item.ExpiredDate,
+			"product_batch":	item.Batch,             
+			"stock_in":          item.AddQty,            
+			"store_warehouse_id": addsData.StoreWarehouseID,
+		}
+	}
+
+	data, err := json.Marshal(dataSlice)
+	if err != nil {
+		res.Status = 401
+		res.Message = "json stock card error"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	_, err = InsertStockCards(string(data))
+	if err != nil {
+		res.Status = 401
+		res.Message = "Insert stock card error"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	for _, item := range DodData {
+		fmt.Println(item.SectionPlacement)
+		swid := strconv.Itoa(addsData.StoreWarehouseID)
+		_,_ = InsertSWProducts(swid, item.ProductDetailID, item.SectionPlacement)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = adds
+	return res, nil
+}
+
+func GetAllSubtractStock() (Response, error) {
+	var res Response
+	var sub SubtractStock
+	var arrSub = []SubtractStock{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT subtract_stock_id, product_detail_id, batch, subtract_quantity, expired_date, status_verify, notes, user_id, store_warehouse_id, timestamp FROM subtract_stock"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sub.SubtractStockID, &sub.ProductDetailID, &sub.Batch, &sub.SubtractQty, &sub.ExpiredDate, &sub.StatusVerify, &sub.Notes, &sub.UserID, &sub.StoreWarehouseID, &sub.Timestamp)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSub = append(arrSub, sub)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSub
+	return res, nil
+}
+
+func GetSubtractStockByID(id_as string) (Response, error) {
+	var res Response
+	var sub SubtractStock
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT subtract_stock_id, product_detail_id, batch, subtract_quantity, expired_date, status_verify, notes, user_id, store_warehouse_id, timestamp FROM subtract_stock WHERE subtract_stock_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	swid, _ := strconv.Atoi(id_as)
+	err = stmt.QueryRow(swid).Scan(&sub.SubtractStockID, &sub.ProductDetailID, &sub.Batch, &sub.SubtractQty, &sub.ExpiredDate, &sub.StatusVerify, &sub.Notes, &sub.UserID, &sub.StoreWarehouseID, &sub.Timestamp)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			sub = SubtractStock{}
+			res.Status = http.StatusOK
+			res.Message = "Data Not Exist"
+			res.Data = sub
+			return res, nil
+		}
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sub
+	return res, nil
+}
+
+func GetSubtractStockBySWID(id_sw string) (Response, error) {
+	var res Response
+	var sub SubtractStock
+	var arrSub = []SubtractStock{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetStoreWarehouseByID(id_sw)
+	swData, ok := check.Data.(StoreWarehouses)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	if swData.StoreWarehouseId == 0 {
+		res.Status = 500
+		res.Message = "Store/Warehouse not exist"
+		return res, fmt.Errorf("store/warehouse ID %s not exist", id_sw)
+	}
+
+	query := "SELECT subtract_stock_id, product_detail_id, batch, subtract_quantity, expired_date, status_verify, notes, user_id, store_warehouse_id, timestamp FROM subtract_stock WHERE store_warehouse_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	swid, _ := strconv.Atoi(id_sw)
+	rows, err := stmt.Query(swid)
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sub.SubtractStockID, &sub.ProductDetailID, &sub.Batch, &sub.SubtractQty, &sub.ExpiredDate, &sub.StatusVerify, &sub.Notes, &sub.UserID, &sub.StoreWarehouseID, &sub.Timestamp)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSub = append(arrSub, sub)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSub
+	return res, nil
+}
+
+func InsertSubtractStock(subtract, id_user, id_role string) (Response, error) {
+	var res Response
+	var arrSub = []SubtractStock{}
+
+	err := json.Unmarshal([]byte(subtract), &arrSub)
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal decode json"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	check, _ := GetDataUser(id_user, id_role)
+	userData, ok := check.Data.(UserData)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+
+	for _, x := range arrSub {
+		pid := strconv.Itoa(x.ProductDetailID)
+		sid := strconv.Itoa(userData.StoreWarehouseID)
+		check, _ := GetTotalStockByProductIDSWID(pid, sid)
+		stockData, ok := check.Data.(StockCards)
+		if !ok {
+			res.Status = 500
+			res.Message = "Unexpected data format"
+			return res, fmt.Errorf("unexpected data format: got %T", check.Data)
+		}
+
+		if x.SubtractQty > stockData.ProductStock {
+			res.Status = 500
+			res.Message = "Not Enough Stock"
+			return res, fmt.Errorf("not enough stock for ID product %d: %f", x.ProductDetailID, stockData.ProductStock)
+		}
+	}
+
+	query := "INSERT INTO subtract_stock(product_detail_id, batch, subtract_quantity, expired_date, status_verify, notes, user_id, store_warehouse_id, timestamp) VALUES(?,?,?,?,0,?,?,?,NOW())"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	uid, _ := strconv.Atoi(id_user)
+	for i, x := range arrSub {
+		result, err := stmt.Exec(x.ProductDetailID, x.Batch, x.SubtractQty, x.ExpiredDate, x.Notes, uid, userData.StoreWarehouseID)
+		if err != nil {
+			res.Status = 401
+			res.Message = "exec gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		lastId, err := result.LastInsertId()
+		if err != nil {
+			res.Status = 401
+			res.Message = "last id gagal"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSub[i].SubtractStockID = int(lastId)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSub
+	return res, nil
+}
+
+func GetNotVerifiedSubtractStock() (Response, error) {
+	var res Response
+	var sub SubtractStock
+	var arrSub = []SubtractStock{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT subtract_stock_id, product_detail_id, batch, subtract_quantity, expired_date, status_verify, notes, user_id, store_warehouse_id, timestamp FROM subtract_stock WHERE status_verify = 0"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sub.SubtractStockID, &sub.ProductDetailID, &sub.Batch, &sub.SubtractQty, &sub.ExpiredDate, &sub.StatusVerify, &sub.Notes, &sub.UserID, &sub.StoreWarehouseID, &sub.Timestamp)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrSub = append(arrSub, sub)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrSub
+	return res, nil
+}
+
+func VerifySubtractStock(id_subtract string) (Response, error) {
+	var res Response
+	var sub SubtractStock
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	Id, _ := strconv.Atoi(id_subtract)
+
+	check, _ := GetSubtractStockByID(id_subtract)
+	subData, ok := check.Data.(SubtractStock)
+	if !ok {
+		res.Status = 500
+		res.Message = "Unexpected data format"
+		return res, fmt.Errorf("unexpected data format")
+	}
+	if subData.SubtractStockID == 0 {
+		res.Status = 500
+		res.Message = "Subtract Stock not Exist"
+		return res, fmt.Errorf("subtract stock ID %s not exist", id_subtract)
+	}
+
+	query := "UPDATE subtract_stock SET status_verify = 1 WHERE subtract_stock_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(Id)
+	if err != nil {
+		res.Status = 401
+		res.Message = "exec gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	data, err := json.Marshal([]map[string]interface{}{{
+		"product_detail_id":  subData.ProductDetailID,      
+		"stock_description":  "Stock Out",  
+		"expired_date":		subData.ExpiredDate,
+		"product_batch":	subData.Batch,             
+		"stock_out":          subData.SubtractQty,            
+		"store_warehouse_id": subData.StoreWarehouseID,
+	}})
+	if err != nil {
+		res.Status = 401
+		res.Message = "json stock card error"
+		res.Data = err.Error()
+		return res, err
+	}
+	_, _ = InsertStockCards(string(data))
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = sub
 	return res, nil
 }
 
@@ -5859,6 +7774,13 @@ func GetStoreWarehouseByID(id_warehouse string) (Response, error) {
 	Id, _ := strconv.Atoi(id_warehouse)
 	err = stmt.QueryRow(Id).Scan(&wrh.StoreWarehouseId, &wrh.StoreWarehouseType, &wrh.StoreWarehouseName, &wrh.StoreWarehouseAddress, &wrh.StoreWarehousePhoneNumber)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			wrh = StoreWarehouses{}
+			res.Status = http.StatusOK
+			res.Message = "Data Not Exist"
+			res.Data = wrh
+			return res, nil
+		}
 		res.Status = 401
 		res.Message = "Data Not Exist"
 		res.Data = err.Error()
@@ -5926,6 +7848,7 @@ func GetStoreWarehouseByName(sw_name string) (Response, error) {
 func GetAllByStoreWarehouseType(sw_type string) (Response, error) {
 	var res Response
 	var wrh StoreWarehouses
+	var arrWrh = []StoreWarehouses{}
 
 	con, err := db.DbConnection()
 	if err != nil {
@@ -5946,17 +7869,79 @@ func GetAllByStoreWarehouseType(sw_type string) (Response, error) {
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(sw_type).Scan(&wrh.StoreWarehouseId, &wrh.StoreWarehouseType, &wrh.StoreWarehouseName, &wrh.StoreWarehouseAddress, &wrh.StoreWarehousePhoneNumber)
+	rows, err := stmt.Query(sw_type)
 	if err != nil {
 		res.Status = 401
-		res.Message = "Data Not Exist"
+		res.Message = "rows gagal"
 		res.Data = err.Error()
 		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&wrh.StoreWarehouseId, &wrh.StoreWarehouseType, &wrh.StoreWarehouseName, &wrh.StoreWarehouseAddress, &wrh.StoreWarehousePhoneNumber)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrWrh = append(arrWrh, wrh)
 	}
 
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
-	res.Data = wrh
+	res.Data = arrWrh
+	return res, nil
+}
+
+func GetAllStoreWarehouse() (Response, error) {
+	var res Response
+	var wrh StoreWarehouses
+	var arrWrh = []StoreWarehouses{}
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT store_warehouse_id, store_warehouse_type, store_warehouse_name, store_warehouse_address, store_warehouse_phone_number FROM store_warehouses"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		res.Status = 401
+		res.Message = "rows gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&wrh.StoreWarehouseId, &wrh.StoreWarehouseType, &wrh.StoreWarehouseName, &wrh.StoreWarehouseAddress, &wrh.StoreWarehousePhoneNumber)
+		if err != nil {
+			res.Status = 401
+			res.Message = "rows scan"
+			res.Data = err.Error()
+			return res, err
+		}
+		arrWrh = append(arrWrh, wrh)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = arrWrh
 	return res, nil
 }
 
@@ -6389,6 +8374,51 @@ func InsertRolesDefault(roled string) (Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Berhasil"
 	res.Data = arrRD
+	return res, nil
+}
+
+func GetSupplierByID(id_supplier string) (Response, error) {
+	var res Response
+	var supp Suppliers
+
+	con, err := db.DbConnection()
+	if err != nil {
+		res.Status = 401
+		res.Message = "gagal membuka koneksi database"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer db.DbClose(con)
+
+	query := "SELECT supplier_id, supplier_name, supplier_phone_number, supplier_address FROM suppliers WHERE supplier_id = ?"
+	stmt, err := con.Prepare(query)
+	if err != nil {
+		res.Status = 401
+		res.Message = "stmt gagal"
+		res.Data = err.Error()
+		return res, err
+	}
+	defer stmt.Close()
+
+	Id, _ := strconv.Atoi(id_supplier)
+	err = stmt.QueryRow(Id).Scan(&supp.SupplierId, &supp.SupplierName, &supp.SupplierPhoneNumber, &supp.SupplierAddress)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			supp = Suppliers{}
+			res.Status = http.StatusOK
+			res.Message = "Data Not Exist"
+			res.Data = supp
+			return res, nil
+		}
+		res.Status = 401
+		res.Message = "Data Not Exist"
+		res.Data = err.Error()
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Berhasil"
+	res.Data = supp
 	return res, nil
 }
 
