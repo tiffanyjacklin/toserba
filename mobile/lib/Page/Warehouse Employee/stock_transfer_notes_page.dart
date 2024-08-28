@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Template.dart';
@@ -259,43 +261,37 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                   ),
 
                   // table stock card
-                  Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      trailing: Icon(
-                        _customTileExpanded
-                            ? Icons.arrow_drop_down_circle
-                            : Icons.arrow_drop_down,
-                        color: ColorPalleteLogin.OrangeColor,
-                      ),
-                      title: Text(
-                        'Stock Card',
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: ColorPalleteLogin.OrangeLightColor,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      children: [
-                        // table bro
-                        Screenshot(
-                            controller: controllerPrintStock,
-                            child: TableStockCardTransferNotes(
-                              listStockCard: [],
-                            )),
-                        SizedBox(
-                          height: 10,
-                        ),
-                      ],
-                      onExpansionChanged: (value) {
-                        setState(() {
-                          _customTileExpanded = !_customTileExpanded;
-                        });
-                      },
-                    ),
-                  ),
-
-                  // button print table
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Theme(
+                        data: Theme.of(context)
+                            .copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          trailing: Icon(
+                            _customTileExpanded
+                                ? Icons.arrow_drop_down_circle
+                                : Icons.arrow_drop_down,
+                            color: ColorPalleteLogin.OrangeColor,
+                          ),
+                          title: Text(
+                            'Stock Card',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: ColorPalleteLogin.OrangeLightColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          children: [
+                            // table bro
+                            Screenshot(
+                                controller: controllerPrintStock,
+                                child: TableStockCardTransferNotes(
+                                  listStockCard: [],
+                                )),
+                            SizedBox(
+                              height: 10,
+                            ),
+                             // button print table
                   Container(
                     // height: 50,
                     width: MediaQuery.of(context).size.width * 0.55 * 0.45,
@@ -316,7 +312,7 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                               color: ColorPalleteLogin.PrimaryColor,
                             ),
                             Text(
-                              'Print delivery order',
+                              'Print Stock Card',
                               style: TextStyle(
                                 color: ColorPalleteLogin.PrimaryColor,
                                 fontSize: 14,
@@ -330,7 +326,7 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                         await controllerPrintStock.capture().then((bytes) {
                           if (bytes != null) {
                             // panggil woe
-                            saveImage(bytes, 'DeliveryOrder');
+                            saveImage(bytes, 'StockCardTransferNotes');
                             // saveAndShare(bytes, 'DeliveryOrder');
                           }
                         }).catchError((onError) {
@@ -339,6 +335,18 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                       },
                     ),
                   ),
+                          ],
+                          onExpansionChanged: (value) {
+                            setState(() {
+                              _customTileExpanded = !_customTileExpanded;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+                 
                   SizedBox(
                     height: 20,
                   ),
@@ -354,42 +362,163 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
 
                   // product loaded on truck
                   isFormNotCreated
-                      ? Container(
-                          // height: 50,
-                          width:
-                              MediaQuery.of(context).size.width * 0.55 * 0.45,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  ColorPalleteLogin.OrangeLightColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                            ),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Wrap(
-                                spacing: 6,
-                                children: [
-                                  Text(
-                                    '+ Created Accept Stock Form',
-                                    style: TextStyle(
-                                      color: ColorPalleteLogin.PrimaryColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                      ? Column(
+                        children: [
+                          Container(
+                              // height: 50,
+                              width:
+                                  MediaQuery.of(context).size.width * 0.55 * 0.45,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      ColorPalleteLogin.OrangeLightColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
                                   ),
-                                ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Wrap(
+                                    spacing: 6,
+                                    children: [
+                                      Text(
+                                        '+ Create Delivery Order',
+                                        style: TextStyle(
+                                          color: ColorPalleteLogin.PrimaryColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    isFormNotCreated = false;
+                                  });
+                                },
                               ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                isFormNotCreated = false;
-                              });
-                            },
+
+                            SizedBox(height: 20,),
+                        ],
+                      )
+                      : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TableInputProductLoaded(),
+                            SizedBox(height: 10,),
+                            Container(
+                              // height: 50,
+                              width: MediaQuery.of(context).size.width *
+                                  0.55 *
+                                  0.25,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      ColorPalleteLogin.OrangeLightColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Wrap(
+                                    spacing: 6,
+                                    children: [
+                                      Icon(
+                                        Icons.repeat,
+                                        color: ColorPalleteLogin.PrimaryColor,
+                                      ),
+                                      Text(
+                                        'Reset',
+                                        style: TextStyle(
+                                          color: ColorPalleteLogin.PrimaryColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                onPressed: () {},
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // action button (ini misal belum ke sent)
+                        // Action Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.PrimaryColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              side: BorderSide(
+                                  color: ColorPalleteLogin.OrangeLightColor)),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Discard',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.OrangeLightColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 30,
+                  ),
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.OrangeLightColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
                           ),
-                        )
-                      : TableInputProductLoaded(),
+                        ),
+                        child: Wrap(
+                          spacing: 12,
+                          children: [
+                            Text(
+                              'Confirm',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.PrimaryColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          // Note: GANTI
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
                 ],
               ),
             ),
@@ -401,7 +530,7 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
 }
 
 class TableInputProductLoaded extends StatelessWidget {
-  const TableInputProductLoaded({
+  TableInputProductLoaded({
     super.key,
   });
 
@@ -420,10 +549,10 @@ class TableInputProductLoaded extends StatelessWidget {
             0: FlexColumnWidth(2),
             1: FlexColumnWidth(6),
             2: FlexColumnWidth(3),
-            3: FlexColumnWidth(3),
-            4: FlexColumnWidth(2),
-            5: FlexColumnWidth(3),
-            6: FlexColumnWidth(4),
+            3: FlexColumnWidth(2),
+            4: FlexColumnWidth(3),
+            5: FlexColumnWidth(4),
+            6: FlexColumnWidth(2),
           },
           children: [
             // making the judul
@@ -453,18 +582,10 @@ class TableInputProductLoaded extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
-                      'In',
+                      'Loaded',
                       style:
                           TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Out',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 TableCell(
@@ -491,90 +612,119 @@ class TableInputProductLoaded extends StatelessWidget {
                             fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Action',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
               ],
             ),
 
             // making the content
             ...List.generate(
               10,
-              (index) => TableRow(
-                decoration: (index + 1) % 2 == 0
-                    ? BoxDecoration(
-                        color: ColorPalleteLogin.TableColor,
-                      )
-                    : null,
-                children: [
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        '${index + 1}',
-                        style: TextStyle(
-                          fontSize: 14,
+              (index) {
+                TextEditingController controllerFill = TextEditingController();
+                var tableRow = TableRow(
+                  decoration: (index + 1) % 2 == 0
+                      ? BoxDecoration(
+                          color: ColorPalleteLogin.TableColor,
+                        )
+                      : null,
+                  children: [
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Nama Produk',
-                          style: TextStyle(
-                            fontSize: 14,
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('Nama Produk',
+                            style: TextStyle(
+                              fontSize: 14,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          // >> note : BELUM DI LIMIT
+                          child: TextField(
+                            controller: controllerFill,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.end,
+                            style: TextStyle(fontSize: 12),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5.0),
+                              isDense: true,
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                                  const Radius.circular(18.0),
+                                ),
+                                borderSide: new BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0,
+                                ),
+                              ),
+                            ),
                           )),
                     ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        '10000',
-                        style: TextStyle(
-                          fontSize: 14,
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('Unit',
+                            style: TextStyle(
+                              fontSize: 14,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('123456789',
+                            style: TextStyle(
+                              fontSize: 14,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('10/10/2024',
+                            style: TextStyle(
+                              fontSize: 14,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: GestureDetector(
+                          onTap: () => {
+                            // NOTE : HAPUS
+                          },
+                          child: Icon(Icons.delete),
                         ),
                       ),
                     ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        '10000',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Unit',
-                          style: TextStyle(
-                            fontSize: 14,
-                          )),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('123456789',
-                          style: TextStyle(
-                            fontSize: 14,
-                          )),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('10/10/2024',
-                          style: TextStyle(
-                            fontSize: 14,
-                          )),
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                );
+                return tableRow;
+              },
             ),
           ],
         ),
@@ -582,6 +732,14 @@ class TableInputProductLoaded extends StatelessWidget {
     );
   }
 }
+
+// List<TableRow> ListRowTableInputProductLoaded {
+//   int count;
+//   // var listdata
+
+//   ListRowTableInputProductLoaded({required count});
+
+// }
 
 class TableStockCardTransferNotes extends StatelessWidget {
   List<stock.Data> listStockCard = List.empty();
@@ -713,7 +871,7 @@ class TableStockCardTransferNotes extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        '10000',
+                        '-',
                         style: TextStyle(
                           fontSize: 14,
                         ),

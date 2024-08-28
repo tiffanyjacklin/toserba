@@ -84,8 +84,8 @@
 
   $: if (searchQuery.length > 0) {
       all_produk = products.filter(item => 
-          product.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.ProductDetails.product_detail_id.toString().includes(searchQuery)
+        item.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.ProductDetails.product_detail_id.toString().includes(searchQuery)
       );
   } else {
       all_produk = [...products];

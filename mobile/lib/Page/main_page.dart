@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/history_all_stock_product_page.dart';
+import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
@@ -229,7 +230,7 @@ class MenuPage extends StatelessWidget {
         flex: 8,
         child: Container(
           decoration: BoxDecoration(color: Colors.grey[100]),
-          child: HistoryAllStockProductPage(),
+          child: StockTransferNotesPage(),
         ));
   }
 }

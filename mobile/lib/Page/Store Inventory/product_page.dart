@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,13 +7,66 @@ import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/AllProduct.dart';
 // import 'package:flutter_app_all/Model/SessionList.dart';
 import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart' as stock;
+import 'package:http/http.dart' as http;
 
-class ProductPage extends StatelessWidget {
+
+
+
+Future _fetchProduct() async{
+  // /products/store_warehouse/:user_id/:role_id"
+      // link api http://leap.crossnet.co.id:8888/user/1/1
+    // link localhost -> http://localhost:8888/user/
+    final link =
+        'http://leap.crossnet.co.id:8888/products/store_warehouse/1/2';
+
+    // call api (method PUT)
+    final response = await http.get(Uri.parse(link));
+    print('---> response ' + response.statusCode.toString());
+
+    // cek status
+    if (response.statusCode == 200) {
+      // misal oke berati masuk
+      // json
+      Map<String, dynamic> temp = json.decode(response.body);
+      // decode?
+      print(response.body);
+      if (temp['status'] == 200) {
+        print(temp);
+        return FetchAllProduct.fromJson(temp).data!;
+      }
+      else{
+        return [];
+      }
+
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      // throw Exception('Login Failed, Try Again');
+      print('fetch failed');
+      return [];
+    }
+}
+
+class ProductPage extends StatefulWidget {
   ProductPage({super.key});
 
-  // manual
-  List<Data> listProduct = FetchAllProduct.fromJson(jsonAllProduct).data!;
+  @override
+  State<ProductPage> createState() => _ProductPageState();
+}
 
+class _ProductPageState extends State<ProductPage> {
+  // manual
+  // List<Data> listProduct = FetchAllProduct.fromJson(jsonAllProduct).data!;
+  List<Data> listProduct = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _fetchProduct().then((onValue) => {
+      listProduct = onValue
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Padding(
