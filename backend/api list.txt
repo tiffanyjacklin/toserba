@@ -21,6 +21,22 @@ e.GET("/user/name/:user_name", controller.GetUserByName)
 // Mengambil data user berdasarkan user dan role
 e.GET("/user/:user_id/:role_id", controller.GetDataUser)
 
+// Menambah user baru
+e.POST("/user/add", controller.InsertNewUser)
+{
+    "username": "angieee",
+    "user_password": "angieaja",
+    "user_fullname": "Keysha",
+    "user_address": "Jl. Apajaboleh",
+    "user_gender": "P",
+    "user_birthdate": "2003-04-04",
+    "user_email": "angieaja@gmail.com",
+    "user_phone_number": "081000888444"
+}
+
+// Update password user
+e.PUT("/user/update/:user_id/:password", controller.UpdatePassword)
+
 // Mengambil role user
 e.GET("/user/roles/:user_id", controller.GetRoles)
 
