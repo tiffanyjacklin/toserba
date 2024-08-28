@@ -625,6 +625,9 @@ e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
 // Mengambil data supplier berdasarkan ID
 e.GET("/suppliers/:supplier_id", controller.GetSupplierByID)
 
+// Mengambil semua supplier
+e.GET("/suppliers/all", controller.GetAllSupplier)
+
 // Menambah supplier baru
 e.POST("suppliers/add", controller.InsertSupplier)
 {
