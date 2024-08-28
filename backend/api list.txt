@@ -45,6 +45,29 @@ e.PUT("/user/roles/update/:user_id/:role_id", controller.UpdateUserRoles)
 // Mengubah lokasi store/warehouse untuk user 
 e.PUT("/user/roles/update/:user_id/:role_id/:sw_id", controller.UpdateUserStoreWarehouse)
 
+// Menambah user privilege baru yang sebelumnya tidak ada
+e.POST("/user/privileges/add/new/:user_id/:role_id", controller.InsertUserPrivilege)
+[
+    {
+        "privilege_id":4
+    }
+]
+
+// Menambah privilege baru pada user dan role tertentu yang sebelumnya sudah ada
+e.POST("/user/privileges/add/exist/:user_id/:role_id", controller.InsertExistUserPrivilege)
+[
+    {
+        "privilege_id":4
+    }
+]
+
+
+// Mengubah privilege. Yang di uri role id sebelumnya, yang di body role id setelah
+e.PUT("/user/privileges/update/:user_id/:role_id/:privilege_id", controller.UpdateUserPrivilege)
+{
+     "privilege_id":4
+}
+
 // Mengambil privilege berdasarkan user dan role
 e.GET("/user/privileges/:user_id/:role_id", controller.GetPriv)
 
@@ -430,6 +453,9 @@ e.GET("/products", controller.GetAllProducts)
 
 // Mengambil semua data produk, tanpa stok, exp, batch
 e.GET("/products/detail", controller.GetAllProductDetail)  
+
+// Mengambil semua produk dari supplier tertentu, tanpa stok, exp, batch
+e.GET("/products/supplier/:supplier_id", controller.GetAllProductDetailFromSupplier) 
 
 // Mengambil data produk berdasarkan lokasi store/warehouse user
 e.GET("/products/store_warehouse/:user_id/:role_id", controller.GetAllProductsInStoreWarehouse) 
