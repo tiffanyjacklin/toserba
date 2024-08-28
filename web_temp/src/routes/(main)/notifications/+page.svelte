@@ -12,7 +12,7 @@
         fetchNotifications();
     });
     async function fetchNotifications() {
-        const response = await fetch(`http://${$uri}:8888/notifications`, {
+        const response = await fetch(`http://${$uri}:8888/notifications/${$roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -42,7 +42,7 @@
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg font-roboto text-lg">
             {#if notifications.length === 0}
                 <tr>
-                    <td colspan="5" class="text-center py-4">No notification found.</td>
+                    <td colspan="5" class="text-center py-4 px-6">No notification found.</td>
                 </tr>
             {:else}
                 {#each notifications as notification, i}

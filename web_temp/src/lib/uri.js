@@ -3,7 +3,6 @@ import { writable } from 'svelte/store';
 import { loadFromLocalStorage, saveToLocalStorage } from '$lib/store.js';
 import { browser } from '$app/environment';
 
-// Define stores with default values from localStorage
 // export const uri = writable(loadFromLocalStorage('uri', 'localhost'));
 export const uri = writable(loadFromLocalStorage('uri', 'leap.crossnet.co.id'));
 export const userId = writable(loadFromLocalStorage('userId', ''));
@@ -18,7 +17,6 @@ export const totalAmount = writable(loadFromLocalStorage('totalAmount', ''));
 export const storeId = writable(loadFromLocalStorage('storeId', ''));
 export const sw_name = writable(loadFromLocalStorage('sw_name', ''));
 
-// Subscribe to changes and save to localStorage only in the browser
 if (browser) {
     uri.subscribe(value => saveToLocalStorage('uri', value));
     userId.subscribe(value => saveToLocalStorage('userId', value));
