@@ -433,7 +433,7 @@ class _HistoryAllStockProductPageState extends State<HistoryAllStockProductPage>
 
 
               // table 
-              TableStockCardAllProducts(listStockCard: this.searchedHistoryProduct, startIndex: 0),
+              TableStockCardAllProducts(listStockCard: this.searchedHistoryProduct, startIndex: 5),
             ]
           ),
         ),

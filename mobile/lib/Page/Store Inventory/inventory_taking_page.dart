@@ -1,8 +1,46 @@
+import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_all/Model/StockOpname.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:number_paginator/number_paginator.dart';
+import 'package:http/http.dart' as http;
+
+Future _fetchStockOpname() async {
+  var id = 2;
+  // link api http://leap.crossnet.co.id:8888/user/1/1
+  // link localhost -> http://localhost:8888/user/
+  final link =
+      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$id';
+
+  // call api (method PUT)
+  final response = await http.get(Uri.parse(link));
+  print('---> response ' + response.statusCode.toString());
+
+  // cek status
+  if (response.statusCode == 200) {
+    // misal oke berati masuk
+    // json
+    Map<String, dynamic> temp = json.decode(response.body);
+    // decode?
+    print(response.body);
+    if (temp['status'] == 200) {
+      print(temp);
+      return FetchStockOpnameWarehouse.fromJson(temp).data!;
+    } else {
+      return [];
+    }
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    // throw Exception('Login Failed, Try Again');
+    print('fetch failed');
+    return [];
+  }
+}
 
 class InventoryTakingPage extends StatefulWidget {
   InventoryTakingPage({super.key});
@@ -15,7 +53,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
   final NumberPaginatorController _controller = NumberPaginatorController();
 
   var _currentPage = 1;
-  var contentTableInventory = [];
+  List<Data> contentTableInventory = FetchStockOpnameWarehouse.fromJson(jsonStockOpname).data!;
 
   @override
   Widget build(BuildContext context) {
@@ -761,7 +799,7 @@ class DiscardPopup extends StatelessWidget {
 }
 
 class TableInventoryTaking extends StatelessWidget {
-  var contentTable = [];
+  List<Data> contentTable = [];
   TableInventoryTaking({
     super.key,
     required this.contentTable,
@@ -875,7 +913,9 @@ class TableInventoryTaking extends StatelessWidget {
             // making the content
             ...List.generate(
               5,
-              (index) => TableRow(
+              (index) {
+                TextEditingController controllerFill = TextEditingController();
+                var tableRow = TableRow(
                 decoration: (index + 1) % 2 == 0
                     ? BoxDecoration(
                         color: ColorPalleteLogin.TableColor,
@@ -898,7 +938,7 @@ class TableInventoryTaking extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('Nama Produk',
+                      child: Text('${contentTable[index].productName}',
                           style: TextStyle(
                             fontSize: 12,
                           )),
@@ -907,7 +947,7 @@ class TableInventoryTaking extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('B010101',
+                      child: Text('${contentTable[index].batch}',
                           style: TextStyle(
                             fontSize: 12,
                           )),
@@ -916,7 +956,7 @@ class TableInventoryTaking extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('10/10/2024',
+                      child: Text('${contentTable[index].expiredDate}',
                           style: TextStyle(
                             fontSize: 12,
                           )),
@@ -928,7 +968,7 @@ class TableInventoryTaking extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: Text(
-                          '10000',
+                          '${contentTable[index].expectedStock}',
                           style: TextStyle(
                             fontSize: 12,
                           ),
@@ -941,6 +981,7 @@ class TableInventoryTaking extends StatelessWidget {
                         padding: EdgeInsets.all(8.0),
                         // >> note : BELUM DI LIMIT
                         child: TextField(
+                          controller: controllerFill,
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.end,
                           style: TextStyle(fontSize: 12),
@@ -964,7 +1005,7 @@ class TableInventoryTaking extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('Unit',
+                      child: Text('${contentTable[index].unitType}',
                           style: TextStyle(
                             fontSize: 12,
                           )),
@@ -989,7 +1030,10 @@ class TableInventoryTaking extends StatelessWidget {
                           Icons.fast_forward_sharp,
                           color: ColorPalleteLogin.PrimaryColor,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          // ubah input value di expected stock
+                          controllerFill.text = contentTable[index].expectedStock.toString();
+                        },
                       ),
                     ),
                   ),
@@ -1022,7 +1066,9 @@ class TableInventoryTaking extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
+              );
+                return tableRow;
+              },
             ),
           ],
         ),
@@ -1272,3 +1318,143 @@ class InventoryTakingDetailsChild extends StatelessWidget {
     );
   }
 }
+
+
+// // Menambah stock opname
+// e.POST("/products/stock/opname/add", controller.InsertStockOpname)
+// [
+//     {
+//         "product_detail_id": 4,
+//         "batch": "1",
+//         "expired_date": "2025-08-25",
+//         "actual_stock": 15,
+//         "unit_type": "gram",
+//         "store_warehouse_id": 2
+//     }
+// ]
+
+
+class InputStockOpname{
+  Data data;
+  late Int actualStock;
+  late String additional_information;
+
+  InputStockOpname({
+    required this.data,
+  });
+}
+
+var jsonStockOpname = {
+  "status": 200,
+  "message": "Berhasil",
+  "data": [
+    {
+      "stock_opname_id": 0,
+      "product_detail_id": 14,
+      "product_name": "Tomato",
+      "batch": "1",
+      "expired_date": "2024-08-23",
+      "expected_stock": 1000,
+      "actual_stock": 0,
+      "unit_type": "gram",
+      "timestamp": "",
+      "store_warehouse_id": 2
+    },
+    {
+      "stock_opname_id": 0,
+      "product_detail_id": 3,
+      "product_name": "Spinach",
+      "batch": "1",
+      "expired_date": "2025-08-16",
+      "expected_stock": 0,
+      "actual_stock": 0,
+      "unit_type": "gram",
+      "timestamp": "",
+      "store_warehouse_id": 2
+    },
+    {
+      "stock_opname_id": 0,
+      "product_detail_id": 4,
+      "product_name": "Pepper",
+      "batch": "1",
+      "expired_date": "2025-08-20",
+      "expected_stock": 20,
+      "actual_stock": 0,
+      "unit_type": "gram",
+      "timestamp": "",
+      "store_warehouse_id": 2
+    },
+    {
+      "stock_opname_id": 0,
+      "product_detail_id": 4,
+      "product_name": "Pepper",
+      "batch": "1",
+      "expired_date": "2025-08-25",
+      "expected_stock": 15,
+      "actual_stock": 0,
+      "unit_type": "gram",
+      "timestamp": "",
+      "store_warehouse_id": 2
+    },
+    {
+      "stock_opname_id": 0,
+      "product_detail_id": 3,
+      "product_name": "Spinach",
+      "batch": "2",
+      "expired_date": "2025-08-20",
+      "expected_stock": 25,
+      "actual_stock": 0,
+      "unit_type": "gram",
+      "timestamp": "",
+      "store_warehouse_id": 2
+    },
+    {
+      "stock_opname_id": 0,
+      "product_detail_id": 4,
+      "product_name": "Pepper",
+      "batch": "2",
+      "expired_date": "2025-08-25",
+      "expected_stock": 10,
+      "actual_stock": 0,
+      "unit_type": "gram",
+      "timestamp": "",
+      "store_warehouse_id": 2
+    },
+    {
+      "stock_opname_id": 0,
+      "product_detail_id": 4,
+      "product_name": "Pepper",
+      "batch": "3",
+      "expired_date": "2025-08-25",
+      "expected_stock": 5,
+      "actual_stock": 0,
+      "unit_type": "gram",
+      "timestamp": "",
+      "store_warehouse_id": 2
+    },
+    {
+      "stock_opname_id": 0,
+      "product_detail_id": 4,
+      "product_name": "Pepper",
+      "batch": "4",
+      "expired_date": "2025-08-25",
+      "expected_stock": 5,
+      "actual_stock": 0,
+      "unit_type": "gram",
+      "timestamp": "",
+      "store_warehouse_id": 2
+    },
+    {
+      "stock_opname_id": 0,
+      "product_detail_id": 4,
+      "product_name": "Pepper",
+      "batch": "5",
+      "expired_date": "2025-08-25",
+      "expected_stock": 0,
+      "actual_stock": 0,
+      "unit_type": "gram",
+      "timestamp": "",
+      "store_warehouse_id": 2
+    }
+  ]
+};
