@@ -34,6 +34,7 @@ e.POST("/user/roles/add", controller.InsertNewUserRoles)
 }
 
 // Mengubah role untuk user tertentu. Yang di uri role id sebelumnya, yang di body role id setelah
+// Kalau custom = 1, harus insert/update userprivilege
 e.PUT("/user/roles/update/:user_id/:role_id", controller.UpdateUserRoles)
 {
     "role_id": 3,
@@ -424,8 +425,11 @@ e.GET("/products/code/:product_code/:user_id/:role_id", controller.GetProductByC
 // Mengambil data produk berdasarkan nama
 e.GET("/products/name/:product_name/:user_id/:role_id", controller.GetProductByName) 
 
-// Mengambil semua data produk
-e.GET("/products/:user_id/:role_id", controller.GetAllProducts)  
+// Mengambil semua data produk beserta stok, exp, batch per store warehouse
+e.GET("/products", controller.GetAllProducts) 
+
+// Mengambil semua data produk, tanpa stok, exp, batch
+e.GET("/products/detail", controller.GetAllProductDetail)  
 
 // Mengambil data produk berdasarkan lokasi store/warehouse user
 e.GET("/products/store_warehouse/:user_id/:role_id", controller.GetAllProductsInStoreWarehouse) 
