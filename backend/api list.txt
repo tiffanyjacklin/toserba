@@ -290,6 +290,9 @@ e.GET("/products/stock/opname/data", controller.GetDataforStockOpname)
 // Mengambil semua data produk pada store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock)
 e.GET("/products/stock/opname/data/store_warehouse/:sw_id", controller.GetDataforStockOpnameBySWID)
 
+// Mengambil semua data produk pada produk tertentu dan store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock)
+e.GET("/products/stock/opname/data/store_warehouse/:product_id/:sw_id", controller.GetDataforStockOpnameByPIDSWID)
+
 // Mengambil semua data stock opname pada store/warehouse tertentu
 e.GET("/products/stock/opname/store_warehouse/:sw_id", controller.GetStockOpnameBySWID)
 
@@ -342,6 +345,9 @@ e.PUT("/orders/transfer/notes/update/:transfernote_id", controller.InsertTransfe
     "store_warehouse_to": 1,
     "user_id_from": 3
 }
+
+// Cek jumlah produk untuk tiap batch & expdate
+e.GET("/orders/transfer/notes/check/:product_id/:sw_id/:quantity", controller.GetCheckProductForTransferNote)
 
 
 // Delivery Order
@@ -658,6 +664,35 @@ e.POST("/payment/method/add", controller.InsertPaymentMethod)
         "payment_method_name": "Cash"
     }
 ]
+
+// Mengambil barang fast/slow moving dari jumlah barang di transaksi
+// order 0 - fast; 1 - slow; 
+e.GET("/products/moving/transaction/:order", controller.GetSlowFastMovingByAllTransaction)
+
+// Mengambil barang fast/slow moving dari jumlah barang di transaksi pada store tertentu
+// order 0 - fast; 1 - slow; 
+e.GET("/products/moving/transaction/:order/:sw_id", controller.GetSlowFastMovingFromTransactionBySWID)
+
+// Mengambil barang fast/slow moving dari jumlah barang di stock out stock cards
+// order 0 - fast; 1 - slow; 
+e.GET("/products/moving/stock/card/:order", controller.GetSlowFastMovingFromStockOut)
+
+// Mengambil semua total promo cost 
+e.GET("/promos/cost/all", controller.GetTotalPromoCost)
+
+// Mengambil total promo cost per transaksi semua store
+// ex. transaksi 1 : 10000; transaksi 2 : 15000
+e.GET("/promos/cost/transaction/all", controller.GetTotalPromoCostPerTransaction)
+
+// Mengambil total promo cost dari transaksi tertentu
+e.GET("/promos/cost/transaction/:transaction_id", controller.GetTotalPromoCostByTransactionID)
+
+// Mengambil total promo cost per store
+// ex. store 1 : 10000; store 2 : 15000
+e.GET("/promos/cost/store/all", controller.GetTotalPromoCostPerStore)
+
+// Mengambil total promo cost dari store tertentu
+e.GET("/promos/cost/store/:store_id", controller.GetTotalPromoCostByStoreID)
 
 // Mengambil semua data notifikasi
 e.GET("/notifications", controller.GetAllNotification)
