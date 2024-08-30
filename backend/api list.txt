@@ -509,7 +509,8 @@ e.PUT("/products/edit/:product_id", controller.UpdateProductDetails)
     "buy_price": 20000,
     "sell_price": 22000,
     "min_stock": 500,
-    "product_unit": "gram"
+    "product_unit": "gram",
+    "product_timestamp": "2006-01-02 15:04:05"
 }
 
 // Menambah jenis promo baru
