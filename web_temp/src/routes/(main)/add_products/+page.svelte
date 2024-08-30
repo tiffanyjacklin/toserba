@@ -243,9 +243,13 @@
   }
   
   let temp = [];
-  function deleteProductFromList(product_id) {
+  function deleteProductFromList(product_id, expired_dateNya, batchNya) {
+    console.log(products_to_be_added);
+    console.log(product_id, expired_dateNya, batchNya);
       products_to_be_added = products_to_be_added.filter(stock => 
-        stock.product_detail_id !== product_id
+        !(stock.product_detail_id === product_id && 
+          stock.expired_date === expired_dateNya && 
+          stock.batch === batchNya)
       );
   }
   function filterProductForSubtract(products){
@@ -454,7 +458,7 @@
                 {product.section_placement}
               </td>
               <td class="px-1 py-2 text-center">
-                <button on:click={() => deleteProductFromList(product.product_detail_id)} type="button" 
+                <button on:click={() => deleteProductFromList(product.product_detail_id, product.expired_date, product.batch)} type="button" 
                   class="mt-2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] hover:bg-[#F2AA7E] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg outline outline-[1px] px-3 py-3 text-center">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -481,7 +485,7 @@
   </div>
 </div>
 <div>
-    Suppliers:
+    <!-- Suppliers:
     {#each suppliers as supplier}
     {supplier.supplier_id}, {supplier.supplier_name} & 
     {/each}
@@ -510,15 +514,15 @@
     {#each products_to_be_added as stock}
       {stock.product_detail_id}, {stock.product_name} & 
     {/each}
-    <br>
+    <br> -->
     <!-- Expired Date of Selected Product:
     {#each expiredDateOfSelectedProduct as stock}
       {stock.ProductDetails.product_detail_id}, {stock.ProductDetails.product_name}, {stock.ProductDetails.pro} & 
     {/each}
-    <br> -->
+    <br>
     ShowModal: {showModal}
     <br>
-    Back: {back}
+    Back: {back} -->
 </div>
     
     <div class="flex items-center justify-center my-2">

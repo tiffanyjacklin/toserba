@@ -11,6 +11,7 @@
     let productId = '';
     let productName = '';
     let expired_date = '';
+    $: console.log('Reactive Expired Date:', expired_date);
     let batch = '';
     let stores = [];
     let all_stores = [];
@@ -19,16 +20,21 @@
     let warehouse = [];
     $: filteredStock = [];
     $: expiredDateOfSelectedProduct = [];
+    $: batchOfSelectedProduct = [];
     let product = [];
-  
+
     // let stock_card = [];
     let searchQuery = '';
     let showModal = false; 
     let showTable = false;
     let showAddProduct = false;
-    let products_to_subtract = [];
+    $: products_to_subtract = [];
   
-   
+    $: showExpiredDateList = false;
+    $: showBatchList = false;
+    $: showIDList = false;
+    $: showNameList = false;
+
     function handleClick() {
       showModal = true;
     }
@@ -97,9 +103,9 @@
         all_stocks = stocks.filter(item => 
           item.expected_stock > 0     
         );
-        filteredStock = filterOldestStock(all_stocks);
-        console.log(all_stocks);
-        console.log(filteredStock);
+        filteredStock = filterOneTypeOnly(all_stocks);
+        // console.log(all_stocks);
+        // console.log(filteredStock);
     }
     
     function filterStock(value, type) {
@@ -110,20 +116,59 @@
         filteredStock = filteredStock.filter(stock => stock.product_name.toLowerCase().includes(value.toLowerCase()));
       }
     }
-    function selectProduct(stock) {
-        productId = stock.product_detail_id;
-        productName = stock.product_name;
+    function toggleExpiredDateList() {
+      if (productId && productName) {
+        showExpiredDateList = !showExpiredDateList;
+        showBatchList = false;
+      }
     }
-    function selectProductExp(stock) {
-        expired_date = stock.expired_date;
 
-        all_stocks = stocks.filter(item => 
-            item.expected_stock > 0     
-        );
-        filteredStock = filterOldestStock(all_stocks);
-        expiredDateOfSelectedProduct = [];
+    function toggleBatchList() {
+      if (productId && productName) {
+        showBatchList = !showBatchList;
+        showExpiredDateList = false;
+      }
     }
-    function filterOldestStock(all_stockss) {
+    function toggleIDList() {
+      showIDList = !showIDList;
+      showNameList = false;
+    }
+
+    function toggleNameList() {
+      showNameList = !showNameList;
+      showIDList = false;
+    }
+    function selectProduct(stock) {
+      productId = stock.product_detail_id;
+      productName = stock.product_name;
+      expired_date = '';
+      batch = '';
+      updateFilteredStocks();
+      autoFillIfOnlyOneStock();
+    }
+
+    function selectProductExp(stock) {
+      console.log('Selected Expired Date1:', expired_date); 
+      expired_date = stock.expired_date;
+      console.log('Selected Expired Date2:', expired_date);
+
+      showExpiredDateList = false;
+      filterUniqueBatches();
+      filterUniqueExpiredDates();
+      autoFillIfOnlyOneStock();
+    }
+
+
+    function selectProductBatch(stock) {
+      // console.log('Selected Batch1:', stock.batch); 
+      batch = stock.batch;
+      // console.log('Selected Batch2:', batch); 
+      showBatchList = false;
+      filterUniqueExpiredDates(); 
+      autoFillIfOnlyOneStock();
+    }
+
+    function filterOneTypeOnly(all_stockss) {
       let stockMap = new Map();
   
       const filteredForTransfer = all_stockss.filter(stock => {
@@ -151,12 +196,13 @@
       // Compare actual dates
       return new Date(date1) < new Date(date2);
     }
-    function addProductToProductList(productIdnya, productNamenya, expired_dateNya) {
+    function addProductToProductList(productIdnya, productNamenya, expired_dateNya, batchNya) {
         console.log(expired_dateNya);
-        let temp = expiredDateOfSelectedProduct.filter(stock => 
+        let temp = all_stocks.filter(stock => 
             stock.product_detail_id === productIdnya && 
             stock.product_name.toLowerCase().includes(productNamenya.toLowerCase()) &&
-            stock.expired_date.includes(expired_dateNya)
+            stock.expired_date === expired_dateNya && 
+            stock.batch === batchNya
         );
     
         products_to_subtract = [...products_to_subtract, ...temp];
@@ -165,58 +211,144 @@
         productId = ''; 
         productName = '';
         expired_date = '';
+        batch = '';
     
         all_stocks = stocks.filter(item => item.expected_stock > 0);
-        filteredStock = filterOldestStock(all_stocks);
+        filteredStock = filterOneTypeOnly(all_stocks);
         expiredDateOfSelectedProduct = [];
+        batchOfSelectedProduct = [];
     }
-  
-    $: if (String(productId).length > 0) {
-      filterStock(productId, 'id');
-    } else {
-      
-      all_stocks = stocks.filter(item => 
-        item.expected_stock > 0     
-      );
-      filteredStock = filterOldestStock(all_stocks);
+    function filterUniqueExpiredDates() {
+      const uniqueDates = new Map();
+      all_stocks.forEach(stock => {
+        if (stock.product_detail_id === productId) {
+          if ((batch === '' || stock.batch === batch) && stock.expired_date) {
+            uniqueDates.set(stock.expired_date, {
+              batch: stock.batch,
+              expired_date: stock.expired_date,
+              product_detail_id: stock.product_detail_id
+            });
+          }
+        }
+      });
+      console.log('Unique Dates:', Array.from(uniqueDates.values())); // Debugging line
+      expiredDateOfSelectedProduct = Array.from(uniqueDates.values());
+      console.log('Selected Batch3:', batch); 
     }
-    $: if (productName.length > 0) {
-      filterStock(productName, 'name');
-    } else {
-      
-      all_stocks = stocks.filter(item => 
-        item.expected_stock > 0     
-      );
-      filteredStock = filterOldestStock(all_stocks);
-      
+
+    function filterUniqueBatches() {
+      const uniqueBatches = new Map();
+      all_stocks.forEach(stock => {
+        if (stock.product_detail_id === productId) {
+          // Check if expired_date is not empty and if stock's expired_date matches the selected expired_date
+          if ((expired_date === '' || stock.expired_date === expired_date) && stock.batch) {
+            uniqueBatches.set(stock.batch, {
+              batch: stock.batch,
+              expired_date: stock.expired_date, 
+              product_detail_id: stock.product_detail_id
+            }); 
+          }
+        }
+      });
+      console.log('Unique Batches:', Array.from(uniqueBatches.values())); // Debugging line
+      batchOfSelectedProduct = Array.from(uniqueBatches.values());
+      console.log('Selected Expired Date4:', expired_date); 
     }
-    $: if (productId === '' && productName.length === '') {
-      all_stocks = stocks.filter(item => 
-        item.expected_stock > 0     
-      );
-      filteredStock = filterOldestStock(all_stocks);
-      expiredDateOfSelectedProduct = [];
-    }
-    $: if (productId !== '' && productName.length > 0) {
-        expiredDateOfSelectedProduct = all_stocks.filter(item =>
+
+    function updateFilteredStocks() {
+      expiredDateOfSelectedProduct = all_stocks.filter(item =>
         item.product_detail_id === productId &&
         item.product_name.toLowerCase().includes(productName.toLowerCase()) &&
         !products_to_subtract.some(transfer =>
-            transfer.product_detail_id === item.product_detail_id &&
-            transfer.batch === item.batch &&
-            transfer.expired_date === item.expired_date
+          transfer.product_detail_id === item.product_detail_id &&
+          transfer.batch === item.batch &&
+          transfer.expired_date === item.expired_date
         )
-        );
+      );
+      batchOfSelectedProduct = all_stocks.filter(item =>
+        item.product_detail_id === productId &&
+        item.product_name.toLowerCase().includes(productName.toLowerCase()) &&
+        !products_to_subtract.some(transfer =>
+          transfer.product_detail_id === item.product_detail_id &&
+          transfer.batch === item.batch &&
+          transfer.expired_date === item.expired_date
+        )
+      );
+    }
+    function autoFillIfOnlyOneStock() {
+      if (expiredDateOfSelectedProduct.length === 1) {
+        batch = expiredDateOfSelectedProduct[0].batch;
+        expired_date = expiredDateOfSelectedProduct[0].expired_date;
+      }
+      if (expiredDateOfSelectedProduct.filter(stock => stock.batch === batch).length === 1) {
+        batch = expiredDateOfSelectedProduct[0].batch;
+      }
+      if (expiredDateOfSelectedProduct.filter(stock => stock.expired_date === expired_date).length === 1) {
+        expired_date = expiredDateOfSelectedProduct[0].expired_date;
+      }
+      if (batchOfSelectedProduct.length === 1) {
+        batch = expiredDateOfSelectedProduct[0].batch;
+        expired_date = expiredDateOfSelectedProduct[0].expired_date;
+      }
+      if (batchOfSelectedProduct.filter(stock => stock.batch === batch).length === 1) {
+        batch = expiredDateOfSelectedProduct[0].batch;
+      }
+      if (batchOfSelectedProduct.filter(stock => stock.expired_date === expired_date).length === 1) {
+        expired_date = expiredDateOfSelectedProduct[0].expired_date;
+      }
+    }
+    $: if (expired_date === ''){
+      expired_date = '';
+      filterUniqueBatches();
+      filterUniqueExpiredDates();
+      // autoFillIfOnlyOneStock();
+    }
+    $: if (batch === ''){
+      batch === '';
+      filterUniqueBatches();
+      filterUniqueExpiredDates();
+      // autoFillIfOnlyOneStock();
+    }
+    $: if (productId) {
+      filterStock(productId, 'id');
+    } else if (productName) {
+      filterStock(productName, 'name');
+    } else {
+      all_stocks = all_stocks.filter(item => 
+        item.expected_stock > 0     
+      );
+      filteredStock = filterOneTypeOnly(all_stocks);
+    }
+    $: if (productId === '' && productName.length === '') {
+      all_stocks = all_stocks.filter(item => 
+        item.expected_stock > 0     
+      );
+      filteredStock = filterOneTypeOnly(all_stocks);
+      expiredDateOfSelectedProduct = [];
+      batchOfSelectedProduct = [];
+      batch = '';
+      expired_date = '';
+      console.log('test');
+    }
+    $: if (productId !== '' && productName.length > 0) {
+      showIDList = false;
+      showNameList = false;
+      filterUniqueExpiredDates();
+      filterUniqueBatches();
     }
     
     let temp = [];
-    function deleteProductFromList(product_id) {
-        products_to_subtract = products_to_subtract.filter(stock => 
-          stock.product_detail_id !== product_id
-        );
-  
-        all_stocks = stocks.filter(item => item.expected_stock > 0);
-        filteredStock = filterOldestStock(all_stocks);
+    function deleteProductFromList(product_id, expired_dateNya, batchnya) {
+      console.log(product_id, expired_dateNya, batchnya);
+      
+      products_to_subtract = products_to_subtract.filter(stock => 
+        !(stock.product_detail_id === product_id && 
+          stock.expired_date === expired_dateNya && 
+          stock.batch === batchnya)
+      );
+
+      all_stocks = stocks.filter(item => item.expected_stock > 0);
+      filteredStock = filterOneTypeOnly(all_stocks);
     }
     function filterProductForSubtract(products){
       return products.map(product => ({
@@ -309,7 +441,7 @@
                   {product.batch}
                 </td>
                 <td class="px-1 py-2 text-center">
-                    {product.expired_date}
+                  {product.expired_date}
                   </td>
                 <td class="px-1 py-2 text-center">
                   {product.expected_stock}
@@ -324,7 +456,7 @@
                   <input type="text" step="0.5" bind:value={product.notes} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
                 </td>
                 <td class="px-1 py-2 text-center">
-                  <button on:click={() => deleteProductFromList(product.product_detail_id)} type="button" 
+                  <button on:click={() => deleteProductFromList(product.product_detail_id, product.expired_date, product.batch)} type="button" 
                     class="mt-2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] hover:bg-[#F2AA7E] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg outline outline-[1px] px-3 py-3 text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                       <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -351,24 +483,25 @@
       
         </button>
       </div>
-      <!-- Stocks:
+      <!-- <div class="select-text	">
+      Stocks:
       {#each stocks as stock}
-        {stock.product_detail_id}, {stock.batch} & 
+        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} &  
       {/each}
       <br>
       All Stocks:
       {#each all_stocks as stock}
-        {stock.product_detail_id}, {stock.batch} & 
+        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & 
       {/each}
       <br>
       Filtered for Double Value:
       {#each filteredStock as stock}
-        {stock.product_detail_id}, {stock.batch} & 
+        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} &  
       {/each}
       <br>
       Product to Transfer:
       {#each products_to_subtract as stock}
-        {stock.product_detail_id}, {stock.batch} & 
+        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & 
       {/each}
       <br>
       Expired Date of Selected Product:
@@ -376,15 +509,33 @@
         {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & 
       {/each}
       <br>
-      ShowModal: {showModal} -->
+      Batch of Selected Product:
+      {#each batchOfSelectedProduct as stock}
+        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & 
+      {/each}
+      <br>
+      ShowModal: {showModal}
       
+    </div> -->
+      <!-- showIDList: {showIDList}
+      <br>
+      showNameList: {showNameList}
+      <br> -->
+      Expired Date: {expired_date}
+      <br>
+      Batch: {batch}
+      <br>
+      showBatchList: {showBatchList}
+      <br>
+      showExpiredDateList: {showExpiredDateList}
+      <br>
       {#if showAddProduct}
       <div class="relative mt-8 flex items-center justify-center w-full">
         <div class="rounded-lg w-1/3 p-4 outline outline-1 bg-white text-black gap-2">
           <div class="my-3">
             <div class="font-semibold">Product ID</div>
-            <input type="text" bind:value={productId} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
-            {#if filteredStock.length > 0 && productId !== '' && productName === ''}
+            <input type="text" bind:value={productId} on:click={toggleIDList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
+            {#if showIDList && filteredStock.length > 0}
               <ul class="absolute w-1/4 bg-white shadow-md z-10">
                 {#each filteredStock as stock}
                   <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.product_detail_id} - {stock.product_name}</li>
@@ -395,8 +546,8 @@
           
           <div class="my-3">
             <div class="font-semibold">Product Name</div>
-            <input type="text" bind:value={productName} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
-            {#if filteredStock.length > 0 && productName !== '' && productId === ''}
+            <input type="text" bind:value={productName} on:click={toggleNameList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
+            {#if showNameList && filteredStock.length > 0}
             <ul class="absolute w-1/4  bg-white shadow-md z-10">
               {#each filteredStock as stock}
                 <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.product_name} - {stock.product_detail_id}</li>
@@ -404,11 +555,22 @@
             </ul>
             {/if}
           </div>
+          <div class="my-3">
+            <div class="font-semibold">Product Batch</div>
+            <input type="text" bind:value={batch} on:click={toggleBatchList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
+            {#if showBatchList && batchOfSelectedProduct.length > 0}
+            <ul class="absolute w-1/4  bg-white shadow-md z-10">
+              {#each batchOfSelectedProduct as stock}
+                <li on:click={() => selectProductBatch(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.batch}</li>
+              {/each}
+            </ul>
+            {/if}
+          </div>
 
           <div class="my-3">
             <div class="font-semibold">Expired date</div>
-            <input type="text" bind:value={expired_date} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
-            {#if expiredDateOfSelectedProduct.length > 0 && productName !== '' && productId !== '' && expired_date === ''}
+            <input type="text" bind:value={expired_date} on:click={toggleExpiredDateList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
+            {#if showExpiredDateList && expiredDateOfSelectedProduct.length > 0}
             <ul class="absolute w-1/4  bg-white shadow-md z-10">
               {#each expiredDateOfSelectedProduct as stock}
                 <li on:click={() => selectProductExp(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.expired_date}</li>
@@ -418,7 +580,7 @@
           </div>
 
           <div class="flex justify-center">
-            <button on:click={() => addProductToProductList(productId, productName, expired_date)} type="button" 
+            <button on:click={() => addProductToProductList(productId, productName, expired_date, batch)} type="button" 
               class="w-1/2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#F2AA7E] outline outline-[1px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg px-3 py-1 my-3 text-center">
               Add
             </button>

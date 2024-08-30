@@ -8,11 +8,13 @@
 
   let products = [];
   let all_produk = [];
+  let current_stock = [];
   let stock_card = [];
   let searchQuery = '';
   let showModal = null; 
   let showTable = false;
-
+  let showTable1 = false;
+  let warehouse = [];
   function handleClick(product_id) {
       showModal = product_id;
       console.log(product_id)
@@ -27,6 +29,38 @@
     } else {
       stock_card = [];
     }
+  }
+  function toggleTable1(product_id) {
+    showTable1 = !showTable1;
+    if (showTable1){
+      fetchCurrentStock(product_id);
+    } else {
+      current_stock = [];
+    }
+  }
+  async function fetchWarehouse() {
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('get all produk fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch last', data);
+          return;
+      }
+
+      warehouse = data.data;  
+      // all_stores = [...stores];
+      // console.log(warehouse);
   }
   async function fetchStockCard(product_id) {
       const response = await fetch(`http://${$uri}:8888/products/stock/card/product/${product_id}`, {
@@ -50,10 +84,34 @@
 
       stock_card = [...data.data];  
   }
+  async function fetchCurrentStock(product_id) {
+      const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${warehouse.store_warehouse_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
 
+      if (!response.ok) {
+          console.error('get all current stock fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch current stock', data);
+          return;
+      }
+
+      current_stock = [...data.data];  
+      current_stock = current_stock.filter(item => 
+        item.product_detail_id === product_id
+      );  }
 
   onMount(async () => {
       await fetchProduk();
+      await fetchWarehouse();
   });
 
   async function fetchProduk() {
@@ -280,8 +338,55 @@
               </div>
             </div>
             <div class="">
-              <div class="text-[#f7d4b2]">Current Stock</div>
-              <div class="text-white">{product.ProductDetails.product_stock} {product.ProductDetails.product_unit}</div>
+              <div class="text-[#f7d4b2]">Current Stock
+                <button on:click={() => toggleTable1(product.ProductDetails.product_detail_id)} class="ml-2">
+                  {#if showTable1}
+                    <i class="fa-solid fa-caret-up"></i>
+                  {:else}
+                    <i class="fa-solid fa-caret-down"></i>
+                  {/if}
+                </button>
+              </div>
+            {#if showTable1 && current_stock.length > 0}
+              <div class="relative overflow-x-auto shadow-md w-fit rounded-lg">
+                <table class="w-fit rounded-lg text-sm text-left rtl:text-right">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                    <tr class="border-b-2 border-black">
+                      <th scope="col" class="px-3 py-2 text-sm font-bold uppercase text-center">
+                        Batch
+                      </th>
+                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                        Expiry Date
+                      </th>
+                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                        Stock
+                      </th>
+                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                        Unit Type
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each current_stock as stock, i}
+                      <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
+                        <th scope="row" class="px-3 py-2  text-center font-medium text-gray-900 whitespace-nowrap">
+                          {stock.batch}
+                        </th>
+                        <td class="px-1 py-2 text-center">
+                          <DateConverter value={stock.expired_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                        </td>
+                        <td class="px-1 py-2 text-center">
+                          {stock.expected_stock}
+                        </td>
+                        <td class="px-1 py-2 text-center">
+                          {stock.unit_type}
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            {/if}
             </div>
             <div class="">
               <div class="text-[#f7d4b2]">Last Inventory Taking</div>
@@ -299,67 +404,81 @@
                </button>
               </div>
               {#if showTable && stock_card.length > 0}
-              <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-sm text-left rtl:text-right">
-                  <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                    <tr class="border-b-2 border-black">
-                      <th scope="col" class="px-3 py-2 text-sm font-bold uppercase text-center">
-                          No
-                      </th>
-                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                          Batch
-                      </th>
-                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                          Expiry Date
-                      </th>
-                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                        In
-                      </th>
-                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                        Out
-                      </th>
-                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                        Unit Type
-                      </th>
-                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                        Reason
-                      </th>
-                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {#each stock_card as stock, i}
-                      <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
-                        <th scope="row" class="px-3 py-2  text-center font-medium text-gray-900 whitespace-nowrap">
-                              {i+1}
+              <div class="printable-section">
+                <div class="relative overflow-x-auto shadow-md sm:rounded-lg ">
+                  <table class="w-full text-sm text-left rtl:text-right printable-table">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                      <tr class="border-b-2 border-black">
+                        <th scope="col" class="px-3 py-2 text-sm font-bold uppercase text-center">
+                            No
                         </th>
-                        <td class="px-1 py-2 text-center">
-                          {stock.product_batch}
-                        </td>
-                        <td class="px-1 py-2 text-center">
-                          <DateConverter value={stock.expired_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
-                        </td>
-                        <td class="px-1 py-2 text-center">
-                          {stock.stock_in}
-                        </td>
-                        <td class="px-1 py-2 text-center">
-                          {stock.stock_out}
-                        </td>
-                        <td class="px-1 py-2 text-center">
-                          {stock.product_unit}
-                        </td>
-                        <td class="px-1 py-2 text-center">
-                          {stock.stock_description}
-                        </td>
-                        <td class="px-1 py-2 text-center">
-                          <DateConverter value={stock.stock_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
-                        </td>
+                        <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                            Batch
+                        </th>
+                        <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                            Expiry Date
+                        </th>
+                        <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                          In
+                        </th>
+                        <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                          Out
+                        </th>
+                        <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                          Unit Type
+                        </th>
+                        <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                          Reason
+                        </th>
+                        <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                          Date
+                        </th>
                       </tr>
-                    {/each}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {#each stock_card as stock, i}
+                        <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
+                          <th scope="row" class="px-3 py-2  text-center font-medium text-gray-900 whitespace-nowrap">
+                                {i+1}
+                          </th>
+                          <td class="px-1 py-2 text-center">
+                            {stock.product_batch}
+                          </td>
+                          <td class="px-1 py-2 text-center">
+                            <DateConverter value={stock.expired_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                          </td>
+                          <td class="px-1 py-2 text-center">
+                            {stock.stock_in}
+                          </td>
+                          <td class="px-1 py-2 text-center">
+                            {stock.stock_out}
+                          </td>
+                          <td class="px-1 py-2 text-center">
+                            {stock.product_unit}
+                          </td>
+                          <td class="px-1 py-2 text-center">
+                            {stock.stock_description}
+                          </td>
+                          <td class="px-1 py-2 text-center">
+                            <DateConverter value={stock.stock_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                          </td>
+                        </tr>
+                      {/each}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="flex items-center justify-start">
+                <button type="button" on:click={() => window.print()} class="mt-2 flex w-40 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
+                  <div class="w-2/12 flex justify-center ml-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                    </svg>
+                  </div>
+                  <div class="w-10/12 text-start ml-2">
+                    Print stock card
+                  </div>
+                </button>
               </div>
               {/if}
             </div>

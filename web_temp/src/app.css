@@ -4,6 +4,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@media print {
+	/* Hide everything */
+	body * {
+	  visibility: hidden;
+	}
+  
+	/* Show only the table */
+	.printable-section, .printable-section * {
+	  visibility: visible;
+	}
+  
+	/* Center the table on the page */
+	.printable-section {
+	  margin: 0 auto;
+	  width: 100%;
+	  padding: 20px; /* Add some margin at the top */
+	  page-break-before: avoid;
+	  page-break-after: avoid;
+	}
+  
+	/* Ensure the table doesn't repeat */
+	.printable-table {
+	  page-break-before: avoid;
+	  page-break-after: avoid;
+	}
+  }
+  
 
 * {
 	scrollbar-width: thin;
