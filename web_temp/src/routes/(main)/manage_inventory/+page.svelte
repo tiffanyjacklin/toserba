@@ -6,16 +6,11 @@
     import { onMount } from 'svelte';
     import { uri, userId, roleId, sessionId } from '$lib/uri.js';
     import img_toko from "$lib/assets/store.png";
-  
-    // export let userId = 0;
-    // export let roleId = 0;
-    // export let sessionId = 0;
-    // console.log(sessionId);
     
+    let storeWarehouse = [];
+
     let showModal = false;
-    let transactions = [];
     let searchQuery = '';
-    let filteredTransactions = [];
   
     function closeModal() {
        showModal = false;
@@ -25,52 +20,38 @@
        showModal = true;
     }
   
-    function navigateToTransaction(transactionId) {
-        const url = `/transaction_history/${transactionId}`;
+    function navigateToWarehousePage(store_warehouse_id) {
+        const url = `/manage_inventory/${store_warehouse_id}`;
         goto(url);
     }
   
     onMount(async () => {
-      await fetchTransactions();
+      await getAllStoreWarehouse();
     });
   
-    // Function to fetch all transactions or filter based on search
-    async function fetchTransactions() {
-        let response;
-        console.log($sessionId);
-  
-        if ($sessionId === String(0) || $sessionId === '') {
-            response = await fetch(`http://${$uri}:8888/transaction`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-        } else {
-            
-            response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${$sessionId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-        }
-  
+    async function getAllStoreWarehouse(){
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/all`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
         if (!response.ok) {
-            console.error('get all transactions fetch failed', response);
+            console.error('fetch store warehouse failed', response);
             return;
         }
-  
+
         const data = await response.json();
-  
+
         if (data.status !== 200) {
-            console.error('Invalid fetch transactions', data);
+            console.error('Invalid fetch promo', data);
             return;
         }
-  
-        transactions = data.data;
-        filteredTransactions = transactions;
-        console.log(filteredTransactions);
+
+        storeWarehouse = data.data;
+        console.log(storeWarehouse);
+        
     }
 
   </script>
@@ -80,7 +61,7 @@
       
       <!-- <form class="flex items-center max-w-lg mx-auto">    -->
          <label for="voice-search" class="sr-only">Search</label>
-         <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
+         <div class="mb-4 relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
           <input 
               type="text" 
               id="voice-search" 
@@ -90,17 +71,19 @@
          </div>
       <!-- </form> -->
 
-        <button class="my-4 mt-8 p-4 border-2 border-black rounded-xl w-11/12">
-            <div class="flex">
-                <div class="w-2/12">
-                    <img class="w-32 rounded-xl" src={img_toko} alt="">
-                </div>
-                <div class="w-10/12 ml-8 flex flex-col items-start justify-center">
-                    <span class="text-xl font-semibold text-wrap">Store Toserba XYZ</span>
-                    <span class="text-xl font-semibold text-wrap">Jl. Jenderal Basuki Rachmat No.8-12, Kedungdoro, Kec. Tegalsari, Surabaya, Jawa Timur 60261</span>
-                </div>
-            </div>
-        </button>
+      {#each storeWarehouse as warehouse}
+          {#if warehouse.store_warehouse_type != "STORE"}
+              <button on:click={() => navigateToWarehousePage(warehouse.store_warehouse_id)} class="my-4 p-4 border-2 border-black rounded-xl w-11/12 hover:bg-gray-200">
+                  <div class="flex">
+                      <img class="w-32 rounded-xl mr-8 " src={img_toko} alt="">
+                      <div class="w-10/12 flex flex-col items-start justify-center">
+                          <span class="text-2xl font-semibold text-wrap my-1">{warehouse.store_warehouse_name}</span>
+                          <span class="text-2xl font-semibold text-wrap my-1 text-start">{warehouse.store_warehouse_address}</span>
+                      </div>
+                  </div>
+              </button>
+          {/if}
+      {/each}
 
   
        <nav class="my-8 ">

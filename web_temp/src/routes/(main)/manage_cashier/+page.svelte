@@ -10,9 +10,7 @@
     let storeWarehouse = [];
     
     let showModal = false;
-    let transactions = [];
     let searchQuery = '';
-    let filteredTransactions = [];
   
     function closeModal() {
        showModal = false;
@@ -74,7 +72,7 @@
       <!-- </form> -->
          {#each storeWarehouse as store}
             {#if store.store_warehouse_type != "WAREHOUSE"}
-                <button on:click={() => navigateToStorePage(store.store_warehouse_id)} class="my-4 p-4 border-2 border-black rounded-xl w-11/12">
+                <button on:click={() => navigateToStorePage(store.store_warehouse_id)} class="my-4 p-4 border-2 border-black rounded-xl w-11/12 hover:bg-gray-200">
                     <div class="flex">
                         <img class="w-32 rounded-xl mr-8 " src={img_toko} alt="">
                         <div class="w-10/12 flex flex-col items-start justify-center">

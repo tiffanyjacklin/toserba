@@ -1,5 +1,6 @@
 <script>
     import TaskModal from '$lib/TaskModal.svelte';
+    import MoneyInput from '$lib/MoneyInput.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
     import DateConverter from '$lib/DateConverter.svelte';
     import { getFormattedDate, isInTimeRange } from '$lib/DateNow.js';
@@ -255,11 +256,11 @@
     <div class="w-11/12 my-10">
         <div class="flex">
             {#if tampilan == "session"}
-                <button on:click={() => {tampilan = "session"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-48 py-2 rounded-2xl border-2 border-darkGray">Session</button>
-                <button on:click={() => {tampilan = "transaction"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-48 py-2 rounded-2xl border-2 border-darkGray">Transaction</button>
+                <button on:click={() => {tampilan = "session"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Session</button>
+                <button on:click={() => {tampilan = "transaction"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {:else if tampilan == "transaction"}
-                <button on:click={() => {tampilan = "session"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-48 py-2 rounded-2xl border-2 border-darkGray">Session</button>
-                <button on:click={() => {tampilan = "transaction"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-48 py-2 rounded-2xl border-2 border-darkGray">Transaction</button>
+                <button on:click={() => {tampilan = "session"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Session</button>
+                <button on:click={() => {tampilan = "transaction"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {/if}
         </div>    
     </div>
@@ -491,7 +492,8 @@
                             </div>
                             <div class="flex justify-between">
                                 <div class="text-[#f7d4b2]">Actual closing cash</div>
-                                <div class="text-white">Rp {item["Session"].actual_closing_cash.toLocaleString()}</div>
+                                <MoneyInput bind:value={item["Session"].actual_closing_cash} />
+                                <!-- <div class="text-white">Rp {item["Session"].actual_closing_cash.toLocaleString()}</div> -->
                             </div>
                             <div class="flex justify-between">
                                 <div class="text-[#f7d4b2]">Actual difference</div>
@@ -513,10 +515,16 @@
                                 <div class="pb-3">Closing notes</div>
                                 <textarea id="additional_notes" rows="4" class="min-h-24	shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 " value="{item["Session"].closing_notes.toLocaleString()}" readonly></textarea>                    
                             </div>
+                            
+                            <div class="text-[#f7d4b2] flex items-center pb-3">
+                                <div class="mr-3">Verified</div>
+                                <input type="checkbox" value="" class="w-4 h-4 text-peach bg-darkGray border-peach focus:ring-peach">
+                            </div>
 
                             <div class="flex items-center justify-center">
                                 <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
-                                Close
+                                <!-- Close -->
+                                 Save
                                 </button>
                             </div>
                         </div>
