@@ -18,7 +18,7 @@
     dateFirst: false
   });
 
-  console.log(dateNow);
+  // console.log(dateNow);
   let back = true;
   let delivery_order_supplier = '';
   let supplier_name = '';
@@ -115,7 +115,7 @@
 
       warehouse = data.data;  
       // all_stores = [...stores];
-      console.log(warehouse);
+      // console.log(warehouse);
   }
   async function fetchAllProductsFromSupplier() {
       const response = await fetch(`http://${$uri}:8888/products/supplier/${supplier_id}`, {
@@ -199,7 +199,7 @@
     return new Date(date1) < new Date(date2);
   }
   function addProductToProductList() {
-    console.log(productId, productName, batch, expired_date, quantity, section_placement)
+    // console.log(productId, productName, batch, expired_date, quantity, section_placement)
     let product = {
       product_detail_id: Number(productId),
       product_name: productName,
@@ -272,7 +272,7 @@
 
   async function addProducts(){
     products_to_add_fix = filterProductForAdding(products_to_be_added);
-    console.log(products_to_add_fix);
+    // console.log(products_to_add_fix);
 
     const response = await fetch(`http://${$uri}:8888/orders/supplier/add/${$userId}/${$roleId}`, {
       method: 'POST',
@@ -290,13 +290,13 @@
       console.error('Invalid post add products', data);
       return;
     }
-    console.log("insert products detail",data);
+    // console.log("insert products detail",data);
 
-    const add_products_details = String(data.data[0].add_stock_detail_id);
-    console.log(add_products_details);
-    console.log(delivery_order_supplier, supplier_id);
+    const add_products_details = String(data.data[0].add_stock_id);
+    // console.log(add_products_details);
+    // console.log(delivery_order_supplier, supplier_id);
     const updateUrl = `http://${$uri}:8888/orders/supplier/update/${add_products_details}`;
-    console.log('Update URL:', updateUrl);
+    // console.log('Update URL:', updateUrl);
 
     const response2 = await fetch(updateUrl, {
       method: 'PUT',
@@ -319,12 +319,13 @@
       console.error('Invalid put add products', data2);
     }
 
-    console.log("Updated add products detail", data2);
+    // console.log("Updated add products detail", data2);
     delivery_order_supplier = '';
     supplier_id = '';
     products_to_be_added = [];
     // goto(`/products`);
   }
+  
   // Convert 'yyyy-mm-dd' to 'dd/mm/yyyy'
   function formatDateToDisplay(date) {
     if (!date) return '';
