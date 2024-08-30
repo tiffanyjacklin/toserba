@@ -449,6 +449,9 @@ e.GET("/sessions/not_verified", controller.GetNotVerifiedSession)
 // Verifikasi Session
 e.PUT("/sessions/verify/:session_id", controller.VerifySession)
 
+// Mengambil semua product category
+e.GET("/products/category", controller.GetAllProductCategory)
+
 // Menambah kategori produk baru
 e.POST("/products/category/add", controller.InsertProductCategory)
 [
@@ -495,6 +498,19 @@ e.POST("/products/add/:store_warehouse_id", controller.InsertProductDetails)
         "product_unit": "gram"
     }
 ]
+
+// Mengubah atribut product details. Kalau tidak berubah, input sesuai value sebelumnya lagi
+e.PUT("/products/edit/:product_id", controller.UpdateProductDetails)
+{
+    "product_code": "VEG0015",
+    "product_category_id": 1,
+    "product_name": "Peas",
+    "supplier_id": 1,
+    "buy_price": 20000,
+    "sell_price": 22000,
+    "min_stock": 500,
+    "product_unit": "gram"
+}
 
 // Menambah jenis promo baru
 e.POST("/promos/type/add", controller.InsertPromoType)
