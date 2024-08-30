@@ -13,7 +13,6 @@
   let showModal = null; 
   let showTable = false;
 
-
   function handleClick(product_id) {
       showModal = product_id;
       console.log(product_id)
@@ -58,7 +57,7 @@
   });
 
   async function fetchProduk() {
-      const response = await fetch(`http://${$uri}:8888/products/${$userId}/${$roleId}`, {
+      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -97,22 +96,22 @@
     <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Products</span>
     
     <!-- <form class="flex items-center max-w-lg mx-auto">    -->
-       <label for="voice-search" class="sr-only">Search</label>
-       <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
-          <input 
-          bind:value={searchQuery} 
-          on:keydown={(event) => handleSearch(event)} 
-          type="text" id="voice-search" 
-          class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-          placeholder="Search product..."/>
-          <button 
-                type="button" class="absolute inset-y-0 end-0 flex items-center pe-3 mr-1">
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-              </svg> -->
-              <i class="fa-solid fa-sliders fa-xl mr-2"></i>
-          </button>
-       </div>
+    <label for="voice-search" class="sr-only">Search</label>
+    <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
+      <input 
+      bind:value={searchQuery} 
+      on:keydown={(event) => handleSearch(event)} 
+      type="text" id="voice-search" 
+      class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+      placeholder="Search product..."/>
+      <button 
+            type="button" class="absolute inset-y-0 end-0 flex items-center pe-3 mr-1">
+        <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg> -->
+          <i class="fa-solid fa-sliders fa-xl mr-2"></i>
+      </button>
+    </div>
     <!-- </form> -->
  
     <nav class="my-8 ">
