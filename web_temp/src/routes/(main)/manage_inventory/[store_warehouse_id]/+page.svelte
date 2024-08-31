@@ -27,6 +27,10 @@
     // STOCK HISTORY
     let stock_card_history = [];
 
+    //VERIFY ADD SUBTRACT
+    let verify_add = [];
+    let verify_subtract = [];
+
     // ADD NEW PRODUK
     let product_name = "";
     let product_code = "";
@@ -169,7 +173,77 @@
         }
  
         stock_card_history = data.data;
-        console.log("stockcard History",stock_card_history);
+        // console.log("stockcard History",stock_card_history);
+    }
+
+    async function fetchAddVerify() {
+        const response = await fetch(`http://${$uri}:8888/orders/supplier/not_verified`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all supplier fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch suppliers', data);
+            return;
+        }
+ 
+        verify_add = data.data;
+    }
+    
+    async function fetchSubtractVerify() {
+        const response = await fetch(`http://${$uri}:8888/products/stock/subtract/not_verified`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all supplier fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch suppliers', data);
+            return;
+        }
+ 
+        verify_subtract = data.data;
+    }
+   
+    async function getStoreWarehouse(sw_id) {
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${sw_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all supplier fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch suppliers', data);
+            return;
+        }
+ 
+        let nama_wr = data.data.store_warehouse_name ;
+        return nama_wr;
     }
 
     async function AddNewProduct() {
@@ -215,6 +289,8 @@
       fetchStockCardHistory();
       fetchProductCategory();
       fetchSuppliers();
+      fetchAddVerify();
+      fetchSubtractVerify();
   });
 
   $: editMode = false;
@@ -312,7 +388,7 @@
         </ul>
       </nav>
       {/if}
-
+      
       {#if tampilan == "products"}
         <div class="w-[96%] my-5 font-roboto">
             <div class="relative overflow-x-auto sm:rounded-lg">
@@ -416,7 +492,58 @@
           </div>
         </div>
       {:else if tampilan == "verify_add_subtract"}
-a
+        <div class="w-[96%] my-5 font-roboto">
+            <div class="relative overflow-x-auto sm:rounded-lg">
+            {#each verify_add as add_req}
+                <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
+                  <div class="w-10/12 flex flex-col font-semibold text-lg">
+                    <span class="my-1">Add Product Stock Request</span>
+                    <span class="my-1">From warehouse {getStoreWarehouse(add_req.store_warehouse_id)}</span>
+                    <div class="flex my-1">
+                      <span class="mx-1">XX Items, </span>
+                      {#if add_req.status_verify == 0}
+                        <span class="">UNVERIFIED.</span>
+                      {:else}
+                        <span class="">VERIFIED.</span>
+                      {/if}
+                    </div>
+                  </div>
+                  
+                  <div class="w-2/12 flex justify-end items-center">
+                    <button class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      </button>
+                  </div>
+                </div>
+            {/each}
+            {#each verify_subtract as sub_req}
+                <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
+                  <div class="w-10/12 flex flex-col font-semibold text-lg">
+                    <span class="my-1">Subtract Product Stock Request</span>
+                    <span class="my-1">From warehouse {getStoreWarehouse(sub_req.store_warehouse_id)}</span>
+                    <div class="flex my-1">
+                      <span class="mx-1">XX Items, </span>
+                      {#if sub_req.status_verify == 0}
+                        <span class="">UNVERIFIED.</span>
+                      {:else}
+                        <span class="">VERIFIED.</span>
+                      {/if}
+                    </div>
+                  </div>
+                  
+                  <div class="w-2/12 flex justify-end items-center">
+                    <button class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      </button>
+                  </div>
+                </div>
+            {/each}
+            </div>
+        </div>
       {:else if tampilan == "assign_product"}
 v
       {:else if tampilan == "add_product"}
@@ -471,24 +598,45 @@ v
           </div>
           <div class="flex justify-center mt-8">
             <!-- <button class="w-48 py-2 bg-darkGray text-peach rounded-2xl text-lg font-semibold mx-4">Back</button> -->
-            <button on:click={() => {AddNewProduct(); Swal.fire({
-              title: "Produk Berhasil Ditambahkan",
-              icon: "success",
-              color: "white",
-              background: "#364445",
-              confirmButtonColor: '#F2AA7E'
-            });
-            product_code = "";
-            product_category_id = 0;
-            product_name = "";
-            supplier_id = 0;
-            buy_price = 0;
-            sell_price = 0;
-            min_stock = 0;
-            product_unit = ""}} class="w-48 py-2 bg-peach text-darkGray rounded-2xl text-lg font-semibold mx-4">Add</button>
+            <button on:click={() => showModal = "confirm_add"} class="w-48 py-2 bg-peach text-darkGray rounded-2xl text-lg font-semibold mx-4">Add</button>
           </div>;
         </div>
       {/if}
+
+      {#if showModal == "confirm_add" }
+        <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+          <div class="flex items-center justify-center pt-8 font-roboto">
+            <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Save</div>
+          </div>
+          <form class="my-4 p-4 md:p-5 font-roboto text-xl">
+                <div class="text-[#f7d4b2] font-medium text-center mb-8">
+                  Are you sure you want to submit the changes you've made?
+                </div>
+                <div class="flex items-center justify-center gap-4">
+                    <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+                      Back
+                    </button>
+                    <button type="button" on:click={() => {AddNewProduct(); Swal.fire({
+                      title: "Produk Berhasil Ditambahkan",
+                      icon: "success",
+                      color: "white",
+                      background: "#364445",
+                      confirmButtonColor: '#F2AA7E'
+                    }); closeModal();
+                    product_code = "";
+                    product_category_id = 0;
+                    product_name = "";
+                    supplier_id = 0;
+                    buy_price = 0;
+                    sell_price = 0;
+                    min_stock = 0;
+                    product_unit = ""}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+                      Add
+                    </button>
+                </div>
+          </form>
+        </TaskModal> 
+        {/if}
         
       {#if tampilan != "add_product"}
        <nav class="my-8 ">
@@ -542,11 +690,11 @@ v
         <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Product detail</div>
       </div>
       {#if editMode == true}
-        <button on:click={() => editMode = false} class="p-2 bg-green-400">Save</button>
+        <button on:click={() => editMode = false} class="mt-6 mx-4 p-2 bg-darkGray text-peach shadow w-32 rounded-2xl font-semibold border border-peach">Save <i class="fa-solid fa-check" style="color: #FACFAD;"></i></button>
       {:else}
-        <button on:click={() => editMode = true} class="p-2 bg-yellow-400">Edit</button>
+        <button on:click={() => editMode = true} class="mt-6 mx-4 p-2 bg-peach2 text-darkGray shadow w-32 rounded-2xl font-semibold">Edit <i class="fa-regular fa-pen-to-square" style="color: #364445;"></i></button>
       {/if}
-      <form class=" mt-8 p-4 md:p-5">
+      <form class=" mt-4 p-4 md:p-5">
           <div class="grid gap-3 font-roboto font-semibold">
             <div class="">
                 <div class="text-[#f7d4b2] mr-1">Product ID</div>
