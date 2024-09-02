@@ -132,7 +132,7 @@
             class="absolute inset-y-0 end-0 flex items-center pe-3 " 
             on:click={toggleDatePicker}>
             <i class="fa-solid fa-sliders fa-xl mr-2"></i>
-          </button>
+            </button>
           {#if showDatePicker}
             <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-64 bg-gray-100 p-4 rounded-lg font-roboto">
               <label class="block mb-2 font-semibold text-gray-700">Start Date</label>

@@ -398,7 +398,7 @@
             {#if (showModal == item["Session"].session_id)}
                 <TaskModal open={showModal === item["Session"].session_id} onClose={closeModal} color={"#3d4c52"}>
                     <div class="flex items-center justify-center pt-8">
-                    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Session #{item.session_id}</div>
+                    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Session #{item["Session"].session_id}</div>
                     </div>
                     {#if (item["Session"].end_time && isWithinThirtyMinutes(item["Session"].end_time))}
                     <form on:submit|preventDefault={VerifOTP(item["Session"].session_id)}>
@@ -518,7 +518,11 @@
                             
                             <div class="text-[#f7d4b2] flex items-center pb-3">
                                 <div class="mr-3">Verified</div>
-                                <input type="checkbox" value="" class="w-4 h-4 text-peach bg-darkGray border-peach focus:ring-peach">
+                                {#if item["Session"].status_verify == 1}
+                                    <input type="checkbox" checked value={item["Session"].status_verify} class="w-4 h-4 text-peach bg-darkGray border-peach focus:ring-peach">
+                                {:else}
+                                    <input type="checkbox" value={item["Session"].status_verify} class="w-4 h-4 text-peach bg-darkGray border-peach focus:ring-peach">
+                                {/if}
                             </div>
 
                             <div class="flex items-center justify-center">
