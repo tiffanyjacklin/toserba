@@ -9,6 +9,7 @@
 
     export let data;
     let transaction_id = data.transactionId;
+    let store_warehouse_id = data.store_warehouse_id;
     let showModal = false;
     function closeModal() {
       showModal = false;
@@ -16,9 +17,9 @@
     function handleClick() {
       showModal = true;
     }
-    function backToTransactionHistory(){
-      console.log("Navigating to transaction history..."); // For debugging
-      goto(`/transaction_history`);
+    function backToManageCashier(){
+      console.log("Navigating to manage cashier.."); // For debugging
+      goto(`/manage_cashier/${store_warehouse_id}`);
     }
 
     let transaction_detail = [];
@@ -29,6 +30,7 @@
     let store_warehouse = [];
     let products = [];
     $: total_free = 0;
+    $: total_discount_free = 0;
     onMount(async () => {
       await fetchTransaction();
       await fetchTransactionDetail();
@@ -40,7 +42,7 @@
     async function fetchTransactionDetail() {
         let response;
 
-        response = await fetch(`http://${$uri}:8888/transaction/detail/${transactionId}`, {
+        response = await fetch(`http://${$uri}:8888/transaction/detail/${transaction_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -67,7 +69,7 @@
     async function fetchTransaction() {
         let response;
 
-        response = await fetch(`http://${$uri}:8888/transaction/${transactionId}`, {
+        response = await fetch(`http://${$uri}:8888/transaction/${transaction_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -155,6 +157,7 @@
         for (let i = 0; i < transaction_detail.length; i++) {
             if (transaction_detail[i].quantity_free > 0){
                 total_free += transaction_detail[i].quantity_free;
+                total_discount_free += transaction_detail[i].discount_price;
             }
         }
     }
@@ -163,7 +166,7 @@
   <div class="select-none font-roboto text-[#364445] mx-8 mt-[90px] mb-10 flex flex-col items-center justify-center bg-white shadow-[0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <div class="flex flex-col w-full pb-10 justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
       <div class="flex mt-10 justify-between mx-10 relative">
-        <button type="button" on:click={backToTransactionHistory} class="text-lg z-10 hover:text-[#f2b082]">
+        <button type="button" on:click={backToManageCashier} class="text-lg z-10 hover:text-[#f2b082]">
           <i class="fa-solid fa-angle-left"></i>
           Back
         </button>
@@ -207,20 +210,24 @@
           {#if detail.discount_price}
             <div class="flex justify-between mb-3 text-gray-500">
               <div class="indent-8">
-                DISCOUNT {detail.product_detail_name} x{detail.quantity}
+                {#if detail.quantity_free > 0}
+                  FREE {detail.product_detail_name} x{detail.quantity_free}
+                {:else}
+                  DISCOUNT {detail.product_detail_name} x{detail.quantity}
+                {/if}
               </div>
               <div class="flex justify-end">
                 -<MoneyConverter value={detail.discount_price} currency={true} decimal={true}></MoneyConverter>
               </div>
             </div>
           {/if}
-          {#if detail.quantity_free > 0}
+          <!-- {#if detail.quantity_free > 0}
             <div class="flex justify-between mb-3 text-gray-500">
               <div class="indent-8">
                 FREE {detail.quantity_free}
               </div>
             </div>
-          {/if}
+          {/if} -->
         {/each}
         <div class="flex justify-between mb-3">
             <div class="">
@@ -292,24 +299,36 @@
             {detail.quantity}
           </div>
           <div class="flex flex-1 justify-end">
-              <MoneyConverter value={getProductSellPrice(detail.product_detail_id)} currency={false} decimal={false}></MoneyConverter>
+              <MoneyConverter value={detail.sell_price} currency={false} decimal={false}></MoneyConverter>
           </div>
           <div class="flex flex-1 justify-end">
-              <MoneyConverter value={detail.sell_price} currency={false} decimal={false}></MoneyConverter>
+              <MoneyConverter value={detail.sell_price * detail.quantity} currency={false} decimal={false}></MoneyConverter>
           </div>
         </div>
         {#if detail.discount_price}
         <div class="flex justify-between">
           <div class="uppercase flex-[1.5_1.5_0%]">
-            DISCOUNT {detail.product_detail_name}
+            {#if detail.quantity_free > 0}
+              FREE {detail.product_detail_name}
+            {:else}
+              DISCOUNT {detail.product_detail_name}
+            {/if}
           </div>
           
+          <div class="flex flex-1 justify-end">
+            {#if detail.quantity_free > 0}
+              {detail.quantity_free}
+            {/if}
+          </div>
+          <div class="flex flex-1 justify-end">
+
+          </div>
           <div class="flex flex-1 justify-end">
               -<MoneyConverter value={detail.discount_price} currency={false} decimal={false}></MoneyConverter>
           </div>
         </div>
         {/if}
-        {#if detail.quantity_free > 0}
+        <!-- {#if detail.quantity_free > 0}
           <div class="flex justify-start">
             <div class="w-24">
               FREE
@@ -318,7 +337,7 @@
               {detail.quantity_free}
             </div>
           </div>
-        {/if}
+        {/if} -->
       {/each}
       <div>
         ==================================================
@@ -344,6 +363,9 @@
           <div>
             {total_free}
           </div>
+        </div>
+        <div>
+          <MoneyConverter value={total_discount_free} currency={false} decimal={false}></MoneyConverter>
         </div>
       </div>
       <div class="flex justify-between my-2">

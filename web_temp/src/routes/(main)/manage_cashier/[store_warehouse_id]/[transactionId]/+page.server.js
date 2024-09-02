@@ -1,5 +1,5 @@
 // @ts-nocheck
 /** @type {import('../$types').PageLoad} */
 export async function load({ params }) {
-    return { transactionId: params.transactionId };
+    return {  store_warehouse_id: params.store_warehouse_id, transactionId: params.transactionId };
 }
