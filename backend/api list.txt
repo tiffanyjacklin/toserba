@@ -383,7 +383,8 @@ e.POST("/orders/delivery/add/:transfernote_id", controller.InsertDeliveryOrderDe
 // Menambah detail surat jalan, setelah menambah semua produk
 e.PUT("/orders/delivery/update/:deliveryorder_id", controller.InsertDeliveryOrders)
 {
-    "user_id_from": 3
+    "user_id_from": 3,
+    "notes": "Apa aja boleh"
 }
 
 // Mengambil semua add product
@@ -463,14 +464,23 @@ e.POST("/products/category/add", controller.InsertProductCategory)
     }
 ]
 
-// Mengambil data produk berdasarkan ID produk
+// Mengambil data produk berdasarkan ID produk pada store/warehouse tertentu
 e.GET("/products/:product_id/:user_id/:role_id", controller.GetProductByID) 
 
-// Mengambil data produk berdasarkan kode produk
+// Mengambil data produk berdasarkan ID produk
+e.GET("/products/all/:product_id", controller.GetProductByIdAllSW) 
+
+// Mengambil data produk berdasarkan kode produk pada store/warehouse tertentu
 e.GET("/products/code/:product_code/:user_id/:role_id", controller.GetProductByCode)
 
-// Mengambil data produk berdasarkan nama
+// Mengambil data produk berdasarkan kode produk
+e.GET("/products/code/all/:product_code", controller.GetProductByCodeAllSW) 
+
+// Mengambil data produk berdasarkan nama pada store/warehouse tertentu
 e.GET("/products/name/:product_name/:user_id/:role_id", controller.GetProductByName) 
+
+// Mengambil data produk berdasarkan nama
+e.GET("/products/name/all/:product_name", controller.GetProductByNameAllSW)
 
 // Mengambil semua data produk beserta stok, exp, batch per store warehouse
 e.GET("/products", controller.GetAllProducts) 
@@ -485,7 +495,7 @@ e.GET("/products/supplier/:supplier_id", controller.GetAllProductDetailFromSuppl
 e.GET("/products/store_warehouse/:user_id/:role_id", controller.GetAllProductsInStoreWarehouse) 
 
 // Menambah produk baru
-e.POST("/products/add/:store_warehouse_id", controller.InsertProductDetails)
+e.POST("/products/add", controller.InsertProductDetails)
 [
     {
         "product_code": "VEG0015",
