@@ -30,7 +30,7 @@
     let store_warehouse = [];
     let products = [];
     $: total_free = 0;
-    $: total_discount_free = 0;
+    $: total_discount = 0;
     onMount(async () => {
       await fetchTransaction();
       await fetchTransactionDetail();
@@ -157,8 +157,10 @@
         for (let i = 0; i < transaction_detail.length; i++) {
             if (transaction_detail[i].quantity_free > 0){
                 total_free += transaction_detail[i].quantity_free;
-                total_discount_free += transaction_detail[i].discount_price;
+                // total_discount_free += transaction_detail[i].discount_price;
             }
+            //sekalian itung total discount
+            total_discount += transaction_detail[i].discount_price;
         }
     }
   </script>
@@ -205,7 +207,7 @@
               <div class="indent-8">
                 {detail.product_detail_name} x{detail.quantity}
               </div>
-              <MoneyConverter value={detail.sell_price} currency={true} decimal={true}></MoneyConverter>
+              <MoneyConverter value={detail.sell_price*detail.quantity} currency={true} decimal={true}></MoneyConverter>
           </div>
           {#if detail.discount_price}
             <div class="flex justify-between mb-3 text-gray-500">
@@ -291,39 +293,54 @@
         ==================================================
       </div>
       {#each transaction_detail as detail}
-        <div class="flex justify-between">
-          <div class="uppercase flex-[1.5_1.5_0%]">
+        <div class="flex">
+          <div class="uppercase w-5/12 font-semibold">
             {detail.product_detail_name}
           </div>
-          <div class="flex flex-1 justify-end">
+          <div class="flex w-1/12 justify-end">
             {detail.quantity}
           </div>
-          <div class="flex flex-1 justify-end">
+          <div class="flex w-3/12 justify-end">
               <MoneyConverter value={detail.sell_price} currency={false} decimal={false}></MoneyConverter>
           </div>
-          <div class="flex flex-1 justify-end">
+          <div class="flex w-3/12 justify-end">
               <MoneyConverter value={detail.sell_price * detail.quantity} currency={false} decimal={false}></MoneyConverter>
           </div>
         </div>
+        {#if detail.quantity_free > 0}
+          <div class="flex">
+            <div class="pl-8 uppercase w-5/12">
+                <!-- FREE {detail.product_detail_name} -->
+                FREE
+            </div>
+            
+            <div class="flex w-1/12 justify-end">
+              {#if detail.quantity_free > 0}
+                {detail.quantity_free}
+              {/if}
+            </div>
+            <div class="flex w-3/12 justify-end">
+              <MoneyConverter value={detail.sell_price} currency={false} decimal={false}></MoneyConverter>
+            </div>
+            <div class="flex w-3/12 justify-end">
+                <MoneyConverter value={detail.discount_price} currency={false} decimal={false}></MoneyConverter>
+            </div>
+          </div>
+        {/if}
         {#if detail.discount_price}
         <div class="flex justify-between">
-          <div class="uppercase flex-[1.5_1.5_0%]">
-            {#if detail.quantity_free > 0}
-              FREE {detail.product_detail_name}
-            {:else}
-              DISCOUNT {detail.product_detail_name}
-            {/if}
+          <div class="pl-8 uppercase w-5/12">
+              <!-- DISCOUNT {detail.product_detail_name} -->
+              DISCOUNT
           </div>
           
-          <div class="flex flex-1 justify-end">
-            {#if detail.quantity_free > 0}
-              {detail.quantity_free}
-            {/if}
-          </div>
-          <div class="flex flex-1 justify-end">
+          <div class="flex w-1/12 justify-end">
 
           </div>
-          <div class="flex flex-1 justify-end">
+          <div class="flex w-3/12 justify-end">
+
+          </div>
+          <div class="flex w-3/12 justify-end">
               -<MoneyConverter value={detail.discount_price} currency={false} decimal={false}></MoneyConverter>
           </div>
         </div>
@@ -343,30 +360,36 @@
         ==================================================
       </div>
       <div class="flex justify-between my-2">
-        <div class="flex ">
-          <div class="w-24">
-            Total item
-          </div>
-          <div>
-            {transaction.transaction_total_item}
-          </div>
+
+        <div class="w-5/12">
+          Total item
         </div>
-        <div>
-          <MoneyConverter value={transaction.transaction_total_price} currency={false} decimal={false}></MoneyConverter>
+        <div class="flex w-1/12 justify-end">
+          {transaction.transaction_total_item + total_free}
         </div>
+        <div class="flex w-3/12 justify-end">
+
+        </div>
+        <div class="flex w-3/12 justify-end">
+          <MoneyConverter value={transaction.transaction_total_price + total_discount} currency={false} decimal={false}></MoneyConverter>
+        </div>
+
       </div>
       <div class="flex justify-between my-2">
-        <div class="flex ">
-          <div class="w-24">
-            Total free
+
+          <div class="w-5/12">
+            Total discount
           </div>
-          <div>
-            {total_free}
+          <div class="flex w-1/12 justify-end">
+            
           </div>
-        </div>
-        <div>
-          <MoneyConverter value={total_discount_free} currency={false} decimal={false}></MoneyConverter>
-        </div>
+          <div class="flex w-3/12 justify-end">
+
+          </div>
+          <div class="flex w-3/12 justify-end">
+            -<MoneyConverter value={total_discount} currency={false} decimal={false}></MoneyConverter>          
+          </div>
+
       </div>
       <div class="flex justify-between my-2">
         <div>
