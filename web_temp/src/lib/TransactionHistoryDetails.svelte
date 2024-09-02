@@ -95,7 +95,7 @@
     async function fetchAllProduct() {
         let response;
 
-        response = await fetch(`http://${$uri}:8888/products/${cashier_id}/1`, {
+        response = await fetch(`http://${$uri}:8888/products`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

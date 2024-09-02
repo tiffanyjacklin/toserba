@@ -207,6 +207,7 @@
                 if (promos[index]["Promo"].promo_type_id == 1){
                     quantity_free = (parseInt(quantity/promos[index]["Promo"].x_amount)*promos[index]["Promo"].y_amount);
                     quantity_free = quantity_free;
+                    discount_price = checkout[i]["ProductDetails"].sell_price * quantity_free;
                 }
 
                 let produk_transaksi = 
@@ -453,7 +454,7 @@
     async function fetchAllProduct() {
         let response;
 
-        response = await fetch(`http://${$uri}:8888/products/${cashier_id}/1`, {
+        response = await fetch(`http://${$uri}:8888/products`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

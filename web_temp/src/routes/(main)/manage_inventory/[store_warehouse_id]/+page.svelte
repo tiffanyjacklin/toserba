@@ -79,7 +79,7 @@
 
         products = [...data.data];  
         all_produk = [...products];
-        console.log(all_produk);
+        // console.log(all_produk);
     }
 
   async function fetchStockCard(product_id) {
@@ -149,7 +149,7 @@
         }
  
         suppliers = data.data;
-        console.log(suppliers);
+        // console.log(suppliers);
     }
     
     async function fetchStockCardHistory() {
@@ -272,7 +272,7 @@
             console.error('Invalid post add new product', data);
             return;
         }
-        console.log("post new add product berhasil ",data);
+        // console.log("post new add product berhasil ",data);
       }
 
     $: if (searchQuery.length > 0) {
@@ -285,12 +285,12 @@
     }
 
     onMount(async () => {
+      fetchAddVerify();
+      fetchSubtractVerify();
       fetchProduk();
       fetchStockCardHistory();
       fetchProductCategory();
       fetchSuppliers();
-      fetchAddVerify();
-      fetchSubtractVerify();
   });
 
   $: editMode = false;
@@ -498,7 +498,11 @@
                 <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
                   <div class="w-10/12 flex flex-col font-semibold text-lg">
                     <span class="my-1">Add Product Stock Request</span>
-                    <span class="my-1">From warehouse {getStoreWarehouse(add_req.store_warehouse_id)}</span>
+                    {#await getStoreWarehouse(add_req.store_warehouse_id)}
+                      <span class="my-1">Loading...</span>
+                    {:then sw_name}
+                      <span class="my-1">From warehouse {sw_name}</span>
+                    {/await}
                     <div class="flex my-1">
                       <span class="mx-1">XX Items, </span>
                       {#if add_req.status_verify == 0}
@@ -522,7 +526,11 @@
                 <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
                   <div class="w-10/12 flex flex-col font-semibold text-lg">
                     <span class="my-1">Subtract Product Stock Request</span>
-                    <span class="my-1">From warehouse {getStoreWarehouse(sub_req.store_warehouse_id)}</span>
+                    {#await getStoreWarehouse(sub_req.store_warehouse_id)}
+                      <span class="my-1">Loading...</span>
+                    {:then sw_name}
+                      <span class="my-1">From warehouse {sw_name}</span>
+                    {/await}
                     <div class="flex my-1">
                       <span class="mx-1">XX Items, </span>
                       {#if sub_req.status_verify == 0}

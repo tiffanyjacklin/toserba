@@ -237,7 +237,7 @@
     }
 
     async function fetchProduk() {
-        const response = await fetch(`http://${$uri}:8888/products/${$userId}/${$roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/products`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -281,7 +281,7 @@
     let window = "payment";
 
     function addtoCheckout(produk){
-        if (checkout.find(( product ) => product["ProductDetails"].product_name === produk["ProductDetails"].product_name) != null){
+        if (checkout.find(( product ) => product["ProductDetails"].product_name == produk["ProductDetails"].product_name) != null){
             let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_name == produk["ProductDetails"].product_name);
             checkout[index].jumlah+=1;
         } else{
@@ -452,7 +452,7 @@
                         <span class="text-peach font-semibold"><MoneyConverter value={produk_checkout["ProductDetails"].sell_price*produk_checkout.jumlah} currency={true} decimal={true}></MoneyConverter></span>
                         <div class="flex">
                             <button on:click={() => {
-                                let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_name == produk_checkout["ProductDetails"].product_name);
+                                let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
                                 let index_promo = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
                                 if (checkout[index].jumlah > 1){
                                     checkout[index].jumlah-=1;
@@ -476,7 +476,7 @@
                             </button>
                             <input on:change={() =>{ sumTotal(); checkPromoAppliedType1();countPromoApplied()}} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
                             <button on:click={() => {
-                                let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_name == produk_checkout["ProductDetails"].product_name);
+                                let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
                                 checkout[index].jumlah+=1;
                                 sumTotal(); 
                                 checkPromoAppliedType1();
@@ -708,7 +708,7 @@
             </div>
         {:else}
             {#each promos as promo}
-                {@const checkout_produk = checkout.find((produk) => produk.product_detail_id  == promo["ProductDetail"].product_detail_id)}
+                {@const checkout_produk = checkout.find((produk) => produk["ProductDetails"].product_detail_id  == promo["ProductDetail"].product_detail_id)}
                 <div class="py-3">
                     <div class="text-peach2 text-xl">
                         {promo.ProductDetail.product_name}
@@ -731,7 +731,7 @@
                         {#if (promo.promo_applied == true)}
                             {#if (promo["Promo"].promo_type_id == 1)}
                                 Promo applied {(parseInt(checkout_produk.jumlah/promo["Promo"].x_amount))} time(s)
-                                <p class="indent-16 text-white font-bold">{(parseInt(checkout_produk.jumlah/promo["Promo"].x_amount)*promo["Promo"].y_amount)} Free {checkout_produk.product_unit}</p>
+                                <p class="indent-16 text-white font-bold">{(parseInt(checkout_produk.jumlah/promo["Promo"].x_amount)*promo["Promo"].y_amount)} Free {checkout_produk["ProductDetail"].product_unit}</p>
                             
                             {:else}
                                 Promo applied 
