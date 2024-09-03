@@ -614,6 +614,15 @@ e.GET("/orders/supplier/not_verified", controller.GetNotVerifiedAddStock)
 // Verify add product dari warehouse
 e.PUT("/orders/supplier/verify/:addstock_id", controller.VerifyAddStock)
 
+// Mengganti jumlah stock in di stock add. Hanya mengganti kuantitas saja
+e.PUT("/orders/supplier/update/stock/:addstock_id", controller.UpdateStockInAddStock)
+{
+    "product_detail_id": 13,
+    "expired_date": "2025-09-12",
+    "batch":"3",
+    "quantity":100
+}
+
 // Mengambil subtract stock yang belum diverify
 e.GET("/products/stock/subtract/not_verified", controller.GetNotVerifiedSubtractStock)
 
