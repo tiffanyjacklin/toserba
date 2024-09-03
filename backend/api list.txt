@@ -735,6 +735,31 @@ e.GET("/promos/cost/store/all", controller.GetTotalPromoCostPerStore)
 // Mengambil total promo cost dari store tertentu
 e.GET("/promos/cost/store/:store_id", controller.GetTotalPromoCostByStoreID)
 
+// Mengambil semua profit, per transaction detail
+// year month day kalau tidak spesifik tulis 0. Misal ambil di Agustus 2024 jadi 2024/08/0
+// Kalau ambil semua tanpa filter tanggal, jadi 0/0/0
+e.GET("/profit/all/:year/:month/:day", controller.GetAllProfit)
+
+e.GET("/profit/all/sum/:year/:month/:day", controller.GetSumProfit)
+
+// Mengambil semua profit, per transaction detail. Berdasarkan tanggal
+// /profit/all/date/2024-08-27/2024-08-29
+e.GET("/profit/all/date/:start_date/:end_date", controller.GetAllProfitByDate)
+
+e.GET("/profit/all/product/:product_id", controller.GetAllProfitByProductID)
+e.GET("/profit/sum/date/:start_date/:end_date", controller.GetSumProfitByDate)
+e.GET("/profit/sum/product/:product_id", controller.GetSumProfitByProductID)
+e.GET("/profit/sum/transaction/:transaction_id", controller.GetSumProfitByTransactionID)
+e.GET("/profit/sum/store/:sw_id", controller.GetSumProfitBySWID)
+e.GET("/profit/all/transaction/:transaction_id", controller.GetAllProfitByTransactionID)
+e.GET("/profit/all/store/:sw_id", controller.GetAllProfitBySWID)
+e.GET("/profit/sum/all/year/:start_date/:end_date", controller.GetSumProfitByAllYear)
+e.GET("/profit/sum/all/month/:start_date/:end_date", controller.GetSumProfitByAllMonth)
+e.GET("/profit/sum/all/date/:start_date/:end_date", controller.GetSumProfitByAllDate)
+e.GET("/profit/sum/all/transaction/:start_date/:end_date", controller.GetSumProfitByAllTransaction)
+e.GET("/profit/sum/all/product/:start_date/:end_date", controller.GetSumProfitByAllProduct)
+e.GET("/profit/sum/all/store/:start_date/:end_date", controller.GetSumProfitByAllSW)
+
 // Mengambil semua data notifikasi
 e.GET("/notifications", controller.GetAllNotification)
 
