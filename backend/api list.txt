@@ -282,7 +282,7 @@ e.GET("/products/stock/card/batch/:product_id", controller.GetAllBatchByProductI
 e.GET("/products/stock/card/batch/:product_id/:sw_id", controller.GetAllBatchByProductIDSWID)
 
 // Mengambil minimal stok pada produk tertentu pada store/warehouse tertentu
-e.GET("/products/stock/min/:product_id/:store_warehouse_id", controller.CheckMinStock)
+e.GET("/products/stock/min/:product_id/:sw_id", controller.CheckMinStock)
 
 // Mengambil semua data produk untuk tampilan di table stock opname (tanpa actual stock)
 e.GET("/products/stock/opname/data", controller.GetDataforStockOpname)
@@ -449,6 +449,10 @@ e.GET("/sessions/not_verified", controller.GetNotVerifiedSession)
 
 // Verifikasi Session
 e.PUT("/sessions/verify/:session_id", controller.VerifySession)
+{
+    "actual_closing_cash": 5000,
+    "deposit_money": 4000
+}
 
 // Mengambil semua product category
 e.GET("/products/category", controller.GetAllProductCategory)
