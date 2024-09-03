@@ -3,6 +3,7 @@
     import MoneyInput from '$lib/MoneyInput.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
     import DateConverter from '$lib/DateConverter.svelte';
+    // import DateNow from '$lib/DateNow';
     import { getFormattedDate, isInTimeRange } from '$lib/DateNow.js';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
@@ -13,19 +14,23 @@
     let store_warehouse_id = data.store_warehouse_id;
 
     $: tampilan = "products"
-    let searchQuery = '';
+    let searchQuery_product = '';
+    let searchQuery_stock = '';
+    let searchQuery_verify = '';
+    let searchQuery_assign = '';
     let showModal = null; 
     let showTable = false;
     
+    //PRODUCTS
     let products = [];
     let all_produk = [];
-    let stock_card_product = [];
-
     let product_category = [];
     let suppliers = [];
+    let stock_card_product = [];
 
     // STOCK HISTORY
     let stock_card_history = [];
+    let filtered_stock_card_history = [];
 
     //VERIFY ADD SUBTRACT
     let verify_add = [];
@@ -58,7 +63,7 @@
     }
 
     async function fetchProduk() {
-        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/products`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -173,6 +178,7 @@
         }
  
         stock_card_history = data.data;
+        filtered_stock_card_history = stock_card_history;
         // console.log("stockcard History",stock_card_history);
     }
 
@@ -275,25 +281,75 @@
         // console.log("post new add product berhasil ",data);
       }
 
-    $: if (searchQuery.length > 0) {
+    async function editProduct(product_id,atribut) {
+      const response = await fetch(`http://${$uri}:8888/products/edit/${product_id}`, {
+          method: 'PUT',
+          headers: {
+                  'Content-Type': 'application/json',
+              },
+          body: JSON.stringify(atribut)
+      });
+
+      if (!response.ok) {
+          console.error('PUT product details gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid put product details', data);
+          return;
+      }
+      console.log("product details :",data);
+    }
+
+    $: editMode = false;
+
+  function getCategoryId(category_name){
+    let categoryId = 0;
+    let tmp_category = product_category.find((category) => category.product_category_name == category_name);
+    console.log("tmp_category", tmp_category);
+    categoryId = tmp_category.product_category_id;
+    return categoryId;
+  }
+  
+  function getSupplierId(supplier_name){
+    let supplierId = 0;
+    let tmp_supplier = suppliers.find((supplier) => supplier.supplier_name == supplier_name);
+    console.log("tmp_supplier", tmp_supplier)
+    supplierId = tmp_supplier.supplier_id;
+    return supplierId;
+  }
+
+    //HANDLE SEARCH BAR
+    //products
+    $: if (searchQuery_product.length > 0) {
         all_produk = products.filter(item => 
-            item.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.ProductDetails.product_detail_id.toString().includes(searchQuery)
+            item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
+            item.ProductDetails.product_detail_id.toString().includes(searchQuery_product)
         );
     } else {
         all_produk = [...products];
     }
+    //stock history
+    $: if (searchQuery_stock.length > 0) {
+        filtered_stock_card_history = stock_card_history.filter(item => 
+            item.product_name.toLowerCase().includes(searchQuery_stock.toLowerCase()) ||
+            item.product_detail_id.toString().includes(searchQuery_stock)
+        );
+    } else {
+        filtered_stock_card_history = [...stock_card_history];
+    }
 
     onMount(async () => {
+      fetchProduk();
       fetchAddVerify();
       fetchSubtractVerify();
-      fetchProduk();
       fetchStockCardHistory();
       fetchProductCategory();
       fetchSuppliers();
   });
-
-  $: editMode = false;
 
   </script>
   
@@ -304,48 +360,73 @@
     <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Manage Inventory</span>
       
     <div class="w-11/12 my-10">
-        <div class="flex">
+        <div class="grid grid-cols-4 gap-x-2 gap-y-4">
             {#if tampilan == "products"}
-                <button on:click={() => {tampilan = "products"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Products</button>
+                <button on:click={() => {tampilan = "products"; tampilan = tampilan;}} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Products</button>
             {:else}
-                <button on:click={() => {tampilan = "products"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Products</button>
+                <button on:click={() => {tampilan = "products"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Products</button>
             {/if}
             {#if tampilan == "stock_history"}
-                <button on:click={() => {tampilan = "stock_history"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Stock History</button>
+                <button on:click={() => {tampilan = "stock_history"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Stock History</button>
             {:else}
-                <button on:click={() => {tampilan = "stock_history"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Stock History</button>
+                <button on:click={() => {tampilan = "stock_history"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Stock History</button>
             {/if}
-            {#if tampilan == "verify_add_subtract"}
-                <button on:click={() => {tampilan = "verify_add_subtract"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Verify Add Subtract</button>
+            {#if tampilan == "verify_add"}
+                <button on:click={() => {tampilan = "verify_add"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Add</button>
             {:else}
-                <button on:click={() => {tampilan = "verify_add_subtract"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Verify Add Subtract</button>
+                <button on:click={() => {tampilan = "verify_add"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Add</button>
+            {/if}
+            {#if tampilan == "verify_subtract"}
+                <button on:click={() => {tampilan = "verify_subtract"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Subtract</button>
+            {:else}
+                <button on:click={() => {tampilan = "verify_subtract"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Subtract</button>
             {/if}
             {#if tampilan == "assign_product"}
-                <button on:click={() => {tampilan = "assign_product"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Assign Product</button>
+                <button on:click={() => {tampilan = "assign_product"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Assign Product</button>
             {:else}
-                <button on:click={() => {tampilan = "assign_product"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Assign Product</button>
+                <button on:click={() => {tampilan = "assign_product"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Assign Product</button>
             {/if}
             {#if tampilan == "add_product"}
-                <button on:click={() => {tampilan = "add_product"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Add New Product</button>
+                <button on:click={() => {tampilan = "add_product"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add New Product</button>
             {:else}
-                <button on:click={() => {tampilan = "add_product"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-52 py-2 rounded-3xl border-2 border-darkGray">Add New Product</button>
+                <button on:click={() => {tampilan = "add_product"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add New Product</button>
             {/if}
         </div>    
     </div>
 
     {#if tampilan != "add_product"}
-      <!-- <form class="flex items-center max-w-lg mx-auto">    -->
          <label for="voice-search" class="sr-only">Search</label>
          <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
-          <input 
+          {#if tampilan == "product"}
+            <input 
+            type="text" 
+            id="voice-search" 
+            bind:value={searchQuery_product}
+            class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+            placeholder="Search..."/>
+          {:else if tampilan == "stock_history"}
+            <input 
+            type="text" 
+            id="voice-search" 
+            bind:value={searchQuery_stock}
+            class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+            placeholder="Search..."/>
+          {:else if tampilan == "verify_add_subtract"}
+            <input 
               type="text" 
               id="voice-search" 
-              bind:value={searchQuery}
+              bind:value={searchQuery_verify}
               class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
               placeholder="Search..."/>
+          {:else if tampilan == "assign_product"}
+            <input 
+                type="text" 
+                id="voice-search" 
+                bind:value={searchQuery_assign}
+                class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+                placeholder="Search..."/>
+          {/if}
          </div>
-      <!-- </form> -->
-
 
       <nav class="my-8 ">
         <ul class="flex items-center -space-x-px h-8 text-sm">
@@ -436,6 +517,9 @@
                       No
                   </th>
                   <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                      Product Name
+                  </th>
+                  <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
                       Batch
                   </th>
                   <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
@@ -459,11 +543,14 @@
                 </tr>
               </thead>
               <tbody>
-                {#each stock_card_history as stock, i}
+                {#each filtered_stock_card_history as stock, i}
                   <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
                     <th scope="row" class="px-3 py-2  text-center font-medium text-gray-900 whitespace-nowrap">
                           {i+1}
                     </th>
+                    <td class="px-1 py-2 text-center">
+                      {stock.product_name}
+                    </td>
                     <td class="px-1 py-2 text-center">
                       {stock.product_batch}
                     </td>
@@ -491,7 +578,7 @@
             </table>
           </div>
         </div>
-      {:else if tampilan == "verify_add_subtract"}
+      {:else if tampilan == "verify_add"}
         <div class="w-[96%] my-5 font-roboto">
             <div class="relative overflow-x-auto sm:rounded-lg">
             {#each verify_add as add_req}
@@ -522,6 +609,11 @@
                   </div>
                 </div>
             {/each}
+            </div>
+        </div>
+      {:else if tampilan == "verify_subtract"}
+        <div class="w-[96%] my-5 font-roboto">
+            <div class="relative overflow-x-auto sm:rounded-lg">
             {#each verify_subtract as sub_req}
                 <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
                   <div class="w-10/12 flex flex-col font-semibold text-lg">
@@ -691,14 +783,14 @@ v
        
    </div>
 
-{#each all_produk as product} 
+{#each all_produk as product}
   {#if showModal === product.ProductDetails.product_detail_id}
     <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
       <div class="flex items-center justify-center pt-8">
         <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Product detail</div>
       </div>
       {#if editMode == true}
-        <button on:click={() => editMode = false} class="mt-6 mx-4 p-2 bg-darkGray text-peach shadow w-32 rounded-2xl font-semibold border border-peach">Save <i class="fa-solid fa-check" style="color: #FACFAD;"></i></button>
+        <button on:click={() => editMode = false} class="mt-6 mx-4 p-2 bg-darkGray text-peach shadow w-32 rounded-2xl font-semibold border border-peach">Exit Edit Mode</button>
       {:else}
         <button on:click={() => editMode = true} class="mt-6 mx-4 p-2 bg-peach2 text-darkGray shadow w-32 rounded-2xl font-semibold">Edit <i class="fa-regular fa-pen-to-square" style="color: #364445;"></i></button>
       {/if}
@@ -719,11 +811,11 @@ v
             <div class="">
                 <div class="text-[#f7d4b2] mr-1">Product Brand</div>
                 {#if editMode == true}
-                  <select name="product_type" id="product_type" class="w-44 rounded p-1 border-0 text-darkGray">
+                  <select bind:value={product.ProductDetails.supplier_name} on:change={console.log(product.ProductDetails.supplier_name)} name="product_type" id="product_type" class="w-44 rounded p-1 border-0 text-darkGray">
                     {#each suppliers as supplier}
-                    <option value={supplier.supplier_id}>{supplier.supplier_name}</option>
+                      <option value={supplier.supplier_name}>{supplier.supplier_name}</option>
                     {/each}
-                  </select>
+                    </select>
                 {:else}
                   <div class="text-white">{product.Suppliers.supplier_name}</div>
                 {/if}
@@ -731,11 +823,11 @@ v
             <div class="">
                 <div class="text-[#f7d4b2] mr-1">Product Type</div>
                 {#if editMode == true}
-                  <select name="product_type" id="product_type" class="w-44 rounded p-1 border-0 text-darkGray">
+                  <select bind:value={product.ProductCategories.product_category_name} on:change={console.log(product.ProductCategories.product_category_name)} name="product_type" id="product_type" class="w-44 rounded p-1 border-0 text-darkGray">
                     {#each product_category as category}
-                    <option value={category.product_category_id}>{category.product_category_name}</option>
+                      <option value={category.product_category_name}>{category.product_category_name}</option>
                     {/each}
-                  </select>
+                    </select>
                 {:else}
                   <div class="text-white">{product.ProductCategories.product_category_name}</div>
                 {/if}
@@ -743,7 +835,13 @@ v
             <div class="">
                 <div class="text-[#f7d4b2] mr-1">Date Added</div>
                 {#if editMode == true}
-                  <input type="date" value={new Date(product.ProductDetails.product_timestamp).toJSON().slice(0, 10)} class="w-44 mb-4 p-2 border-0 rounded" />
+                  <div class="my-1 text-peach2">The current date added : </div>
+                  <div class="text-white">
+                    <DateConverter value={product.ProductDetails.product_timestamp} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                  </div>
+                  <div class="my-1 text-peach2">New date added : </div>
+                  <!-- <input type="date" bind:value={new Date(product.ProductDetails.product_timestamp).toJSON().slice(0, 10)} class="w-44 mb-4 p-2 border-0 rounded" /> -->
+                  <input type="date" bind:value={product.ProductDetails.product_timestamp} on:change={console.log(product.ProductDetails.product_timestamp)} class="w-44 mb-4 p-2 border-0 rounded" />
                 {:else}
                   <div class="text-white">
                       {#if product.ProductDetails.product_timestamp.length > 1}
@@ -850,10 +948,18 @@ v
               {/if}
             </div>
             <div class="">
+              <button type="button" class="mt-6 mb-3 flex items-center justify-center text-[#3d4c52] bg-[#F2AA7E] shadow-[0_2px_3px_rgba(0,0,0,0.3)] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg  px-12 py-1.5 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                </svg>
+                Print Receipt
+              </button>
+            </div>
+            <div class="">
                 <div class="text-[#f7d4b2] mr-1">Buy Price</div>
                 {#if editMode == true}
                 <div class="w-44">
-                  <MoneyInput value={product.ProductDetails.buy_price} />
+                  <MoneyInput bind:value={product.ProductDetails.buy_price} />
                 </div>
                 {:else}
                   <div class="text-white">
@@ -865,7 +971,7 @@ v
                 <div class="text-[#f7d4b2] mr-1">Sell Price</div>
                 {#if editMode == true}
                 <div class="w-44">
-                  <MoneyInput value={product.ProductDetails.sell_price} />
+                  <MoneyInput bind:value={product.ProductDetails.sell_price} />
                 </div>
                 {:else}
                   <div class="text-white">
@@ -876,16 +982,49 @@ v
             <div class="">
                 <div class="text-[#f7d4b2] mr-1">Minimum Stock</div> 
                 {#if editMode == true}
-                  <input id="product_name" type="text" value={product.ProductDetails.min_stock} class="bg-white text-darkGray border-0 p-1 rounded">
+                  <input id="product_name" type="text" bind:value={product.ProductDetails.min_stock} class="bg-white text-darkGray border-0 p-1 rounded">
                 {:else}
                   <div class="text-white">{product.ProductDetails.min_stock}</div>
                 {/if}
             </div>
             
             <div class="flex items-center justify-center">
+              {#if editMode == false}
                 <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                   Close
                 </button>
+              {:else}
+                <button type="button" on:click={async() => 
+                { let product_code = product.ProductDetails.product_code;
+                  let product_category_id = getCategoryId(product.ProductCategories.product_category_name);
+                  let product_name = product.ProductDetails.product_name;
+                  let supplier_id =  getSupplierId(product.ProductDetails.supplier_name);
+                  let buy_price = product.ProductDetails.buy_price;
+                  let sell_price = product.ProductDetails.sell_price;
+                  let min_stock = product.ProductDetails.min_stock;
+                  let product_unit = product.ProductDetails.product_unit;
+                  let product_timestamp = product.ProductDetails.product_timestamp + " 00:00:00";
+                  let atribut = {
+                    product_code,
+                    product_category_id,
+                    product_name,
+                    supplier_id,
+                    buy_price,
+                    sell_price,
+                    min_stock,
+                    product_unit,
+                    product_timestamp
+                  };await editProduct(product.ProductDetails.product_detail_id,atribut); console.log(JSON.stringify(atribut));
+                  Swal.fire({
+                      title: "Produk Berhasil terupdate",
+                      icon: "success",
+                      color: "white",
+                      background: "#364445",
+                      confirmButtonColor: '#F2AA7E'
+                    }); closeModal(); editMode = false; editMode = editMode; fetchProduk()}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+                  Save
+                </button>
+              {/if}
             </div>
           </div>
       </form>
