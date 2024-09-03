@@ -9,6 +9,7 @@
     import { uri, userId, roleId, sessionId } from '$lib/uri.js';
 
     let searchQuery = '';
+    let promos = [];
 
     function toggleTable() {
         showTable = !showTable;
@@ -21,10 +22,34 @@
         showModal = null;
         showModal12 = null;
    }
+
+   async function fetchPromos(){
+        const response = await fetch(`http://${$uri}:8888/promos`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch all promo failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch all promo', data);
+            return;
+        }
+
+        promos = data.data;
+        console.log(promos);
+        
+    }
   
     onMount(async () => {
-      await fetchSession();
-      await fetchTransactions();
+      await fetchPromos();
     });
 
     // $: session.forEach(item => {
@@ -100,14 +125,14 @@
 
       <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
-            
+            {#each promos as promo}
             <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
               <div class="w-10/12 flex flex-col font-semibold text-lg">
-                <span class="my-1">NAMA PRODUK DISINI</span>
+                <span class="my-1">{promo["ProductDetail"].product_name}</span>
                 <div class="flex justify-between my-1">
                   <span class="mx-1 text-peach2">Applied to XX Stores</span>
-                  <span class="mx-1">TYPE DISKONNYA</span>
-                  <span class="mx-1">Promo End : XX/XX/20XX</span>
+                  <span class="mx-1"></span>
+                  <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span>
                 </div>
               </div>
               
@@ -119,7 +144,7 @@
                   </button>
               </div>
             </div>
-
+            {/each}
         </div>
     </div>
       

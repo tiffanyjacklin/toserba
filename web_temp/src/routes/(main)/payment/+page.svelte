@@ -46,6 +46,7 @@
     let store_warehouse = [];
     let products = [];
     $: total_free = 0;
+    $: total_discount = 0;
 
     let showModal = null; 
     let member_name = "";
@@ -207,7 +208,8 @@
                 if (promos[index]["Promo"].promo_type_id == 1){
                     quantity_free = (parseInt(quantity/promos[index]["Promo"].x_amount)*promos[index]["Promo"].y_amount);
                     quantity_free = quantity_free;
-                    discount_price = checkout[i]["ProductDetails"].sell_price * quantity_free;
+                    discount_price = promos[index]["ProductDetail"].sell_price * quantity_free;
+                    total_price = sell_price*quantity;
                 }
 
                 let produk_transaksi = 
@@ -294,14 +296,6 @@
         await getStoreWarehouse();
         await fetchAllProduct();
 
-    }
-
-    function countFreeItem(){
-        for (let i = 0; i < transaction_detail.length; i++) {
-            if (transaction_detail[i].quantity_free > 0){
-                total_free += transaction_detail[i].quantity_free;
-            }
-        }
     }
 
     async function InsertTransaction(transaction_arr) {
@@ -480,6 +474,19 @@
         const product = products.find(p => p.product_detail_id === product_detail_id);
         return product ? product.sell_price : 0;
     }
+    
+    function countFreeItem(){
+        for (let i = 0; i < transaction_detail.length; i++) {
+            if (transaction_detail[i].quantity_free > 0){
+                total_free += transaction_detail[i].quantity_free;
+                // total_discount_free += transaction_detail[i].discount_price;
+            }
+            //sekalian itung total discount
+            total_discount += transaction_detail[i].discount_price;
+        }
+    }
+
+    
 </script>
 
 <!-- {member_points} -->
@@ -518,43 +525,70 @@
             <div class="flex justify-center uppercase">
               {store_warehouse.store_warehouse_address}
             </div>
-            <div>
-              =========================================================
+            <div class="text-wrap">
+              ==================================================
             </div>
             <div class="flex justify-between">
               <div>BON {transaction_struk.transaction_id}</div>
               <div>Kasir: {user.user_fullname}</div>
             </div>
-            <div>
-                =========================================================
+            <div class="text-wrap">
+                ==================================================
             </div>
             {#each transaction_detail as detail}
-              <div class="flex justify-between">
-                <div class="uppercase flex-[1.5_1.5_0%]">
-                  {detail.product_detail_name}
+                <div class="flex">
+                <div class="uppercase w-5/12 font-semibold">
+                    {detail.product_detail_name}
                 </div>
-                <div class="flex flex-1 justify-end">
-                  {detail.quantity}
+                <div class="flex w-1/12 justify-end">
+                    {detail.quantity}
                 </div>
-                <div class="flex flex-1 justify-end">
-                    <MoneyConverter value={getProductSellPrice(detail.product_detail_id)} currency={false} decimal={false}></MoneyConverter>
-                </div>
-                <div class="flex flex-1 justify-end">
+                <div class="flex w-3/12 justify-end">
                     <MoneyConverter value={detail.sell_price} currency={false} decimal={false}></MoneyConverter>
                 </div>
-              </div>
-              {#if detail.discount_price}
-              <div class="flex justify-between">
-                <div class="uppercase flex-[1.5_1.5_0%]">
-                  DISCOUNT {detail.product_detail_name}
+                <div class="flex w-3/12 justify-end">
+                    <MoneyConverter value={detail.sell_price * detail.quantity} currency={false} decimal={false}></MoneyConverter>
+                </div>
+                </div>
+                {#if detail.quantity_free > 0}
+                <div class="flex">
+                    <div class="pl-8 uppercase w-5/12">
+                        <!-- FREE {detail.product_detail_name} -->
+                        FREE
+                    </div>
+                    
+                    <div class="flex w-1/12 justify-end">
+                    {#if detail.quantity_free > 0}
+                        {detail.quantity_free}
+                    {/if}
+                    </div>
+                    <div class="flex w-3/12 justify-end">
+                    <MoneyConverter value={detail.sell_price} currency={false} decimal={false}></MoneyConverter>
+                    </div>
+                    <div class="flex w-3/12 justify-end">
+                        <MoneyConverter value={detail.discount_price} currency={false} decimal={false}></MoneyConverter>
+                    </div>
+                </div>
+                {/if}
+                {#if detail.discount_price}
+                <div class="flex justify-between">
+                <div class="pl-8 uppercase w-5/12">
+                    <!-- DISCOUNT {detail.product_detail_name} -->
+                    DISCOUNT
                 </div>
                 
-                <div class="flex flex-1 justify-end">
+                <div class="flex w-1/12 justify-end">
+
+                </div>
+                <div class="flex w-3/12 justify-end">
+
+                </div>
+                <div class="flex w-3/12 justify-end">
                     -<MoneyConverter value={detail.discount_price} currency={false} decimal={false}></MoneyConverter>
                 </div>
-              </div>
-              {/if}
-              {#if detail.quantity_free > 0}
+                </div>
+                {/if}
+                <!-- {#if detail.quantity_free > 0}
                 <div class="flex justify-start">
                     <div class="w-24">
                     FREE
@@ -563,33 +597,42 @@
                     {detail.quantity_free}
                     </div>
                 </div>
-              {/if}
+                {/if} -->
             {/each}
-            <div>
-                =========================================================
+            <div class="text-wrap">
+                ==================================================
             </div>
             <div class="flex justify-between my-2">
-              <div class="flex ">
-                <div class="w-24">
+
+                <div class="w-5/12">
                   Total item
                 </div>
-                <div>
-                  {transaction_struk.transaction_total_item}
+                <div class="flex w-1/12 justify-end">
+                  {transaction.transaction_total_item + total_free}
                 </div>
-              </div>
-              <div>
-                <MoneyConverter value={transaction_struk.transaction_total_price} currency={false} decimal={false}></MoneyConverter>
-              </div>
+                <div class="flex w-3/12 justify-end">
+      
+                </div>
+                <div class="flex w-3/12 justify-end">
+                  <MoneyConverter value={transaction.transaction_total_price + total_discount} currency={false} decimal={false}></MoneyConverter>
+                </div>
+      
             </div>
             <div class="flex justify-between my-2">
-              <div class="flex ">
-                <div class="w-24">
-                  Total free
+      
+                <div class="w-5/12">
+                  Total discount
                 </div>
-                <div>
-                  {total_free}
+                <div class="flex w-1/12 justify-end">
+                  
                 </div>
-              </div>
+                <div class="flex w-3/12 justify-end">
+      
+                </div>
+                <div class="flex w-3/12 justify-end">
+                  -<MoneyConverter value={total_discount} currency={false} decimal={false}></MoneyConverter>          
+                </div>
+      
             </div>
             <div class="flex justify-between my-2">
               <div>
@@ -617,8 +660,8 @@
               </div>
             </div>
             {/if}
-            <div>
-                =========================================================
+            <div class="text-wrap">
+                ==================================================
             </div>
             <div class="flex justify-center my-2">
               Tgl. <DateConverter value={transaction_struk.transaction_timestamp} date={true} hour={true} second={true} ampm={false} monthNumber={true} dash={true} dateFirst={true}/>
