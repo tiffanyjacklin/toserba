@@ -175,7 +175,7 @@ e.GET("/transaction/store_warehouse/:sw_id", controller.GetTransactionBySWID)
 e.GET("/transaction/last", controller.GetLastTransaction)
 
 // Mengambil semua transaksi
-e.GET("/transaction", controller.GetAllTransaction)
+e.GET("/transaction/:limit/:offset", controller.GetAllTransaction)
 
 // Mengambil data produk transaksi pada transaksi ID tertentu
 e.GET("/transaction/detail/:transaction_id", controller.GetTransactionDetailByTransactionID)
@@ -487,7 +487,7 @@ e.GET("/products/name/:product_name/:user_id/:role_id", controller.GetProductByN
 e.GET("/products/name/all/:product_name", controller.GetProductByNameAllSW)
 
 // Mengambil semua data produk beserta stok, exp, batch per store warehouse
-e.GET("/products", controller.GetAllProducts) 
+e.GET("/products/:limit/:offset", controller.GetAllProducts)
 
 // Mengambil semua data produk, tanpa stok, exp, batch
 e.GET("/products/detail", controller.GetAllProductDetail)  
