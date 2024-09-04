@@ -46,17 +46,18 @@
     let min_stock;
     let product_unit = "";
 
-    function handleClick(product_id) {
-      showModal = product_id;
-      console.log(product_id)
+    $: tampilan_modal = "";
+    function handleClick(id) {
+      showModal = id;
+      console.log(id)
     }
     function closeModal() {
         showModal = null;
     }
-    function toggleTable(product_id) {
+    function toggleTable(id) {
         showTable = !showTable;
         if (showTable){
-        fetchStockCard(product_id);
+        fetchStockCard(id);
         } else {
         stock_card_product = [];
         }
@@ -225,7 +226,23 @@
             return;
         }
  
-        verify_subtract = data.data;
+        // verify_subtract = data.data;
+
+        let tmp = data.data;
+
+        for (let i = 0; i < tmp.length; i++) {
+          let ProductDetails = await getProductDetail(tmp[i].product_detail_id)
+          console.log(ProductDetails);
+
+            tmp[i].product_name = ProductDetails.product_name;
+            tmp[i].product_stock = ProductDetails.product_stock;
+            tmp[i].product_unit = ProductDetails.product_unit;
+            
+            let sw_name = await getStoreWarehouse(tmp[i].store_warehouse_id);
+            tmp[i].sw_name = sw_name;
+        }
+
+        verify_subtract = tmp;
     }
    
     async function getStoreWarehouse(sw_id) {
@@ -250,6 +267,31 @@
  
         let nama_wr = data.data.store_warehouse_name ;
         return nama_wr;
+    }
+    
+    async function getAddStockDetails(add_stock_id) {
+        const response = await fetch(`http://${$uri}:8888/orders/supplier/detail/${add_stock_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all supplier fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch suppliers', data);
+            return;
+        }
+ 
+        let details = data.data;
+        console.log("length", details.length);
+        return details.length;
     }
 
     async function AddNewProduct() {
@@ -303,6 +345,29 @@
       }
       console.log("product details :",data);
     }
+    
+    async function editSubtractReq(subtract_stock_id,atribut) {
+      const response = await fetch(`http://${$uri}:8888/products/stock/subtract/update/stock/${subtract_stock_id}`, {
+          method: 'PUT',
+          headers: {
+                  'Content-Type': 'application/json',
+              },
+          body: JSON.stringify(atribut)
+      });
+
+      if (!response.ok) {
+          console.error('PUT subtract req details gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid put subtract req details', data);
+          return;
+      }
+      console.log("product details :",data);
+    }
 
     $: editMode = false;
 
@@ -321,6 +386,62 @@
     supplierId = tmp_supplier.supplier_id;
     return supplierId;
   }
+
+  async function getProductDetail(product_id) {
+        const response = await fetch(`http://${$uri}:8888/products/all/${product_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all supplier fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch suppliers', data);
+            return;
+        }
+        // console.log(data.data[0].ProductDetails.product_name
+        // if (get == "name"){
+        //   return data.data[0].ProductDetails.product_name;
+        // } else if (get == "unit"){
+        //   return data.data[0].ProductDetails.product_unit;
+        // } else {
+        //   return data.data[0].ProductDetails.product_stock;
+        // }
+        return data.data[0].ProductDetails
+  }
+
+  async function verifySubtractStock(subtract_stock_id,status) {
+        const response = await fetch(`http://${$uri}:8888/products/stock/subtract/verify/${subtract_stock_id}/${status}`, {
+            method: 'PUT',
+            headers: {
+                    'Content-Type': 'application/json',
+                },
+            // body: JSON.stringify({
+            //     actual_closing_cash,
+            //     deposit_money
+            // })
+        });
+
+        if (!response.ok) {
+            console.error('PUT verify subtract req gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid put verify subtract req', data);
+            return;
+        }
+        // console.log("verify session :",data);
+      }
 
     //HANDLE SEARCH BAR
     //products
@@ -353,7 +474,7 @@
 
   </script>
   
-   <div class="mx-8  mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
+   <div class="mt-[90px] mx-8  mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <div class="w-full flex justify-start">
         <button on:click={() => goto('/manage_inventory')} class="text-xl font-bold self-start p-4 hover:bg-gray-300 rounded-xl"><i class="fa-solid fa-less-than mr-2"></i>Back</button>  
     </div>
@@ -468,7 +589,7 @@
           </li>
         </ul>
       </nav>
-      {/if}
+    {/if}
       
       {#if tampilan == "products"}
         <div class="w-[96%] my-5 font-roboto">
@@ -492,7 +613,7 @@
                         </div>
                         <div  class="flex items-center justify-center py-2 w-full">
                             <button 
-                            on:click={() => handleClick(product.ProductDetails.product_detail_id)}
+                            on:click={() => {handleClick(product.ProductDetails.product_detail_id); tamplian_modal = "products_modal"}}
                             type="button" 
                             class="h-10 px-4 w-40 inline-flex items-center justify-start font-bold rounded-3xl bg-[#3d4c52] text-[#f2b082] hover:shadow-2xl">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -590,8 +711,12 @@
                     {:then sw_name}
                       <span class="my-1">From warehouse {sw_name}</span>
                     {/await}
-                    <div class="flex my-1">
-                      <span class="mx-1">XX Items, </span>
+                    <div class="flex items-center my-1">
+                      {#await getAddStockDetails(add_req.add_stock_id)}
+                        <span class="my-1">Loading...</span>
+                      {:then total_items}
+                        <span class="mx-1">{total_items} Items, </span>
+                      {/await}
                       {#if add_req.status_verify == 0}
                         <span class="">UNVERIFIED.</span>
                       {:else}
@@ -601,7 +726,7 @@
                   </div>
                   
                   <div class="w-2/12 flex justify-end items-center">
-                    <button class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <button on:click={() => goto(`/manage_inventory/${store_warehouse_id}/${add_req.add_stock_id}`)} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                       <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
@@ -617,24 +742,34 @@
             {#each verify_subtract as sub_req}
                 <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
                   <div class="w-10/12 flex flex-col font-semibold text-lg">
-                    <span class="my-1">Subtract Product Stock Request</span>
-                    {#await getStoreWarehouse(sub_req.store_warehouse_id)}
-                      <span class="my-1">Loading...</span>
-                    {:then sw_name}
-                      <span class="my-1">From warehouse {sw_name}</span>
-                    {/await}
-                    <div class="flex my-1">
-                      <span class="mx-1">XX Items, </span>
-                      {#if sub_req.status_verify == 0}
-                        <span class="">UNVERIFIED.</span>
-                      {:else}
-                        <span class="">VERIFIED.</span>
-                      {/if}
+                    <span class="my-1 text-sm text-peach2">Subtract Product Stock Request</span>
+                    <div class="flex items-center font-bold">
+                        <span class="my-1">{sub_req.product_name}</span>
                     </div>
+                    
+                    <div class="flex items-center">
+                      <div class="flex items-center w-3/12">
+                          <span class="my-1">Subtract : </span>
+                          <span class="my-1 ml-1">{sub_req.subtract_quantity}</span>
+                      </div>
+                      <div class="flex items-center w-3/12">
+                          <span class="my-1">Stock : </span>
+                          <span class="my-1">{sub_req.product_stock}</span>
+                      </div>
+                      <div class="flex items-center w-3/12">
+                          <span class="my-1">Batch : </span>
+                          <span class="my-1">{sub_req.batch}</span>
+                      </div>
+                      <div class="flex items-center w-3/12">
+                          <span class="my-1">Product Unit : </span>
+                          <span class="my-1">{sub_req.product_unit}</span>
+                      </div>
+                    </div>
+                      <span class="my-1">From warehouse {sub_req.sw_name}</span>
                   </div>
                   
                   <div class="w-2/12 flex justify-end items-center">
-                    <button class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <button on:click={() => {tampilan_modal = "subtract_modal"; showModal = sub_req.subtract_stock_id}} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                       <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
@@ -702,41 +837,6 @@ v
           </div>;
         </div>
       {/if}
-
-      {#if showModal == "confirm_add" }
-        <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
-          <div class="flex items-center justify-center pt-8 font-roboto">
-            <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Save</div>
-          </div>
-          <form class="my-4 p-4 md:p-5 font-roboto text-xl">
-                <div class="text-[#f7d4b2] font-medium text-center mb-8">
-                  Are you sure you want to submit the changes you've made?
-                </div>
-                <div class="flex items-center justify-center gap-4">
-                    <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
-                      Back
-                    </button>
-                    <button type="button" on:click={() => {AddNewProduct(); Swal.fire({
-                      title: "Produk Berhasil Ditambahkan",
-                      icon: "success",
-                      color: "white",
-                      background: "#364445",
-                      confirmButtonColor: '#F2AA7E'
-                    }); closeModal();
-                    product_code = "";
-                    product_category_id = 0;
-                    product_name = "";
-                    supplier_id = 0;
-                    buy_price = 0;
-                    sell_price = 0;
-                    min_stock = 0;
-                    product_unit = ""}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
-                      Add
-                    </button>
-                </div>
-          </form>
-        </TaskModal> 
-        {/if}
         
       {#if tampilan != "add_product"}
        <nav class="my-8 ">
@@ -783,7 +883,9 @@ v
        
    </div>
 
+<!-- MODAL PRODUCTS -->
 {#each all_produk as product}
+{#if tampilan_modal == "products_modal"}
   {#if showModal === product.ProductDetails.product_detail_id}
     <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
       <div class="flex items-center justify-center pt-8">
@@ -982,7 +1084,7 @@ v
             <div class="">
                 <div class="text-[#f7d4b2] mr-1">Minimum Stock</div> 
                 {#if editMode == true}
-                  <input id="product_name" type="text" bind:value={product.ProductDetails.min_stock} class="bg-white text-darkGray border-0 p-1 rounded">
+                  <input type="number" bind:value={product.ProductDetails.min_stock} class="bg-white text-darkGray border-0 p-1 rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                 {:else}
                   <div class="text-white">{product.ProductDetails.min_stock}</div>
                 {/if}
@@ -1030,4 +1132,138 @@ v
       </form>
   </TaskModal> 
   {/if}
+{/if}
+{/each}
+
+<!-- MODAL ADD NEW PRODUCT -->
+{#if showModal == "confirm_add" }
+  <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+    <div class="flex items-center justify-center pt-8 font-roboto">
+      <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Save</div>
+    </div>
+    <form class="my-4 p-4 md:p-5 font-roboto text-xl">
+          <div class="text-[#f7d4b2] font-medium text-center mb-8">
+            Are you sure you want to submit the changes you've made?
+          </div>
+          <div class="flex items-center justify-center gap-4">
+              <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+                Back
+              </button>
+              <button type="button" on:click={() => {AddNewProduct(); Swal.fire({
+                title: "Produk Berhasil Ditambahkan",
+                icon: "success",
+                color: "white",
+                background: "#364445",
+                confirmButtonColor: '#F2AA7E'
+              }); closeModal();
+              product_code = "";
+              product_category_id = 0;
+              product_name = "";
+              supplier_id = 0;
+              buy_price = 0;
+              sell_price = 0;
+              min_stock = 0;
+              product_unit = ""}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+                Add
+              </button>
+          </div>
+    </form>
+  </TaskModal> 
+  {/if}
+
+{#each verify_subtract as sub_req}
+{#if tampilan_modal == "subtract_modal"}
+  {#if showModal == sub_req.subtract_stock_id}
+    <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+      <div class="flex items-center justify-center pt-8">
+        <div class="mt-6 text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Subtract Produk Stock Request</div>
+      </div>
+      {#if editMode == true}
+        <button on:click={() => editMode = false} class="mt-6 mx-4 p-2 bg-darkGray text-peach shadow w-32 rounded-2xl font-semibold border border-peach">Exit Edit Mode</button>
+      {:else}
+        <button on:click={() => editMode = true} class="mt-6 mx-4 p-2 bg-peach2 text-darkGray shadow w-32 rounded-2xl font-semibold">Edit <i class="fa-regular fa-pen-to-square" style="color: #364445;"></i></button>
+      {/if}
+      <form class=" mt-4 p-4 md:p-5">
+          <div class="grid gap-3 font-roboto font-semibold">
+            <div class="">
+                <div class="text-[#f7d4b2] mr-1">Product Name</div>
+                <div class="text-white">{sub_req.product_name}</div>
+            </div>
+            <div class="">
+                <div class="text-[#f7d4b2] mr-1">Product Batch</div>
+                <div class="text-white">{sub_req.batch}</div>
+            </div>
+            <div class="">
+                <div class="text-[#f7d4b2] mr-1">Product Stock</div>
+                <div class="text-white">{sub_req.product_stock}</div>
+            </div>
+            <div class="">
+                <div class="text-[#f7d4b2] mr-1">Subtract Amount</div>
+                {#if editMode == true}
+                  <input type="number" bind:value={sub_req.subtract_quantity} class="bg-white text-darkGray border-0 p-1 rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                {:else}
+                  <div class="text-white">{sub_req.subtract_quantity}</div>
+                {/if}
+            </div>
+            <div class="">
+              <div class="text-[#f7d4b2] mr-1">Unit Type</div>
+              <div class="text-white">{sub_req.product_unit}</div>
+            </div>
+            <div class="">
+              <div class="text-[#f7d4b2] mr-1">Notes</div>
+              {#if editMode == true}
+                <textarea bind:value={sub_req.notes} rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 "></textarea>  
+              {:else}
+              <textarea value={sub_req.notes} readonly rows="4" class="min-h-24 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)] text-[#3d4c52] bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] w-full p-2.5 "></textarea>  
+              {/if}
+            </div>
+            
+            <div class="flex items-center justify-center">
+              {#if editMode == false}
+                <button on:click={async() => {await verifySubtractStock(sub_req.subtract_stock_id,2); await fetchSubtractVerify();
+                  Swal.fire({
+                      title: "Subtract Produck Request Berhasil direject",
+                      icon: "success",
+                      color: "white",
+                      background: "#364445",
+                      confirmButtonColor: '#F2AA7E'
+                    }); closeModal();}}  type="button" class="justify-center mx-4 mt-2 flex w-40 text-peach bg-darkGray hover:bg-[#293334] focus:outline-none font-semibold rounded-lg text-2xl py-1.5 text-center">
+                  Reject
+                </button>
+                <button on:click={async() => {await verifySubtractStock(sub_req.subtract_stock_id,1); await fetchSubtractVerify();
+                  Swal.fire({
+                      title: "Subtract Produck Request Berhasil diverify",
+                      icon: "success",
+                      color: "white",
+                      background: "#364445",
+                      confirmButtonColor: '#F2AA7E'
+                    }); closeModal(); 
+                }} type="button" on:click={() => closeModal()} class="justify-center mx-4 mt-2 flex w-40 text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082] focus:outline-none font-semibold rounded-lg text-2xl py-1.5 text-center">
+                  Verify
+                </button>
+              {:else}
+                <button type="button" on:click={async() => 
+                { let subtract_quantity = sub_req.subtract_quantity;
+                  let notes = sub_req.notes;
+
+                  let atribut = {
+                    subtract_quantity,
+                    notes
+                  };await editSubtractReq(sub_req.subtract_stock_id,atribut); console.log(JSON.stringify(atribut)); await fetchSubtractVerify();
+                  Swal.fire({
+                      title: "Subtract Produck Request Berhasil terupdate",
+                      icon: "success",
+                      color: "white",
+                      background: "#364445",
+                      confirmButtonColor: '#F2AA7E'
+                    }); closeModal(); editMode = false; editMode = editMode}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+                  Save 
+                </button>
+              {/if}
+            </div>
+          </div>
+      </form>
+  </TaskModal> 
+  {/if}
+{/if}
 {/each}
