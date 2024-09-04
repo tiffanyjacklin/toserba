@@ -53,7 +53,8 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
   final NumberPaginatorController _controller = NumberPaginatorController();
 
   var _currentPage = 1;
-  List<Data> contentTableInventory = FetchStockOpnameWarehouse.fromJson(jsonStockOpname).data!;
+  List<Data> contentTableInventory =
+      FetchStockOpnameWarehouse.fromJson(jsonStockOpname).data!;
 
   @override
   Widget build(BuildContext context) {
@@ -916,157 +917,158 @@ class TableInventoryTaking extends StatelessWidget {
               (index) {
                 TextEditingController controllerFill = TextEditingController();
                 var tableRow = TableRow(
-                decoration: (index + 1) % 2 == 0
-                    ? BoxDecoration(
-                        color: ColorPalleteLogin.TableColor,
-                      )
-                    : null,
-                children: [
-                  TableCell(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('${contentTable[index].productName}',
-                          style: TextStyle(
-                            fontSize: 12,
-                          )),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('${contentTable[index].batch}',
-                          style: TextStyle(
-                            fontSize: 12,
-                          )),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('${contentTable[index].expiredDate}',
-                          style: TextStyle(
-                            fontSize: 12,
-                          )),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          '${contentTable[index].expectedStock}',
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        // >> note : BELUM DI LIMIT
-                        child: TextField(
-                          controller: controllerFill,
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.end,
-                          style: TextStyle(fontSize: 12),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(5.0),
-                            isDense: true,
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                const Radius.circular(10.0),
-                              ),
-                              borderSide: new BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
+                  decoration: (index + 1) % 2 == 0
+                      ? BoxDecoration(
+                          color: ColorPalleteLogin.TableColor,
+                        )
+                      : null,
+                  children: [
+                    TableCell(
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            '${index + 1}',
+                            style: TextStyle(
+                              fontSize: 12,
                             ),
                           ),
-                        )),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('${contentTable[index].unitType}',
-                          style: TextStyle(
-                            fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${contentTable[index].productName}',
+                            style: TextStyle(
+                              fontSize: 12,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${contentTable[index].batch}',
+                            style: TextStyle(
+                              fontSize: 12,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${contentTable[index].expiredDate}',
+                            style: TextStyle(
+                              fontSize: 12,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '${contentTable[index].expectedStock}',
+                            style: TextStyle(
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          // >> note : BELUM DI LIMIT
+                          child: TextField(
+                            controller: controllerFill,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.end,
+                            style: TextStyle(fontSize: 12),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5.0),
+                              isDense: true,
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                                  const Radius.circular(10.0),
+                                ),
+                                borderSide: new BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0,
+                                ),
+                              ),
+                            ),
                           )),
                     ),
-                  ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${contentTable[index].unitType}',
+                            style: TextStyle(
+                              fontSize: 12,
+                            )),
+                      ),
+                    ),
 
-                  // action button
-                  TableCell(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, top: 2, bottom: 2),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.all(0),
-                          backgroundColor: ColorPalleteLogin.OrangeLightColor,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.black),
-                            borderRadius: BorderRadius.circular(15.0),
+                    // action button
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8.0, right: 8.0, top: 2, bottom: 2),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(0),
+                            backgroundColor: ColorPalleteLogin.OrangeLightColor,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(color: Colors.black),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
                           ),
+                          child: Icon(
+                            Icons.fast_forward_sharp,
+                            color: ColorPalleteLogin.PrimaryColor,
+                          ),
+                          onPressed: () {
+                            // ubah input value di expected stock
+                            controllerFill.text =
+                                contentTable[index].expectedStock.toString();
+                          },
                         ),
-                        child: Icon(
-                          Icons.fast_forward_sharp,
-                          color: ColorPalleteLogin.PrimaryColor,
-                        ),
-                        onPressed: () {
-                          // ubah input value di expected stock
-                          controllerFill.text = contentTable[index].expectedStock.toString();
-                        },
                       ),
                     ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, top: 2, bottom: 2),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.all(0),
-                          backgroundColor: ColorPalleteLogin.PrimaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8.0, right: 8.0, top: 2, bottom: 2),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(0),
+                            backgroundColor: ColorPalleteLogin.PrimaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
                           ),
+                          child: Icon(
+                            Icons.remove_red_eye_outlined,
+                            color: ColorPalleteLogin.OrangeColor,
+                          ),
+                          onPressed: () {
+                            // keluarin popup detail
+                            showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) =>
+                                  DetailProductInventoryTakingPopup(),
+                            );
+                          },
                         ),
-                        child: Icon(
-                          Icons.remove_red_eye_outlined,
-                          color: ColorPalleteLogin.OrangeColor,
-                        ),
-                        onPressed: () {
-                          // keluarin popup detail
-                          showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (context) =>
-                                DetailProductInventoryTakingPopup(),
-                          );
-                        },
                       ),
                     ),
-                  ),
-                ],
-              );
+                  ],
+                );
                 return tableRow;
               },
             ),
@@ -1122,49 +1124,45 @@ class TableInventoryTakingPopUp extends StatelessWidget {
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('PRODUCT NAME',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'PRODUCT NAME',
+                      style: TableContentTextStyle.textStyle,
+                    ),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('BATCH',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                        style: TableContentTextStyle.textStyle,),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('EXPIRY DATE',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                        style: TableContentTextStyle.textStyle,),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('EXPECTED STOCK',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                        style: TableContentTextStyle.textStyle,),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('ACTUAL STOCK',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                        style: TableContentTextStyle.textStyle,),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('UNIT TYPE',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+                        style: TableContentTextStyle.textStyle,),
                   ),
                 ),
                 TableCell(
@@ -1319,7 +1317,6 @@ class InventoryTakingDetailsChild extends StatelessWidget {
   }
 }
 
-
 // // Menambah stock opname
 // e.POST("/products/stock/opname/add", controller.InsertStockOpname)
 // [
@@ -1333,8 +1330,7 @@ class InventoryTakingDetailsChild extends StatelessWidget {
 //     }
 // ]
 
-
-class InputStockOpname{
+class InputStockOpname {
   Data data;
   late Int actualStock;
   late String additional_information;

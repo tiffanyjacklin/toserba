@@ -18,7 +18,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // theme: ThemeData(fontFamily: "Helvetica"),
+      theme: ThemeData(fontFamily: "Helvetica"),
       debugShowCheckedModeBanner: false,
       home: MainPage(FetchUsers.fromJson(jsonUser).data!, FetchPrivileges.fromJson(jsonPrivileges).data! ),
       );

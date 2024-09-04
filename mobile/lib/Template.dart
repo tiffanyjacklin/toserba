@@ -17,12 +17,12 @@ class ColorPalleteLogin {
   static const TableColor = Color(0xFFfff2cc);
 }
 
-class TableBodyText extends StatelessWidget {
+class SubTitleText extends StatelessWidget {
   String judul;
   String data;
   bool isColumn;
 
-  TableBodyText ({
+  SubTitleText({
     this.judul = '',
     this.data = '',
     this.isColumn = true,
@@ -31,57 +31,61 @@ class TableBodyText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isColumn ? Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            this.judul,
-            style: TextStyle(
-                fontSize: 16,
-                color: ColorPalleteLogin.OrangeLightColor,
-                fontWeight: FontWeight.bold),
-          ),
-
-          Text(
-            this.data,
-            style: TextStyle(
-                fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          
-          SizedBox(
-            height: 10,
-          ),
-        ],
-      ),
-    ): Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        // crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            this.judul,
-            style: TextStyle(
-                fontSize: 16,
-                color: ColorPalleteLogin.OrangeLightColor,
-                fontWeight: FontWeight.bold),
-          ),
-          Text(
-            this.data,
-            style: TextStyle(
-                fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
+    return isColumn
+        ? Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  this.judul,
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: ColorPalleteLogin.OrangeLightColor,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  this.data,
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+              ],
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  this.judul,
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: ColorPalleteLogin.OrangeLightColor,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  this.data,
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          );
   }
 }
 
 class TitlePage extends StatelessWidget {
   var name;
-  
+
   TitlePage({
     required this.name,
     super.key,
@@ -90,34 +94,90 @@ class TitlePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-          '$name',
-          style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: ColorPalleteLogin.PrimaryColor),
-        );
+      '$name',
+      style: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          color: ColorPalleteLogin.PrimaryColor),
+    );
+  }
+}
+
+class BodyPage extends StatelessWidget {
+  var name;
+
+  BodyPage({
+    required this.name,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '$name',
+      style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: ColorPalleteLogin.PrimaryColor),
+    );
+  }
+}
+
+class TableTitlePage extends StatelessWidget {
+  var name;
+
+  TableTitlePage({
+    required this.name,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '$name',
+      style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                                blurRadius: 2.0,
+                                color: Colors.black,
+                                offset: Offset(1, 1)),
+                          ]),
+    );
   }
 }
 
 
 
+class TableContentTextStyle {
+  static const TextStyle textStyle = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.bold,
+  );
+  static const TextStyle textStyleBody = TextStyle(
+    fontSize: 14,
+  );
+
+}
+    
+
 Future<void> saveImage(Uint8List bytes, String name1) async {
-    final time = DateTime.now().toIso8601String().replaceAll('.', '-');
-    final name = 'Screentshot_$name1$time';
-    await Permission.storage.request();
-    final result = await ImageGallerySaver.saveImage(bytes, name: name);
-    debugPrint('result : $result');
-  }
+  final time = DateTime.now().toIso8601String().replaceAll('.', '-');
+  final name = 'Screentshot_$name1$time';
+  await Permission.storage.request();
+  final result = await ImageGallerySaver.saveImage(bytes, name: name);
+  debugPrint('result : $result');
+}
 
-  // function saveimage
-  Future<void> saveAndShare(Uint8List bytes, String name1) async {
-    final dir = Platform.isAndroid
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
+// function saveimage
+Future<void> saveAndShare(Uint8List bytes, String name1) async {
+  final dir = Platform.isAndroid
+      ? await getExternalStorageDirectory()
+      : await getApplicationDocumentsDirectory();
 
-    // final image = File('${dir!.path}/$name1$time.png');
-    // image.writeAsBytes(bytes);
-    // await Share.shareXFiles([XFile(image.path)]);
-  }
-
-
+  // final image = File('${dir!.path}/$name1$time.png');
+  // image.writeAsBytes(bytes);
+  // await Share.shareXFiles([XFile(image.path)]);
+}

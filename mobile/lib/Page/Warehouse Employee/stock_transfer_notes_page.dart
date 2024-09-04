@@ -1,12 +1,122 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
+    as deliveryDetail;
+import 'package:flutter_app_all/Model/DeliveryTransferNote.dart'
+    as deliveryTrasnfer;
+import 'package:flutter_app_all/Model/StockTransferNotesWarehouse.dart'
+    as transfer;
+import 'package:flutter_app_all/TableTemplate/TableSuratJalan.dart';
+import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
 import 'package:flutter_app_all/Template.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:stroke_text/stroke_text.dart';
 import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
     as stock;
+import 'package:http/http.dart' as http;
+
+// fecth api
+Future<List<transfer.Data>> _fetchTransferNotes() async {
+  var fromId = 2; // anggepannya ngirim barang dari gudang ini
+
+  final link = 'http://leap.crossnet.co.id:8888/orders/transfer/notes/all/0/0';
+
+  // call api (method PUT)
+  final response = await http.get(Uri.parse(link));
+  print('---> response ' + response.statusCode.toString());
+
+  // cek status
+  if (response.statusCode == 200) {
+    // misal oke berati masuk
+    // json
+    Map<String, dynamic> temp = json.decode(response.body);
+    // decode?
+    print(response.body);
+    if (temp['status'] == 200) {
+      print(temp);
+      return transfer.StockTransferNotesWarehouse.fromJson(temp).data!;
+    } else {
+      return [];
+    }
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    // throw Exception('Login Failed, Try Again');
+    print('fetch failed');
+    return [];
+  }
+}
+
+// fetch delivery transfer notes
+Future<List<deliveryTrasnfer.Data>> _fetchDeliveryTransferNotes(
+    int noteId) async {
+  final link =
+      'http://leap.crossnet.co.id:8888/orders/delivery/transfernote/$noteId';
+
+  // call api (method PUT)
+  final response = await http.get(Uri.parse(link));
+  print('---> response ' + response.statusCode.toString());
+
+  // cek status
+  if (response.statusCode == 200) {
+    // misal oke berati masuk
+    // json
+    Map<String, dynamic> temp = json.decode(response.body);
+    // decode?
+    print(response.body);
+    if (temp['status'] == 200) {
+      print(temp);
+      return deliveryTrasnfer.FetchDeliveryTransferNotes.fromJson(temp).data!;
+    } else {
+      return [];
+    }
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    // throw Exception('Login Failed, Try Again');
+    print('fetch failed');
+    return [];
+  }
+}
+
+// fetch detail for delivery transfer note
+// http://leap.crossnet.co.id:8888/orders/delivery/detail/13
+Future<List<deliveryDetail.Data>> _fetchDeliveryTransferNotesDetail(
+    int deliveryId) async {
+  final link =
+      'http://leap.crossnet.co.id:8888/orders/delivery/detail/$deliveryId';
+
+  // call api (method PUT)
+  final response = await http.get(Uri.parse(link));
+  print('---> response ' + response.statusCode.toString());
+
+  // cek status
+  if (response.statusCode == 200) {
+    // misal oke berati masuk
+    // json
+    Map<String, dynamic> temp = json.decode(response.body);
+    // decode?
+    print(response.body);
+    if (temp['status'] == 200) {
+      print(temp);
+      return deliveryDetail.FetchDeliveryTransferDetail.fromJson(temp).data!;
+    } else {
+      return [];
+    }
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    // throw Exception('Login Failed, Try Again');
+    print('fetch failed');
+    return [];
+  }
+}
 
 class StockTransferNotesPage extends StatelessWidget {
   const StockTransferNotesPage({super.key});
@@ -49,12 +159,43 @@ class StockTransferNotesPage extends StatelessWidget {
                 height: 20,
               ),
 
+              Container(
+                // height: 400,
+                child: FutureBuilder<List<transfer.Data>>(
+                    future: _fetchTransferNotes(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        // get error
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('error fetch'),
+                          );
+                        } else {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return StockTransferNotesChild(
+                                dataStockTransfer: snapshot.data![index],
+                              );
+                            },
+                          );
+                        }
+                      } else {
+                        return CircularProgressIndicator();
+                      }
+                    }),
+              ),
+
+              SizedBox(
+                height: 20,
+              ),
+
               // pagination nya
 
               // list tiles view
 
               // making self
-              StockTransferNotesChild()
             ],
           ),
         ),
@@ -64,7 +205,9 @@ class StockTransferNotesPage extends StatelessWidget {
 }
 
 class StockTransferNotesChild extends StatelessWidget {
+  transfer.Data dataStockTransfer;
   StockTransferNotesChild({
+    required this.dataStockTransfer,
     super.key,
   });
 
@@ -104,7 +247,7 @@ class StockTransferNotesChild extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Stock Trasfer Note #112345667 ',
+                      'Stock Trasfer Note ${dataStockTransfer.transferNoteId}',
                       style: TextStyle(
                         color: ColorPalleteLogin.PrimaryColor,
                         fontWeight: FontWeight.bold,
@@ -112,7 +255,7 @@ class StockTransferNotesChild extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '01-07-2024, 07:40 PM ',
+                      '${DateFormat('dd-MM-yyyy, hh:mm aaa').format(DateTime.parse(dataStockTransfer.createdAt!))}',
                       style: TextStyle(
                         color: ColorPalleteLogin.PrimaryColor,
                         fontWeight: FontWeight.bold,
@@ -121,20 +264,67 @@ class StockTransferNotesChild extends StatelessWidget {
                     ),
 
                     // NOTE : Perbaiki ini
-                    StrokeText(
-                      text: 'Verified, sent.',
-                      textStyle: true == true
-                          ? TextStyle(
-                              color: ColorPalleteLogin.OrangeLightColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            )
-                          : TextStyle(
+                    dataStockTransfer.statusVerify == 0
+                        ? Text(
+                            'Not Verified',
+                            style: TextStyle(
                               color: ColorPalleteLogin.PrimaryColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
-                    ),
+                          )
+                        : Row(
+                            children: [
+                              StrokeText(
+                                text: 'Verified, ',
+                                textStyle: true == true
+                                    ? TextStyle(
+                                        color:
+                                            ColorPalleteLogin.OrangeLightColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      )
+                                    : TextStyle(
+                                        color: ColorPalleteLogin.PrimaryColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                              ),
+                              dataStockTransfer.statusSend == 0
+                                  ? StrokeText(
+                                      text: 'Not Send.',
+                                      textStyle: true == false
+                                          ? TextStyle(
+                                              color: ColorPalleteLogin
+                                                  .OrangeLightColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            )
+                                          : TextStyle(
+                                              color: ColorPalleteLogin
+                                                  .PrimaryColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
+                                    )
+                                  : StrokeText(
+                                      text: 'Send.',
+                                      textStyle: true == true
+                                          ? TextStyle(
+                                              color: ColorPalleteLogin
+                                                  .OrangeLightColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            )
+                                          : TextStyle(
+                                              color: ColorPalleteLogin
+                                                  .PrimaryColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
+                                    ),
+                            ],
+                          ),
                   ],
                 ),
               ),
@@ -148,7 +338,9 @@ class StockTransferNotesChild extends StatelessWidget {
                     showDialog(
                       barrierDismissible: false,
                       context: context,
-                      builder: (context) => StockTransferNotePopup(),
+                      builder: (context) => StockTransferNotePopup(
+                        dataTransferNote: dataStockTransfer,
+                      ),
                     );
                   },
                   child: Container(
@@ -178,8 +370,443 @@ class StockTransferNotesChild extends StatelessWidget {
   }
 }
 
+class CreateDeliveryOrderPopup extends StatefulWidget {
+  int noteId;
+  // var isFinished = false;
+
+  // list buat simpan table yg ada
+  // List<transferDetail.Data> listProductTruck = [];
+
+  CreateDeliveryOrderPopup({required this.noteId, super.key});
+
+  @override
+  State<CreateDeliveryOrderPopup> createState() =>
+      _CreateDeliveryOrderPopupState();
+}
+
+class _CreateDeliveryOrderPopupState extends State<CreateDeliveryOrderPopup> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final productTruckCartProvider =
+        Provider.of<ProductTruckCartProvider>(context);
+
+    return Dialog(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.75,
+        decoration: BoxDecoration(
+          color: ColorPalleteLogin.PrimaryColor,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Scrollbar(
+            thickness: 1,
+            thumbVisibility: false,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    child: GestureDetector(
+                      onTap: () {
+                        // help pop
+                        Navigator.of(context).pop();
+                      },
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 26,
+                      ),
+                    ),
+                    alignment: Alignment.topRight,
+                  ),
+                  Center(child: TableTitlePage(name: 'Create Delivery Order')),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  SubTitleText(
+                    judul: 'Products Loaded on Truck',
+                    isColumn: false,
+                  ),
+                  TableInputProductLoaded(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    // height: 50,
+                    width: MediaQuery.of(context).size.width * 0.55 * 0.25,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorPalleteLogin.OrangeLightColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          spacing: 6,
+                          children: [
+                            Icon(
+                              Icons.repeat,
+                              color: ColorPalleteLogin.PrimaryColor,
+                            ),
+                            Text(
+                              'Reset',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.PrimaryColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      onPressed: () {
+                        productTruckCartProvider
+                            .resetCartDefault(widget.noteId);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorPalleteLogin.PrimaryColor,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  side: BorderSide(
+                                      color:
+                                          ColorPalleteLogin.OrangeLightColor)),
+                            ),
+                            child: Wrap(
+                              spacing: 12,
+                              children: [
+                                Text(
+                                  'Back',
+                                  style: TextStyle(
+                                    color: ColorPalleteLogin.OrangeLightColor,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 30,
+                      ),
+                      !productTruckCartProvider.isEmptyCart
+                          ? Center(
+                              child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width *
+                                    0.55 *
+                                    0.3,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        ColorPalleteLogin.OrangeLightColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                  ),
+                                  child: Wrap(
+                                    spacing: 12,
+                                    children: [
+                                      Text(
+                                        'Confirm',
+                                        style: TextStyle(
+                                          color: ColorPalleteLogin.PrimaryColor,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    // Note: GANTI (UDAH)
+                                    // jalankan cart submit
+                                    productTruckCartProvider
+                                        .submit('hello coba')
+                                        .then((onValue) {
+                                      Navigator.pop(context);
+                                    });
+                                  },
+                                ),
+                              ),
+                            )
+                          : Container(),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TableInputProductLoaded extends StatefulWidget {
+  // List<transferDetail.Data> listItem;
+  TableInputProductLoaded({
+    // required this.listItem,
+    super.key,
+  });
+
+  @override
+  State<TableInputProductLoaded> createState() =>
+      _TableInputProductLoadedState();
+}
+
+class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
+  @override
+  Widget build(BuildContext context) {
+    final listItem = context.select((ProductTruckCartProvider i) => i.items);
+    final listController =
+        context.select((ProductTruckCartProvider i) => i.listControllerInput);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Table(
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          columnWidths: {
+            0: FlexColumnWidth(2),
+            1: FlexColumnWidth(6),
+            2: FlexColumnWidth(2),
+            3: FlexColumnWidth(3),
+            4: FlexColumnWidth(2),
+            5: FlexColumnWidth(3),
+            6: FlexColumnWidth(4),
+            7: FlexColumnWidth(2),
+          },
+          children: [
+            // making the judul
+            const TableRow(
+              decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.black))),
+              children: [
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'NO',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Product name',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Requested',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Loaded',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Unit Type',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Batch',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Expire Date',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Action',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // making the content
+            ...List.generate(
+              listItem.length,
+              (index) {
+                var tableRow = TableRow(
+                  decoration: (index + 1) % 2 == 0
+                      ? BoxDecoration(
+                          color: ColorPalleteLogin.TableColor,
+                        )
+                      : null,
+                  children: [
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${listItem[index].productName}',
+                            style: TextStyle(
+                              fontSize: 14,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${listItem[index].remainingQuantity}',
+                            style: TextStyle(
+                              fontSize: 14,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          // >> note : BELUM DI LIMIT
+                          child: TextField(
+                            controller: listController[index],
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.end,
+                            style: TextStyle(fontSize: 12),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5.0),
+                              isDense: true,
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                                  const Radius.circular(18.0),
+                                ),
+                                borderSide: new BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0,
+                                ),
+                              ),
+                            ),
+                          )),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${listItem[index].unitType}',
+                            style: TextStyle(
+                              fontSize: 14,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${listItem[index].batch}',
+                            style: TextStyle(
+                              fontSize: 14,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                            '${DateFormat('dd/MM/yyyy').format(DateTime.parse(listItem[index].expiredDate!))}',
+                            style: TextStyle(
+                              fontSize: 14,
+                            )),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: GestureDetector(
+                          onTap: () => {
+                            // NOTE : HAPUS INI DARI TABLE
+                            context
+                                .read<ProductTruckCartProvider>()
+                                .remove(index)
+                          },
+                          child: Icon(Icons.delete),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+                return tableRow;
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class StockTransferNotePopup extends StatefulWidget {
-  const StockTransferNotePopup({
+  transfer.Data dataTransferNote;
+
+  StockTransferNotePopup({
+    required this.dataTransferNote,
     super.key,
   });
 
@@ -191,8 +818,6 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
   var _customTileExpanded = false;
   var isFormNotCreated = true;
 
-  // controller
-  final controllerPrintStock = ScreenshotController();
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -233,141 +858,71 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                     alignment: Alignment.topRight,
                   ),
                   Center(
-                    child: Text(
-                      'Stock Transfer Note Detail',
-                      style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                                blurRadius: 2.0,
-                                color: Colors.black,
-                                offset: Offset(1, 1)),
-                          ]),
-                    ),
-                  ),
+                      child:
+                          TableTitlePage(name: 'Stock Transfer Note Detail')),
                   SizedBox(
                     height: 20,
                   ),
 
-                  TableBodyText(
+                  SubTitleText(
                     judul: 'Stock Transfer Note ID',
-                    data: '#101010101010',
+                    data: '${widget.dataTransferNote.transferNoteId}',
                   ),
-                  TableBodyText(
+                  SubTitleText(
                     judul: 'Created at',
-                    data: '07:31 PM, 01 July 2024',
+                    data:
+                        '${DateFormat('hh:mm aaa , d MMMM y').format(DateTime.parse(widget.dataTransferNote.createdAt!))}', // '07:31 PM, 01 July 2024',
                   ),
 
-                  // table stock card
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Theme(
-                        data: Theme.of(context)
-                            .copyWith(dividerColor: Colors.transparent),
-                        child: ExpansionTile(
-                          trailing: Icon(
-                            _customTileExpanded
-                                ? Icons.arrow_drop_down_circle
-                                : Icons.arrow_drop_down,
-                            color: ColorPalleteLogin.OrangeColor,
-                          ),
-                          title: Text(
-                            'Stock Card',
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: ColorPalleteLogin.OrangeLightColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          children: [
-                            // table bro
-                            Screenshot(
-                                controller: controllerPrintStock,
-                                child: TableStockCardTransferNotes(
-                                  listStockCard: [],
-                                )),
-                            SizedBox(
-                              height: 10,
-                            ),
-                             // button print table
-                  Container(
-                    // height: 50,
-                    width: MediaQuery.of(context).size.width * 0.55 * 0.45,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorPalleteLogin.OrangeLightColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Wrap(
-                          spacing: 6,
-                          children: [
-                            Icon(
-                              Icons.print_outlined,
-                              color: ColorPalleteLogin.PrimaryColor,
-                            ),
-                            Text(
-                              'Print Stock Card',
-                              style: TextStyle(
-                                color: ColorPalleteLogin.PrimaryColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      onPressed: () async {
-                        await controllerPrintStock.capture().then((bytes) {
-                          if (bytes != null) {
-                            // panggil woe
-                            saveImage(bytes, 'StockCardTransferNotes');
-                            // saveAndShare(bytes, 'DeliveryOrder');
-                          }
-                        }).catchError((onError) {
-                          debugPrint(onError);
-                        });
-                      },
-                    ),
-                  ),
-                          ],
-                          onExpansionChanged: (value) {
-                            setState(() {
-                              _customTileExpanded = !_customTileExpanded;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-                 
                   SizedBox(
                     height: 20,
                   ),
 
                   // if di klik createnya (perlu set function buat dia jadi true)
 
+                  // NOTE : perlu check misal dia ada delivery order yg sudah dikirim
                   // delivery order
-                  isFormNotCreated
-                      ? TableBodyText(
-                          judul: 'Delivery Order',
-                        )
-                      : TableBodyText(judul: 'Delivery Order', data: '#hehehe'),
+                  SubTitleText(
+                    judul: 'Delivery Order',
+                    isColumn: false,
+                  ),
+
+                  // NOTE : pisah
+                  // Misal sudah ada delivery order sebelumnya
+                  // buat format 1
+                  // DeliveryOrderView(dataDelivery: dataDelivery),
+                  FutureBuilder<List<deliveryTrasnfer.Data>>(
+                      future: _fetchDeliveryTransferNotes(
+                          widget.dataTransferNote.transferNoteId!),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          // get error
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text('error fetch'),
+                            );
+                          } else {
+                            return Column(
+                              children: List.generate(
+                                  snapshot.data!.length,
+                                  (index) => DeliveryOrderView(
+                                      dataDelivery: snapshot.data![index])),
+                            );
+                          }
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      }),
 
                   // product loaded on truck
-                  isFormNotCreated
-                      ? Column(
-                        children: [
-                          Container(
+                  Column(
+                    children: [
+                      widget.dataTransferNote.statusSend == 0
+                          ? Container(
                               // height: 50,
-                              width:
-                                  MediaQuery.of(context).size.width * 0.55 * 0.45,
+                              width: MediaQuery.of(context).size.width *
+                                  0.55 *
+                                  0.45,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
@@ -393,132 +948,72 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  setState(() {
-                                    isFormNotCreated = false;
-                                  });
+                                  // new popup
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) =>
+                                        ChangeNotifierProvider(
+                                      create: (context) =>
+                                          ProductTruckCartProvider(widget
+                                              .dataTransferNote
+                                              .transferNoteId!),
+                                      child: CreateDeliveryOrderPopup(
+                                          noteId: widget.dataTransferNote!
+                                              .transferNoteId!),
+                                    ),
+                                  );
                                 },
                               ),
-                            ),
-
-                            SizedBox(height: 20,),
-                        ],
-                      )
-                      : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TableInputProductLoaded(),
-                            SizedBox(height: 10,),
-                            Container(
-                              // height: 50,
-                              width: MediaQuery.of(context).size.width *
-                                  0.55 *
-                                  0.25,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      ColorPalleteLogin.OrangeLightColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                ),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Wrap(
-                                    spacing: 6,
-                                    children: [
-                                      Icon(
-                                        Icons.repeat,
-                                        color: ColorPalleteLogin.PrimaryColor,
-                                      ),
-                                      Text(
-                                        'Reset',
-                                        style: TextStyle(
-                                          color: ColorPalleteLogin.PrimaryColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                onPressed: () {},
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        // action button (ini misal belum ke sent)
-                        // Action Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Container(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorPalleteLogin.PrimaryColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                              side: BorderSide(
-                                  color: ColorPalleteLogin.OrangeLightColor)),
-                        ),
-                        child: Wrap(
-                          spacing: 12,
-                          children: [
-                            Text(
-                              'Discard',
-                              style: TextStyle(
-                                color: ColorPalleteLogin.OrangeLightColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                            )
+                          : Container(),
+                      SizedBox(
+                        height: 20,
                       ),
-                    ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 30,
-                  ),
-                  Center(
-                    child: Container(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorPalleteLogin.OrangeLightColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+
+                  // action button (ini misal belum ke sent)
+                  // Action Button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorPalleteLogin.PrimaryColor,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  side: BorderSide(
+                                      color:
+                                          ColorPalleteLogin.OrangeLightColor)),
+                            ),
+                            child: Wrap(
+                              spacing: 12,
+                              children: [
+                                Text(
+                                  'Close',
+                                  style: TextStyle(
+                                    color: ColorPalleteLogin.OrangeLightColor,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
                           ),
                         ),
-                        child: Wrap(
-                          spacing: 12,
-                          children: [
-                            Text(
-                              'Confirm',
-                              style: TextStyle(
-                                color: ColorPalleteLogin.PrimaryColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onPressed: () {
-                          // Note: GANTI
-                          Navigator.pop(context);
-                        },
                       ),
-                    ),
+                      SizedBox(
+                        width: 30,
+                      ),
+                    ],
                   ),
-                ],
-              ),
                 ],
               ),
             ),
@@ -529,206 +1024,150 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
   }
 }
 
-class TableInputProductLoaded extends StatelessWidget {
-  TableInputProductLoaded({
+class DeliveryOrderView extends StatefulWidget {
+  deliveryTrasnfer.Data dataDelivery;
+  DeliveryOrderView({
+    required this.dataDelivery,
     super.key,
   });
 
+  ScreenshotController controllerPrintOrder = ScreenshotController();
+  var isOpen = false;
+
+  @override
+  State<DeliveryOrderView> createState() => _DeliveryOrderViewState();
+}
+
+class _DeliveryOrderViewState extends State<DeliveryOrderView> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Table(
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: {
-            0: FlexColumnWidth(2),
-            1: FlexColumnWidth(6),
-            2: FlexColumnWidth(3),
-            3: FlexColumnWidth(2),
-            4: FlexColumnWidth(3),
-            5: FlexColumnWidth(4),
-            6: FlexColumnWidth(2),
-          },
-          children: [
-            // making the judul
-            const TableRow(
-              decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.black))),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 70,
+          width: MediaQuery.of(context).size.width * 0.7,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20.0, right: 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      'NO',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                BodyPage(name: '${widget.dataDelivery.deliveryOrderId}'),
+                BodyPage(name: '${widget.dataDelivery.orderTimestamp}'),
+                BodyPage(
+                    name: '${widget.dataDelivery.quantityTotal}/1010 loaded'),
+                Container(
+                    decoration: BoxDecoration(
+                      color: ColorPalleteLogin.OrangeLightColor,
+                      borderRadius: BorderRadius.circular(15.0),
+                      border: Border.all(),
                     ),
-                  ),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Product name',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      'Loaded',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Unit Type',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Batch Number',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Expire Date',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      'Action',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
+                    child: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            widget.isOpen = !widget.isOpen;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.remove_red_eye_outlined,
+                        ))),
               ],
             ),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        // munculin surat jalan yang ada hehe
+        // nota delivery nya
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: !widget.isOpen
+              ? []
+              : [
+                  Screenshot(
+                    controller: widget.controllerPrintOrder,
+                    child: FutureBuilder<List<deliveryDetail.Data>>(
+                        future: _fetchDeliveryTransferNotesDetail(
+                            widget.dataDelivery.deliveryOrderId!),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            // get error
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text('error fetch'),
+                              );
+                            } else {
+                              return NoteDeliveryOrder(
+                                  listItemDelivery: snapshot.data!);
+                            }
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        }),
+                  ),
 
-            // making the content
-            ...List.generate(
-              10,
-              (index) {
-                TextEditingController controllerFill = TextEditingController();
-                var tableRow = TableRow(
-                  decoration: (index + 1) % 2 == 0
-                      ? BoxDecoration(
-                          color: ColorPalleteLogin.TableColor,
-                        )
-                      : null,
-                  children: [
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyle(
-                            fontSize: 14,
-                          ),
+                  SizedBox(
+                    height: 10,
+                  ),
+
+                  // button print table
+                  Container(
+                    // height: 50,
+                    width: MediaQuery.of(context).size.width * 0.55 * 0.45,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorPalleteLogin.OrangeLightColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('Nama Produk',
-                            style: TextStyle(
-                              fontSize: 14,
-                            )),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          // >> note : BELUM DI LIMIT
-                          child: TextField(
-                            controller: controllerFill,
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.end,
-                            style: TextStyle(fontSize: 12),
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(5.0),
-                              isDense: true,
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(
-                                  const Radius.circular(18.0),
-                                ),
-                                borderSide: new BorderSide(
-                                  color: Colors.black,
-                                  width: 1.0,
-                                ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          spacing: 6,
+                          children: [
+                            Icon(
+                              Icons.print_outlined,
+                              color: ColorPalleteLogin.PrimaryColor,
+                            ),
+                            Text(
+                              'Print delivery order',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.PrimaryColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          )),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('Unit',
-                            style: TextStyle(
-                              fontSize: 14,
-                            )),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('123456789',
-                            style: TextStyle(
-                              fontSize: 14,
-                            )),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('10/10/2024',
-                            style: TextStyle(
-                              fontSize: 14,
-                            )),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: GestureDetector(
-                          onTap: () => {
-                            // NOTE : HAPUS
-                          },
-                          child: Icon(Icons.delete),
+                          ],
                         ),
                       ),
+                      onPressed: () async {
+                        await widget.controllerPrintOrder
+                            .capture()
+                            .then((bytes) {
+                          if (bytes != null) {
+                            // panggil woe
+                            saveImage(bytes, 'DeliveryOrder');
+                            // saveAndShare(bytes, 'DeliveryOrder');
+                          }
+                        }).catchError((onError) {
+                          debugPrint(onError);
+                        });
+                      },
                     ),
-                  ],
-                );
-                return tableRow;
-              },
-            ),
-          ],
+                  ),
+                ],
         ),
-      ),
+        SizedBox(
+          height: 20,
+        )
+      ],
     );
   }
 }

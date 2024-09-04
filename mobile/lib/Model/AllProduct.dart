@@ -1,11 +1,11 @@
-class FetchAllProduct {
+class FetchAllProducts {
   int? status;
   String? message;
   List<Data>? data;
 
-  FetchAllProduct({this.status, this.message, this.data});
+  FetchAllProducts({this.status, this.message, this.data});
 
-  FetchAllProduct.fromJson(Map<String, dynamic> json) {
+  FetchAllProducts.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
     if (json['data'] != null) {
@@ -28,6 +28,40 @@ class FetchAllProduct {
 }
 
 class Data {
+  ProductDetails? productDetails;
+  ProductCategories? productCategories;
+  Suppliers? suppliers;
+
+  Data({this.productDetails, this.productCategories, this.suppliers});
+
+  Data.fromJson(Map<String, dynamic> json) {
+    productDetails = json['ProductDetails'] != null
+        ? new ProductDetails.fromJson(json['ProductDetails'])
+        : null;
+    productCategories = json['ProductCategories'] != null
+        ? new ProductCategories.fromJson(json['ProductCategories'])
+        : null;
+    suppliers = json['Suppliers'] != null
+        ? new Suppliers.fromJson(json['Suppliers'])
+        : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    if (this.productDetails != null) {
+      data['ProductDetails'] = this.productDetails!.toJson();
+    }
+    if (this.productCategories != null) {
+      data['ProductCategories'] = this.productCategories!.toJson();
+    }
+    if (this.suppliers != null) {
+      data['Suppliers'] = this.suppliers!.toJson();
+    }
+    return data;
+  }
+}
+
+class ProductDetails {
   int? productDetailId;
   String? productCode;
   int? productCategoryId;
@@ -44,7 +78,7 @@ class Data {
   int? storeWarehouseId;
   String? warehousePlacement;
 
-  Data(
+  ProductDetails(
       {this.productDetailId,
       this.productCode,
       this.productCategoryId,
@@ -61,7 +95,7 @@ class Data {
       this.storeWarehouseId,
       this.warehousePlacement});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  ProductDetails.fromJson(Map<String, dynamic> json) {
     productDetailId = json['product_detail_id'];
     productCode = json['product_code'];
     productCategoryId = json['product_category_id'];
@@ -96,6 +130,54 @@ class Data {
     data['product_timestamp'] = this.productTimestamp;
     data['store_warehouse_id'] = this.storeWarehouseId;
     data['warehouse_placement'] = this.warehousePlacement;
+    return data;
+  }
+}
+
+class ProductCategories {
+  int? productCategoryId;
+  String? productCategoryName;
+
+  ProductCategories({this.productCategoryId, this.productCategoryName});
+
+  ProductCategories.fromJson(Map<String, dynamic> json) {
+    productCategoryId = json['product_category_id'];
+    productCategoryName = json['product_category_name'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['product_category_id'] = this.productCategoryId;
+    data['product_category_name'] = this.productCategoryName;
+    return data;
+  }
+}
+
+class Suppliers {
+  int? supplierId;
+  String? supplierName;
+  String? supplierPhoneNumber;
+  String? supplierAddress;
+
+  Suppliers(
+      {this.supplierId,
+      this.supplierName,
+      this.supplierPhoneNumber,
+      this.supplierAddress});
+
+  Suppliers.fromJson(Map<String, dynamic> json) {
+    supplierId = json['supplier_id'];
+    supplierName = json['supplier_name'];
+    supplierPhoneNumber = json['supplier_phone_number'];
+    supplierAddress = json['supplier_address'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['supplier_id'] = this.supplierId;
+    data['supplier_name'] = this.supplierName;
+    data['supplier_phone_number'] = this.supplierPhoneNumber;
+    data['supplier_address'] = this.supplierAddress;
     return data;
   }
 }

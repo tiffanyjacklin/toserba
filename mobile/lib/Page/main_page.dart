@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/history_all_stock_product_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
+import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_app_all/Page/Store%20Inventory/inventory_taking_page.dar
 import 'package:flutter_app_all/Page/Store%20Inventory/product_page.dart';
 import 'package:flutter_app_all/Page/Umum/notification_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/stock_transfer_notes_page.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatelessWidget {
   final Data dataUser;
@@ -29,15 +31,19 @@ class MainPage extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        drawer: isMobile(context ) ? Drawer(
-          child: // SIDEBAR
-                SidebarMainPage(dataUser: dataUser, listPrivileges: listPrivileges),
-        ) : null,
+        drawer: isMobile(context)
+            ? Drawer(
+                child: // SIDEBAR
+                    SidebarMainPage(
+                        dataUser: dataUser, listPrivileges: listPrivileges),
+              )
+            : null,
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (!isMobile(context))
-              SidebarMainPage(dataUser: dataUser, listPrivileges: listPrivileges),
+              SidebarMainPage(
+                  dataUser: dataUser, listPrivileges: listPrivileges),
             // MENU PAGE
             Expanded(
               flex: 8,
@@ -73,8 +79,8 @@ class MainPage extends StatelessWidget {
                                         Text(
                                           'Help',
                                           style: TextStyle(
-                                              color:
-                                                  ColorPalleteLogin.PrimaryColor,
+                                              color: ColorPalleteLogin
+                                                  .PrimaryColor,
                                               fontWeight: FontWeight.bold),
                                         ),
                                       ],
@@ -93,7 +99,7 @@ class MainPage extends StatelessWidget {
                           ),
                         ),
                       )),
-      
+
                   // buat pindah page
                   MenuPage(),
                 ],
@@ -124,16 +130,15 @@ class SidebarMainPage extends StatelessWidget {
     return Expanded(
         flex: 2,
         child: Container(
-          decoration: BoxDecoration(
-              color: ColorPalleteLogin.PrimaryColor,
-              boxShadow: [
-                BoxShadow(
-                  color: ColorPalleteLogin.OrangeDarkColor,
-                  offset: Offset(6, 0),
-                ),
-              ]),
+          decoration:
+              BoxDecoration(color: ColorPalleteLogin.PrimaryColor, boxShadow: [
+            BoxShadow(
+              color: ColorPalleteLogin.OrangeDarkColor,
+              offset: Offset(6, 0),
+            ),
+          ]),
           child: Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(15.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -145,16 +150,44 @@ class SidebarMainPage extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            // making the profile picture
                             Expanded(
                               flex: 2,
                               child: Container(
-                                decoration: BoxDecoration(
-                                    color:
-                                        ColorPalleteLogin.OrangeColor),
-                                child: CircleAvatar(
-                                  radius: 20.0,
-                                  backgroundImage: NetworkImage(
-                                      'https://picsum.photos/id/237/300/300'),
+                                decoration: BoxDecoration(),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: ColorPalleteLogin
+                                                      .OrangeLightColor),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: ColorPalleteLogin
+                                                      .OrangeDarkColor),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Divider(
+                                      thickness: 2,
+                                      color: ColorPalleteLogin.PrimaryColor,
+                                    ),
+                                    CircleAvatar(
+                                      radius: 24.0,
+                                      backgroundImage: NetworkImage(
+                                          'https://picsum.photos/id/237/300/300'),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -178,43 +211,41 @@ class SidebarMainPage extends StatelessWidget {
                         ),
                       ),
                     )),
-              // kasih divider
-              Divider(
-                thickness: 2,
-                color: Colors.white,
-              ),
-              Expanded(
-                  flex: 7,
-                  child: menuSideBar(context, listPrivileges)),
-              Expanded(
-                flex: 1,
-                child: GestureDetector(
-                  onTap: () {
-                    // logout
-                    // keluar dari page ini pindah ke login
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (BuildContext context) => LoginTablet()));
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.logout_outlined,
-                        color: Colors.white54,
-                      ),
-                      Text(
-                        'Logout',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white54),
-                      ),
-                    ],
+                // kasih divider
+                Divider(
+                  thickness: 2,
+                  color: Colors.white,
+                ),
+                Expanded(flex: 7, child: menuSideBar(context, listPrivileges)),
+                Expanded(
+                  flex: 1,
+                  child: GestureDetector(
+                    onTap: () {
+                      // logout
+                      // keluar dari page ini pindah ke login
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (BuildContext context) => LoginTablet()));
+                    },
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.logout_outlined,
+                          color: Colors.white54,
+                        ),
+                        Text(
+                          'Logout',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white54),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ));
+        ));
   }
 }
 
@@ -230,12 +261,12 @@ class MenuPage extends StatelessWidget {
         flex: 8,
         child: Container(
           decoration: BoxDecoration(color: Colors.grey[100]),
-          child: StockTransferNotesPage(),
-        ));
+            child: StockTransferNotesPage(),
+          ),
+        
+    );
   }
 }
-
-
 
 // pisah aja buat widget item sidebar
 Column menuSideBar(BuildContext context, List<DataPrivileges> list) {
@@ -294,8 +325,10 @@ class _ChildMenuState extends State<ChildMenu> {
           child: Center(
             child: Text(
               '${widget.privileges.privilegesName.toString().toCapitalized()}',
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 16),
             ),
           ),
         ),
@@ -314,8 +347,5 @@ extension StringCasingExtension on String {
       .join(' ');
 }
 
-
 // Function logout
-void _logout(){
-
-}
+void _logout() {}
