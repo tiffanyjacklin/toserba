@@ -612,7 +612,7 @@ e.DELETE("/orders/transfer/detail/delete/product/:transfernote_id/:product_id", 
 e.GET("/orders/supplier/not_verified", controller.GetNotVerifiedAddStock)
 
 // Verify add product dari warehouse
-e.PUT("/orders/supplier/verify/:addstock_id", controller.VerifyAddStock)
+e.PUT("/orders/supplier/verify/:addstock_id/:status", controller.VerifyAddStock)
 
 // Mengganti jumlah stock in di stock add. Hanya mengganti kuantitas saja
 e.PUT("/orders/supplier/update/stock/:addstock_id", controller.UpdateStockInAddStock)
@@ -623,11 +623,19 @@ e.PUT("/orders/supplier/update/stock/:addstock_id", controller.UpdateStockInAddS
     "quantity":100
 }
 
+// Menghapus produk di add stock detail
+e.DELETE("/orders/supplier/detail/:addstock_id", controller.DelAddStockDetail)
+{
+    "product_detail_id": 13,
+    "expired_date": "2025-09-11",
+    "batch":"3"
+}
+
 // Mengambil subtract stock yang belum diverify
 e.GET("/products/stock/subtract/not_verified", controller.GetNotVerifiedSubtractStock)
 
 // Verify subtract product dari warehouse
-e.PUT("/products/stock/subtract/verify/:subtract_id", controller.VerifySubtractStock)
+e.PUT("/products/stock/subtract/verify/:subtract_id/:status", controller.VerifySubtractStock)
 
 e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateStockInSubtractStock)
 {
