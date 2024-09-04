@@ -102,7 +102,7 @@ e.PUT("/cashier/session/edit/verifotp/:user_id", controller.OTPVerification)
 e.GET("/cashier/session/:session_id", controller.GetSessionByID)
 
 // Mengambil semua session
-e.GET("/cashier/session", controller.GetAllSession)
+e.GET("/cashier/session/:limit/:offset", controller.GetAllSession)
 
 // Mengambil session terakhir
 e.GET("/cashier/session/last", controller.GetLastSession)
@@ -149,7 +149,7 @@ e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
 e.GET("/cashier/members/:member_id", controller.GetMemberByID)
 
 // Mengambil semua data member
-e.GET("/cashier/members", controller.GetAllMember)
+e.GET("/cashier/members/:limit/:offset", controller.GetAllMember)
 
 // Mengambil member berdasarkan nomor telefon
 e.GET("/cashier/members/phone_number/:phonenumber", controller.GetMemberByPhoneNumber)
@@ -169,7 +169,7 @@ e.GET("/cashier/members/transaction/:member_id", controller.GetTransactionIDByMe
 e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
 
 // Mengambil transaksi berdasarkan store ID
-e.GET("/transaction/store_warehouse/:sw_id", controller.GetTransactionBySWID)
+e.GET("/transaction/store_warehouse/:sw_id/:limit/:offset", controller.GetTransactionBySWID)
 
 // Mengambil transaksi terakhir
 e.GET("/transaction/last", controller.GetLastTransaction)
@@ -178,7 +178,7 @@ e.GET("/transaction/last", controller.GetLastTransaction)
 e.GET("/transaction/:limit/:offset", controller.GetAllTransaction)
 
 // Mengambil data produk transaksi pada transaksi ID tertentu
-e.GET("/transaction/detail/:transaction_id", controller.GetTransactionDetailByTransactionID)
+e.GET("/transaction/detail/:transaction_id/:limit/:offset", controller.GetTransactionDetailByTransactionID)
 
 // Menambah data produk bada transaksi
 e.POST("/transaction/details/add/:user_id/:role_id", controller.InsertTransactionDetails) 
@@ -230,11 +230,14 @@ e.POST("/products/stock/card/add", controller.InsertStockCards)
     }
 ]
 
+// Mengambil semua stock card
+e.GET("/products/stock/card/all/:limit/:offset", controller.GetAllStockCard)
+
 // Mengambil data stock card berdasarkan stock card ID
 e.GET("/products/stock/card/:stock_card_id", controller.GetStockCardByID)
 
 // Mengambil data stock card berdasarkan produk ID
-e.GET("/products/stock/card/product/:product_id", controller.GetStockCardByProductID)
+e.GET("/products/stock/card/product/:product_id/:limit/:offset", controller.GetStockCardByProductID)
 
 // Mengambil data stock card berdasarkan store/warehouse tertentu
 e.GET("/products/stock/card/product/store_warehouse/:storewarehouse_id", controller.GetStockCardByStoreWarehouse)
@@ -442,7 +445,7 @@ e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractSt
 
 ================================================= Admin =================================================
 // Mengambil data session berdasarkan store ID
-e.GET("/sessions/store_warehouse/:sw_id", controller.GetSessionBySWID)
+e.GET("/sessions/store_warehouse/:sw_id/:limit/:offset", controller.GetSessionBySWID)
 
 // Mengambil data yang belum diverifikasi dan actual closing cash != 0
 e.GET("/sessions/not_verified", controller.GetNotVerifiedSession)
