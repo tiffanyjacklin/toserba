@@ -315,12 +315,14 @@
 
     if (!response2.ok) {
       console.error('PUT add products failed', response2);
+      return;
     }
 
     const data2 = await response2.json();
 
     if (data2.status !== 200) {
       console.error('Invalid put add products', data2);
+      return;
     }
 
     // console.log("Updated add products detail", data2);

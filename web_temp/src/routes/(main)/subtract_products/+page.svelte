@@ -521,14 +521,14 @@
       <br>
       showNameList: {showNameList}
       <br> -->
-      Expired Date: {expired_date}
+      <!-- Expired Date: {expired_date}
       <br>
       Batch: {batch}
       <br>
       showBatchList: {showBatchList}
       <br>
       showExpiredDateList: {showExpiredDateList}
-      <br>
+      <br> -->
       {#if showAddProduct}
       <div class="relative mt-8 flex items-center justify-center w-full">
         <div class="rounded-lg w-1/3 p-4 outline outline-1 bg-white text-black gap-2">
