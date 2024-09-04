@@ -36,6 +36,9 @@
     let verify_add = [];
     let verify_subtract = [];
 
+    //ASSIGN PRODUK
+    let assign_product = [];
+
     // ADD NEW PRODUK
     let product_name = "";
     let product_code = "";
@@ -416,6 +419,30 @@
         // }
         return data.data[0].ProductDetails
   }
+  
+  async function fetchAssign() {
+        const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/not_verified`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all supplier fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch suppliers', data);
+            return;
+        }
+
+        assign_product = data.data;
+        console.log("assign_product",assign_product)
+  }
 
   async function verifySubtractStock(subtract_stock_id,status) {
         const response = await fetch(`http://${$uri}:8888/products/stock/subtract/verify/${subtract_stock_id}/${status}`, {
@@ -464,12 +491,13 @@
     }
 
     onMount(async () => {
-      fetchProduk();
+      // fetchProduk();
       fetchAddVerify();
       fetchSubtractVerify();
       fetchStockCardHistory();
       fetchProductCategory();
       fetchSuppliers();
+      fetchAssign();
   });
 
   </script>
@@ -726,7 +754,7 @@
                   </div>
                   
                   <div class="w-2/12 flex justify-end items-center">
-                    <button on:click={() => goto(`/manage_inventory/${store_warehouse_id}/${add_req.add_stock_id}`)} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <button on:click={() => goto(`/manage_inventory/${store_warehouse_id}/add_stock/${add_req.add_stock_id}`)} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                       <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
@@ -780,7 +808,42 @@
             </div>
         </div>
       {:else if tampilan == "assign_product"}
-v
+        <div class="w-[96%] my-5 font-roboto">
+          <div class="relative overflow-x-auto sm:rounded-lg">
+          {#each assign_product as ass_produk}
+              <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
+                <div class="w-10/12 flex flex-col font-semibold text-lg">
+                  {#await getStoreWarehouse(ass_produk.store_warehouse_from)}
+                    <span class="my-1">Loading...</span>
+                  {:then warehouse_name}
+                    <span class="my-1">From warehouse {warehouse_name}</span>
+                  {/await}
+                  {#await getStoreWarehouse(ass_produk.store_warehouse_to)}
+                    <span class="my-1">Loading...</span>
+                  {:then store_name}
+                    <span class="my-1">To Store {store_name}</span>
+                  {/await}
+                  <div class="flex items-center my-1">
+                      <span class="mx-1">{ass_produk.quantity_total} Items, </span>
+                    {#if ass_produk.status_verify == 0}
+                      <span class="">UNVERIFIED.</span>
+                    {:else}
+                      <span class="">VERIFIED.</span>
+                    {/if}
+                  </div>
+                </div>
+                
+                <div class="w-2/12 flex justify-end items-center">
+                  <button on:click={() => goto(`/manage_inventory/${store_warehouse_id}/transfer_note/${ass_produk.transfer_note_id}`)} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    </button>
+                </div>
+              </div>
+          {/each}
+          </div>
+        </div>
       {:else if tampilan == "add_product"}
         <div class="w-11/12">
           <div class="flex flex-col mx-4">
