@@ -297,7 +297,7 @@ e.GET("/products/stock/opname/data/store_warehouse/:product_id/:sw_id", controll
 e.GET("/products/stock/opname/store_warehouse/:sw_id", controller.GetStockOpnameBySWID)
 
 // Mengambil semua data stock opname
-e.GET("/products/stock/opname", controller.GetAllStockOpname)
+e.GET("/products/stock/opname/:limit/:offset", controller.GetAllStockOpname)
 
 // Menambah stock opname
 e.POST("/products/stock/opname/add", controller.InsertStockOpname)
@@ -320,7 +320,7 @@ e.GET("/orders/transfer/notes/:transfernote_id", controller.GetTransferNoteByID)
 e.GET("/orders/transfer/notes/last", controller.GetLastTransferNote)
 
 // Mengambil semua transfer note
-e.GET("/orders/transfer/notes/all", controller.GetAllTransferNotes)
+e.GET("/orders/transfer/notes/all/:limit/:offset", controller.GetAllTransferNotes)
 
 // Mengambil sisa stok dari suatu produk dalam suatu transfer note yang belum dikirimkan
 e.GET("/orders/transer/notes/stock/left/:product_id/:transfernote_id", controller.GetStockLeftInTransferNotes)
