@@ -629,6 +629,12 @@ e.GET("/products/stock/subtract/not_verified", controller.GetNotVerifiedSubtract
 // Verify subtract product dari warehouse
 e.PUT("/products/stock/subtract/verify/:subtract_id", controller.VerifySubtractStock)
 
+e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateStockInSubtractStock)
+{
+    "subtract_quantity": 50,
+    "notes": "APA"
+}
+
 ================================================= Owner =================================================
 // Mengambil semua store/warehouse
 e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
