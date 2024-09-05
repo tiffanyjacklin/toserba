@@ -11,6 +11,9 @@
     let searchQuery = '';
     let promos = [];
 
+    $: showModal = null;
+    $: showDropDown = false;
+
     function toggleTable() {
         showTable = !showTable;
    }
@@ -77,7 +80,7 @@
                 </button>
             </div>
             <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
-                <button class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Promo</button>
+                <button on:click={() => {showModal = "choose_product"}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Promo</button>
             </div>
         </div>
          
@@ -191,3 +194,151 @@
         </nav>
        
    </div>
+
+<!-- MODAL CHOOSE PRODUCT -->
+{#if showModal == "choose_product" }
+  <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+    <div class="flex items-center justify-center pt-8 font-roboto">
+      <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Choose Product</div>
+    </div>
+    <div class="flex flex-col justify-center p-8">
+      <div class="flex flex-col my-1">
+        <span class="text-peach font-semibold">Product ID</span>
+        <input on:input={() => showDropDown = true}  type="text" class="rounded-xl mb-1" placeholder="Choose Product ID">
+        {#if showDropDown}
+        <ul class="z-10 bg-peach text-darkGray rounded">
+          <li class="p-1 rounded hover:bg-peach2 font-semibold">Pepper</li>
+          <li class="p-1 rounded hover:bg-peach2 font-semibold">Pepper</li>
+          <li class="p-1 rounded hover:bg-peach2 font-semibold">Pepper</li>
+        </ul>
+        {/if}
+      </div>
+      <div class="flex flex-col my-1">
+        <span class="text-peach font-semibold">Product Name</span>
+        <input on:input={() => showDropDown = true}  type="text" class="rounded-xl mb-1" placeholder="Choose Product Name">
+        {#if showDropDown}
+        <ul class="z-10 bg-peach text-darkGray rounded">
+          <li class="p-1 rounded hover:bg-peach2 font-semibold">Pepper</li>
+          <li class="p-1 rounded hover:bg-peach2 font-semibold">Pepper</li>
+          <li class="p-1 rounded hover:bg-peach2 font-semibold">Pepper</li>
+        </ul>
+        {/if}
+      </div>
+      <div class="flex mt-8 items-center justify-center">
+        <button class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
+        <button on:click={() => {showModal = "add_promo"; showModal = showModal;}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
+      </div>
+    </div>
+  </TaskModal> 
+  {/if}
+
+  <!-- MODAL ADD PROMO -->
+{#if showModal == "add_promo" }
+  <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+    <div class="flex items-center justify-center pt-8 font-roboto">
+      <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add Promo</div>
+    </div>
+    <div class="flex flex-col justify-center p-8">
+      <div class="flex flex-col my-1">
+        <span class="text-peach font-semibold mb-1">Product ID</span>
+        <input value="ini id productnya" readonly type="text" class="rounded-xl mb-1" placeholder="Choose Product ID">
+      </div>
+      <div class="flex flex-col my-1">
+        <span class="text-peach font-semibold mb-1">Product Name</span>
+        <input value="ini nama productnya" readonly type="text" class="rounded-xl mb-1">
+      </div>
+      <div class="flex flex-col my-1 mb-2">
+        <span class="text-peach font-semibold mb-1">Product Promo</span>
+        <div class="w-2/3 grid grid-cols-2 gap-2">
+          <button class="w-full py-2 bg-darkGray text-peach border border-peach rounded-2xl font-semibold">Promo1</button>
+          <button class="w-full py-2 bg-darkGray text-peach border border-peach rounded-2xl font-semibold">Promo1</button>
+          <button class="w-full py-2 bg-darkGray text-peach border border-peach rounded-2xl font-semibold">Promo1</button>
+          <button class="w-full py-2 bg-darkGray text-peach border border-peach rounded-2xl font-semibold">Promo1</button>
+        </div>
+      </div>
+
+
+
+      <!-- PROMO TYPE 1 : BUY X, GET Y -->
+      <div class="flex items-center my-1">
+        <span class="text-peach font-semibold mb-1 mr-2">Buy Amount</span>
+        <input value="" type="text" class="w-32 rounded-xl mb-1">
+      </div>
+      <div class="flex items-center my-1">
+        <span class="text-peach font-semibold mb-1 mr-2">Get Amount</span>
+        <input value="" type="text" class="w-32 rounded-xl mb-1">
+      </div>
+      
+      <!-- PROMO TYPE 2 : %DISCOUNT -->
+      <div class="flex items-center my-1">
+        <span class="text-peach font-semibold mb-1 mr-2">Discount Percentage (%) </span>
+        <input value="" type="text" class="w-32 rounded-xl mb-1">
+      </div>
+      
+      <!-- PROMO TYPE 3 : RPDISCOUNT -->
+      <div class="flex items-center my-1">
+        <span class="text-peach font-semibold mb-1 mr-2">Discount Percentage (Rp) </span>
+        <input value="" type="text" class="w-32 rounded-xl mb-1">
+      </div>
+      
+      <!-- PROMO TYPE 4 : BUY X, DISCOUNT% -->
+      <div class="flex items-center my-1">
+        <span class="text-peach font-semibold mb-1 mr-2">Buy Amount</span>
+        <input value="" type="text" class="w-32 rounded-xl mb-1">
+      </div>
+      <div class="flex items-center my-1">
+        <span class="text-peach font-semibold mb-1 mr-2">Discount Percentage (Rp) </span>
+        <input value="" type="text" class="w-32 rounded-xl mb-1">
+      </div>
+
+
+
+      <!-- CHOOSE STORE (STORE LIST) -->
+      <div class="flex flex-col my-1">
+        <div class="flex items-center mb-1">
+          <span class="text-peach font-semibold mr-2">Store List</span>
+          <input value="null" class="border border-peach bg-darkGray" type="checkbox">
+        </div>
+        
+        <!-- each -->
+         <ul class="font-semibold text-white ml-2">
+          <li class="mb-1">
+            <div class="flex items-center">
+              <input value="null" class="border border-white bg-darkGray  mr-2" type="checkbox">
+              <span class="">nama store</span>
+            </div>
+          </li>
+          <li class="mb-1">
+            <div class="flex items-center">
+              <input value="null" class="border border-white bg-darkGray  mr-2" type="checkbox">
+              <span class="">nama store</span>
+            </div>
+          </li>
+          <li class="mb-1">
+            <div class="flex items-center">
+              <input value="null" class="border border-white bg-darkGray  mr-2" type="checkbox">
+              <span class="">nama store</span>
+            </div>
+          </li>
+         </ul>
+         <!--  -->
+      </div>
+
+      <!-- TIME START END -->
+      <div class="flex items-center my-1">
+        <span class="text-peach font-semibold mb-1 mr-2">Time Start</span>
+        <input type="date" class="rounded-xl mb-1 w-60">
+      </div>
+      <div class="flex items-center my-1">
+        <span class="text-peach font-semibold mb-1 mr-4">Time End</span>
+        <input type="date" class="rounded-xl mb-1 w-60">
+      </div>
+
+
+      <div class="flex mt-8 items-center justify-center">
+        <button class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
+        <button class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
+      </div>
+    </div>
+  </TaskModal> 
+  {/if}

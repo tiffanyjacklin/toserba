@@ -3,9 +3,9 @@
     import MoneyConverter from '$lib/MoneyConverter.svelte';
     import DateConverter from '$lib/DateConverter.svelte';
     import receipt from '$lib/assets/receipt-1.png';
+    import { uri, userId, roleId, storeId, sw_name } from '$lib/uri.js';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
-    import { uri } from '$lib/uri.js';
 
     export let data;
     let store_warehouse_id = data.store_warehouse_id;
@@ -24,8 +24,13 @@
     let tf_details = [];
     let ori_tf_details = [];
 
+    let produk = [];
+    let filteredProduk = [];
+
     $: edit_id = 0;
     $: isSame = true;
+    $: showAddProduct = false;
+    $: showDropDown = false;
 
     async function getTransferNotetDetails() {
         const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/detail/${transfer_note_id}`, {
@@ -63,32 +68,53 @@
 
         console.log("tf_details", tf_details);
     }
+    
+    async function fetchProduct() {
+        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${userId}/${roleId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-    // async function verifyAddStock(add_stock_id,status) {
-    //     const response = await fetch(`http://${$uri}:8888/orders/supplier/verify/${add_stock_id}/${status}`, {
-    //         method: 'PUT',
-    //         headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //         // body: JSON.stringify({
-    //         //     actual_closing_cash,
-    //         //     deposit_money
-    //         // })
-    //     });
+        if (!response.ok) {
+            console.error('get all supplier fetch failed', response);
+            return;
+        }
 
-    //     if (!response.ok) {
-    //         console.error('PUT verify session gagal', response);
-    //         return;
-    //     }
+        const data = await response.json();
 
-    //     const data = await response.json();
+        if (data.status !== 200) {
+            console.error('Invalid fetch suppliers', data);
+            return;
+        }
 
-    //     if (data.status !== 200) {
-    //         console.error('Invalid put verify session', data);
-    //         return;
-    //     }
-    //     // console.log("verify session :",data);
-    //   }
+        produk = data.data;
+        filteredProduk = structuredClone(produk);
+
+        console.log("produk", produk);
+    }
+
+    async function verifyAssignProduk(status) {
+        const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/verify/${transfer_note_id}/${status}`, {
+            method: 'PUT',
+            headers: {
+                    'Content-Type': 'application/json',
+                },
+        });
+
+        if (!response.ok) {
+            console.error('PUT verify session gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid put verify session', data);
+            return;
+        }
+      }
 
     async function updateTFdetails(product_detail_id,quantity) {
       const response = await fetch(`http://${$uri}:8888/orders/transfer/detail/update/product/${transfer_note_id}/${product_detail_id}/${quantity}`, {
@@ -156,8 +182,10 @@
       return isSame;
     }
 
+
     onMount(async () => {
       await getTransferNotetDetails();
+      fetchProduct();
     });
    
   </script>
@@ -225,12 +253,12 @@
                     <i class="fa-solid fa-trash-can"></i>                     
                   </button>
                   {#if edit_id == produk.transfer_note_detail_id}
-                    <button on:click={() => {edit_id = 0; isSameWithOri();
+                    <button on:click={() => {edit_id = 0; 
                         if (produk.quantity > produk.remaining_quantity){
                             produk.quantity = produk.remaining_quantity;
                         } else if (produk.quantity == 0){
                             produk.quantity = 1;
-                        }
+                        }; isSameWithOri();
                     }} class="w-8 mx-1 p-1 bg-peach rounded-xl border border-darkGray">
                       <i class="fa-solid fa-check"></i>                  
                     </button>
@@ -242,7 +270,7 @@
                 </td>
               </tr>
 
-              <!-- {#if showModal == "confirm_verify" }
+              {#if showModal == "confirm_verify" }
                   <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
                     <div class="flex items-center justify-center pt-8 font-roboto">
                       <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Verify</div>
@@ -255,7 +283,7 @@
                               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                                 Back
                               </button>
-                              <button type="button" on:click={async() => {await verifyAddStock(add_stock_id,1); Swal.fire({
+                              <button type="button" on:click={async() => {await verifyAssignProduk(1); Swal.fire({
                                 title: "Assign Product Diverify",
                                 icon: "success",
                                 color: "white",
@@ -267,9 +295,9 @@
                           </div>
                     </form>
                 </TaskModal> 
-              {/if} -->
+              {/if}
               
-              <!-- {#if showModal == "confirm_reject" }
+              {#if showModal == "confirm_reject" }
                   <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
                     <div class="flex items-center justify-center pt-8 font-roboto">
                       <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Reject</div>
@@ -282,8 +310,8 @@
                               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                                 Back
                               </button>
-                              <button type="button" on:click={async() => {await verifyAddStock(add_stock_id,2); Swal.fire({
-                                title: "Add Stock Berhasil Direject",
+                              <button type="button" on:click={async() => {await verifyAssignProduk(2); Swal.fire({
+                                title: "Assign Produk Berhasil Direject",
                                 icon: "success",
                                 color: "white",
                                 background: "#364445",
@@ -294,27 +322,46 @@
                           </div>
                     </form>
                 </TaskModal> 
-              {/if} -->
+              {/if}
 
               {/each}
           </tbody>
         </table>
+      </div>
 
-        
-        {#if tf_details.length > 0}
-          <div class="flex justify-end mt-2 mb-10">
+      {#if tf_details.length >= 0}
+          <div class="flex w-11/12 justify-end mt-2 mb-10">
             <button on:click={() => {tf_details = structuredClone(ori_tf_details); tf_details = tf_details; isSameWithOri()}} class="mx-2 w-48 bg-darkGray text-peach border border-darkGray shadow py-1 rounded-2xl font-semibold text-xl">Reset</button>
             {#if !isSame}
               <button on:click={async() => {await applyChanges();}} class="mx-2 w-48 bg-peach text-darkGray border border-darkGray shadow py-1 rounded-2xl font-semibold text-xl">Apply Changes</button>
             {/if}
-            <button class="mx-2 w-48 bg-peach2 text-darkGray border border-darkGray shadow py-1 rounded-2xl font-semibold text-xl"><i class="fa-solid fa-plus mr-1"></i>Add Product</button>
+            <button on:click={() => {showAddProduct = true;}} class="mx-2 w-48 bg-peach2 text-darkGray border border-darkGray shadow py-1 rounded-2xl font-semibold text-xl"><i class="fa-solid fa-plus mr-1"></i>Add Product</button>
+          </div>
+
+          {#if showAddProduct}
+            <hr class="w-8/12 border border-black mb-4">
+
+            <div class="flex flex-col justify-center w-7/12 border rounded-xl p-8 mb-8">
+              <div class="flex flex-col my-1">
+                <span class="text-darkGray font-semibold">Product Name</span>
+                <input on:click={() => showDropDown = true} type="text" class="rounded-xl mb-1" placeholder="Choose Product Name">
+                {#if showDropDown}
+                <ul class="z-10 bg-peach text-darkGray rounded">
+                  <li class="p-1 rounded hover:bg-peach2 font-semibold">Pepper</li>
+                  <li class="p-1 rounded hover:bg-peach2 font-semibold">Pepper</li>
+                  <li class="p-1 rounded hover:bg-peach2 font-semibold">Pepper</li>
+                </ul>
+                {/if}
+              </div>
+              
             </div>
+          {/if}
+
           <div class="flex justify-center mb-10">
             <button on:click={() => {showModal = "confirm_reject"; showModal = showModal;}} class="mx-6 w-48 bg-darkGray text-peach border border-darkGray shadow py-3 rounded-2xl font-semibold text-xl">Reject</button>
             <button on:click={() => {showModal = "confirm_verify"; showModal = showModal;}} class="mx-6 w-48 bg-peach2 text-darkGray border border-darkGray shadow py-3 rounded-2xl font-semibold text-xl">Verify</button>
           </div>
         {/if}
-      </div>
 </div>
 
 
