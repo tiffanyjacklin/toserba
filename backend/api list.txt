@@ -592,7 +592,7 @@ e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
 e.GET("/orders/transfer/notes/not_verified", controller.GetNotVerifiedTransferNote)
 
 // Verify deliver order
-e.PUT("/orders/transfer/notes/verify/:transfernote_id", controller.VerifyTransferNotes)
+e.PUT("/orders/transfer/notes/verify/:transfernote_id/:status", controller.VerifyTransferNotes)
 
 // Menambah produk untuk suatu tranfer note
 e.POST("/orders/transfer/detail/add/product/:transfernote_id", controller.InsertProductToTransferNoteDetails) 
