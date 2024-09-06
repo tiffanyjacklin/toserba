@@ -672,8 +672,8 @@ e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateSto
 // Mengambil semua store/warehouse
 e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
 
-// Mengambil semua store atau warehouse. sw_type = store / warehouse
-e.GET("/store_warehouses/type/:sw_type", controller.GetAllByStoreWarehouseType)
+// Mengambil semua store atau warehouse. sw_type = store / warehouse. nama & alamat untuk search
+e.GET("/store_warehouses/type/:sw_type/:sw_name/:sw_address/:limit/:offset", controller.GetAllByStoreWarehouseType)
 
 // Mengambil data store/warehouse berdasarkan user dan role user yang sedang login
 e.GET("/store_warehouses/:user_id/:role_id", controller.GetStoreWarehouseByUIDRID)
@@ -733,8 +733,8 @@ e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
 // Mengambil data supplier berdasarkan ID
 e.GET("/suppliers/:supplier_id", controller.GetSupplierByID)
 
-// Mengambil semua supplier
-e.GET("/suppliers/all", controller.GetAllSupplier)
+// Mengambil semua supplier. supplier name untuk search
+e.GET("/suppliers/all/:supplier_name/:limit/:offset", controller.GetAllSupplier)
 
 // Menambah supplier baru
 e.POST("suppliers/add", controller.InsertSupplier)
