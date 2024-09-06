@@ -240,19 +240,19 @@ e.GET("/products/stock/card/:stock_card_id", controller.GetStockCardByID)
 e.GET("/products/stock/card/product/:product_id/:limit/:offset", controller.GetStockCardByProductID)
 
 // Mengambil data stock card berdasarkan store/warehouse tertentu
-e.GET("/products/stock/card/product/store_warehouse/:storewarehouse_id", controller.GetStockCardByStoreWarehouse)
+e.GET("/products/stock/card/product/store_warehouse/:storewarehouse_id/:limit/:offset", controller.GetStockCardByStoreWarehouse)
 
 // Mengambil data stock card berdasarkan product ID dan  store/warehouse tertentu
-e.GET("/products/stock/card/product/store_warehouse/:product_id/:storewarehouse_id", controller.GetStockCardByPIDStoreWarehouse)
+e.GET("/products/stock/card/product/store_warehouse/:product_id/:storewarehouse_id/:limit/:offset", controller.GetStockCardByPIDStoreWarehouse)
 
 // Mengambil data stock card berdasarkan store/warehouse pada exp date tertentu
-e.GET("/products/stock/card/product/store_warehouse/exp/:exp_date/:storewarehouse_id", controller.GetStockCardByStoreWarehouseEXPDate)
+e.GET("/products/stock/card/product/store_warehouse/exp/:exp_date/:storewarehouse_id/:limit/:offset", controller.GetStockCardByStoreWarehouseEXPDate)
 
 // Mengambil data stock card berdasarkan store/warehouse pada batch tertentu
-e.GET("/products/stock/card/product/store_warehouse/batch/:batch/:storewarehouse_id", controller.GetStockCardByStoreWarehouseBatch)
+e.GET("/products/stock/card/product/store_warehouse/batch/:batch/:storewarehouse_id/:limit/:offset", controller.GetStockCardByStoreWarehouseBatch)
 
 // Mengambil data stock card berdasarkan produk pada exp date tertentu
-e.GET("/products/stock/card/product/:product_id/:exp_date", controller.GetStockCardByEXPDate)
+e.GET("/products/stock/card/product/:product_id/:exp_date/:limit/:offset", controller.GetStockCardByEXPDate)
 
 // Mengambil exp date yang paling dekat pada produk tertentu
 e.GET("/products/stock/card/product/exp/early/:product_id/:sw_id", controller.GetEarliestEXPByProductID)
@@ -273,25 +273,25 @@ e.GET("/products/stock/card/product/total_stock/batch/:product_id/:sw_id/:batch"
 e.GET("/products/stock/card/product/total_stock/:product_id/:sw_id/:exp_date", controller.GetTotalStockByEXPPIDSWID)
 
 // Mengambil list expdate pada produk tertentu
-e.GET("/products/stock/card/exp_date/:product_id", controller.GetAllEXPDateByProductID)
+e.GET("/products/stock/card/exp_date/:product_id/:limit/:offset", controller.GetAllEXPDateByProductID)
 
 // Mengambil list expdate pada produk tertentu dan store/warehouse tertentu
-e.GET("/products/stock/card/exp_date/:product_id/:sw_id", controller.GetAllEXPDateByProductIDSWID)
+e.GET("/products/stock/card/exp_date/:product_id/:sw_id/:limit/:offset", controller.GetAllEXPDateByProductIDSWID)
 
 // Mengambil list batch pada produk tertentu
-e.GET("/products/stock/card/batch/:product_id", controller.GetAllBatchByProductID)
+e.GET("/products/stock/card/batch/:product_id/:limit/:offset", controller.GetAllBatchByProductID)
 
 // Mengambil list batch pada produk tertentu dan store/warehouse tertentu
-e.GET("/products/stock/card/batch/:product_id/:sw_id", controller.GetAllBatchByProductIDSWID)
+e.GET("/products/stock/card/batch/:product_id/:sw_id/:limit/:offset", controller.GetAllBatchByProductIDSWID)
 
 // Mengambil minimal stok pada produk tertentu pada store/warehouse tertentu
 e.GET("/products/stock/min/:product_id/:sw_id", controller.CheckMinStock)
 
 // Mengambil semua data produk untuk tampilan di table stock opname (tanpa actual stock)
-e.GET("/products/stock/opname/data", controller.GetDataforStockOpname)
+e.GET("/products/stock/opname/data/:limit/:offset", controller.GetDataforStockOpname)
 
 // Mengambil semua data produk pada store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock)
-e.GET("/products/stock/opname/data/store_warehouse/:sw_id", controller.GetDataforStockOpnameBySWID)
+e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:limit/:offset", controller.GetDataforStockOpnameBySWID)
 
 // Mengambil semua data produk pada produk tertentu dan store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock)
 e.GET("/products/stock/opname/data/store_warehouse/:product_id/:sw_id", controller.GetDataforStockOpnameByPIDSWID)
@@ -582,6 +582,22 @@ e.POST("promos/product/add", controller.InsertPromoProducts)
 // Menerapkan promo untuk semua produk
 e.POST("/promos/product/all/:promo_id", controller.UpdatePromoToAllProducts)
 
+// Mengambil promo id berdasarkan store id
+e.GET("/promos/stores/:sw_id", controller.GetPromoIDBySWID)
+
+// Menambah promo pada store tertentu
+e.POST("/promos/stores/add", controller.InsertPromoStores)
+[
+    {
+        "store_warehouse_id": 1,
+        "promo_id": 2
+    },
+    {
+        "store_warehouse_id": 1,
+        "promo_id": 3
+    }
+]
+
 // Mengambil role berdasarkan id
 e.GET("/roles/:roles_id", controller.GetRolesByID)
 
@@ -655,6 +671,9 @@ e.GET("/store_warehouses/type/:sw_type", controller.GetAllByStoreWarehouseType)
 
 // Mengambil data store/warehouse berdasarkan user dan role user yang sedang login
 e.GET("/store_warehouses/:user_id/:role_id", controller.GetStoreWarehouseByUIDRID)
+
+// Mengambil store id berdasarkan promo id tertentu
+e.GET("/store_warehouses/promos/:promo_id", controller.GetSWIDByPromoID)
 
 // Mengambil data store/warehouse berdasarkan id
 e.GET("/store_warehouses/:store_warehouse_id", controller.GetStoreWarehouseByID)
