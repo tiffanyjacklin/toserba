@@ -148,8 +148,8 @@ e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
 // Mengambil member berdasarkan member ID
 e.GET("/cashier/members/:member_id", controller.GetMemberByID)
 
-// Mengambil semua data member
-e.GET("/cashier/members/:limit/:offset", controller.GetAllMember)
+// Mengambil semua data member. Nama dan phone number untuk search
+e.GET("/cashier/members/:member_name/:phonenumber/:limit/:offset", controller.GetAllMember)
 
 // Mengambil member berdasarkan nomor telefon
 e.GET("/cashier/members/phone_number/:phonenumber", controller.GetMemberByPhoneNumber)
