@@ -293,8 +293,8 @@ e.GET("/products/stock/min/:product_id/:sw_id", controller.CheckMinStock)
 // Mengambil semua data produk untuk tampilan di table stock opname (tanpa actual stock)
 e.GET("/products/stock/opname/data/:limit/:offset", controller.GetDataforStockOpname)
 
-// Mengambil semua data produk pada store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock)
-e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:limit/:offset", controller.GetDataforStockOpnameBySWID)
+// Mengambil semua data produk pada store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock). product name dan batch untuk search
+e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:limit/:offset", controller.GetDataforStockOpnameBySWID)
 
 // Mengambil semua data produk pada produk tertentu dan store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock)
 e.GET("/products/stock/opname/data/store_warehouse/:product_id/:sw_id", controller.GetDataforStockOpnameByPIDSWID)
@@ -327,6 +327,12 @@ e.GET("/orders/transfer/notes/last", controller.GetLastTransferNote)
 
 // Mengambil semua transfer note. ID untuk keyword search
 e.GET("/orders/transfer/notes/all/:transfernote_id/:limit/:offset", controller.GetAllTransferNotes)
+
+// Mengambil transfer note yang telah diverify admin
+e.GET("/orders/transfer/notes/verified/:transfernote_id/:limit/:offset", controller.GetVerifiedTransferNotes)
+
+// Mengambil transfer note yang telah dikirimkan semua barang nya
+e.GET("/orders/transfer/notes/sent/:transfernote_id/:limit/:offset", controller.GetSentTransferNotes)
 
 // Mengambil sisa stok dari suatu produk dalam suatu transfer note yang belum dikirimkan
 e.GET("/orders/transer/notes/stock/left/:product_id/:transfernote_id", controller.GetStockLeftInTransferNotes)
