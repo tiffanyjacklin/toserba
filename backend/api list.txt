@@ -216,6 +216,9 @@ e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.I
 // Menerima (accept) surat jalan
 e.PUT("/store/orders/delivery/accept/:deliveryorder_id/:user_id", controller.AcceptDeliveryOrders)
 
+// Mengambil surat jalan yang belum di accept oleh store
+e.GET("/store/orders/delivery/not_accept/:limit/:offset", controller.GetNotAcceptedDeliveryOrder)
+
 ================================================= Warehouse =================================================
 // Menambah data stock card baru
 e.POST("/products/stock/card/add", controller.InsertStockCards)
@@ -361,7 +364,10 @@ e.GET("/orders/delivery/:delivery_order_id", controller.GetDeliveryOrderByID)
 e.GET("/orders/delivery/last", controller.GetLastDeliveryOrder)
 
 // Mengambil data surat jalan berdasarkan asal pengiriman
-e.GET("/orders/delivery/warehouse/:sw_from_id", controller.GetDeliveryOrderBySWFromID)
+e.GET("/orders/delivery/warehouse/from/:sw_from_id/:limit/:offset", controller.GetDeliveryOrderBySWFromID)
+
+// Mengambil data surat jalan berdasarkan tujuan pengiriman
+e.GET("/orders/delivery/warehouse/to/:sw_to_id/:limit/:offset", controller.GetDeliveryOrderBySWToID)
 
 // Mengambil data surat jalan berdasarkan asal dan tujuan pengiriman
 e.GET("/orders/delivery/storewarehouse/:sw_from_id/:sw_to_id", controller.GetDOFromSWIDToSWID)
