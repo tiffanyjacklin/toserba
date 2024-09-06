@@ -572,6 +572,32 @@ e.POST("/promos/add", controller.InsertPromos)
         "promo_end_date": "2024-09-16",
         "promo_percentage": 15,
         "promo_term_and_cond": "Min Buy: Rp 30,000"
+    },
+    {
+        "promo_code": "PROMO04",
+        "promo_type_id": 1,
+        "promo_start_date": "2024-08-16",
+        "promo_end_date": "2024-09-16",
+        "promo_term_and_cond": "Min Buy 1 item",
+        "x_amount":1,
+        "y_amount":1
+    },
+    {
+        "promo_code": "PROMO03",
+        "promo_type_id": 3,
+        "promo_start_date": "2024-08-16",
+        "promo_end_date": "2024-09-16",
+        "promo_term_and_cond": "Min Buy 1 item",
+        "promo_discount": 50000
+    },
+    {
+        "promo_code": "PROMO02",
+        "promo_type_id": 4,
+        "promo_start_date": "2024-08-16",
+        "promo_end_date": "2024-09-16",
+        "promo_term_and_cond": "Min Buy 1 item",
+        "promo_percentage": 15,
+        "x_amount":1
     }
 ]
 
