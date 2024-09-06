@@ -325,8 +325,8 @@ e.GET("/orders/transfer/notes/:transfernote_id", controller.GetTransferNoteByID)
 // Mengambil transfer note terakhir
 e.GET("/orders/transfer/notes/last", controller.GetLastTransferNote)
 
-// Mengambil semua transfer note
-e.GET("/orders/transfer/notes/all/:limit/:offset", controller.GetAllTransferNotes)
+// Mengambil semua transfer note. ID untuk keyword search
+e.GET("/orders/transfer/notes/all/:transfernote_id/:limit/:offset", controller.GetAllTransferNotes)
 
 // Mengambil sisa stok dari suatu produk dalam suatu transfer note yang belum dikirimkan
 e.GET("/orders/transer/notes/stock/left/:product_id/:transfernote_id", controller.GetStockLeftInTransferNotes)
@@ -504,8 +504,8 @@ e.GET("/products/detail", controller.GetAllProductDetail)
 // Mengambil semua produk dari supplier tertentu, tanpa stok, exp, batch
 e.GET("/products/supplier/:supplier_id", controller.GetAllProductDetailFromSupplier) 
 
-// Mengambil data produk berdasarkan lokasi store/warehouse user
-e.GET("/products/store_warehouse/:user_id/:role_id", controller.GetAllProductsInStoreWarehouse) 
+// Mengambil data produk berdasarkan lokasi store/warehouse user. product id dan product name untuk search
+e.GET("/products/store_warehouse/:user_id/:role_id/:product_id/:product_name/:limit/:offset", controller.GetAllProductsInStoreWarehouse) 
 
 // Menambah produk baru
 e.POST("/products/add", controller.InsertProductDetails)
