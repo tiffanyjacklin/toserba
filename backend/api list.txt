@@ -572,6 +572,9 @@ e.POST("/promos/add", controller.InsertPromos)
 // Mengambil promo pada produk tertentu
 e.GET("/promos/product/:product_id/:limit/:offset", controller.GetPromoIDByProductID)
 
+// Mengambil promo terakhir
+e.GET("/promos/last", controller.GetLastPromo)
+
 // Menambah promo untuk produk tertentu
 e.POST("promos/product/add", controller.InsertPromoProducts)
 [
