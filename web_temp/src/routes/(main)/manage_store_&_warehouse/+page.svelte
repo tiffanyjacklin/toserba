@@ -1,0 +1,442 @@
+<script>
+    import TaskModal from '$lib/TaskModal.svelte';
+    import MoneyInput from '$lib/MoneyInput.svelte';
+    import MoneyConverter from '$lib/MoneyConverter.svelte';
+    import DateConverter from '$lib/DateConverter.svelte';
+    import { getFormattedDate, isInTimeRange } from '$lib/DateNow.js';
+    import { goto } from '$app/navigation';
+    import { onMount } from 'svelte';
+    import { uri, userId, roleId, sessionId } from '$lib/uri.js';
+    import supermarket from "$lib/assets/supermarket.jpg";
+    $: limit = 10; 
+    $: offset = 0; 
+    let totalNotes = 10; 
+    $: currentPage = 1; 
+
+    let searchQuery = '';
+    $: tampilan = "view";
+    $: showModal = null;
+    $: id_modal = null;
+    $: sw_name = '';
+    $: phone_number = '';
+    $: address = '';
+
+    
+    let store_warehouses = [];
+    let all_store_warehouses = [];
+    let handled_store = [];
+    $: sw_specific = [];
+
+    let showFilter = false;
+
+    function toggleFilter() {
+        showFilter = !showFilter;
+    }
+   function handleClick(sessionId) {
+      showModal = sessionId;
+   }
+   function closeModal() {
+        showModal = null;
+        sw_specific = [];
+
+   }
+
+   async function fetchSpecificSW(idNya){
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${idNya}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch all promo failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch all promo', data);
+            return;
+        }
+
+        sw_specific = data.data;
+        console.log(sw_specific);
+        sw_specific.store_warehouse_type = sw_specific.store_warehouse_type.charAt(0).toUpperCase() + sw_specific.store_warehouse_type.slice(1).toLowerCase();
+    }
+  
+    onMount(async () => {
+      // await fetchPromos();
+      await fetchStoreWarehouse();
+    });
+    async function fetchStoreWarehouse() {
+    
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/all`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('get all produk fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch last', data);
+          return;
+      }
+
+      store_warehouses = [...data.data];  
+      all_store_warehouses = [...store_warehouses];
+      console.log(all_store_warehouses);
+      
+  }
+
+  async function addSW(store_warehouse_type){
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/add`, {
+        method: 'POST',
+        body: JSON.stringify({
+          store_warehouse_type: store_warehouse_type,
+          store_warehouse_name: sw_name,
+          store_warehouse_address: address,
+          store_warehouse_phone_number: phone_number
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (!response.ok) {
+        console.error('POST store_warehouses gagal', response);
+        return;
+      }
+  
+      const data = await response.json();
+  
+      if (data.status !== 200) {
+        console.error('Invalid post store_warehouses', data);
+        return;
+      }
+      console.log("insert store_warehouses detail",data);
+      closeModal();
+      sw_name = '';
+      phone_number = '';
+      address = '';
+      await fetchStoreWarehouse();
+    }
+    async function editSW(store_warehouse_specific){
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/edit/${store_warehouse_specific.store_warehouse_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          store_warehouse_name: store_warehouse_specific.store_warehouse_name,
+          store_warehouse_address: store_warehouse_specific.store_warehouse_address,
+          store_warehouse_phone_number: store_warehouse_specific.store_warehouse_phone_number
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (!response.ok) {
+        console.error('PUT store_warehouses gagal', response);
+        return;
+      }
+  
+      const data = await response.json();
+  
+      if (data.status !== 200) {
+        console.error('Invalid PUT store_warehouses', data);
+        return;
+      }
+      console.log("update store_warehouses detail",data);
+      closeModal();
+      sw_name = '';
+      phone_number = '';
+      address = '';
+      await fetchStoreWarehouse();
+    }
+    // $: session.forEach(item => {
+    //     item.actual_difference = item.actual_closing_cash - item.expected_closing_cash;
+    //     item.deposit_difference = item.actual_closing_cash - item.deposit_money;
+    // });
+  
+    async function goToPage(page) {
+      if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
+
+      currentPage = page;
+      offset = (currentPage - 1) * limit;
+      await fetchStoreWarehouse();
+    }
+  </script>
+  
+   <div class="mx-8 font-roboto mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
+    <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Manage Store & Warehouse</span>
+      <div class="w-11/12 mb-8">
+        <div class="grid grid-cols-4 gap-x-2 gap-y-4">
+          <button 
+            on:click={() => { tampilan = "view"; }} class={`font-medium text-xl w-56 py-2 rounded-3xl border-2 border-darkGray ${tampilan === "view" ? "bg-peach2 text-darkGray": "bg-darkGray text-white"}`}>
+            View Store & Warehouse
+          </button>
+          <button 
+            on:click={() => { handleClick("add new store"); }} class={`font-medium text-xl w-56 py-2 rounded-3xl border-2 border-darkGray ${showModal === "add new store" ? "bg-peach2 text-darkGray": "bg-darkGray text-white"}`}>
+            Add New Store
+          </button>
+          <button 
+            on:click={() => { handleClick("add new warehouse"); }} class={`font-medium text-xl w-56 py-2 rounded-3xl border-2 border-darkGray ${showModal === "add new warehouse" ? "bg-peach2 text-darkGray": "bg-darkGray text-white"}`}>
+            Add New Warehouse
+          </button>
+          <button 
+            on:click={() => { tampilan = "Edit"; }} class={`font-medium text-xl w-56 py-2 rounded-3xl border-2 border-darkGray ${tampilan === "Edit" ? "bg-peach2 text-darkGray": "bg-darkGray text-white"}`}>
+            Edit Store & Warehouse
+          </button>
+        </div>
+      </div>
+
+        <div class="w-11/12 flex items-center">
+            <div class="relative w-full  shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg ">
+                <input 
+                    type="text" 
+                    id="voice-search" 
+                    bind:value={searchQuery}
+                    class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+                    placeholder="Search..."/>
+                <button on:click={toggleFilter}
+                    type="button" 
+                    class="absolute inset-y-0 end-0 flex items-center pe-3 ">
+                    <i class="fa-solid fa-sliders fa-xl mr-2"></i>
+                </button>
+                {#if showFilter}
+                    <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/4 bg-gray-100 p-4 rounded-lg font-roboto">
+                    <span class="font-bold text-xl mb-1">Join Date</span>
+                    <div class="flex">
+                        <div class="w-1/2 flex items-center justify-end pr-2">
+                            <label class="block font-semibold text-gray-700 mr-2">From</label>
+                            <input type="date" class="w-32 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded-xl" />
+                        </div>
+                        <div class="w-1/2 flex items-center">
+                            <label class="block font-semibold text-gray-700 mr-2">to</label>
+                            <input type="date" class="w-32 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded-xl" />
+                        </div>
+                    </div>
+
+                    <span class="font-bold text-xl mb-1">Role</span>
+                    <div class="flex w-full flex-wrap">
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">AWFAWFAWGAWGAW</button>
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">wkwkwkw</button>
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">gogogolgoglgolgoggllogoglggsgsfsfsgsaga</button>
+                    </div>
+                    
+                    <span class="font-bold text-xl mb-1">Gender</span>
+                    <div class="flex w-full flex-wrap">
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Male</button>
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Female</button>
+                    </div>
+                    
+                    <div class="flex justify-between font-semibold mt-4">
+                        <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ''; endDate = ''; }}>Clear</button>
+                        <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={toggleDatePicker}>Apply</button>
+                    </div>
+                    </div>
+                {/if}
+            </div>
+            
+        </div>
+         
+        <nav class="my-8">
+          <ul class="flex items-center -space-x-px h-8 text-sm">
+            <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                </svg>
+                Previous
+              </a>
+            </li>
+        
+            <!-- Pagination Links -->
+            {#each Array(Math.ceil(totalNotes / limit)) as _, i}
+              <li>
+                <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+              </li>
+            {/each}
+        
+            <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                Next
+                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+      {#if tampilan === "view" }
+      <div class="w-[96%] my-5 font-roboto">
+        <div class="relative overflow-x-auto sm:rounded-lg">
+          {#each all_store_warehouses as sw}
+          <button class="w-full h-full flex border-2 rounded-xl ml-auto border-gray-700 my-3 hover:bg-gray-200" type="button"
+            on:click={() => {fetchSpecificSW(sw.store_warehouse_id); handleClick(sw.store_warehouse_id)}}>                        
+            <div class="m-4 w-1/12 flex items-center">
+              <img class="rounded-lg aspect-square" src={supermarket} alt="">
+            </div>
+            <div class="py-4 w-11/12">
+              <div class="font-bold justify-start whitespace-nowrap flex">
+                  <div class="">{sw.store_warehouse_type}</div>
+                  <div class="capitalize mx-1">{sw.store_warehouse_name}</div>
+                </div>
+                <div class="font-semibold flex justify-start">
+                  {sw.store_warehouse_address}
+                </div>
+            </div>
+          </button>
+          {/each}
+        </div>
+      </div>
+      {:else if tampilan="Edit"}
+      <div class="w-[96%] my-5 font-roboto">
+        <div class="relative overflow-x-auto sm:rounded-lg">
+          {#each all_store_warehouses as sw}
+          <div class="w-full h-full flex border-2 rounded-xl ml-auto border-gray-700 my-3 ">                        
+            <div class="m-4 w-1/12 flex items-center">
+              <img class="rounded-lg aspect-square" src={supermarket} alt="">
+            </div>
+            <div class="py-4 w-10/12">
+              <div class="font-bold justify-start whitespace-nowrap flex">
+                  <div class="">{sw.store_warehouse_type}</div>
+                  <div class="capitalize mx-1">{sw.store_warehouse_name}</div>
+                </div>
+                <div class="font-semibold flex justify-start">
+                  {sw.store_warehouse_address}
+                </div>
+            </div>
+            <div class="m-4 w-1/12 flex items-center">
+              <button on:click={() => {fetchSpecificSW(sw.store_warehouse_id); handleClick(sw.store_warehouse_id);}} class="p-4 bg-peach hover:bg-peach2 text-darkGray rounded-xl flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                  <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
+                  <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          {/each}
+        </div>
+      </div>
+     {/if}
+  
+     <nav class="my-8">
+      <ul class="flex items-center -space-x-px h-8 text-sm">
+        <li>
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+            <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+            </svg>
+            Previous
+          </a>
+        </li>
+    
+        <!-- Pagination Links -->
+        {#each Array(Math.ceil(totalNotes / limit)) as _, i}
+          <li>
+            <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+          </li>
+        {/each}
+    
+        <li>
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+            Next
+            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
+       
+   </div>
+
+   <!-- ADD NEW EMPLOYEE -->
+{#if showModal === "add new store" }
+<TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+  <div class="flex items-center justify-center pt-8 font-roboto">
+    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add New Store</div>
+  </div>
+  <div class="flex flex-col justify-center p-8 font-roboto">
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Store Name</span>
+      <input type="text" bind:value={sw_name} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Store Address</span>
+      <textarea rows="4" type="text" bind:value={address} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2"></textarea>
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Store Phone Number</span>
+      <input type="text" bind:value={phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+    <div class="flex mt-8 items-center justify-center text-lg">
+      <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Back</button>
+      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold"on:click={() => addSW("STORE")}>Add</button>
+    </div>
+  </div>
+</TaskModal> 
+{:else if showModal === "add new warehouse" }
+<TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+  <div class="flex items-center justify-center pt-8 font-roboto">
+    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add New Warehouse</div>
+  </div>
+  <div class="flex flex-col justify-center p-8 font-roboto">
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Warehouse Name</span>
+      <input type="text" bind:value={sw_name} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Warehouse Address</span>
+      <textarea rows="4" type="text" bind:value={address} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2"></textarea>
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Warehouse Phone Number</span>
+      <input type="text" bind:value={phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+    <div class="flex mt-8 items-center justify-center text-lg">
+      <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Back</button>
+      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold" on:click={() => addSW("WAREHOUSE")}>Add</button>
+    </div>
+  </div>
+</TaskModal> 
+{:else}
+<TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+  <div class="flex items-center justify-center pt-8 font-roboto">
+    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium capitalize flex">
+      <div>{tampilan} {sw_specific.store_warehouse_type} #{sw_specific.store_warehouse_id}</div>
+    </div>
+  </div>
+  <div class="flex flex-col justify-center p-8 font-roboto">
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1  capitalize flex">
+        <div>{sw_specific.store_warehouse_type} Name</div>
+      </span>
+      <input type="text" readonly={tampilan === 'View'} bind:value={sw_specific.store_warehouse_name} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">{sw_specific.store_warehouse_type} Address</span>
+      <textarea rows="4" type="text" readonly={tampilan === 'View'} bind:value={sw_specific.store_warehouse_address} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2"></textarea>
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">{sw_specific.store_warehouse_type} Phone Number</span>
+      <input type="text" readonly={tampilan === 'View'} bind:value={sw_specific.store_warehouse_phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+    <div class="flex mt-8 items-center justify-center text-lg">
+      <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Back</button>
+      {#if tampilan === "Edit"}
+      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold" on:click={() => editSW(sw_specific)}>Edit</button>
+      {/if}
+    </div>
+  </div>
+</TaskModal> 
+{/if}

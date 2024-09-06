@@ -54,6 +54,9 @@
             else if (value === String(4)){
                 goto(`/products`);
             }
+            else if (value === String(6)){
+                goto(`/sales_analytic`);
+            }
             else{
                 goto(`/dashboard/`);
             }
