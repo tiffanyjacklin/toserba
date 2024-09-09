@@ -252,7 +252,7 @@
   }
   $: if (searchQuery.length > 0) {
       transfer_notes = tf_notes.filter(item => 
-        tf_notes.transfer_note_id.toLowerCase().includes(searchQuery)
+        item.transfer_note_id.toLowerCase().includes(searchQuery)
           // product.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           // product.ProductDetails.product_detail_id.toString().includes(searchQuery)
       );
