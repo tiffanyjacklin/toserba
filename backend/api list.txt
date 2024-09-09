@@ -249,8 +249,8 @@ e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.I
 // Menerima (accept) surat jalan
 e.PUT("/store/orders/delivery/accept/:deliveryorder_id/:user_id", controller.AcceptDeliveryOrders)
 
-// Mengambil surat jalan yang belum di accept oleh store
-e.GET("/store/orders/delivery/not_accept/:limit/:offset", controller.GetNotAcceptedDeliveryOrder)
+// Mengambil surat jalan yang sesuai status accept. id do untuk search
+e.GET("/store/orders/delivery/accept/:deliveryorder_id/:status/:start_date/:end_date/:limit/:offset", controller.GetAcceptedDeliveryOrder)
 
 ================================================= Warehouse =================================================
 // Menambah data stock card baru
@@ -327,7 +327,7 @@ e.GET("/products/stock/min/:product_id/:sw_id", controller.CheckMinStock)
 e.GET("/products/stock/opname/data/:limit/:offset", controller.GetDataforStockOpname)
 
 // Mengambil semua data produk pada store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock). product name dan batch untuk search
-e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:limit/:offset", controller.GetDataforStockOpnameBySWID)
+e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:limit/:offset", controller.GetDataforStockOpnameBySWID)
 
 // Mengambil semua data produk pada produk tertentu dan store/warehouse tertentu untuk tampilan di table stock opname (tanpa actual stock)
 e.GET("/products/stock/opname/data/store_warehouse/:product_id/:sw_id", controller.GetDataforStockOpnameByPIDSWID)
@@ -359,7 +359,7 @@ e.GET("/orders/transfer/notes/:transfernote_id", controller.GetTransferNoteByID)
 e.GET("/orders/transfer/notes/last", controller.GetLastTransferNote)
 
 // Mengambil semua transfer note. ID untuk keyword search
-e.GET("/orders/transfer/notes/all/:transfernote_id/:limit/:offset", controller.GetAllTransferNotes)
+e.GET("/orders/transfer/notes/all/:transfernote_id/:status_verif/:status_send/:start_date/:end_date/:limit/:offset", controller.GetAllTransferNotes)
 
 // Mengambil transfer note yang telah diverify admin
 e.GET("/orders/transfer/notes/verified/:transfernote_id/:limit/:offset", controller.GetVerifiedTransferNotes)
@@ -681,8 +681,8 @@ e.GET("/roles/:roles_id", controller.GetRolesByID)
 // Mengambil privilege berdasarkan id
 e.GET("/privileges/:priv_id", controller.GetPrivilegesByID)
 
-// Mengambil surat jalan yang  belum diverify
-e.GET("/orders/transfer/notes/not_verified", controller.GetNotVerifiedTransferNote)
+// Mengambil surat jalan yang  belum diverify. swfrom dan swto dalam bentuk ID
+e.GET("/orders/transfer/notes/verify/:status/:sw_from/:sw_to/:limit/:offset", controller.GetNotVerifiedTransferNote)
 
 // Verify deliver order
 e.PUT("/orders/transfer/notes/verify/:transfernote_id/:status", controller.VerifyTransferNotes)
@@ -704,8 +704,8 @@ e.PUT("/orders/transfer/detail/update/product/:transfernote_id/:product_id/:quan
 // Menghapus produk di suatu tranfer note 
 e.DELETE("/orders/transfer/detail/delete/product/:transfernote_id/:product_id", controller.DelProductFromTransferNote)
 
-// Mengambil add stock yang belum diverify
-e.GET("/orders/supplier/not_verified", controller.GetNotVerifiedAddStock)
+// Mengambil add stock sesuai status. sw name untuk search
+e.GET("/orders/supplier/verify/:status/:sw_name/:limit/:offset", controller.GetNotVerifiedAddStock)
 
 // Verify add product dari warehouse
 e.PUT("/orders/supplier/verify/:addstock_id/:status", controller.VerifyAddStock)
@@ -727,8 +727,8 @@ e.DELETE("/orders/supplier/detail/:addstock_id", controller.DelAddStockDetail)
     "batch":"3"
 }
 
-// Mengambil subtract stock yang belum diverify
-e.GET("/products/stock/subtract/not_verified", controller.GetNotVerifiedSubtractStock)
+// Mengambil subtract stock sesuai status. sw name untuk search
+e.GET("/products/stock/subtract/verify/:status/:sw_name/:limit/:offset", controller.GetNotVerifiedSubtractStock)
 
 // Verify subtract product dari warehouse
 e.PUT("/products/stock/subtract/verify/:subtract_id/:status", controller.VerifySubtractStock)
@@ -743,8 +743,8 @@ e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateSto
 // Mengambil semua store/warehouse
 e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
 
-// Mengambil semua store atau warehouse. sw_type = store / warehouse. nama & alamat untuk search
-e.GET("/store_warehouses/type/:sw_type/:sw_name/:sw_address/:limit/:offset", controller.GetAllByStoreWarehouseType)
+// Mengambil semua store atau warehouse. sw_type = store / warehouse. sw_name_address untuk search nama atau alamat sw
+e.GET("/store_warehouses/type/:sw_type/:sw_name_address/:limit/:offset", controller.GetAllStoreWarehouseFilter)
 
 // Mengambil data store/warehouse berdasarkan user dan role user yang sedang login
 e.GET("/store_warehouses/:user_id/:role_id", controller.GetStoreWarehouseByUIDRID)
