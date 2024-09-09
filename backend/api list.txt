@@ -34,8 +34,20 @@ e.POST("/user/add", controller.InsertNewUser)
     "user_phone_number": "081000888444"
 }
 
+// Update data user
+e.PUT("/user/update/:user_id", controller.UpdateUser)
+{
+    "user_fullname": "Keyshaa",
+    "user_address": "Jl. Apajaboleh",
+    "user_gender": "P",
+    "user_birthdate": "2003-04-04",
+    "user_email": "angieaja@gmail.com",
+    "user_phone_number": "081000888222",
+    "user_updated_at": "2024-08-18 13:48:04"
+}
+
 // Update password user
-e.PUT("/user/update/:user_id/:password", controller.UpdatePassword)
+e.PUT("/user/update/password/:user_id/:password", controller.UpdatePassword)
 
 // Mengambil role user
 e.GET("/user/roles/:user_id", controller.GetRoles)
@@ -48,6 +60,9 @@ e.POST("/user/roles/add", controller.InsertNewUserRoles)
     "store_warehouse_id": 1,
     "custom": 0
 }
+
+// Menghapus role user
+e.DELETE("/user/roles/delete/:user_id/:role_id/:sw_id", controller.DelUserRoles)
 
 // Mengubah role untuk user tertentu. Yang di uri role id sebelumnya, yang di body role id setelah
 // Kalau custom = 1, harus insert/update userprivilege
@@ -104,6 +119,9 @@ e.GET("/cashier/session/:session_id", controller.GetSessionByID)
 // Mengambil semua session. username dan session id untuk search
 e.GET("/cashier/session/:session_id/:user_name/:limit/:offset", controller.GetAllSession)
 
+// Mengambil semua session berdasarkan date range. username dan session id untuk search
+e.GET("/cashier/session/:start_date/:end_date/:session_id/:user_name/:limit/:offset", controller.GetSessionByDateRange)
+
 // Mengambil session terakhir
 e.GET("/cashier/session/last", controller.GetLastSession)
 
@@ -154,6 +172,9 @@ e.GET("/cashier/members/:member_id", controller.GetMemberByID)
 // Mengambil semua data member. Nama dan phone number untuk search
 e.GET("/cashier/members/:member_name/:phonenumber/:limit/:offset", controller.GetAllMember)
 
+// Mengambil semua data member berdasarkan range join date. Nama dan phone number untuk search
+e.GET("/cashier/members/:start_date/:end_date/:member_name/:phonenumber/:limit/:offset", controller.GetMemberByJoinDate)
+
 // Mengambil member berdasarkan nomor telefon
 e.GET("/cashier/members/phone_number/:phonenumber", controller.GetMemberByPhoneNumber)
 
@@ -173,6 +194,9 @@ e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
 
 // Mengambil transaksi berdasarkan store ID
 e.GET("/transaction/store_warehouse/:sw_id/:limit/:offset", controller.GetTransactionBySWID)
+
+// Mengambil transaksi berdasarkan user ID
+e.GET("/transaction/user/:user_id/:limit/:offset", controller.GetTransactionByUserID)
 
 // Mengambil transaksi terakhir
 e.GET("/transaction/last", controller.GetLastTransaction)
@@ -519,6 +543,9 @@ e.GET("/products/supplier/:supplier_id", controller.GetAllProductDetailFromSuppl
 // Mengambil data produk berdasarkan lokasi store/warehouse user. product id dan product name untuk search
 e.GET("/products/store_warehouse/:user_id/:role_id/:product_id/:product_name/:limit/:offset", controller.GetAllProductsInStoreWarehouse) 
 
+// Mengambil data produk berdasarkan lokasi store/warehouse user dan range harga. product id dan product name untuk search
+e.GET("/products/store_warehouse/:user_id/:role_id/:start_price/:end_price/:product_id/:product_name/:limit/:offset", controller.GetAllProductsInStoreWarehouse)
+
 // Menambah produk baru
 e.POST("/products/add", controller.InsertProductDetails)
 [
@@ -744,6 +771,9 @@ e.PUT("/store_warehouses/edit/:sw_id", controller.UpdateStoreWarehouse)
     "store_warehouse_address": "Jl. Jeruk Busuk No. 12, Surabaya",
     "store_warehouse_phone_number": "081555666886"
 }
+
+// Mengambil data role. name untuk search
+e.GET("/roles/all/:role_name/:limit/:offset", controller.GetAllRoles)
 
 // Menambah role baru
 e.POST("/owner/roles/add", controller.InsertRoles)
