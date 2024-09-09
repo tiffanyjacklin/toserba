@@ -15,6 +15,9 @@ e.GET("/user/roles/data/:role_id", controller.GetAllUserByRoleID)
 // Mengambil semua user berdasarkan user ID
 e.GET("/user/:user_id", controller.GetUserByID)
 
+// Mengambil data user terakhir
+e.GET("/user/last", controller.GetLastUser)
+
 // Mengambil semua user berdasarkan store/warehouse ID
 e.GET("/user/store_warehouse/:sw_id", controller.GetUserByStoreWarehouseID)
 
