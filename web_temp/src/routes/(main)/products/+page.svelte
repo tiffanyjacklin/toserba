@@ -5,38 +5,40 @@
   import { onMount } from 'svelte';
   import { uri, userId, roleId } from '$lib/uri.js';
   import img_produk from "$lib/assets/produk.png";
+  $: limit = 10; // Number of items per page
+  $: offset = 0; // Offset for pagination
+  $: totalNotes = 100; // Total number of notes (assumed to be fetched from server)
+  $: currentPage = 1; // Current page
 
+  let sw_id = 0;
   let products = [];
-  let all_produk = [];
   let current_stock = [];
   let stock_card = [];
   let searchQuery = '';
+  let searchQuery_temp = '';
   let showModal = null; 
   let showTable = false;
   let showTable1 = false;
   let warehouse = [];
   function handleClick(product_id) {
       showModal = product_id;
+      sw_id = warehouse.StoreWarehouses.store_warehouse_id;
+      
       console.log(product_id)
+      fetchStockCard(product_id);
+      fetchCurrentStock(product_id, sw_id);
   }
   function closeModal() {
     showModal = null;
+    current_stock = [];
+    stock_card = [];
   }
   function toggleTable(product_id) {
     showTable = !showTable;
-    if (showTable){
-      fetchStockCard(product_id);
-    } else {
-      stock_card = [];
-    }
   }
   function toggleTable1(product_id) {
+    console.log(sw_id);
     showTable1 = !showTable1;
-    if (showTable1){
-      fetchCurrentStock(product_id);
-    } else {
-      current_stock = [];
-    }
   }
   async function fetchWarehouse() {
       const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
@@ -58,12 +60,12 @@
           return;
       }
 
-      warehouse = data.data;  
+      warehouse = data.data[0];  
       // all_stores = [...stores];
-      // console.log(warehouse);
+      console.log(warehouse);
   }
   async function fetchStockCard(product_id) {
-      const response = await fetch(`http://${$uri}:8888/products/stock/card/product/${product_id}`, {
+      const response = await fetch(`http://${$uri}:8888/products/stock/card/product/${product_id}/0/0`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -84,8 +86,8 @@
 
       stock_card = [...data.data];  
   }
-  async function fetchCurrentStock(product_id) {
-      const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${warehouse.store_warehouse_id}`, {
+  async function fetchCurrentStock(product_id, sw_id) {
+      const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${product_id}/${sw_id}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -105,9 +107,8 @@
       }
 
       current_stock = [...data.data];  
-      current_stock = current_stock.filter(item => 
-        item.product_detail_id === product_id
-      );  }
+      console.log(current_stock);
+  }
 
   onMount(async () => {
       await fetchProduk();
@@ -115,7 +116,7 @@
   });
 
   async function fetchProduk() {
-      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}`, {
+      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}/${searchQuery}/${limit}/${offset}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -133,20 +134,39 @@
           console.error('Invalid fetch last', data);
           return;
       }
+      totalNotes = data.total_rows;
+      // products = [...data.data];  
+      const productMap = new Map();
 
-      products = [...data.data];  
-      all_produk = [...products];
-      console.log(all_produk);
+      data.data.forEach(product => {
+          const id = product.ProductDetails.product_detail_id;
+          if (productMap.has(id)) {
+              // If the product_detail_id is already in the map, update the product_stock
+              productMap.get(id).ProductDetails.product_stock += product.ProductDetails.product_stock;
+          } else {
+              // Otherwise, add the product to the map
+              productMap.set(id, { ...product });
+          }
+      });
+
+      // Convert the map values to an array
+      products = Array.from(productMap.values());
+  }
+  $: if (searchQuery_temp !== searchQuery){
+    fetchProduk();
+    searchQuery_temp = searchQuery;
+  } else{
+    searchQuery_temp = '';
   }
 
-  $: if (searchQuery.length > 0) {
-      all_produk = products.filter(item => 
-        item.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.ProductDetails.product_detail_id.toString().includes(searchQuery)
-      );
-  } else {
-      all_produk = [...products];
-  }
+  // $: if (searchQuery.length > 0) {
+  //     products = products.filter(item => 
+  //       item.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //       item.ProductDetails.product_detail_id.toString().includes(searchQuery)
+  //     );
+  // } else {
+  //     products = [...products];
+  // }
 </script>
 
  
@@ -158,7 +178,6 @@
     <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
       <input 
       bind:value={searchQuery} 
-      on:keydown={(event) => handleSearch(event)} 
       type="text" id="voice-search" 
       class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
       placeholder="Search product..."/>
@@ -172,42 +191,30 @@
     </div>
     <!-- </form> -->
  
-    <nav class="my-8 ">
+    <nav class="my-8">
       <ul class="flex items-center -space-x-px h-8 text-sm">
         <li>
-          <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
             <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-              </svg>
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+            </svg>
             Previous
           </a>
         </li>
-
+    
+        <!-- Pagination Links -->
+        {#each Array(Math.ceil(totalNotes / limit)) as _, i}
+          <li>
+            <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+          </li>
+        {/each}
+    
         <li>
-          <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-        </li>
-        <li>
-          <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-        </li>
-        <li>
-          <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-        </li>
-        <li>
-          <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-        </li>
-        <li>
-          <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-        </li>
-        <li>
-          <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-        </li>
-        
-        <li>
-          <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
             Next
             <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-              </svg>
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+            </svg>
           </a>
         </li>
       </ul>
@@ -215,7 +222,7 @@
  
      <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
-          {#each all_produk as product}
+          {#each products as product}
                 <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3">                        
                     <div class="m-4 w-1/12 flex">
                     <img class="rounded-lg " src={img_produk} alt="">
@@ -250,50 +257,37 @@
         </div>
      </div>
 
-     <nav class="my-8 ">
-        <ul class="flex items-center -space-x-px h-8 text-sm">
+     <nav class="my-8">
+      <ul class="flex items-center -space-x-px h-8 text-sm">
+        <li>
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+            <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+            </svg>
+            Previous
+          </a>
+        </li>
+    
+        <!-- Pagination Links -->
+        {#each Array(Math.ceil(totalNotes / limit)) as _, i}
           <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-               </svg>
-              Previous
-            </a>
+            <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
           </li>
-  
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-          </li>
-         
-          <li>
-            <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              Next
-              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-               </svg>
-            </a>
-          </li>
-        </ul>
-      </nav>
-     
+        {/each}
+    
+        <li>
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+            Next
+            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
  </div>
 
-{#each all_produk as product} 
+{#each products as product} 
   {#if showModal === product.ProductDetails.product_detail_id}
     <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
       <div class="flex items-center justify-center pt-8">
@@ -327,7 +321,7 @@
                 {/if}
               </div>
             </div>
-            <div class="">
+            <!-- <div class="">
               <div class="text-[#f7d4b2]">Expiration Date</div>
               <div class="text-white">
                 {#if product.ProductDetails.expiry_date.length > 1}
@@ -336,7 +330,7 @@
                   -
                 {/if}
               </div>
-            </div>
+            </div> -->
             <div class="">
               <div class="text-[#f7d4b2]">Current Stock
                 <button on:click={() => toggleTable1(product.ProductDetails.product_detail_id)} class="ml-2">

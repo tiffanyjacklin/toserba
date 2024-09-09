@@ -44,8 +44,8 @@
         };
 
         // Further extract date and time components
-        let [year, month, day] = [0,0,0];
-        let [hours, minutes, seconds] = [0,0,0];
+        let [year, month, day] = ['','',''];
+        let [hours, minutes, seconds] = ['','',''];
 
         if (datePart) {
             [year, month, day] = datePart.split('-').map(Number);
@@ -53,7 +53,7 @@
         if (timePart) {
             [hours, minutes, seconds] = timePart.split(':').map(Number);
         }
-        if ((year === 0 || month === 0 || day === 0) || (timePart && (hours === 0 && minutes === 0 && seconds === 0))) {
+        if ((year === '' || month === '' || day === '') || (timePart && (hours === '' && minutes === '' && seconds === ''))) {
             return "-";
         }
         // if (isNaN(year) || isNaN(month) || isNaN(day) || isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {

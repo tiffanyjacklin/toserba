@@ -18,6 +18,17 @@
     dateFirst: false
   });
 
+  let showIDList = false;
+  let showNameList = false;
+  function toggleIDList() {
+    showIDList = !showIDList;
+    showNameList = false;
+  }
+
+  function toggleNameList() {
+    showNameList = !showNameList;
+    showIDList = false;
+  }
   // console.log(dateNow);
   let back = true;
   let delivery_order_supplier = '';
@@ -39,12 +50,12 @@
   $: expiredDateOfSelectedProduct = [];
   let product = [];
   let suppliers = [];
-  let all_suppliers = [];
 
   // let stock_card = [];
   let searchQuery = '';
   let showModal = null; 
   let showTable = false;
+  let showSupplier = false;
   let showAddProduct = false;
   let products_to_be_added = [];
 
@@ -65,12 +76,15 @@
   function toggleProductAdd() {
     showAddProduct = !showAddProduct;
   }
+  function toggleSupplier() {
+    showSupplier = !showSupplier;
+  }
   onMount(async () => {
     await fetchWarehouse(); 
     await fetchSupplier();
   });
   async function fetchSupplier() {
-      const response = await fetch(`http://${$uri}:8888/suppliers/all`, {
+      const response = await fetch(`http://${$uri}:8888/suppliers/all/${supplier_name}/0/0`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -90,8 +104,7 @@
       }
 
       suppliers = [...data.data];  
-      all_suppliers = [];
-      // console.log(all_suppliers);
+      console.log(suppliers);
   }
   async function fetchWarehouse() {
       const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
@@ -141,7 +154,7 @@
       all_stocks = [...stocks];
   }
   function filterSupplier(value){
-    all_suppliers = suppliers.filter(supplier => supplier.supplier_name.toLowerCase().includes(value.toLowerCase()));
+    suppliers = suppliers.filter(supplier => supplier.supplier_name.toLowerCase().includes(value.toLowerCase()));
   }
   function filterStock(value, type) {
     if (type === 'id') {
@@ -223,10 +236,15 @@
     all_stocks = [...stocks];
     closeModal();
   }
-  $: if (supplier_name.length > 0){
-    filterSupplier(supplier_name);
+  $: if (supplier_name != searchQuery){
+    fetchSupplier();
+    searchQuery = supplier_name;
   } else{
-    all_suppliers = [];
+    searchQuery = '';
+  }
+  $: if (productId !== '' && productName.length > 0) {
+      showIDList = false;
+      showNameList = false;
   }
   $: if (String(productId).length > 0) {
     filterStock(productId, 'id');
@@ -350,6 +368,19 @@
     const inputDate = event.target.value; // 'dd/mm/yyyy'
     expired_date = formatDateToISO(inputDate); // Convert to 'yyyy-mm-dd'
   }
+  let sn_bind = supplier_name;
+  function focusSupplierInput(event) {
+    if (event.key === 'Enter') {
+      sn_bind.focus();
+    }
+  }
+  let do_bind = delivery_order_supplier;
+  function focusDOInput(event) {
+    if (event.key === 'Enter') {
+      do_bind.focus();
+    }
+  }
+
 </script>
 <div class="select-none font-roboto text-[#364445] mx-8 mt-[90px] mb-10 flex flex-col items-center justify-center bg-white shadow-[0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
   <div class="flex flex-col w-full pb-10 justify-center shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
@@ -365,7 +396,7 @@
             <label for="password" class="select-none leading-6  block no-underline my-1 font-semibold ">Delivery Order Number</label>
             <div class="relative">
               <input type="text" required
-                bind:value={delivery_order_supplier}
+                bind:value={delivery_order_supplier} on:keydown={focusSupplierInput} bind:this={do_bind}
                 class="focus:ring-2 h-8 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full px-6 py-2 text-md leading-6 text-slate-900 rounded-3xl" >
             </div>
           </div>
@@ -374,11 +405,11 @@
             <label for="password" class="select-none leading-6  block no-underline my-1 font-semibold ">Supplier</label>
             <div class="relative">
               <input type="text" required
-                bind:value={supplier_name}
+                bind:value={supplier_name} on:click={toggleSupplier} on:focus={toggleSupplier} on:keydown={focusDOInput} bind:this={sn_bind}
                 class="focus:ring-2 h-8  focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full px-6 py-2 text-md leading-6 text-slate-900 rounded-3xl" >
-                {#if all_suppliers.length > 0 && supplier_name !== ''&& !all_suppliers.some(supplier => supplier.supplier_name.toLowerCase() === supplier_name.toLowerCase())}
-                <ul class="absolute w-1/4  bg-white shadow-md z-10">
-                  {#each all_suppliers as supplier}
+                {#if suppliers.length > 0 && showSupplier && !suppliers.some(supplier => supplier.supplier_name.toLowerCase() === supplier_name.toLowerCase())}
+                <ul class="absolute w-1/4  bg-white shadow-md z-10" >
+                  {#each suppliers as supplier}
                     <li on:click={() => selectSupplier(supplier)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{supplier.supplier_name}</li>
                   {/each}
                 </ul>
@@ -493,7 +524,7 @@
     {/each}
     <br>
     All Suppliers:
-    {#each all_suppliers as supplier}
+    {#each suppliers as supplier}
     {supplier.supplier_id}, {supplier.supplier_name} & 
     {/each}
     <br>
@@ -548,8 +579,8 @@
     <div>
       <div class="my-3">
         <div class="text-[#f7d4b2] mb-1">Product ID</div>
-        <input type="text" bind:value={productId} class="rounded-2xl w-full h-8 px-4"/>
-        {#if all_stocks.length > 0 && productId !== '' && productName === ''}
+        <input type="text" bind:value={productId} on:click={toggleIDList} class="rounded-2xl w-full h-8 px-4"/>
+        {#if all_stocks.length > 0 && showIDList}
           <ul class="absolute w-1/4 bg-white shadow-md z-10">
             {#each all_stocks as stock}
               <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_detail_id} - {stock.ProductDetails.product_name}</li>
@@ -560,8 +591,8 @@
       
       <div class="my-3">
         <div class="text-[#f7d4b2] mb-1">Product Name</div>
-        <input type="text" bind:value={productName} class="rounded-2xl w-full h-8 px-4"/>
-        {#if all_stocks.length > 0 && productName !== '' && productId === ''}
+        <input type="text" bind:value={productName} on:click={toggleNameList} class="rounded-2xl w-full h-8 px-4"/>
+        {#if all_stocks.length > 0 && showNameList}
         <ul class="absolute w-1/4  bg-white shadow-md z-10">
           {#each all_stocks as stock}
             <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_name} - {stock.ProductDetails.product_detail_id}</li>

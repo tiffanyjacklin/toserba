@@ -14,10 +14,12 @@
     $: currentPage = 1; 
 
     let searchQuery = '';
-    $: tampilan = "view";
+    $: tampilan = 'View';
     $: showModal = null;
     $: id_modal = null;
     $: sw_name = '';
+    $: sw_type = '';
+    $: sw_filter_type = '';
     $: phone_number = '';
     $: address = '';
 
@@ -26,7 +28,7 @@
     let all_store_warehouses = [];
     let handled_store = [];
     $: sw_specific = [];
-
+    $: sw_specific_temp = [];
     let showFilter = false;
 
     function toggleFilter() {
@@ -38,6 +40,7 @@
    function closeModal() {
         showModal = null;
         sw_specific = [];
+        sw_specific_temp = [];
 
    }
 
@@ -62,7 +65,9 @@
         }
 
         sw_specific = data.data;
+        sw_specific_temp = { ...sw_specific };
         console.log(sw_specific);
+        console.log(sw_specific_temp);
         sw_specific.store_warehouse_type = sw_specific.store_warehouse_type.charAt(0).toUpperCase() + sw_specific.store_warehouse_type.slice(1).toLowerCase();
     }
   
@@ -176,7 +181,7 @@
   
    <div class="mx-8 font-roboto mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Manage Store & Warehouse</span>
-      <div class="w-11/12 mb-8">
+      <!-- <div class="w-11/12 mb-8">
         <div class="grid grid-cols-4 gap-x-2 gap-y-4">
           <button 
             on:click={() => { tampilan = "view"; }} class={`font-medium text-xl w-56 py-2 rounded-3xl border-2 border-darkGray ${tampilan === "view" ? "bg-peach2 text-darkGray": "bg-darkGray text-white"}`}>
@@ -195,10 +200,10 @@
             Edit Store & Warehouse
           </button>
         </div>
-      </div>
+      </div> -->
 
         <div class="w-11/12 flex items-center">
-            <div class="relative w-full  shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg ">
+            <div class="relative w-full  shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
                 <input 
                     type="text" 
                     id="voice-search" 
@@ -211,40 +216,24 @@
                     <i class="fa-solid fa-sliders fa-xl mr-2"></i>
                 </button>
                 {#if showFilter}
-                    <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/4 bg-gray-100 p-4 rounded-lg font-roboto">
-                    <span class="font-bold text-xl mb-1">Join Date</span>
-                    <div class="flex">
-                        <div class="w-1/2 flex items-center justify-end pr-2">
-                            <label class="block font-semibold text-gray-700 mr-2">From</label>
-                            <input type="date" class="w-32 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded-xl" />
-                        </div>
-                        <div class="w-1/2 flex items-center">
-                            <label class="block font-semibold text-gray-700 mr-2">to</label>
-                            <input type="date" class="w-32 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded-xl" />
-                        </div>
-                    </div>
-
-                    <span class="font-bold text-xl mb-1">Role</span>
-                    <div class="flex w-full flex-wrap">
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">AWFAWFAWGAWGAW</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">wkwkwkw</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">gogogolgoglgolgoggllogoglggsgsfsfsgsaga</button>
-                    </div>
-                    
-                    <span class="font-bold text-xl mb-1">Gender</span>
-                    <div class="flex w-full flex-wrap">
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Male</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Female</button>
-                    </div>
-                    
-                    <div class="flex justify-between font-semibold mt-4">
-                        <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ''; endDate = ''; }}>Clear</button>
-                        <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={toggleDatePicker}>Apply</button>
-                    </div>
+                    <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-2/5 bg-gray-100 p-4 rounded-lg font-roboto">
+                      <span class="font-bold text-xl mb-1">Location Type</span>
+                      <div class="flex w-full flex-wrap">
+                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_filter_type === 'Store' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Store</button>
+                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_filter_type === 'Warehouse' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Warehouse</button>
+                      </div>
+                      
+                      
+                      <div class="flex justify-between font-semibold mt-4">
+                          <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ''; endDate = ''; }}>Clear</button>
+                          <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={toggleDatePicker}>Apply</button>
+                      </div>
                     </div>
                 {/if}
             </div>
-            
+            <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
+              <button on:click={() => {showModal = "add new"}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Location</button>
+          </div>
         </div>
          
         <nav class="my-8">
@@ -276,7 +265,7 @@
           </ul>
         </nav>
 
-      {#if tampilan === "view" }
+      <!-- {#if tampilan === "view" } -->
       <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
           {#each all_store_warehouses as sw}
@@ -298,7 +287,7 @@
           {/each}
         </div>
       </div>
-      {:else if tampilan="Edit"}
+      <!-- {:else if tampilan="Edit"}
       <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
           {#each all_store_warehouses as sw}
@@ -327,7 +316,7 @@
           {/each}
         </div>
       </div>
-     {/if}
+     {/if} -->
   
      <nav class="my-8">
       <ul class="flex items-center -space-x-px h-8 text-sm">
@@ -361,51 +350,37 @@
    </div>
 
    <!-- ADD NEW EMPLOYEE -->
-{#if showModal === "add new store" }
+{#if showModal === "add new" }
 <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
   <div class="flex items-center justify-center pt-8 font-roboto">
-    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add New Store</div>
+    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add New Location</div>
   </div>
-  <div class="flex flex-col justify-center p-8 font-roboto">
+  <div class="flex flex-col justify-center p-8 font-roboto text-lg font-semibold">
     <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1">Store Name</span>
+      <span class="text-peach font-semibold mb-1">Location Name</span>
       <input type="text" bind:value={sw_name} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
     </div>
+    <div class="flex flex-col my-2 font-roboto">
+      <span class="text-peach font-semibold mb-1">Location Type</span>
+      <div class="flex gap-x-2">
+        <button class={`w-48 py-2 rounded-2xl font-semibold border border-transparent p-2 hover:border-peach2 hover:text-peach2 ${sw_type === 'STORE' ? 'bg-white text-peach2' : 'bg-gray-300'}`}
+        on:click={() => {sw_type = "STORE"}} >Store</button>
+        <button class={`w-48 py-2 rounded-2xl font-semibold p-2  border border-transparent hover:border-peach2 hover:text-peach2 ${sw_type === 'WAREHOUSE' ? 'bg-white text-peach2' : 'bg-gray-300'}`}
+        on:click={() => {sw_type = "WAREHOUSE"}}>Warehouse</button>
+      </div>
+    </div>
+    
     <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1">Store Address</span>
+      <span class="text-peach font-semibold mb-1">Location Address</span>
       <textarea rows="4" type="text" bind:value={address} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2"></textarea>
     </div>
     <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1">Store Phone Number</span>
+      <span class="text-peach font-semibold mb-1">Location Phone Number</span>
       <input type="text" bind:value={phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
     </div>
     <div class="flex mt-8 items-center justify-center text-lg">
-      <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Back</button>
-      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold"on:click={() => addSW("STORE")}>Add</button>
-    </div>
-  </div>
-</TaskModal> 
-{:else if showModal === "add new warehouse" }
-<TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
-  <div class="flex items-center justify-center pt-8 font-roboto">
-    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add New Warehouse</div>
-  </div>
-  <div class="flex flex-col justify-center p-8 font-roboto">
-    <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1">Warehouse Name</span>
-      <input type="text" bind:value={sw_name} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
-    </div>
-    <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1">Warehouse Address</span>
-      <textarea rows="4" type="text" bind:value={address} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2"></textarea>
-    </div>
-    <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1">Warehouse Phone Number</span>
-      <input type="text" bind:value={phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
-    </div>
-    <div class="flex mt-8 items-center justify-center text-lg">
-      <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Back</button>
-      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold" on:click={() => addSW("WAREHOUSE")}>Add</button>
+      <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Discard</button>
+      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold"on:click={() => addSW(sw_type)}>Add</button>
     </div>
   </div>
 </TaskModal> 
@@ -413,30 +388,72 @@
 <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
   <div class="flex items-center justify-center pt-8 font-roboto">
     <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium capitalize flex">
-      <div>{tampilan} {sw_specific.store_warehouse_type} #{sw_specific.store_warehouse_id}</div>
+      <div>Location Detail</div>
     </div>
   </div>
   <div class="flex flex-col justify-center p-8 font-roboto">
+    {#if tampilan === 'View'}
+    <button class="w-32 py-2 mb-4 px-4 bg-peach2 hover:bg-peach  text-darkGray border border-black rounded-xl font-semibold flex shadow-xl justify-center gap-x-2" on:click={() => {tampilan = 'Edit';}}>
+      <div>Edit </div> 
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+        <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
+        <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
+      </svg>
+    </button>
     <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1  capitalize flex">
-        <div>{sw_specific.store_warehouse_type} Name</div>
+      <span class="text-peach  mb-1 font-semibold capitalize flex">
+        <div>Location Name</div>
       </span>
-      <input type="text" readonly={tampilan === 'View'} bind:value={sw_specific.store_warehouse_name} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+      <div class="text-white font-semibold">{sw_specific.store_warehouse_name}</div>
+    </div>
+    <div class="flex flex-col my-2 font-roboto">
+      <span class="text-peach  mb-1 font-semibold capitalize flex">
+        <div>Location Type</div>
+      </span>
+      <div class="text-white font-semibold">{sw_specific.store_warehouse_type}</div>
+    </div>
+
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Location Address</span>
+      <div class="text-white font-semibold">{sw_specific.store_warehouse_address}</div>
     </div>
     <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1">{sw_specific.store_warehouse_type} Address</span>
-      <textarea rows="4" type="text" readonly={tampilan === 'View'} bind:value={sw_specific.store_warehouse_address} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2"></textarea>
-    </div>
-    <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1">{sw_specific.store_warehouse_type} Phone Number</span>
-      <input type="text" readonly={tampilan === 'View'} bind:value={sw_specific.store_warehouse_phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+      <span class="text-peach font-semibold mb-1">Location Phone Number</span>
+      <div class="text-white font-semibold">{sw_specific.store_warehouse_phone_number}</div>
     </div>
     <div class="flex mt-8 items-center justify-center text-lg">
-      <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Back</button>
-      {#if tampilan === "Edit"}
-      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold" on:click={() => editSW(sw_specific)}>Edit</button>
-      {/if}
+      <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Close</button>
     </div>
+    {:else if tampilan === 'Edit'}
+    <!-- <button class="w-32 py-2 px-4 bg-peach2 hover:bg-peach text-darkGray border border-peach rounded-xl font-semibold" on:click={() => {tampilan = 'View';}}>
+      Exit Edit Mode
+    </button> -->
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1  capitalize flex">
+        <div>Location Name</div>
+      </span>
+      <input type="text" bind:value={sw_specific.store_warehouse_name} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1  capitalize flex">
+        <div>Location Type</div>
+      </span>
+      <input type="text" bind:value={sw_specific.store_warehouse_type} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Location Address</span>
+      <textarea rows="4" type="text" bind:value={sw_specific.store_warehouse_address} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2"></textarea>
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Location Phone Number</span>
+      <input type="text" bind:value={sw_specific.store_warehouse_phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+    <div class="flex mt-8 items-center justify-center text-lg">
+      <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => {tampilan = 'View'; sw_specific = { ...sw_specific_temp };; console.log(sw_specific); console.log(sw_specific_temp);}}>Discard</button>
+      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold" on:click={() => {editSW(sw_specific); tampilan = 'View'}}>Save</button>
+    </div>
+    {/if}
+   
   </div>
 </TaskModal> 
 {/if}
