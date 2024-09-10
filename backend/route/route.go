@@ -87,7 +87,7 @@ func Init() *echo.Echo {
 	e.GET("/products/stock/card/all/:limit/:offset", controller.GetAllStockCard)
 	e.GET("/products/stock/card/:stock_card_id", controller.GetStockCardByID)
 	e.GET("/products/stock/card/product/:product_id/:limit/:offset", controller.GetStockCardByProductID)
-	e.GET("/products/stock/card/product/store_warehouse/:storewarehouse_id/:limit/:offset", controller.GetStockCardByStoreWarehouse)
+	e.GET("/products/stock/card/product/store_warehouse/:storewarehouse_id/:start_date/:end_date/:category/:unit_type/:description/:product_name_id_code_batch/:limit/:offset", controller.GetStockCardByStoreWarehouse)
 	e.GET("/products/stock/card/product/store_warehouse/:product_id/:storewarehouse_id/:limit/:offset", controller.GetStockCardByPIDStoreWarehouse)
 	e.GET("/products/stock/card/product/store_warehouse/exp/:exp_date/:storewarehouse_id/:limit/:offset", controller.GetStockCardByStoreWarehouseEXPDate)
 	e.GET("/products/stock/card/product/store_warehouse/batch/:batch/:storewarehouse_id/:limit/:offset", controller.GetStockCardByStoreWarehouseBatch)
@@ -107,7 +107,7 @@ func Init() *echo.Echo {
 	e.GET("/products/stock/min/:product_id/:sw_id", controller.CheckMinStock)
 
 	e.GET("/products/stock/opname/data/:limit/:offset", controller.GetDataforStockOpname)
-	e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:limit/:offset", controller.GetDataforStockOpnameBySWID)
+	e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:category/:asc/:limit/:offset", controller.GetDataforStockOpnameBySWID)
 	e.GET("/products/stock/opname/data/store_warehouse/:product_id/:sw_id", controller.GetDataforStockOpnameByPIDSWID)
 	e.GET("/products/stock/opname/store_warehouse/:sw_id", controller.GetStockOpnameBySWID)
 	e.GET("/products/stock/opname/:limit/:offset", controller.GetAllStockOpname)
