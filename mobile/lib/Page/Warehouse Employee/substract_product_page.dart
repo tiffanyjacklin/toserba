@@ -1,9 +1,58 @@
-import 'package:date_field/date_field.dart';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Model/AllStockProductWarehouse.dart';
+import 'package:flutter_app_all/Tambahan/Provider/SeachedSubstractProvider.dart';
 // import 'package:flutter_app_all/Model/AllProduct.dart';
 import 'package:flutter_app_all/Template.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_app_all/Model/StockOpname.dart' as opname;
+import 'package:provider/provider.dart';
+
+// buat api baru
+Future<List<opname.Data>> _fetchStockOpnameSubstract(
+    int storeId, String productName, String batch) async {
+  // NOTE : kalo mau satu kosong bisa di "-"
+  final link =
+      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$storeId/$productName/$batch/0/0';
+
+  // call api
+  final response = await http.get(Uri.parse(link));
+  print('---> response ' + response.statusCode.toString());
+
+  // cek status
+  if (response.statusCode == 200) {
+    Map<String, dynamic> temp = json.decode(response.body);
+
+    if (temp['status'] == 200) {
+      print(temp);
+      return opname.FetchStockOpnameWarehouse.fromJson(temp).data!;
+    } else {
+      return [];
+    }
+  } else {
+    print('fetch failed');
+    return [];
+  }
+}
+
+class SubstractProductPageWithProvider extends StatefulWidget {
+  const SubstractProductPageWithProvider({super.key});
+
+  @override
+  State<SubstractProductPageWithProvider> createState() =>
+      _SubstractProductPageWithProviderState();
+}
+
+class _SubstractProductPageWithProviderState
+    extends State<SubstractProductPageWithProvider> {
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => SubstractProductProvider(),
+      child: SubstractProductPage(),
+    );
+  }
+}
 
 class SubstractProductPage extends StatefulWidget {
   SubstractProductPage({super.key});
@@ -14,15 +63,17 @@ class SubstractProductPage extends StatefulWidget {
 
 class _SubstractProductPageState extends State<SubstractProductPage> {
   TextEditingController controllerName = TextEditingController();
-  TextEditingController controllerBatch = TextEditingController();
-  TextEditingController controllerDate = TextEditingController();
+  // TextEditingController controllerBatch = TextEditingController();
+  // TextEditingController controllerDate = TextEditingController();
 
   var selectedDate;
   var isInput = false;
-  List<Data> listData = [];
+  var initialVal = '-';
+
 
   @override
   Widget build(BuildContext context) {
+    final providerSubstract = Provider.of<SubstractProductProvider>(context);
     return Padding(
       padding: EdgeInsets.all(20.0),
       child: SingleChildScrollView(
@@ -39,10 +90,10 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
             child: Column(children: [
               // judul
               TitlePage(name: 'Substract Product'),
-        
+
               // table (tambah variable seperti cart)
-              TableSubstractProduct(contentTable: listData),
-        
+              TableSubstractProduct(),
+
               // divider + add button
               Padding(
                 padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
@@ -67,162 +118,194 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                         ),
                         onTap: () {
                           setState(() {
-                                isInput = true;
-                              });
+                            isInput = true;
+                          });
                         },
                       ),
                     ],
                   ),
                 ),
               ),
-        
+
               // With SetState ( NOTE: )
               // misal diklik button maka muncul input untuk masukin product yg ada
               // input container
-              isInput ? Container(
-                width: MediaQuery.of(context).size.width * 0.55 * 0.9,
-                // height: 100,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.0),
-                  border: Border.all(
-                    strokeAlign: 1,
-                    color: Colors.grey,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 20.0, right: 20.0, top: 20.0, bottom: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // INPUT NAME
-                      BodyPage(name: 'Product Name'),
-                      Padding(
-                          padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-                          // >> note : BELUM DI LIMIT
-                          child: TextField(
-                            controller: controllerName,
-                            keyboardType: TextInputType.name,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(fontSize: 12),
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(5.0),
-                              isDense: true,
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(
-                                  const Radius.circular(10.0),
-                                ),
-                                borderSide: new BorderSide(
-                                  color: Colors.black,
-                                  width: 1.0,
-                                ),
-                              ),
-                            ),
-                          )),
-        
-                      // INPUT BATCH
-                      BodyPage(name: 'Product Batch'),
-                      Padding(
-                          padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-                          // >> note : BELUM DI LIMIT
-                          child: TextField(
-                            controller: controllerBatch,
-                            keyboardType: TextInputType.name,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(fontSize: 12),
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(5.0),
-                              isDense: true,
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(
-                                  const Radius.circular(10.0),
-                                ),
-                                borderSide: new BorderSide(
-                                  color: Colors.black,
-                                  width: 1.0,
-                                ),
-                              ),
-                            ),
-                          )),
-        
-                      // INPUT EXP DATE (CHECK LIST) NOTE : ganti checklist
-                      DateTimeFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Enter Date',
+              isInput
+                  ? Container(
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.9,
+                      // height: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20.0),
+                        border: Border.all(
+                          strokeAlign: 1,
+                          color: Colors.grey,
                         ),
-                        firstDate: DateTime.now().add(const Duration(days: 10)),
-                        lastDate: DateTime.now().add(const Duration(days: 40)),
-                        initialPickerDateTime:
-                            DateTime.now().add(const Duration(days: 20)),
-                        onChanged: (DateTime? value) {
-                          selectedDate = value;
-                        },
                       ),
-                    
-        
-                      SizedBox(
-                        height: 10,
-                      ),
-        
-                      // SUBMIT BUTTON
-                      Center(
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width * 0.55 * 0.3,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorPalleteLogin.OrangeLightColor,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  side: BorderSide(color: Colors.black)),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 20.0, right: 20.0, top: 20.0, bottom: 20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // INPUT NAME
+                            BodyPage(name: 'Product Name'),
+                            Padding(
+                              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              // >> note : BELUM DI LIMIT
+                              child: SizedBox(
+                                // child: TextField(
+                                //     controller: controllerName,
+                                //     keyboardType: TextInputType.name,
+                                //     textAlign: TextAlign.start,
+                                //     style: TextStyle(fontSize: 16),
+                                //     decoration: InputDecoration(
+                                //       contentPadding: EdgeInsets.all(5.0),
+                                //       isDense: true,
+                                //       filled: true,
+                                //       fillColor: Colors.white,
+                                //       border: OutlineInputBorder(
+                                //         borderRadius: const BorderRadius.all(
+                                //           const Radius.circular(10.0),
+                                //         ),
+                                //         borderSide: new BorderSide(
+                                //           color: Colors.black,
+                                //           width: 1.0,
+                                //         ),
+                                //       ),
+                                //     ),
+                                //     onSubmitted: (value) {
+                                //       // lakukan sesuatu
+                                //       providerSubstract.searchItemByName(controllerName.text);
+                                //     },
+                                //   ),
+
+                                child: SearchAnchor(builder:
+                                    (BuildContext context,
+                                        SearchController controller) {
+                                  return SearchBar(
+                                    controller: controllerName,
+                                    keyboardType: TextInputType.name,
+                                    hintText: 'Search Name',
+                                    backgroundColor:
+                                        WidgetStateProperty.all<Color>(
+                                            Colors.white),
+                                    onSubmitted: (value) {
+                                      // lakukan sesuatu
+                                      providerSubstract.searchItemByName(
+                                          controllerName.text);
+                                    },
+                                  );
+                                }, suggestionsBuilder: (BuildContext context,
+                                    SearchController controller) {
+                                  return List<ListTile>.generate(5,
+                                      (int index) {
+                                    final String item = 'item $index';
+                                    return ListTile(
+                                      title: Text(item),
+                                      onTap: () {
+                                        setState(() {
+                                          controller.closeView(item);
+                                        });
+                                      },
+                                    );
+                                  });
+                                }),
+                              ),
                             ),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Wrap(
-                                spacing: 6,
-                                children: [
-                                  Text(
-                                    'Add',
-                                    style: TextStyle(
-                                      color: ColorPalleteLogin.PrimaryColor,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
+
+                            // INPUT BATCH
+                            BodyPage(name: 'Product Batch and expire date'),
+                            Padding(
+                              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              // >> note : BELUM DI LIMIT
+                              child: Container(
+                                width: MediaQuery.of(context).size.width *
+                                    0.55 *
+                                    0.8,
+                                child: DropdownButton(
+                                  // Initial Value
+                                  value: providerSubstract
+                                              .suggestionitems.length ==
+                                          0
+                                      ? '-'
+                                      : providerSubstract.suggestionitems[providerSubstract.itemSuggestionSelectedIndex],
+
+                                  // Down Arrow Icon
+                                  icon: const Icon(Icons.keyboard_arrow_down),
+
+                                  // Array list of items
+                                  items: providerSubstract
+                                      .makeListItemSuggestion(),
+                                  // After selecting the desired option,it will
+                                  // change button value to selected value
+                                  onChanged: (val) {
+                                    providerSubstract.itemSuggestionSelectedIndex =
+                                        providerSubstract.suggestionitems
+                                            .indexOf(val);
+                                  },
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(
+                              height: 10,
+                            ),
+
+                            // SUBMIT BUTTON
+                            Center(
+                              child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width *
+                                    0.55 *
+                                    0.3,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        ColorPalleteLogin.OrangeLightColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        side: BorderSide(color: Colors.black)),
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Wrap(
+                                      spacing: 6,
+                                      children: [
+                                        Text(
+                                          'Add',
+                                          style: TextStyle(
+                                            color:
+                                                ColorPalleteLogin.PrimaryColor,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
+                                  onPressed: () {
+                                    setState(() {
+                                      isInput = false;
+
+                                      // NOTE : masukin ke table
+                                      providerSubstract.addToCart2();
+                                    });
+                                  },
+                                ),
                               ),
                             ),
-                            onPressed: (){
-                              setState(() {
-                                isInput = false;
-        
-                                // NOTE : masukin ke table
-                              });
-                            },
-                          ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ) : Container(),
+                    )
+                  : Container(),
               SizedBox(
                 height: 20,
               ),
-        
-              // // buat container jika klik
-              // Container(
-              //   child: Column(
-              //     children: [],
-              //   ),
-              // ),
-        
+
               // save button
-              Container(
+              providerSubstract.cartItems.length != 0? Container(
                 height: 55,
                 width: MediaQuery.of(context).size.width * 0.55 * 0.4,
                 child: ElevatedButton(
@@ -249,12 +332,13 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                     ),
                   ),
                   onPressed: () {
-                    showDialog( barrierDismissible: false,
-                            context: context,
-                            builder: (context) => SubmitPopup());
+                    showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) => SubmitPopup(provider: providerSubstract));
                   },
                 ),
-              ),
+              ) : Container(),
             ]),
           ),
         ),
@@ -263,16 +347,17 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
   }
 }
 
-
 class TableSubstractProduct extends StatelessWidget {
-  List<Data> contentTable = [];
   TableSubstractProduct({
     super.key,
-    required this.contentTable,
   });
 
   @override
   Widget build(BuildContext context) {
+    final List<opname.Data> contentTable = context.select((SubstractProductProvider i) => i.cartItems);
+    final List<TextEditingController> controllerInputList = context.select((SubstractProductProvider i) => i.listInputQuantity);
+    final List<TextEditingController> controllerNotes = context.select((SubstractProductProvider i) => i.listNotes);
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -303,8 +388,7 @@ class TableSubstractProduct extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Center(
-                      child: Text('NO',
-                          style: TableContentTextStyle.textStyle),
+                      child: Text('NO', style: TableContentTextStyle.textStyle),
                     ),
                   ),
                 ),
@@ -318,15 +402,15 @@ class TableSubstractProduct extends StatelessWidget {
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('BATCH',
-                        style: TableContentTextStyle.textStyle),
+                    child:
+                        Text('BATCH', style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('STOCK',
-                        style: TableContentTextStyle.textStyle),
+                    child:
+                        Text('STOCK', style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
@@ -346,17 +430,17 @@ class TableSubstractProduct extends StatelessWidget {
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('NOTES',
-                        style: TableContentTextStyle.textStyle),
+                    child:
+                        Text('NOTES', style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('ACTION',
-                        style: TableContentTextStyle.textStyle),
+                    child:
+                        Text('ACTION', style: TableContentTextStyle.textStyle),
                   ),
-                ), 
+                ),
               ],
             ),
 
@@ -364,140 +448,138 @@ class TableSubstractProduct extends StatelessWidget {
             ...List.generate(
               contentTable.length,
               (index) {
-                TextEditingController controllerAmount = TextEditingController();
-                TextEditingController controllerNotes = TextEditingController();
                 var tableRow = TableRow(
-                decoration: (index + 1) % 2 == 0
-                    ? BoxDecoration(
-                        color: ColorPalleteLogin.TableColor,
-                      )
-                    : null,
-                children: [
-                  TableCell(
-                    child: Center(
+                  decoration: (index + 1) % 2 == 0
+                      ? BoxDecoration(
+                          color: ColorPalleteLogin.TableColor,
+                        )
+                      : null,
+                  children: [
+                    TableCell(
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('${index + 1}',
+                              style: TableContentTextStyle.textStyleBody),
+                        ),
+                      ),
+                    ),
+                    TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          '${index + 1}',
-                          style: TableContentTextStyle.textStyleBody
+                        child: Text('${contentTable[index].productName}',
+                            style: TableContentTextStyle.textStyleBody),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${contentTable[index].batch}',
+                            style: TableContentTextStyle.textStyleBody),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${contentTable[index].expectedStock}',
+                            style: TableContentTextStyle.textStyleBody),
+                      ),
+                    ),
+
+                    TableCell(
+                      child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          // >> note : BELUM DI LIMIT
+                          child: SizedBox(
+                            child: TextField(
+                              controller: controllerInputList[index],
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.end,
+                              style: TableContentTextStyle.textStyleBody,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.all(5.0),
+                                isDense: true,
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: const BorderRadius.all(
+                                    const Radius.circular(10.0),
+                                  ),
+                                  borderSide: new BorderSide(
+                                    color: Colors.black,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )),
+                    ),
+
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${contentTable[index].unitType}',
+                            style: TableContentTextStyle.textStyleBody),
+                      ),
+                    ),
+
+                    // input notes
+                    TableCell(
+                      child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          // >> note : BELUM DI LIMIT
+                          child: TextField(
+                            controller: controllerNotes[index],
+                            keyboardType: TextInputType.text,
+                            textAlign: TextAlign.start,
+                            style: TextStyle(fontSize: 12),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5.0),
+                              isDense: true,
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                                  const Radius.circular(10.0),
+                                ),
+                                borderSide: new BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0,
+                                ),
+                              ),
+                            ),
+                          )),
+                    ),
+
+                    // action button
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8.0, right: 8.0, top: 2, bottom: 2),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(0),
+                            backgroundColor: ColorPalleteLogin.OrangeDarkColor,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(color: Colors.black),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.delete_outline,
+                            color: ColorPalleteLogin.PrimaryColor,
+                          ),
+                          onPressed: () {
+                            // delete this row from table (hapus data)
+                            context
+                                .read<SubstractProductProvider>()
+                                .deleteItem(index);
+                          },
                         ),
                       ),
                     ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('${contentTable[index].productName}',
-                          style: TableContentTextStyle.textStyleBody),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('${contentTable[index].batch}',
-                          style: TableContentTextStyle.textStyleBody),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('${contentTable[index].expectedStock}',
-                          style: TableContentTextStyle.textStyleBody),
-                    ),
-                  ),
-                  
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        // >> note : BELUM DI LIMIT
-                        child: TextField(
-                          controller: controllerAmount,
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.end,
-                          style: TableContentTextStyle.textStyleBody,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(5.0),
-                            isDense: true,
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                const Radius.circular(10.0),
-                              ),
-                              borderSide: new BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        )),
-                  ),
-              
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('${contentTable[index].unitType}',
-                          style: TableContentTextStyle.textStyleBody),
-                    ),
-                  ),
-
-                // input notes
-                TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        // >> note : BELUM DI LIMIT
-                        child: TextField(
-                          controller: controllerNotes,
-                          keyboardType: TextInputType.text,
-                          textAlign: TextAlign.start,
-                          style: TextStyle(fontSize: 12),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(5.0),
-                            isDense: true,
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                const Radius.circular(10.0),
-                              ),
-                              borderSide: new BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        )),
-                  ),
-              
-
-                  // action button
-                  TableCell(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, top: 2, bottom: 2),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.all(0),
-                          backgroundColor: ColorPalleteLogin.OrangeDarkColor,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.black),
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.delete_outline,
-                          color: ColorPalleteLogin.PrimaryColor,
-                        ),
-                        onPressed: () {
-                          // delete this row from table (hapus data)
-                          this.contentTable.remove(index);
-                        },
-                      ),
-                    ),
-                  ),
-                
-                ],
-              );
+                  ],
+                );
                 return tableRow;
               },
             ),
@@ -509,7 +591,10 @@ class TableSubstractProduct extends StatelessWidget {
 }
 
 class SubmitPopup extends StatelessWidget {
-  const SubmitPopup({
+  var provider;
+  
+  SubmitPopup({
+    required this.provider,
     super.key,
   });
 
@@ -657,7 +742,9 @@ class SubmitPopup extends StatelessWidget {
                         ),
                         onPressed: () {
                           // Note: GANTI
-                          Navigator.pop(context);
+                          provider.submitSubstract(3, 3).then((onValue){
+                              Navigator.pop(context);
+                          });
                         },
                       ),
                     ),

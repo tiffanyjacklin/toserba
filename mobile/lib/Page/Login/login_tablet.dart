@@ -326,6 +326,7 @@ class _LoginTabletState extends State<LoginTablet> {
     if (belumDiisi != '') {
       // show snackbar
       final snackBar = SnackBar(
+        backgroundColor: Colors.red[400],
         content: Text(belumDiisi + 'belum diisi'),
       );
 

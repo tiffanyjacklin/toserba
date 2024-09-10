@@ -1,12 +1,56 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_all/Model/DeliveryOrderStore.dart' as deliveryStore;
+import 'package:flutter_app_all/Tambahan/Provider/AcceptOrderDelivery.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Page/Store%20Inventory/accept_order_popup_page.dart';
-
+import 'package:number_paginator/number_paginator.dart';
+import 'package:provider/provider.dart';
 import 'package:stroke_text/stroke_text.dart';
+import 'package:http/http.dart' as http;
 
-class AcceptOrderPage extends StatelessWidget {
-  const AcceptOrderPage({super.key});
+// api fetch accept order --> ambil semua delivery order yang ada ke toko ini anggep ni toko 1
+Future<List<deliveryStore.Data>> _fetchDeliveryOrderStore(int storeId) async {
+  final link =
+      'http://leap.crossnet.co.id:8888/orders/delivery/warehouse/to/$storeId/3/0'; // NOTE : diganti nanti kalo udah ada
+
+  // NOTE : 3 = limit row yang diambil, 0 = start index,
+
+  // call api
+  final response = await http.get(Uri.parse(link));
+  print('---> response ' + response.statusCode.toString());
+
+  // cek status
+  if (response.statusCode == 200) {
+    // misal oke berati masuk
+    // json
+    Map<String, dynamic> temp = json.decode(response.body);
+    // decode?
+    print(response.body);
+    if (temp['status'] == 200) {
+      print(temp);
+      return deliveryStore.FetchDeliveryOrderStore.fromJson(temp).data!;
+    } else {
+      return [];
+    }
+  } else {
+    print('fetch failed');
+    return [];
+  }
+}
+
+class AcceptOrderPage extends StatefulWidget {
+  AcceptOrderPage({super.key});
+
+  @override
+  State<AcceptOrderPage> createState() => _AcceptOrderPageState();
+}
+
+class _AcceptOrderPageState extends State<AcceptOrderPage> {
+  final NumberPaginatorController _controller = NumberPaginatorController();
+  var _currentPage = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +75,7 @@ class AcceptOrderPage extends StatelessWidget {
               // search bar
               Container(
                 width: MediaQuery.of(context).size.width * 0.70,
-                child: CupertinoSearchTextField(
+                child: const CupertinoSearchTextField(
                     // trailing: Icon(Icons.abc),
                     ),
               ),
@@ -43,11 +87,87 @@ class AcceptOrderPage extends StatelessWidget {
               // pagination nya
 
               // list tiles view
-
               // making self
-              DeliveryOrderChild(),
-              DeliveryOrderChild(),
-              DeliveryOrderChild(),
+              // DeliveryOrderChild(),
+              // DeliveryOrderChild(),
+              // DeliveryOrderChild(),
+
+              Container(
+                width: MediaQuery.of(context).size.width * 0.70,
+                child: NumberPaginator(
+                  // by default, the paginator shows numbers as center content
+                  numberPages: 5,
+                  onPageChange: (int index) {
+                    setState(() {
+                      _currentPage =
+                          index; // _currentPage is a variable within State of StatefulWidget
+                    });
+                  },
+                  // show/hide the prev/next buttons
+                  showPrevButton: true,
+                  showNextButton: true, // defaults to true
+                  // custom content of the prev/next buttons, maintains their behavior
+                  nextButtonBuilder: (context) => TextButton(
+                    onPressed: _controller.currentPage > 0
+                        ? () => _controller.next()
+                        : null, // _controller must be passed to NumberPaginator
+                    child: const Row(
+                      children: [
+                        Text("Next"),
+                        Icon(Icons.chevron_right),
+                      ],
+                    ),
+                  ),
+                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                  prevButtonBuilder: (context) => TextButton(
+                    onPressed: _controller.currentPage > 0
+                        ? () => _controller.prev()
+                        : null, // _controller must be passed to NumberPaginator
+                    child: const Row(
+                      children: [
+                        Icon(Icons.chevron_left),
+                        Text("Previous"),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+
+              // with api run
+              Container(
+                // height: 400,
+                child: FutureBuilder<List<deliveryStore.Data>>(
+                    future: _fetchDeliveryOrderStore(1),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        // get error
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('error fetch'),
+                          );
+                        } else {
+                          if (!(snapshot.data!.isEmpty)) {
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: 3,
+                              itemBuilder: (BuildContext context, int index) {
+                                return DeliveryOrderChild(
+                                    data: snapshot.data![
+                                        index + 0 + ((_currentPage - 1) * 3)]);
+                              },
+                            );
+                          } else {
+                            return Column();
+                          }
+                        }
+                      } else {
+                        return CircularProgressIndicator();
+                      }
+                    }),
+              ),
             ],
           ),
         ),
@@ -57,7 +177,10 @@ class AcceptOrderPage extends StatelessWidget {
 }
 
 class DeliveryOrderChild extends StatelessWidget {
-  const DeliveryOrderChild({
+  deliveryStore.Data data;
+
+  DeliveryOrderChild({
+    required this.data,
     super.key,
   });
 
@@ -97,7 +220,7 @@ class DeliveryOrderChild extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Delivery Order #112345667 ',
+                      'Delivery Order ${data.deliveryOrderId}',
                       style: TextStyle(
                         color: ColorPalleteLogin.PrimaryColor,
                         fontWeight: FontWeight.bold,
@@ -105,27 +228,32 @@ class DeliveryOrderChild extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '01-07-2024, 07:40 PM ',
+                      getDateWithTime(data.orderTimestamp!),
                       style: TextStyle(
                         color: ColorPalleteLogin.PrimaryColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
-                    StrokeText(
-                      text: 'Unchecked !!',
-                      textStyle: true == true
-                          ? TextStyle(
+
+                    // cek status accepted
+                    data.statusAccept == 0
+                        ? StrokeText(
+                            text: 'Unchecked !!',
+                            textStyle: TextStyle(
                               color: ColorPalleteLogin.OrangeLightColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
-                            )
-                          : TextStyle(
+                            ),
+                          )
+                        : Text(
+                            'Checked',
+                            style: TextStyle(
                               color: ColorPalleteLogin.PrimaryColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
-                    ),
+                          ),
                   ],
                 ),
               ),
@@ -139,7 +267,10 @@ class DeliveryOrderChild extends StatelessWidget {
                     showDialog(
                       barrierDismissible: false,
                       context: context,
-                      builder: (context) => DeliveryOrderDetailPopUp(),
+                      builder: (context) => ChangeNotifierProvider(
+                        create: (context) => AcceptOrderDeliveryProvider(data.deliveryOrderId!),
+                        child: DeliveryOrderDetailPopUp(dataDelivery: data),
+                      ),
                     );
                   },
                   child: Container(
@@ -168,6 +299,3 @@ class DeliveryOrderChild extends StatelessWidget {
     );
   }
 }
-
-
-

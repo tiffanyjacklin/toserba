@@ -4,18 +4,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Model/StockOpname.dart' as opname;
-import 'package:flutter_app_all/Page/Login/login_tablet.dart';
+// import 'package:flutter_app_all/Page/Login/login_tablet.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/AllProduct.dart';
-// import 'package:flutter_app_all/Model/SessionList.dart';
 import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
     as stock;
 import 'package:http/http.dart' as http;
 
 Future _fetchProduct(int userId, int roleId) async {
-  // /products/store_warehouse/:user_id/:role_id"
-  // link api http://leap.crossnet.co.id:8888/user/1/1
-  // link localhost -> http://localhost:8888/user/
   final link =
       'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId';
 

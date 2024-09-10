@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:ffi';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter_app_all/FetchApi/TransferNote+Delivery.dart';
 import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
 import 'package:flutter_app_all/Model/DeliveryTransferNote.dart'
@@ -13,113 +11,28 @@ import 'package:flutter_app_all/Model/StockTransferNotesWarehouse.dart'
 import 'package:flutter_app_all/TableTemplate/TableSuratJalan.dart';
 import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
 import 'package:flutter_app_all/Template.dart';
-import 'package:intl/intl.dart';
+import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:stroke_text/stroke_text.dart';
 import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
     as stock;
-import 'package:http/http.dart' as http;
 
-// fecth api
-Future<List<transfer.Data>> _fetchTransferNotes() async {
-  var fromId = 2; // anggepannya ngirim barang dari gudang ini
 
-  final link = 'http://leap.crossnet.co.id:8888/orders/transfer/notes/all/0/0';
 
-  // call api (method PUT)
-  final response = await http.get(Uri.parse(link));
-  print('---> response ' + response.statusCode.toString());
 
-  // cek status
-  if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
-    Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
-    print(response.body);
-    if (temp['status'] == 200) {
-      print(temp);
-      return transfer.StockTransferNotesWarehouse.fromJson(temp).data!;
-    } else {
-      return [];
-    }
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    // throw Exception('Login Failed, Try Again');
-    print('fetch failed');
-    return [];
-  }
+
+class StockTransferNotesPage extends StatefulWidget {
+  
+  StockTransferNotesPage({super.key});
+
+  @override
+  State<StockTransferNotesPage> createState() => _StockTransferNotesPageState();
 }
 
-// fetch delivery transfer notes
-Future<List<deliveryTrasnfer.Data>> _fetchDeliveryTransferNotes(
-    int noteId) async {
-  final link =
-      'http://leap.crossnet.co.id:8888/orders/delivery/transfernote/$noteId';
-
-  // call api (method PUT)
-  final response = await http.get(Uri.parse(link));
-  print('---> response ' + response.statusCode.toString());
-
-  // cek status
-  if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
-    Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
-    print(response.body);
-    if (temp['status'] == 200) {
-      print(temp);
-      return deliveryTrasnfer.FetchDeliveryTransferNotes.fromJson(temp).data!;
-    } else {
-      return [];
-    }
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    // throw Exception('Login Failed, Try Again');
-    print('fetch failed');
-    return [];
-  }
-}
-
-// fetch detail for delivery transfer note
-// http://leap.crossnet.co.id:8888/orders/delivery/detail/13
-Future<List<deliveryDetail.Data>> _fetchDeliveryTransferNotesDetail(
-    int deliveryId) async {
-  final link =
-      'http://leap.crossnet.co.id:8888/orders/delivery/detail/$deliveryId';
-
-  // call api (method PUT)
-  final response = await http.get(Uri.parse(link));
-  print('---> response ' + response.statusCode.toString());
-
-  // cek status
-  if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
-    Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
-    print(response.body);
-    if (temp['status'] == 200) {
-      print(temp);
-      return deliveryDetail.FetchDeliveryTransferDetail.fromJson(temp).data!;
-    } else {
-      return [];
-    }
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    // throw Exception('Login Failed, Try Again');
-    print('fetch failed');
-    return [];
-  }
-}
-
-class StockTransferNotesPage extends StatelessWidget {
-  const StockTransferNotesPage({super.key});
+class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
+  final NumberPaginatorController _controller = NumberPaginatorController();
+  var _currentPage = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -160,9 +73,51 @@ class StockTransferNotesPage extends StatelessWidget {
               ),
 
               Container(
+                width: MediaQuery.of(context).size.width * 0.70,
+                child: NumberPaginator(
+                  // by default, the paginator shows numbers as center content
+                  numberPages: 5,
+                  onPageChange: (int index) {
+                    setState(() {
+                      _currentPage =
+                          index; // _currentPage is a variable within State of StatefulWidget
+                    });
+                  },
+                  // show/hide the prev/next buttons
+                  showPrevButton: true,
+                  showNextButton: true, // defaults to true
+                  // custom content of the prev/next buttons, maintains their behavior
+                  nextButtonBuilder: (context) => TextButton(
+                    onPressed: _controller.currentPage > 0
+                        ? () => _controller.prev()
+                        : null, // _controller must be passed to NumberPaginator
+                    child: const Row(
+                      children: [
+                        Text("Next"),
+                        Icon(Icons.chevron_right),
+                      ],
+                    ),
+                  ),
+                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                  prevButtonBuilder: (context) => TextButton(
+                    onPressed: _controller.currentPage > 0
+                        ? () => _controller.prev()
+                        : null, // _controller must be passed to NumberPaginator
+                    child: const Row(
+                      children: [
+                        Icon(Icons.chevron_left),
+                        Text("Previous"),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+
+              Container(
                 // height: 400,
                 child: FutureBuilder<List<transfer.Data>>(
-                    future: _fetchTransferNotes(),
+                    future: fetchTransferNotes(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
                         // get error
@@ -173,10 +128,10 @@ class StockTransferNotesPage extends StatelessWidget {
                         } else {
                           return ListView.builder(
                             shrinkWrap: true,
-                            itemCount: snapshot.data!.length,
+                            itemCount: 3,
                             itemBuilder: (BuildContext context, int index) {
                               return StockTransferNotesChild(
-                                dataStockTransfer: snapshot.data![index],
+                                dataStockTransfer: snapshot.data![index + ((_currentPage-1)*3)],
                               );
                             },
                           );
@@ -255,7 +210,7 @@ class StockTransferNotesChild extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${DateFormat('dd-MM-yyyy, hh:mm aaa').format(DateTime.parse(dataStockTransfer.createdAt!))}',
+                      getDateWithTime(dataStockTransfer.createdAt!),
                       style: TextStyle(
                         color: ColorPalleteLogin.PrimaryColor,
                         fontWeight: FontWeight.bold,
@@ -372,7 +327,7 @@ class StockTransferNotesChild extends StatelessWidget {
 
 class CreateDeliveryOrderPopup extends StatefulWidget {
   int noteId;
-  // var isFinished = false;
+  final controllerAdditional = TextEditingController();
 
   // list buat simpan table yg ada
   // List<transferDetail.Data> listProductTruck = [];
@@ -435,6 +390,39 @@ class _CreateDeliveryOrderPopupState extends State<CreateDeliveryOrderPopup> {
                     isColumn: false,
                   ),
                   TableInputProductLoaded(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  SubTitleText(
+                    judul: 'Additional Note',
+                    isColumn: false,
+                  ),
+                  TextField(
+                    keyboardType: TextInputType.multiline,
+                    controller: widget.controllerAdditional,
+                    minLines: 3,
+                    maxLines: 3,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: ColorPalleteLogin.PrimaryColor,
+                        fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(10.0),
+                      isDense: true,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                          const Radius.circular(15.0),
+                        ),
+                        borderSide: new BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
                   SizedBox(
                     height: 10,
                   ),
@@ -542,12 +530,21 @@ class _CreateDeliveryOrderPopupState extends State<CreateDeliveryOrderPopup> {
                                   ),
                                   onPressed: () {
                                     // Note: GANTI (UDAH)
-                                    // jalankan cart submit
-                                    productTruckCartProvider
-                                        .submit('hello coba')
-                                        .then((onValue) {
-                                      Navigator.pop(context);
-                                    });
+                                    // cek misal semua udah di isi maka next
+                                    if (!productTruckCartProvider.isThereEmptyField()) {
+                                      // jalankan cart submit
+                                      productTruckCartProvider
+                                          .submit(widget.controllerAdditional.text)
+                                          .then((onValue) {
+                                        Navigator.pop(context);
+                                      });
+                                    }
+                                    else{
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Colors.red[400],
+                                        content: Text('Terdapat Input Barang yang belum terisi', style: TableContentTextStyle.textStyleBody,)));
+                                    }
                                   },
                                 ),
                               ),
@@ -612,27 +609,21 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      'NO',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
+                    child: Text('NO', style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('Product name',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
+                        style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('Requested',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
+                        style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
@@ -640,8 +631,7 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       'Loaded',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      style: TableContentTextStyle.textStyle,
                     ),
                   ),
                 ),
@@ -649,24 +639,21 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('Unit Type',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
+                        style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('Batch',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
+                    child:
+                        Text('Batch', style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('Expire Date',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
+                        style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
@@ -674,8 +661,7 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       'Action',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      style: TableContentTextStyle.textStyle,
                     ),
                   ),
                 ),
@@ -698,9 +684,7 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           '${index + 1}',
-                          style: TextStyle(
-                            fontSize: 14,
-                          ),
+                          style: TableContentTextStyle.textStyleBody,
                         ),
                       ),
                     ),
@@ -708,18 +692,14 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text('${listItem[index].productName}',
-                            style: TextStyle(
-                              fontSize: 14,
-                            )),
+                            style: TableContentTextStyle.textStyleBody),
                       ),
                     ),
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text('${listItem[index].remainingQuantity}',
-                            style: TextStyle(
-                              fontSize: 14,
-                            )),
+                            style: TableContentTextStyle.textStyleBody),
                       ),
                     ),
                     TableCell(
@@ -730,7 +710,7 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
                             controller: listController[index],
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.end,
-                            style: TextStyle(fontSize: 12),
+                            style: TableContentTextStyle.textStyleBody,
                             decoration: InputDecoration(
                               contentPadding: EdgeInsets.all(5.0),
                               isDense: true,
@@ -752,28 +732,22 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text('${listItem[index].unitType}',
-                            style: TextStyle(
-                              fontSize: 14,
-                            )),
+                            style: TableContentTextStyle.textStyleBody),
                       ),
                     ),
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text('${listItem[index].batch}',
-                            style: TextStyle(
-                              fontSize: 14,
-                            )),
+                            style: TableContentTextStyle.textStyleBody),
                       ),
                     ),
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
-                            '${DateFormat('dd/MM/yyyy').format(DateTime.parse(listItem[index].expiredDate!))}',
-                            style: TextStyle(
-                              fontSize: 14,
-                            )),
+                            getOnlyDate(listItem[index].expiredDate!),
+                            style: TableContentTextStyle.textStyleBody),
                       ),
                     ),
                     TableCell(
@@ -815,7 +789,7 @@ class StockTransferNotePopup extends StatefulWidget {
 }
 
 class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
-  var _customTileExpanded = false;
+  // var _customTileExpanded = false;
   var isFormNotCreated = true;
 
   @override
@@ -871,7 +845,7 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                   SubTitleText(
                     judul: 'Created at',
                     data:
-                        '${DateFormat('hh:mm aaa , d MMMM y').format(DateTime.parse(widget.dataTransferNote.createdAt!))}', // '07:31 PM, 01 July 2024',
+                        getTimeWithDate(widget.dataTransferNote.createdAt!), // '07:31 PM, 01 July 2024',
                   ),
 
                   SizedBox(
@@ -892,7 +866,7 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                   // buat format 1
                   // DeliveryOrderView(dataDelivery: dataDelivery),
                   FutureBuilder<List<deliveryTrasnfer.Data>>(
-                      future: _fetchDeliveryTransferNotes(
+                      future: fetchDeliveryTransferNotes(
                           widget.dataTransferNote.transferNoteId!),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.done) {
@@ -957,9 +931,12 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                                           ProductTruckCartProvider(widget
                                               .dataTransferNote
                                               .transferNoteId!),
-                                      child: CreateDeliveryOrderPopup(
-                                          noteId: widget.dataTransferNote!
-                                              .transferNoteId!),
+                                      child: Scaffold(
+                                        backgroundColor: Colors.transparent,
+                                        body: CreateDeliveryOrderPopup(
+                                            noteId: widget.dataTransferNote!
+                                                .transferNoteId!),
+                                      ),
                                     ),
                                   );
                                 },
@@ -1082,6 +1059,7 @@ class _DeliveryOrderViewState extends State<DeliveryOrderView> {
         SizedBox(
           height: 10,
         ),
+
         // munculin surat jalan yang ada hehe
         // nota delivery nya
         Column(
@@ -1092,7 +1070,7 @@ class _DeliveryOrderViewState extends State<DeliveryOrderView> {
                   Screenshot(
                     controller: widget.controllerPrintOrder,
                     child: FutureBuilder<List<deliveryDetail.Data>>(
-                        future: _fetchDeliveryTransferNotesDetail(
+                        future: fetchDeliveryTransferNotesDetail(
                             widget.dataDelivery.deliveryOrderId!),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
@@ -1104,7 +1082,7 @@ class _DeliveryOrderViewState extends State<DeliveryOrderView> {
                               );
                             } else {
                               return NoteDeliveryOrder(
-                                  listItemDelivery: snapshot.data!);
+                                  listItemDelivery: snapshot.data!, additionalNote: widget.dataDelivery.notes!,);
                             }
                           } else {
                             return CircularProgressIndicator();
