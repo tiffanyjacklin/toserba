@@ -1,15 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart' as deliveryDetail;
+import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
+    as deliveryDetail;
+import 'package:flutter_app_all/Template.dart';
 import 'package:intl/intl.dart';
 
 class NoteDeliveryOrder extends StatelessWidget {
   List<deliveryDetail.Data> listItemDelivery = [];
+
+  String additionalNote;
+
   // buat kop jalan juga belum
   // var DataWarehousePenerima;
   // var DataWarehousePengirim;
   NoteDeliveryOrder({
-    this.listItemDelivery = const [],
+    required this.listItemDelivery,
+    this.additionalNote = '',
     super.key,
   });
 
@@ -51,7 +57,6 @@ class NoteDeliveryOrder extends StatelessWidget {
                         Text(
                           'Gudang PT. TOSERBA XXX',
                           textAlign: TextAlign.end,
-                          
                         ),
                         Text(
                           'Jln Ahmad yani No 8, Kec Tegalsari, Surabaya, Jawa timur, 60171',
@@ -112,7 +117,9 @@ class NoteDeliveryOrder extends StatelessWidget {
             ),
 
             // table
-            TableDeliveryOrderNew(listItemDelivery: this.listItemDelivery,),
+            TableDeliveryOrderNew(
+              listItemDelivery: this.listItemDelivery,
+            ),
 
             Divider(
               thickness: 2,
@@ -159,13 +166,25 @@ class NoteDeliveryOrder extends StatelessWidget {
             SizedBox(
               height: 30,
             ),
+
+            additionalNote != '' || additionalNote != '-'
+                ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(
+                        thickness: 2,
+                      ),
+                      Text('Catatan :' , style: TableContentTextStyle.textStyle,),
+                      Text(additionalNote, style: TableContentTextStyle.textStyleBody,),
+                    ],
+                  )
+                : Column(),
           ],
         ),
       ),
     );
   }
 }
-
 
 class TableDeliveryOrderNew extends StatelessWidget {
   List<deliveryDetail.Data> listItemDelivery = [];
@@ -246,7 +265,7 @@ class TableDeliveryOrderNew extends StatelessWidget {
 
         // making the content
         ...List.generate(
-          listItemDelivery!.length,
+          listItemDelivery.length,
           (index) => TableRow(
             children: [
               TableCell(
@@ -301,7 +320,8 @@ class TableDeliveryOrderNew extends StatelessWidget {
               TableCell(
                 child: Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('${DateFormat('dd/MM/yyyy').format(DateTime.parse(listItemDelivery![index].expiredDate!))}',
+                  child: Text(
+                      getOnlyDate(listItemDelivery![index].expiredDate!),
                       style: TextStyle(
                         fontSize: 14,
                       )),

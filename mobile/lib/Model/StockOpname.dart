@@ -38,6 +38,7 @@ class Data {
   String? unitType;
   String? timestamp;
   int? storeWarehouseId;
+  String? sectionPlacement;
 
   Data(
       {this.stockOpnameId,
@@ -49,7 +50,8 @@ class Data {
       this.actualStock,
       this.unitType,
       this.timestamp,
-      this.storeWarehouseId});
+      this.storeWarehouseId,
+      this.sectionPlacement});
 
   Data.fromJson(Map<String, dynamic> json) {
     stockOpnameId = json['stock_opname_id'];
@@ -62,6 +64,7 @@ class Data {
     unitType = json['unit_type'];
     timestamp = json['timestamp'];
     storeWarehouseId = json['store_warehouse_id'];
+    sectionPlacement = json['section_placement'];
   }
 
   Map<String, dynamic> toJson() {
@@ -76,6 +79,7 @@ class Data {
     data['unit_type'] = this.unitType;
     data['timestamp'] = this.timestamp;
     data['store_warehouse_id'] = this.storeWarehouseId;
+    data['section_placement'] = this.sectionPlacement;
     return data;
   }
 }

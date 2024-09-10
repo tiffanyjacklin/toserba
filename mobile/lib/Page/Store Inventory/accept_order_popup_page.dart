@@ -1,16 +1,26 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_all/FetchApi/TransferNote+Delivery.dart';
 import 'package:flutter_app_all/TableTemplate/TableSuratJalan.dart';
+import 'package:flutter_app_all/Tambahan/Provider/AcceptFormCart.dart';
+import 'package:flutter_app_all/Tambahan/Provider/AcceptOrderDelivery.dart';
 import 'package:flutter_app_all/Template.dart';
+import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 // import 'package:share_plus/share_plus.dart';
+import 'package:flutter_app_all/Model/DeliveryOrderStore.dart' as deliveryStore;
+import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
+    as deliveryDetail;
 
 class DeliveryOrderDetailPopUp extends StatefulWidget {
+  deliveryStore.Data dataDelivery;
+
   DeliveryOrderDetailPopUp({
+    required this.dataDelivery,
     super.key,
   });
 
@@ -29,6 +39,8 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
 
   @override
   Widget build(BuildContext context) {
+    final deliveryList = Provider.of<AcceptOrderDeliveryProvider>(context);
+
     return Dialog(
       child: Container(
         width: MediaQuery.of(context).size.width * 0.7,
@@ -86,69 +98,83 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
 
                   DeliveryOrderDetailsChild(
                     judul: 'Delivery Order ID',
-                    data: '#1110101010',
+                    data: '${widget.dataDelivery.deliveryOrderId}',
                   ),
                   DeliveryOrderDetailsChild(
                     judul: 'Date',
-                    data: '01 July 2024',
+                    data: getOnlyDate(widget.dataDelivery.orderTimestamp!),
                   ),
+
                   DeliveryOrderDetailsChild(
                     judul: 'Delivery Order',
                   ),
 
-                  // nota delivery nya
-                  Screenshot(
-                      controller: controllerPrintOrder,
-                      child: NoteDeliveryOrder()),
-
-                  SizedBox(
-                    height: 10,
-                  ),
-
-                  // button print table
-                  Container(
-                    // height: 50,
-                    width: MediaQuery.of(context).size.width * 0.55 * 0.45,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorPalleteLogin.OrangeLightColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Wrap(
-                          spacing: 6,
+                  deliveryList.isLoading
+                      ? CircularProgressIndicator()
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.print_outlined,
-                              color: ColorPalleteLogin.PrimaryColor,
+                            // nota delivery nya
+                            Screenshot(
+                                controller: controllerPrintOrder,
+                                child: NoteDeliveryOrder(
+                                    listItemDelivery: deliveryList.items)),
+
+                            SizedBox(
+                              height: 10,
                             ),
-                            Text(
-                              'Print delivery order',
-                              style: TextStyle(
-                                color: ColorPalleteLogin.PrimaryColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+
+                            // button print table
+                            Container(
+                              // height: 50,
+                              width: MediaQuery.of(context).size.width *
+                                  0.55 *
+                                  0.45,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      ColorPalleteLogin.OrangeLightColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Wrap(
+                                    spacing: 6,
+                                    children: [
+                                      Icon(
+                                        Icons.print_outlined,
+                                        color: ColorPalleteLogin.PrimaryColor,
+                                      ),
+                                      Text(
+                                        'Print delivery order',
+                                        style: TextStyle(
+                                          color: ColorPalleteLogin.PrimaryColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  await controllerPrintOrder
+                                      .capture()
+                                      .then((bytes) {
+                                    if (bytes != null) {
+                                      // panggil woe
+                                      saveImage(bytes, 'DeliveryOrder');
+                                      // saveAndShare(bytes, 'DeliveryOrder');
+                                    }
+                                  }).catchError((onError) {
+                                    debugPrint(onError);
+                                  });
+                                },
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      onPressed: () async {
-                        await controllerPrintOrder.capture().then((bytes) {
-                          if (bytes != null) {
-                            // panggil woe
-                            saveImage(bytes, 'DeliveryOrder');
-                            // saveAndShare(bytes, 'DeliveryOrder');
-                          }
-                        }).catchError((onError) {
-                          debugPrint(onError);
-                        });
-                      },
-                    ),
-                  ),
 
                   // table stock card
                   Theme(
@@ -170,9 +196,10 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                       ),
                       children: [
                         Screenshot(
-                          controller: controllerPrintStock,
-                          child: TableStockCard()
-                          ),
+                            controller: controllerPrintStock,
+                            child: TableStockCard(
+                              listData: deliveryList.items,
+                            )),
                         SizedBox(
                           height: 10,
                         ),
@@ -237,48 +264,63 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                     ),
                   ),
 
-                  // Table Accept Stock form
-                  DeliveryOrderDetailsChild(
-                    judul: 'Accept Stock Form',
-                  ),
-                  // cek button misal udah buka
-                  isFormNotCreated
-                      ? Container(
-                          // height: 50,
-                          width:
-                              MediaQuery.of(context).size.width * 0.55 * 0.45,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  ColorPalleteLogin.OrangeLightColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
+                  // misal sudah accepted maka ga perlu buat lagi
+                  widget.dataDelivery.statusAccept == 0
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Table Accept Stock form
+                            DeliveryOrderDetailsChild(
+                              judul: 'Accept Stock Form',
                             ),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Wrap(
-                                spacing: 6,
-                                children: [
-                                  Text(
-                                    '+ Created Accept Stock Form',
-                                    style: TextStyle(
-                                      color: ColorPalleteLogin.PrimaryColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                            // cek button misal udah buka
+                            isFormNotCreated
+                                ? Container(
+                                    // height: 50,
+                                    width: MediaQuery.of(context).size.width *
+                                        0.55 *
+                                        0.45,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            ColorPalleteLogin.OrangeLightColor,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                      ),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Wrap(
+                                          spacing: 6,
+                                          children: [
+                                            Text(
+                                              '+ Created Accept Stock Form',
+                                              style: TextStyle(
+                                                color: ColorPalleteLogin
+                                                    .PrimaryColor,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          isFormNotCreated = false;
+                                        });
+                                      },
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isFormNotCreated = false;
-                              });
-                            },
-                          ),
+                                  )
+                                : ChangeNotifierProvider(
+                                      create: (context) => AcceptFormCart(widget.dataDelivery.deliveryOrderId!, deliveryList.items),
+                                      child: TableAcceptStockForm(),
+                                ),
+                                
+                          ],
                         )
-                      : TableAcceptStockForm(),
+                      : Column(),
 
                   SizedBox(
                     height: 20,
@@ -524,7 +566,10 @@ class TableAcceptStockForm extends StatelessWidget {
 }
 
 class TableStockCard extends StatelessWidget {
-  const TableStockCard({
+  List<deliveryDetail.Data> listData;
+
+  TableStockCard({
+    required this.listData,
     super.key,
   });
 
@@ -619,7 +664,7 @@ class TableStockCard extends StatelessWidget {
 
             // making the content
             ...List.generate(
-              10,
+              listData.length,
               (index) => TableRow(
                 decoration: (index + 1) % 2 == 0
                     ? BoxDecoration(
@@ -641,7 +686,7 @@ class TableStockCard extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('Nama Produk',
+                      child: Text('${listData[index].productName}',
                           style: TextStyle(
                             fontSize: 14,
                           )),
@@ -651,7 +696,7 @@ class TableStockCard extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        '10000',
+                        '${listData[index].quantity}',
                         style: TextStyle(
                           fontSize: 14,
                         ),
@@ -662,7 +707,7 @@ class TableStockCard extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        '10000',
+                        '-',
                         style: TextStyle(
                           fontSize: 14,
                         ),
@@ -672,7 +717,7 @@ class TableStockCard extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('Unit',
+                      child: Text('${listData[index].unitType}',
                           style: TextStyle(
                             fontSize: 14,
                           )),
@@ -681,7 +726,7 @@ class TableStockCard extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('123456789',
+                      child: Text('${listData[index].batch}',
                           style: TextStyle(
                             fontSize: 14,
                           )),
@@ -690,7 +735,7 @@ class TableStockCard extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('10/10/2024',
+                      child: Text(getOnlyDate(listData[index].expiredDate!),
                           style: TextStyle(
                             fontSize: 14,
                           )),
@@ -705,8 +750,6 @@ class TableStockCard extends StatelessWidget {
     );
   }
 }
-
-
 
 class DeliveryOrderDetailsChild extends StatelessWidget {
   String judul;

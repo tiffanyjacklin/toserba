@@ -1,10 +1,10 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -84,7 +84,7 @@ class SubTitleText extends StatelessWidget {
 }
 
 class TitlePage extends StatelessWidget {
-  var name;
+  final name;
 
   TitlePage({
     required this.name,
@@ -104,7 +104,7 @@ class TitlePage extends StatelessWidget {
 }
 
 class BodyPage extends StatelessWidget {
-  var name;
+  final name;
 
   BodyPage({
     required this.name,
@@ -124,7 +124,7 @@ class BodyPage extends StatelessWidget {
 }
 
 class TableTitlePage extends StatelessWidget {
-  var name;
+  final name;
 
   TableTitlePage({
     required this.name,
@@ -161,7 +161,27 @@ class TableContentTextStyle {
   );
 
 }
-    
+
+// date formatter
+String getDateWithTime(String date){
+  return DateFormat('dd-MM-yyyy, hh:mm aaa').format(DateTime.parse(date));
+}
+
+String getTimeWithDate(String date){
+  return DateFormat('hh:mm aaa, d MMMM y').format(DateTime.parse(date));
+}
+
+String getOnlyDate(String date){
+  return DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
+}  
+
+String getOnlyDateSQL(String date){
+  return DateFormat('yyyy-MM-dd').format(DateTime.parse(date));
+}  
+
+String getOnlyTime(String date){
+  return DateFormat('hh:mm aaa').format(DateTime.parse(date));
+}  
 
 Future<void> saveImage(Uint8List bytes, String name1) async {
   final time = DateTime.now().toIso8601String().replaceAll('.', '-');

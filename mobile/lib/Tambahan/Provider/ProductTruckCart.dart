@@ -38,6 +38,7 @@ class ProductTruckCartProvider extends ChangeNotifier {
 
   /// loading state
   bool _isLoading = false;
+  
   bool get isLoading => _isLoading;
   set isLoading(bool isload) {
     _isLoading = isload;
@@ -86,13 +87,22 @@ class ProductTruckCartProvider extends ChangeNotifier {
     }
   }
 
+  // check cart if there is empty input
+  bool isThereEmptyField(){
+    for (TextEditingController input in _listInputQuantity){
+      if(input.text == ''){
+        return true;
+      }
+    }
+    return false;
+  }
   // submit the cart
   Future<void> submit(String notes) async {
     // panggil lah semua api untuk post + put update
-  await _InsertDeliveryOrderDetails(noteId, items, listControllerInput).then(
+  _InsertDeliveryOrderDetails(noteId, items, listControllerInput).then(
         (result) => {
-              _UpdateDeliveryOrderDetails(
-                  result.first.deliveryOrderId!, 1, notes)
+              print('selesai insert ==='),
+              _UpdateDeliveryOrderDetails(result.first.deliveryOrderId!, 1, notes)
             });
   }
 }
@@ -108,13 +118,9 @@ Future<List<transferDetail.Data>> _fetchTransferNotesDetail(int noteId) async {
 
   // cek status
   if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
     Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
     print(response.body);
     if (temp['status'] == 200) {
-      print(temp);
       return transferDetail.StockTransferNotesDetailWarehouse.fromJson(temp)
           .data!;
     } else {
@@ -148,18 +154,14 @@ Future<List<responseTransfer.Data>> _InsertDeliveryOrderDetails(
             "batch": data[i].batch
           });
 
-  // call api (method PUT)
+  // call api
   final response = await http.post(Uri.parse(link), body: jsonEncode(bodyContent));
 
-  print('---> response ' + response.statusCode.toString());
 
   // cek status
   if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
     Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
-    print(response.body);
+
     if (temp['status'] == 200) {
       print(temp);
       return responseTransfer.ResponsePostTransfer.fromJson(temp).data!;
@@ -192,6 +194,7 @@ Future<List<responseTransfer.Data>> _InsertDeliveryOrderDetails(
 
 Future<void> _UpdateDeliveryOrderDetails(
     int deliveryId, int userId, String notes) async {
+      print('---- masuk update delivery');
   final link =
       'http://leap.crossnet.co.id:8888/orders/delivery/update/$deliveryId';
 
@@ -201,7 +204,7 @@ Future<void> _UpdateDeliveryOrderDetails(
   };
   // call api (method PUT)
   final response =
-      await http.post(Uri.parse(link), body: jsonEncode(bodyContext));
+      await http.put(Uri.parse(link), body: jsonEncode(bodyContext));
 
   print('---> response ' + response.statusCode.toString());
 

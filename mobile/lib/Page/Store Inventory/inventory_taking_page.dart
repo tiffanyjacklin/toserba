@@ -1,20 +1,27 @@
 import 'dart:convert';
-import 'dart:ffi';
+// import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_all/Model/StockOpname.dart';
+import 'package:flutter_app_all/Tambahan/Provider/InventoryTakingProvider.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
-Future _fetchStockOpname() async {
-  var id = 2;
+Future _fetchStockOpname(String name) async {
+  var storeId = 2;
   // link api http://leap.crossnet.co.id:8888/user/1/1
   // link localhost -> http://localhost:8888/user/
+
+  var batch = '';
+  var unitType = '';
+
+
   final link =
-      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$id';
+      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$storeId/$name/$batch/$unitType/0/0';
 
   // call api (method PUT)
   final response = await http.get(Uri.parse(link));
@@ -42,6 +49,25 @@ Future _fetchStockOpname() async {
   }
 }
 
+
+
+class InventoryTakingPageWithProvider extends StatefulWidget {
+  const InventoryTakingPageWithProvider ({super.key});
+
+  @override
+  State<InventoryTakingPageWithProvider> createState() => _InventoryTakingPageWithProviderState();
+}
+
+class _InventoryTakingPageWithProviderState extends State<InventoryTakingPageWithProvider> {
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => InventoryTakingProvider(),
+      child: InventoryTakingPage(),
+    );
+  }
+}
+
 class InventoryTakingPage extends StatefulWidget {
   InventoryTakingPage({super.key});
 
@@ -58,6 +84,8 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final providerInventory = Provider.of<InventoryTakingProvider>(context);
+
     return Padding(
       padding: EdgeInsets.all(20.0),
       child: Container(
@@ -78,9 +106,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
               ),
               Container(
                 // width: MediaQuery.of(context).size.width * 0.70,
-                child: CupertinoSearchTextField(
-                    // trailing: Icon(Icons.abc),
-                    ),
+                child: CupertinoSearchTextField(),
               ),
               SizedBox(
                 height: 10,
@@ -127,6 +153,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
               TableInventoryTaking(
                 contentTable: contentTableInventory,
               ),
+
               SizedBox(
                 height: 20,
               ),
@@ -299,7 +326,7 @@ class DetailProductInventoryTakingPopup extends StatelessWidget {
                         color: ColorPalleteLogin.PrimaryColor,
                         fontWeight: FontWeight.bold),
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(5.0),
+                      contentPadding: EdgeInsets.all(10.0),
                       isDense: true,
                       filled: true,
                       fillColor: Colors.white,
@@ -334,7 +361,6 @@ class DetailProductInventoryTakingPopup extends StatelessWidget {
                   child: TextField(
                     keyboardType: TextInputType.multiline,
                     controller: informationController,
-                    minLines: 3,
                     maxLines: 3,
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -342,7 +368,7 @@ class DetailProductInventoryTakingPopup extends StatelessWidget {
                         color: ColorPalleteLogin.PrimaryColor,
                         fontWeight: FontWeight.bold),
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(5.0),
+                      contentPadding: EdgeInsets.all(10.0),
                       isDense: true,
                       filled: true,
                       fillColor: Colors.white,
@@ -1332,7 +1358,7 @@ class InventoryTakingDetailsChild extends StatelessWidget {
 
 class InputStockOpname {
   Data data;
-  late Int actualStock;
+  late int actualStock;
   late String additional_information;
 
   InputStockOpname({

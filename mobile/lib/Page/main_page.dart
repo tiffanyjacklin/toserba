@@ -1,19 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_app_all/Page/Store%20Inventory/inventory_taking_page.dart';
+import 'package:flutter_app_all/Page/Umum/notification_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/history_all_stock_product_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
-import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
 import 'package:flutter_app_all/Page/Login/login_tablet.dart';
 import 'package:flutter_app_all/Page/Store%20Inventory/accept_order_page.dart';
-import 'package:flutter_app_all/Page/Store%20Inventory/inventory_taking_page.dart';
-import 'package:flutter_app_all/Page/Store%20Inventory/product_page.dart';
-import 'package:flutter_app_all/Page/Umum/notification_page.dart';
-import 'package:flutter_app_all/Page/Warehouse%20Employee/stock_transfer_notes_page.dart';
 import 'package:provider/provider.dart';
+// import 'package:flutter_app_all/Page/Store%20Inventory/inventory_taking_page.dart';
+// import 'package:flutter_app_all/Page/Store%20Inventory/product_page.dart';
+// import 'package:flutter_app_all/Page/Umum/notification_page.dart';
+// import 'package:flutter_app_all/Page/Warehouse%20Employee/stock_transfer_notes_page.dart';
+// import 'package:flutter_app_all/Page/Warehouse%20Employee/history_all_stock_product_page.dart';
+// import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
+// import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
 
 class MainPage extends StatelessWidget {
   final Data dataUser;
@@ -41,9 +45,9 @@ class MainPage extends StatelessWidget {
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (!isMobile(context))
-              SidebarMainPage(
-                  dataUser: dataUser, listPrivileges: listPrivileges),
+            // if (!isMobile(context))
+            //   SidebarMainPage(
+            //       dataUser: dataUser, listPrivileges: listPrivileges),
             // MENU PAGE
             Expanded(
               flex: 8,
@@ -261,7 +265,7 @@ class MenuPage extends StatelessWidget {
         flex: 8,
         child: Container(
           decoration: BoxDecoration(color: Colors.grey[100]),
-            child: StockTransferNotesPage(),
+            child: InventoryTakingPage(),
           ),
         
     );

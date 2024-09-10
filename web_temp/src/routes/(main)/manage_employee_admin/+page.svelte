@@ -6,7 +6,7 @@
     import { getFormattedDate, isInTimeRange } from '$lib/DateNow.js';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
-    import { uri, userId, roleId, sessionId } from '$lib/uri.js';
+    import { uri, userId, roleId, sessionId, user } from '$lib/uri.js';
     import user_pp from "$lib/assets/user.png";
 
     let searchQuery = '';
@@ -15,23 +15,34 @@
 
     let handled_store = [];
     let users = [];
+    $: filtered_users = [];
 
     let showFilter = false;
+
+    //ADD NEW EMPLOYEE
+    let username = "";
+    let user_password = "";
+    let user_fullname = "";
+    let user_address = "";
+    let user_gender = "";
+    let user_birthdate = "";
+    let user_email = "";
+    let user_phone_number = "";
+
+    let role_id = 0;
+
+    let role_to_assign = [];
+    let sw_assign = [];
 
     function toggleFilter() {
         showFilter = !showFilter;
     }
-   function handleClick(sessionId) {
-      showModal = sessionId;
-      fetchTransactionBySession(sessionId);
-   }
    function closeModal() {
         showModal = null;
-        showModal12 = null;
    }
 
-   async function fetchUsers(){
-        const response = await fetch(`http://${$uri}:8888/promos`, {
+  async function fetchUsersbySW(sw_id){
+        const response = await fetch(`http://${$uri}:8888/user/store_warehouse/${sw_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -39,30 +50,221 @@
         });
 
         if (!response.ok) {
-            console.error('fetch all promo failed', response);
+            console.error('fetch user by SW', response);
             return;
         }
 
         const data = await response.json();
 
         if (data.status !== 200) {
-            console.error('Invalid fetch all promo', data);
+            console.error('Invalid fetch user by SW', data);
             return;
         }
 
-        promos = data.data;
-        console.log(promos);
+        return data.data;
         
     }
+
+  async function fetchUsers(){
+      for (let i = 0; i < handled_store.length; i++) {
+          let tmp_user = await fetchUsersbySW(handled_store[i].StoreWarehouses.store_warehouse_id)
+          let tmp_sw_id = handled_store[i].StoreWarehouses.store_warehouse_id;
+          for (let i = 0; i < tmp_user.length; i++) {
+            tmp_user[i].sw_id = tmp_sw_id
+              users.push(tmp_user[i])
+          }
+      }
+      filtered_users = structuredClone(users);
+      console.log("users",users)
+    }
   
-    onMount(async () => {
-      await fetchPromos();
+  async function fetchSW(){
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch SW failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch SW', data);
+            return;
+        }
+
+        handled_store = data.data;
+
+        console.log("handled_store",handled_store)
+    }
+
+  async function getLastUserId(){
+        const response = await fetch(`http://${$uri}:8888/user/last`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch SW failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch SW', data);
+            return;
+        }
+
+        return data.data.user_id
+        console.log("last",data.data.user_id)
+    }
+
+  async function addUser() {
+      const response = await fetch(`http://${$uri}:8888/user/add`, {
+          method: 'POST',
+          body: JSON.stringify({
+            username,
+            user_password,
+            user_fullname,
+            user_address,
+            user_gender,
+            user_birthdate,
+            user_email,
+            user_phone_number
+          })
+      });
+
+      if (!response.ok) {
+          console.error('POST add new employee gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid POST new employee', data);
+          return;
+      }
+      console.log("Add new employee berhasil")
+    }
+
+  async function addRoletoUser(atribut) {
+    const response = await fetch(`http://${$uri}:8888/user/roles/add`, {
+        method: 'POST',
+        body: JSON.stringify(atribut)
     });
 
-    // $: session.forEach(item => {
-    //     item.actual_difference = item.actual_closing_cash - item.expected_closing_cash;
-    //     item.deposit_difference = item.actual_closing_cash - item.deposit_money;
-    // });
+    if (!response.ok) {
+        console.error('POST role to user gagal', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid post role to user ', data);
+        return;
+    }
+    console.log("role to user berhasil")
+  }
+
+  async function addEmployee() {
+    await addUser();
+    username = "";
+    user_password = "";
+    user_fullname = "";
+    user_address = "";
+    user_gender = "";
+    user_birthdate = "";
+    user_email = "";
+    user_phone_number = "";
+
+    let last_user_id = await getLastUserId();
+
+    for (let i = 0; i < sw_assign.length; i++) {
+        let atribut = {
+          user_id: last_user_id,
+          role_id: role_id,
+          store_warehouse_id: sw_assign[i],
+          custom: 0
+        }
+        console.log(JSON.stringify(atribut))
+        await addRoletoUser(atribut);
+    }
+
+    sw_assign = [];
+
+    Swal.fire({
+      title: "Add Employee Berhasi;",
+      icon: "success",
+      color: "white",
+      background: "#364445",
+      confirmButtonColor: '#F2AA7E'
+    });
+
+    await fetchUsers();
+    closeModal();
+  }
+
+  async function fetchRoletoAssign(){
+      const response = await fetch(`http://${$uri}:8888/roles/all/''/100/0`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch SW failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch SW', data);
+          return;
+      }
+
+      role_to_assign = data.data;
+
+      console.log("role_to_assign",role_to_assign)
+  }
+
+  function addSWToList(sw){
+      let store = sw_assign.find((id) => id == sw)
+      if (store != null){
+        let index = sw_assign.findIndex((id) => id == sw)
+        sw_assign.splice(index,1);
+        console.log("sw_id",sw_assign);
+      } else {
+        sw_assign.push(sw);
+        console.log("sw_id",sw_assign);
+      }
+    }
+
+    onMount(async () => {
+      await fetchSW();
+      await fetchUsers();
+      await fetchRoletoAssign();
+    });
+
+    $: if (searchQuery.length > 0) {
+      filtered_users = users.filter(item => 
+            item.roles_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.user_fullname.toLowerCase().includes(searchQuery)
+        );
+    } else {
+      filtered_users = [...users];
+    }
   
   </script>
   
@@ -98,9 +300,11 @@
 
                     <span class="font-bold text-xl mb-1">Role</span>
                     <div class="flex w-full flex-wrap">
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">AWFAWFAWGAWGAW</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">wkwkwkw</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">gogogolgoglgolgoggllogoglggsgsfsfsgsaga</button>
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Cashier</button>
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Inventory Store Employee</button>
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Warehouse Employee</button>
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Warehouse Operational Staff</button>
+                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Custom</button>
                     </div>
                     
                     <span class="font-bold text-xl mb-1">Gender</span>
@@ -178,22 +382,24 @@
       </nav>
 
       {#if tampilan == "manage"}
-      <button class="w-[96%] my-5 font-roboto">
-        <div class="relative overflow-x-auto sm:rounded-lg">
-          <!-- {#each all_produk as product} -->
+        {#each filtered_users as user}
+        {#if user.role_id != 5}
+          <button on:click={() => {goto(`/manage_employee_admin/manage/${user.user_id}/${user.role_id}/${user.sw_id}`)}} class="w-[96%] font-roboto">
+            <div class="relative overflow-x-auto sm:rounded-lg">
                 <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3">                        
                     <div class="m-4 w-1/12 flex">
                         <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
                     </div>
                     <div class="flex flex-col items-start font-semibold text-lg">
-                        <span class="">INI NAMANYA</span>
-                        <span class="">INI ROLENYA</span>
-                        <span class="">Join Date: XX/XX/20XX</span>
+                        <span class="">{user.user_fullname}</span>
+                        <span class="">{user.roles_name}</span>
+                        <span class="">Join Date: {new Date(user.user_created_at).toJSON().slice(0, 10)}</span>
                     </div>
                 </div>
-            <!-- {/each} -->
-        </div>
-    </button>
+            </div>
+          </button>
+        {/if}
+      {/each}
      {:else if tampilan == "edit"}
      <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
@@ -268,83 +474,76 @@
 {#if showModal == "add_employee" }
 <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
   <div class="flex items-center justify-center pt-8 font-roboto">
-    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Choose Product</div>
+    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add New Employee</div>
   </div>
   <div class="flex flex-col justify-center p-8">
     <div class="flex flex-col my-2">
       <span class="text-peach font-semibold mb-1">Employee Full Name</span>
-      <input type="text" value="nama employee baru" class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+      <input type="text" bind:value={user_fullname} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
     </div>
     <div class="flex flex-col my-2">
         <span class="text-peach font-semibold mb-1">Employee Role</span>
-        <select class="w-full p-2 rounded-xl">
-            <option value="">Cashier</option>
-            <option value="" >Admin</option>
+        <select bind:value={role_id} class="w-full p-2 rounded-xl">
+          {#each role_to_assign as role}
+            {#if role.roles_id != 5 && role.roles_id != 6}
+              <option value={role.roles_id}>{role.roles_name}</option>
+            {/if}
+          {/each}
         </select>
     </div>
     <div class="flex my-2">
         <div class="flex flex-col my-2 w-1/2 pr-1">
             <span class="text-peach font-semibold mb-1">Employee Email</span>
-            <input type="text" value="Employee Email" class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+            <input type="text" bind:value={user_email} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
         </div>
         <div class="flex flex-col my-2 w-1/2 pl-1">
             <span class="text-peach font-semibold mb-1">Employee Phone</span>
-            <input type="text" value="Employee Phone" class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+            <input type="text" bind:value={user_phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
         </div>
     </div>
     <div class="flex my-2">
         <div class="flex flex-col my-2 w-1/2 pr-1">
             <span class="text-peach font-semibold mb-1">Employee Username</span>
-            <input type="text" value="Employee Username" class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+            <input type="text" bind:value={username} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
         </div>
         <div class="flex flex-col my-2 w-1/2 pl-1">
             <span class="text-peach font-semibold mb-1">Employee Password</span>
-            <input type="text" value="Employee Password" class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+            <input type="text" bind:value={user_password} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
         </div>
     </div>
     <div class="flex flex-col my-2">
         <span class="text-peach font-semibold mb-1">Employee Address</span>
-        <textarea rows="4" type="text" value="nama employee baru" class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2"></textarea>
+        <textarea rows="4" type="text" bind:value={user_address} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2"></textarea>
     </div>
     <div class="flex my-2">
         <div class="flex flex-col my-2 w-1/2 pr-1">
             <span class="text-peach font-semibold mb-1">Employee Gender</span>
-            <select class="p-2 rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
-                <option value="male">Male</option>
-                <option value="female">Female</option>
+            <select bind:value={user_gender} class="p-2 rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+                <option value="L">Male</option>
+                <option value="P">Female</option>
             </select>        </div>
         <div class="flex flex-col my-2 w-1/2 pl-1">
             <span class="text-peach font-semibold mb-1">Employee Birthday</span>
-            <input type="date" class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+            <input type="date" bind:value={user_birthdate} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
         </div>
     </div>
 
     <div class="flex flex-col my-1">
       <span class="text-peach font-semibold mb-1">Assigned Location</span>
       <ul class="font-semibold text-white ml-2">
+        {#each handled_store as store}
           <li class="mb-1">
             <div class="flex items-center">
-              <input value="null" class="border border-white bg-darkGray  mr-2" type="checkbox">
-              <span class="">nama store</span>
+              <input on:change={() => {addSWToList(store.StoreWarehouses.store_warehouse_id)}} value={store.StoreWarehouses.store_warehouse_id} class="border border-white bg-darkGray  mr-2" type="checkbox">
+              <span class="">{store.StoreWarehouses.store_warehouse_name}</span>
             </div>
           </li>
-          <li class="mb-1">
-            <div class="flex items-center">
-              <input value="null" class="border border-white bg-darkGray  mr-2" type="checkbox">
-              <span class="">nama store</span>
-            </div>
-          </li>
-          <li class="mb-1">
-            <div class="flex items-center">
-              <input value="null" class="border border-white bg-darkGray  mr-2" type="checkbox">
-              <span class="">nama store</span>
-            </div>
-          </li>
+          {/each}
       </ul>
     </div>
     <div class="flex mt-8 items-center justify-center">
-      <button class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
-      <button class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
+      <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
+      <button on:click={() => {addEmployee()}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
     </div>
   </div>
 </TaskModal> 
