@@ -14,7 +14,7 @@
     let filtered_all_produk = [];
     let storeWarehouse = [];
 
-    let choosen_product_id = 0;
+    let choosen_product_id = null;
     let choosen_product_name = "";
 
     $: showModal = null;
@@ -46,7 +46,7 @@
     }
 
    async function fetchPromos(){
-        const response = await fetch(`http://${$uri}:8888/promos`, {
+        const response = await fetch(`http://${$uri}:8888/promos/''/''/''/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -190,11 +190,24 @@
     
     async function checkChooseProduct(){
       let isOK = false;
-      if (choosen_product_id != "" && choosen_product_name != "") {
-        let produk_id = all_produk.find((produk) => produk.ProductDetails.product_detail_id == choosen_product_id);
+      if (choosen_product_id != null && choosen_product_name != "" ) {
+        // console.log("produk",all_produk)
+        // let produk_id = all_produk.find((produk) => produk.ProductDetails.product_detail_id == choosen_product_id);
+        // if (produk_id !=  null){
+        //   if (produk_id.ProductDetails.product_name == choosen_product_name){
+        //     let produk_name = all_produk.find((produk) => produk.ProductDetails.product_name == choosen_product_name);
+        //     if (produk_name !=  null){
+        //       if (produk_name.ProductDetails.product_detail_id == choosen_product_id){
+        //         isOK = true;
+        //       }
+        //     }
+        //   }
+        // }
+        console.log("produk",filtered_all_produk)
+        let produk_id = filtered_all_produk.find((produk) => produk.ProductDetails.product_detail_id == choosen_product_id);
         if (produk_id !=  null){
           if (produk_id.ProductDetails.product_name == choosen_product_name){
-            let produk_name = all_produk.find((produk) => produk.ProductDetails.product_name == choosen_product_name);
+            let produk_name = filtered_all_produk.find((produk) => produk.ProductDetails.product_name == choosen_product_name);
             if (produk_name !=  null){
               if (produk_name.ProductDetails.product_detail_id == choosen_product_id){
                 isOK = true;
@@ -202,6 +215,8 @@
             }
           }
         }
+      } else{
+        console.log("all_produk lho ga kosong", all_produk)
       }
 
       if (isOK == true){
@@ -363,9 +378,10 @@
     
     onMount(async () => {
       await fetchPromos();
+      await fetchProduk();
     });
 
-    $: if (choosen_product_id.length > 0) {
+    $: if (choosen_product_id != null) {
         all_produk = filtered_all_produk.filter(item => 
             // item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
             item.ProductDetails.product_detail_id.toString().includes(choosen_product_id)
@@ -377,7 +393,7 @@
     $: if (choosen_product_name.length > 0) {
         all_produk = filtered_all_produk.filter(item => 
             // item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
-            item.ProductDetails.product_name.toString().includes(choosen_product_name)
+            item.ProductDetails.product_name.toLowerCase().includes(choosen_product_name)
         );
     } else {
         all_produk = [...filtered_all_produk];
