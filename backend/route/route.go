@@ -82,6 +82,7 @@ func Init() *echo.Echo {
 	// KASIH OFFSET DAN LIMIT DI QUERY
 	// Buat get jumlah stock itu jangan didalam rows.next() tp buat for loop lg dibawahnya
 	// Warehouse
+	e.GET("/products/stock/card/description", controller.GetAllStockDescription)
 	e.POST("/products/stock/card/add", controller.InsertStockCards)
 	e.GET("/products/stock/card/all/:limit/:offset", controller.GetAllStockCard)
 	e.GET("/products/stock/card/:stock_card_id", controller.GetStockCardByID)
@@ -149,6 +150,7 @@ func Init() *echo.Echo {
 	e.GET("/sessions/not_verified", controller.GetNotVerifiedSession)
 	e.PUT("/sessions/verify/:session_id", controller.VerifySession)
 
+	e.GET("/products/sorting", controller.GetAllProductSorting)
 	e.GET("/products/category", controller.GetAllProductCategory)
 	e.POST("/products/category/add", controller.InsertProductCategory)
 	e.GET("/products/:product_id/:user_id/:role_id", controller.GetProductByID) 
@@ -223,6 +225,7 @@ func Init() *echo.Echo {
 	e.GET("/products/moving/stock/card/:order", controller.GetSlowFastMovingFromStockOut)
 
 	e.GET("/promos/verify/:status/:pd_name_code/:promo_code/:limit/:offset", controller.GetVerifiedPromoProducts)
+	e.PUT("/promos/verify/:promo_id/:product_id/:status", controller.VerifyPromoProduct)
 	e.GET("/promos/cost/all", controller.GetTotalPromoCost)
 	e.GET("/promos/cost/transaction/all", controller.GetTotalPromoCostPerTransaction)
 	e.GET("/promos/cost/transaction/:transaction_id", controller.GetTotalPromoCostByTransactionID)

@@ -256,6 +256,9 @@ e.PUT("/store/orders/delivery/accept/:deliveryorder_id/:user_id", controller.Acc
 e.GET("/store/orders/delivery/accept/:deliveryorder_id/:status/:start_date/:end_date/:limit/:offset", controller.GetAcceptedDeliveryOrder)
 
 ================================================= Warehouse =================================================
+// Mengambil data stock description
+e.GET("/products/stock/card/description", controller.GetAllStockDescription)
+
 // Menambah data stock card baru
 e.POST("/products/stock/card/add", controller.InsertStockCards)
 [
@@ -504,6 +507,9 @@ e.PUT("/sessions/verify/:session_id", controller.VerifySession)
     "actual_closing_cash": 5000,
     "deposit_money": 4000
 }
+
+// Mengambil semua data product sorting
+e.GET("/products/sorting", controller.GetAllProductSorting)
 
 // Mengambil semua product category
 e.GET("/products/category", controller.GetAllProductCategory)
@@ -856,6 +862,9 @@ e.GET("/products/moving/stock/card/:order", controller.GetSlowFastMovingFromStoc
 
 // Mengambil data dari promo product 
 e.GET("/promos/verify/:status/:pd_name_code/:promo_code/:limit/:offset", controller.GetVerifiedPromoProducts)
+
+// Verify promo product
+e.PUT("/promos/verify/:promo_id/:product_id/:status", controller.VerifyPromoProduct)
 
 // Mengambil semua total promo cost 
 e.GET("/promos/cost/all", controller.GetTotalPromoCost)
