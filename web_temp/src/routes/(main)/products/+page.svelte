@@ -12,14 +12,27 @@
 
   let sw_id = 0;
   let products = [];
+  let product_sorts = [];
+  let categories = [];
   let current_stock = [];
   let stock_card = [];
-  let searchQuery = '';
-  let searchQuery_temp = '';
+  // search filter query
+  $: searchQuery = '';
+  $: searchQuery_temp = '';
+  $: sort_type = '';
+  $: sorting = 'asc';
+  $: unit_type = '';
+  $: category = '';
+
   let showModal = null; 
   let showTable = false;
   let showTable1 = false;
   let warehouse = [];
+  let showFilter = false;
+
+  function toggleFilter() {
+      showFilter = !showFilter;
+  }
   function handleClick(product_id) {
       showModal = product_id;
       sw_id = warehouse.StoreWarehouses.store_warehouse_id;
@@ -109,14 +122,62 @@
       current_stock = [...data.data];  
       console.log(current_stock);
   }
+  async function fetchProductCategory() {
+      const response = await fetch(`http://${$uri}:8888/products/category`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('get all current stock fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch current stock', data);
+          return;
+      }
+
+      categories = [...data.data];  
+      console.log(categories);
+  }
+  async function fetchProductSort() {
+      const response = await fetch(`http://${$uri}:8888/products/sorting`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('get all current stock fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch current stock', data);
+          return;
+      }
+
+      product_sorts = [...data.data];  
+      console.log(product_sorts);
+  }
 
   onMount(async () => {
       await fetchProduk();
       await fetchWarehouse();
+      await fetchProductCategory();
+      await fetchProductSort();
   });
 
   async function fetchProduk() {
-      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}/${searchQuery}/${limit}/${offset}`, {
+      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -135,24 +196,12 @@
           return;
       }
       totalNotes = data.total_rows;
-      // products = [...data.data];  
-      const productMap = new Map();
-
-      data.data.forEach(product => {
-          const id = product.ProductDetails.product_detail_id;
-          if (productMap.has(id)) {
-              // If the product_detail_id is already in the map, update the product_stock
-              productMap.get(id).ProductDetails.product_stock += product.ProductDetails.product_stock;
-          } else {
-              // Otherwise, add the product to the map
-              productMap.set(id, { ...product });
-          }
-      });
-
-      // Convert the map values to an array
-      products = Array.from(productMap.values());
+      products = [...data.data];  
+      
   }
-  $: if (searchQuery_temp !== searchQuery){
+  // || (categories !== '' || unit_type !== '' || sort_type !== '' || sorting !== '')
+  $: if ((searchQuery_temp !== searchQuery) ){
+    console.log(searchQuery);
     fetchProduk();
     searchQuery_temp = searchQuery;
   } else{
@@ -181,13 +230,42 @@
       type="text" id="voice-search" 
       class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
       placeholder="Search product..."/>
-      <button 
-            type="button" class="absolute inset-y-0 end-0 flex items-center pe-3 mr-1">
-        <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-          </svg> -->
-          <i class="fa-solid fa-sliders fa-xl mr-2"></i>
+      <button on:click={toggleFilter}
+        type="button" 
+        class="absolute inset-y-0 end-0 flex items-center pe-3 ">
+        <i class="fa-solid fa-sliders fa-xl mr-2"></i>
       </button>
+      {#if showFilter}
+        <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/5 bg-gray-100 p-4 rounded-lg font-roboto">
+          <span class="font-bold text-xl mb-1">Sorting By</span>
+          <div class="grid grid-cols-4 flex w-full flex-wrap">
+            {#each product_sorts as type}
+              <button on:click={() => {if (sort_type === '' || sort_type !== type.sort_id) {sort_type = type.sort_id} else {sort_type = '';}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${sort_type === type.sort_id ? 'bg-white text-peach2' : 'bg-gray-100'}`}>{type.sort_type}</button>
+            {/each}
+          </div>
+          <span class="font-bold text-xl mb-1">Sorting Order</span>
+          <div class="grid grid-cols-4 flex w-full flex-wrap">
+              <button on:click={() => {if (sorting === '' || sorting !== "asc") {sorting = "asc";} else {sorting = '';}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${sorting === 'asc' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Ascending</button>
+              <button on:click={() => {if (sorting === '' || sorting !== "desc") {sorting = "desc";} else {sorting = '';}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${sorting === 'desc' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Descending</button>
+          </div>
+          <span class="font-bold text-xl mb-1">Unit Type</span>
+          <div class="grid grid-cols-4 flex w-full flex-wrap">
+              <button on:click={() => {if (unit_type === '' || unit_type !== 'unit') {unit_type = "unit";} else {unit_type = ''}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'unit' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Units</button>
+              <button on:click={() => {if (unit_type === '' || unit_type !== 'gram') {unit_type = "gram";} else {unit_type = ''}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'gram' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Grams</button>
+          </div>
+          <span class="font-bold text-xl mb-1">Product Category</span>
+          <div class="grid grid-cols-4 flex w-full flex-wrap">
+            {#each categories as cat}
+              <button on:click={() => {if (category === '' || category !== cat.product_category_id) {category = cat.product_category_id;} else {category = ''}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.product_category_id ? 'bg-white text-peach2' : 'bg-gray-100'}`}>{cat.product_category_name}</button>
+            {/each}
+          </div>
+          
+          <div class="flex justify-between font-semibold mt-4">
+              <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { sort_type = ''; sorting = 'asc'; unit_type = ''; category = ''; }}>Clear</button>
+              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchProduk(); toggleFilter()}}>Apply</button>
+          </div>
+        </div>
+      {/if}
     </div>
     <!-- </form> -->
  
