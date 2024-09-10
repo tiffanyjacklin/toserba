@@ -10,14 +10,19 @@
     import user_pp from "$lib/assets/user.png";
 
     let searchQuery = '';
-    $: tampilan = "manage";
+    // $: tampilan = "manage";
     $: showModal = null;
 
     let handled_store = [];
     let users = [];
     $: filtered_users = [];
 
+    //FILTER
     let showFilter = false;
+    $: filter_start_date = '';
+    $: filter_end_date = '';
+    $: filter_role_id = '';
+    $: filter_gender = '';
 
     //ADD NEW EMPLOYEE
     let username = "";
@@ -30,9 +35,9 @@
     let user_phone_number = "";
 
     let role_id = 0;
+    let store_warehouse_id = 0;
 
     let role_to_assign = [];
-    let sw_assign = [];
 
     function toggleFilter() {
         showFilter = !showFilter;
@@ -102,6 +107,39 @@
 
         console.log("handled_store",handled_store)
     }
+  
+  async function fetchUserFiltered(start_date,end_date,role_id,gender){
+      const response = await fetch(`http://${$uri}:8888/user/${start_date}/${end_date}/''/${role_id}/${gender}/100/0`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch user failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch user', data);
+          return;
+      }
+
+      let tmp = data.data;
+      console.log(tmp);
+
+      filtered_users = [];
+
+      for (let i = 0; i < tmp.length; i++) {
+        let tmp_di_user = users.find((user) => user.user_id == tmp[i].user_id && user.role_id == tmp[i].role_id);
+        filtered_users.push(tmp_di_user);
+      }
+
+      console.log("filtered", filtered_users)
+  }
 
   async function getLastUserId(){
         const response = await fetch(`http://${$uri}:8888/user/last`, {
@@ -159,7 +197,7 @@
   async function addRoletoUser(atribut) {
     const response = await fetch(`http://${$uri}:8888/user/roles/add`, {
         method: 'POST',
-        body: JSON.stringify(atribut)
+        body: JSON.stringify([atribut])
     });
 
     if (!response.ok) {
@@ -189,21 +227,18 @@
 
     let last_user_id = await getLastUserId();
 
-    for (let i = 0; i < sw_assign.length; i++) {
-        let atribut = {
-          user_id: last_user_id,
-          role_id: role_id,
-          store_warehouse_id: sw_assign[i],
-          custom: 0
-        }
-        console.log(JSON.stringify(atribut))
-        await addRoletoUser(atribut);
+    let atribut = {
+      user_id: last_user_id,
+      role_id: role_id,
+      store_warehouse_id: store_warehouse_id,
+      custom: 0
     }
 
-    sw_assign = [];
+    console.log(JSON.stringify(atribut))
+    await addRoletoUser(atribut);
 
     Swal.fire({
-      title: "Add Employee Berhasi;",
+      title: "Add Employee Berhasil",
       icon: "success",
       color: "white",
       background: "#364445",
@@ -238,18 +273,6 @@
 
       console.log("role_to_assign",role_to_assign)
   }
-
-  function addSWToList(sw){
-      let store = sw_assign.find((id) => id == sw)
-      if (store != null){
-        let index = sw_assign.findIndex((id) => id == sw)
-        sw_assign.splice(index,1);
-        console.log("sw_id",sw_assign);
-      } else {
-        sw_assign.push(sw);
-        console.log("sw_id",sw_assign);
-      }
-    }
 
     onMount(async () => {
       await fetchSW();
@@ -286,36 +309,39 @@
                 </button>
                 {#if showFilter}
                     <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/4 bg-gray-100 p-4 rounded-lg font-roboto">
+                    <div class="w-full flex justify-end">
+                      <button on:click={async() => {await fetchUsers(); toggleFilter()}} class="text-peach2 p-1 rounded hover:bg-peach hover:text-darkGray">Reset</button>
+                    </div>
                     <span class="font-bold text-xl mb-1">Join Date</span>
                     <div class="flex">
                         <div class="w-1/2 flex items-center justify-end pr-2">
                             <label class="block font-semibold text-gray-700 mr-2">From</label>
-                            <input type="date" class="w-32 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded-xl" />
+                            <input type="date" bind:value={filter_start_date} class="w-32 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded-xl" />
                         </div>
                         <div class="w-1/2 flex items-center">
                             <label class="block font-semibold text-gray-700 mr-2">to</label>
-                            <input type="date" class="w-32 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded-xl" />
+                            <input type="date" bind:value={filter_end_date} class="w-32 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded-xl" />
                         </div>
                     </div>
 
                     <span class="font-bold text-xl mb-1">Role</span>
                     <div class="flex w-full flex-wrap">
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Cashier</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Inventory Store Employee</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Warehouse Employee</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Warehouse Operational Staff</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Custom</button>
+                        <button on:click={() => {filter_role_id = 1;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 1 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Cashier</button>
+                        <button on:click={() => {filter_role_id = 2;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 2 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Inventory Store Employee</button>
+                        <button on:click={() => {filter_role_id = 3;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 3 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Warehouse Employee</button>
+                        <button on:click={() => {filter_role_id = 4;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 4 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Warehouse Operational Staff</button>
+                        <button on:click={() => {filter_role_id = 0;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 0 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Custom</button>
                     </div>
                     
                     <span class="font-bold text-xl mb-1">Gender</span>
                     <div class="flex w-full flex-wrap">
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Male</button>
-                        <button class="w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 focus:border-peach2 focus:text-peach2">Female</button>
+                        <button on:click={() => {filter_gender = "L";  console.log(filter_gender)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_gender === "L" ? "border-peach2 text-peach2" : "text-darkGray"}`}>Male</button>
+                        <button on:click={() => {filter_gender = "P";  console.log(filter_gender)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_gender === "P" ? "border-peach2 text-peach2" : "text-darkGray"}`}>Female</button>
                     </div>
                     
                     <div class="flex justify-between font-semibold mt-4">
-                        <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ''; endDate = ''; }}>Clear</button>
-                        <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={toggleDatePicker}>Apply</button>
+                        <button on:click={() => { filter_start_date = ''; filter_end_date = ''; filter_gender = ""; filter_role_id = null }} class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" >Clear</button>
+                        <button on:click={() => {fetchUserFiltered(filter_start_date,filter_end_date,filter_role_id,filter_gender); toggleFilter()}} class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded">Apply</button>
                     </div>
                     </div>
                 {/if}
@@ -325,7 +351,7 @@
             </div>
         </div>
          
-        <div class="w-11/12 my-10">
+        <!-- <div class="w-11/12 my-10">
             <div class="grid grid-cols-4 gap-x-2 gap-y-4">
                 {#if tampilan == "manage"}
                     <button on:click={() => {tampilan = "manage"; tampilan = tampilan;}} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
@@ -338,7 +364,7 @@
                     <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
                 {/if}
             </div>
-        </div>
+        </div> -->
 
       <nav class="my-8 ">
         <ul class="flex items-center -space-x-px h-8 text-sm">
@@ -381,7 +407,7 @@
         </ul>
       </nav>
 
-      {#if tampilan == "manage"}
+      <!-- {#if tampilan == "manage"} -->
         {#each filtered_users as user}
         {#if user.role_id != 5}
           <button on:click={() => {goto(`/manage_employee_admin/manage/${user.user_id}/${user.role_id}/${user.sw_id}`)}} class="w-[96%] font-roboto">
@@ -400,10 +426,9 @@
           </button>
         {/if}
       {/each}
-     {:else if tampilan == "edit"}
+     <!-- {:else if tampilan == "edit"}
      <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
-          <!-- {#each all_produk as product} -->
                 <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 pr-4">                        
                     <div class="m-4 w-1/12 flex">
                         <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
@@ -421,10 +446,9 @@
                           </button>
                       </div>
                 </div>
-            <!-- {/each} -->
         </div>
      </div>
-     {/if}
+     {/if} -->
       
   
        <nav class="my-8 ">
@@ -530,16 +554,11 @@
 
     <div class="flex flex-col my-1">
       <span class="text-peach font-semibold mb-1">Assigned Location</span>
-      <ul class="font-semibold text-white ml-2">
+      <select bind:value={store_warehouse_id} class="w-full p-2 rounded-xl">
         {#each handled_store as store}
-          <li class="mb-1">
-            <div class="flex items-center">
-              <input on:change={() => {addSWToList(store.StoreWarehouses.store_warehouse_id)}} value={store.StoreWarehouses.store_warehouse_id} class="border border-white bg-darkGray  mr-2" type="checkbox">
-              <span class="">{store.StoreWarehouses.store_warehouse_name}</span>
-            </div>
-          </li>
-          {/each}
-      </ul>
+            <option value={store.StoreWarehouses.store_warehouse_id}>{store.StoreWarehouses.store_warehouse_name}</option>
+        {/each}
+      </select>
     </div>
     <div class="flex mt-8 items-center justify-center">
       <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>

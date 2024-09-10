@@ -67,7 +67,7 @@
     }
 
     async function fetchProduk() {
-        const response = await fetch(`http://${$uri}:8888/products`, {
+        const response = await fetch(`http://${$uri}:8888/products/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -92,7 +92,7 @@
     }
 
   async function fetchStockCard(product_id) {
-      const response = await fetch(`http://${$uri}:8888/products/stock/card/product/${product_id}`, {
+      const response = await fetch(`http://${$uri}:8888/products/stock/card/product/${product_id}/100/0`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -138,7 +138,7 @@
     }
   
     async function fetchSuppliers() {
-        const response = await fetch(`http://${$uri}:8888/suppliers/all`, {
+        const response = await fetch(`http://${$uri}:8888/suppliers/all/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -162,7 +162,7 @@
     }
     
     async function fetchStockCardHistory() {
-        const response = await fetch(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${store_warehouse_id}`, {
+        const response = await fetch(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${store_warehouse_id}/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -187,7 +187,7 @@
     }
 
     async function fetchAddVerify() {
-        const response = await fetch(`http://${$uri}:8888/orders/supplier/not_verified`, {
+        const response = await fetch(`http://${$uri}:8888/orders/supplier/verify/0/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -210,7 +210,7 @@
     }
     
     async function fetchSubtractVerify() {
-        const response = await fetch(`http://${$uri}:8888/products/stock/subtract/not_verified`, {
+        const response = await fetch(`http://${$uri}:8888/products/stock/subtract/verify/0/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -421,7 +421,7 @@
   }
   
   async function fetchAssign() {
-        const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/not_verified`, {
+        const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/all/''/0/''/''/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -491,7 +491,7 @@
     }
 
     onMount(async () => {
-      // fetchProduk();
+      fetchProduk();
       fetchAddVerify();
       fetchSubtractVerify();
       fetchStockCardHistory();
@@ -641,7 +641,7 @@
                         </div>
                         <div  class="flex items-center justify-center py-2 w-full">
                             <button 
-                            on:click={() => {handleClick(product.ProductDetails.product_detail_id); tamplian_modal = "products_modal"}}
+                            on:click={() => {handleClick(product.ProductDetails.product_detail_id); tampilan_modal = "products_modal"}}
                             type="button" 
                             class="h-10 px-4 w-40 inline-flex items-center justify-start font-bold rounded-3xl bg-[#3d4c52] text-[#f2b082] hover:shadow-2xl">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -897,7 +897,7 @@
           <div class="flex justify-center mt-8">
             <!-- <button class="w-48 py-2 bg-darkGray text-peach rounded-2xl text-lg font-semibold mx-4">Back</button> -->
             <button on:click={() => showModal = "confirm_add"} class="w-48 py-2 bg-peach text-darkGray rounded-2xl text-lg font-semibold mx-4">Add</button>
-          </div>;
+          </div>
         </div>
       {/if}
         
