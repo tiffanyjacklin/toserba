@@ -232,6 +232,8 @@ func Init() *echo.Echo {
 	e.GET("/promos/cost/store/all", controller.GetTotalPromoCostPerStore)
 	e.GET("/promos/cost/store/:store_id", controller.GetTotalPromoCostByStoreID)
 
+	e.GET("/promos/cost/difference/:promo_id/:product_id", controller.GetPromoPriceDiff)
+
 	e.GET("/profit/all/:year/:month/:day", controller.GetAllProfit)
 	e.GET("/profit/all/sum/:year/:month/:day", controller.GetSumProfit)
 	e.GET("/profit/all/date/:start_date/:end_date", controller.GetAllProfitByDate)

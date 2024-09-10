@@ -883,6 +883,9 @@ e.GET("/promos/cost/store/all", controller.GetTotalPromoCostPerStore)
 // Mengambil total promo cost dari store tertentu
 e.GET("/promos/cost/store/:store_id", controller.GetTotalPromoCostByStoreID)
 
+// Mengambil untung/rugi suatu produk pada promo tertentu
+e.GET("/promos/cost/difference/:promo_id/:product_id", controller.GetPromoPriceDiff)
+
 // Mengambil semua profit, per transaction detail
 // year month day kalau tidak spesifik tulis 0. Misal ambil di Agustus 2024 jadi 2024/08/0
 // Kalau ambil semua tanpa filter tanggal, jadi 0/0/0
