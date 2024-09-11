@@ -2,6 +2,7 @@ import 'dart:convert';
 // import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_all/Model/StockOpname.dart';
@@ -109,7 +110,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                   controller: _searchController,
                   onSubmitted: (value) {
                     providerInventory
-                        .searchItemWithFilter(_searchController.text);
+                        .searchItemWithFilter(_searchController.text, search: true);
                     providerInventory.changeControllerQtyValue();
                   },
                 ),
@@ -136,13 +137,15 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                 numberPages: providerInventory.getMaxPage(),
                                 onPageChange: (int index) {
                                   // providerInventory.currentPage = index;
-                                  providerInventory.checkControllerPageChanges(); // BUG / POTENTIAL ERROR (maybe)
+                                  providerInventory
+                                      .checkControllerPageChanges(); // BUG / POTENTIAL ERROR (maybe)
                                 },
 
                                 showPrevButton: true,
                                 showNextButton: true, // defaults to true
                                 nextButtonBuilder: (context) => TextButton(
-                                  onPressed: providerInventory.currentPage < providerInventory.getMaxPage()-1
+                                  onPressed: providerInventory.currentPage <
+                                          providerInventory.getMaxPage() - 1
                                       ? () => providerInventory.currentPage++
                                       : null,
                                   child: const Row(
@@ -166,7 +169,9 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                 ),
                               ),
                             ),
-                            TableInventoryTaking(startIndex: providerInventory.getStartIndex(),),
+                            TableInventoryTaking(
+                              startIndex: providerInventory.getStartIndex(),
+                            ),
                           ],
                         ),
 
@@ -202,13 +207,19 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                             ),
                           ],
                         ),
-                        onPressed: () {
+                        onPressed: () async {
+                          // BELUM COBA
                           // keluarin popup discard
-                          showDialog(
+                          var data = await showDialog(
                             barrierDismissible: false,
                             context: context,
                             builder: (context) => DiscardPopup(),
                           );
+
+                          // BELUM COBA
+                          if(data == true){
+                            providerInventory.resetAll();
+                          }
                         },
                       ),
                     ),
@@ -240,13 +251,19 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                             ),
                           ],
                         ),
-                        onPressed: () {
+                        onPressed: () async {
+                          // BELUM COBA
                           // masuk ke popup lanjutan untuk buat stok card
-                          showDialog(
+                          var data = await showDialog(
                             barrierDismissible: false,
                             context: context,
-                            builder: (context) => InventoryTakingFormPopUp(listItem: providerInventory.listItemSubmit),
+                            builder: (context) => InventoryTakingFormPopUp(
+                                listItem: providerInventory.listItemSubmit),
                           );
+
+                          if(data == true){
+                            providerInventory.SubmitInventoryTaking();
+                          }
                         },
                       ),
                     ),
@@ -259,20 +276,31 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
       ),
     );
   }
-
 }
 
-class DetailProductInventoryTakingPopup extends StatelessWidget {
+class DetailProductInventoryTakingPopup extends StatefulWidget {
   Data data;
+  String notesPrev;
   DetailProductInventoryTakingPopup({
     required this.data,
+    required this.notesPrev,
     super.key,
   });
 
+  @override
+  State<DetailProductInventoryTakingPopup> createState() => _DetailProductInventoryTakingPopupState();
+}
+
+class _DetailProductInventoryTakingPopupState extends State<DetailProductInventoryTakingPopup> {
   // controller
-  // var locationController = TextEditingController();
   var informationController = TextEditingController();
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    informationController.text = widget.notesPrev;
+  }
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -322,9 +350,10 @@ class DetailProductInventoryTakingPopup extends StatelessWidget {
                 height: 20,
               ),
 
-            SubTitleText(judul: 'Location', data: data.sectionPlacement!,)
-
-
+              SubTitleText(
+                judul: 'Location',
+                data: widget.data.sectionPlacement!,
+              ),
 
               SizedBox(
                 height: 15,
@@ -343,6 +372,9 @@ class DetailProductInventoryTakingPopup extends StatelessWidget {
                   padding: EdgeInsets.all(8.0),
                   // >> note : BELUM DI LIMIT CHARACTER
                   child: TextField(
+                    onChanged: (value) {
+                      
+                    },
                     keyboardType: TextInputType.multiline,
                     controller: informationController,
                     maxLines: 3,
@@ -436,7 +468,7 @@ class DetailProductInventoryTakingPopup extends StatelessWidget {
                         ),
                         onPressed: () {
                           // Note: GANTI
-                          Navigator.pop(context);
+                          Navigator.pop(context, informationController.text);
                         },
                       ),
                     ),
@@ -548,7 +580,9 @@ class _InventoryTakingFormPopUpState extends State<InventoryTakingFormPopUp> {
                             fontWeight: FontWeight.bold),
                       ),
                       children: [
-                        TableInventoryTakingPopUp(contentTable: widget.listItem,),
+                        TableInventoryTakingPopUp(
+                          contentTable: widget.listItem,
+                        ),
                         SizedBox(
                           height: 10,
                         ),
@@ -631,7 +665,7 @@ class _InventoryTakingFormPopUpState extends State<InventoryTakingFormPopUp> {
                             ),
                             onPressed: () {
                               // Note: GANTI
-                              Navigator.pop(context);
+                              Navigator.pop(context, true);
                             },
                           ),
                         ),
@@ -797,7 +831,7 @@ class DiscardPopup extends StatelessWidget {
                         ),
                         onPressed: () {
                           // Note: GANTI
-                          Navigator.pop(context);
+                          Navigator.pop(context,true);
                         },
                       ),
                     ),
@@ -824,7 +858,8 @@ class TableInventoryTaking extends StatelessWidget {
   Widget build(BuildContext context) {
     final providerInventory = Provider.of<InventoryTakingProvider>(context);
     List<Data> contentTable = providerInventory.listPerPage;
-    List<TextEditingController> controllerQty = providerInventory.resultController;
+    List<TextEditingController> controllerQty =
+        providerInventory.resultController;
 
     return Container(
       decoration: BoxDecoration(
@@ -975,8 +1010,15 @@ class TableInventoryTaking extends StatelessWidget {
                           padding: EdgeInsets.all(8.0),
                           // >> note : BELUM DI LIMIT
                           child: TextField(
-                            onChanged:(value) {
-                              providerInventory.addToCart(startIndex + index, quantity: int.parse(controllerQty[index].text));
+                            onChanged: (value) {
+                              if(value != null || value != ''){
+                              providerInventory.addToCart(startIndex + index,
+                                  quantity:
+                                      int.parse(controllerQty[index].text));
+                              }
+                              else{
+                                providerInventory.removeFromCart(startIndex+index);
+                              }
                             },
                             controller: controllerQty[index],
                             keyboardType: TextInputType.number,
@@ -1027,9 +1069,10 @@ class TableInventoryTaking extends StatelessWidget {
                           ),
                           onPressed: () {
                             // ubah input value di expected stock
-                            controllerQty[index].text = 
+                            controllerQty[index].text =
                                 contentTable[index].expectedStock.toString();
-                            providerInventory.addToCart(startIndex + index, quantity: int.parse(controllerQty[index].text));
+                            providerInventory.addToCart(startIndex + index,
+                                quantity: int.parse(controllerQty[index].text));
                           },
                         ),
                       ),
@@ -1050,14 +1093,20 @@ class TableInventoryTaking extends StatelessWidget {
                             Icons.remove_red_eye_outlined,
                             color: ColorPalleteLogin.OrangeColor,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             // keluarin popup detail
-                            showDialog(
+                            var data = await showDialog(
                               barrierDismissible: false,
                               context: context,
                               builder: (context) =>
-                                  DetailProductInventoryTakingPopup(),
+                                  DetailProductInventoryTakingPopup(
+                                data: contentTable[index],
+                                notesPrev: providerInventory.getNotes(contentTable[index]),
+                              ),
                             );
+                            if(data != null){
+                              providerInventory.addToCart(startIndex+index, notes: data.toString());
+                            }
                           },
                         ),
                       ),
@@ -1076,7 +1125,7 @@ class TableInventoryTaking extends StatelessWidget {
 
 class TableInventoryTakingPopUp extends StatelessWidget {
   final List<itemSubmit> contentTable;
-  
+
   const TableInventoryTakingPopUp({
     super.key,
     required this.contentTable,
@@ -1205,8 +1254,9 @@ class TableInventoryTakingPopUp extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child:
-                          Text('${contentTable[index].stockData.productName}', style: TableContentTextStyle.textStyleBody),
+                      child: Text(
+                          '${contentTable[index].stockData.productName}',
+                          style: TableContentTextStyle.textStyleBody),
                     ),
                   ),
                   TableCell(
@@ -1219,7 +1269,9 @@ class TableInventoryTakingPopUp extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text(getOnlyDate(contentTable[index].stockData.expiredDate!),
+                      child: Text(
+                          getOnlyDate(
+                              contentTable[index].stockData.expiredDate!),
                           style: TableContentTextStyle.textStyleBody),
                     ),
                   ),
@@ -1228,7 +1280,8 @@ class TableInventoryTakingPopUp extends StatelessWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Align(
                         alignment: Alignment.centerRight,
-                        child: Text('${contentTable[index].stockData.expectedStock}',
+                        child: Text(
+                            '${contentTable[index].stockData.expectedStock}',
                             style: TableContentTextStyle.textStyleBody),
                       ),
                     ),
@@ -1253,7 +1306,7 @@ class TableInventoryTakingPopUp extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('Lokasi Kuuuuu',
+                      child: Text('${contentTable[index].notes}',
                           style: TableContentTextStyle.textStyleBody),
                     ),
                   ),

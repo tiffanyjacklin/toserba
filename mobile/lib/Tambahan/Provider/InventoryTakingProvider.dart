@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_all/Model/StockOpname.dart';
+import 'package:flutter_app_all/Template.dart';
 import 'package:http/http.dart' as http;
 import 'package:number_paginator/number_paginator.dart';
 // import 'package:provider/provider.dart';
@@ -109,6 +110,13 @@ class InventoryTakingProvider extends ChangeNotifier {
     return currentPage * _lengthPerPage;
   }
 
+  String getNotes(Data data) {
+    if (_mapListItemSubmit.containsKey(createKey(data))) {
+      return _mapListItemSubmit[createKey(data)]!.notes;
+    }
+    return '';
+  }
+
   void checkControllerPageChanges() {
     if (_paginatorController.currentPage != _checkerIndex) {
       _checkerIndex = _paginatorController.currentPage;
@@ -142,6 +150,12 @@ class InventoryTakingProvider extends ChangeNotifier {
     }
   }
 
+  void removeFromCart(int index) {
+    if (_mapListItemSubmit.containsKey(createKey(_resultSearched[index]))) {
+      _mapListItemSubmit.remove(createKey(_resultSearched[index]));
+    }
+  }
+
   void changeControllerQtyValue() {
     if (_resultController.isNotEmpty) {
       for (int i = 0; i < findLengthListItem(); i++) {
@@ -162,12 +176,55 @@ class InventoryTakingProvider extends ChangeNotifier {
         }
       }
     }
-    else{
+  }
 
+  void resetAll() {
+    _paginatorController.currentPage = 0;
+    _checkerIndex = 0;
+
+    for (final controller in _resultController) {
+      controller.text = '';
     }
+    _mapListItemSubmit = {};
+    searchItemWithFilter('');
   }
 
   // API
+  Future<void> SubmitInventoryTaking() async {
+    final link = 'http://leap.crossnet.co.id:8888/products/stock/opname/add';
+
+    List<itemSubmit> listItemSubmited = listItemSubmit;
+    // buat isi nya dulu
+    List<Map<String, dynamic>> bodyContent = List.generate(
+        listItemSubmited.length,
+        (i) => {
+              "product_detail_id":
+                  listItemSubmited[i].stockData.productDetailId,
+              "batch": listItemSubmited[i].stockData.batch,
+              "expired_date":
+                  '${getOnlyDateSQL(listItemSubmited[i].stockData.expiredDate!)}',
+              "actual_stock": listItemSubmited[i].quantity,
+              "unit_type": listItemSubmited[i].stockData.unitType,
+              "store_warehouse_id": _storeId
+            });
+
+    print('FUTURE - ${listItemSubmited.length}');
+    // call api
+    final response =
+        await http.post(Uri.parse(link), body: json.encode(bodyContent));
+
+    // cek status
+    if (response.statusCode == 200) {
+      Map<String, dynamic> temp = json.decode(response.body);
+      if (temp['status'] == 200) {
+        print(temp);
+        resetAll(); // COBA RESET SEMUA
+      }
+    } else {
+      print('error? ${response.statusCode} ${response.body}');
+    }
+  }
+
   // buat suggestion? + filter?
   Future<void> searchItemWithFilter(
     String name, {
@@ -181,7 +238,7 @@ class InventoryTakingProvider extends ChangeNotifier {
   }) async {
     if (search) {
       // reset state sekarang
-      // _paginatorController.currentPage = 0;
+      _paginatorController.currentPage = 0;
     }
 
     isLoading = true;
