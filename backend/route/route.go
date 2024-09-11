@@ -134,14 +134,14 @@ func Init() *echo.Echo {
 	e.POST("/orders/delivery/add/:transfernote_id", controller.InsertDeliveryOrderDetails) 
 	e.PUT("/orders/delivery/update/:deliveryorder_id", controller.InsertDeliveryOrders)
 
-	e.GET("/orders/supplier/all", controller.GetAllAddStock)
+	e.GET("/orders/supplier/all/:asc/:limit/:offset", controller.GetAllAddStock)
 	e.GET("/orders/supplier/:addstock_id", controller.GetAddStockByID)
-	e.GET("/orders/supplier/detail/:addstock_id", controller.GetAddStockDetailByASID)
+	e.GET("/orders/supplier/detail/:addstock_id/:asc/:limit/:offset", controller.GetAddStockDetailByASID)
 	e.POST("/orders/supplier/add/:user_id/:role_id", controller.InsertAddStockDetails) 
 	e.PUT("/orders/supplier/update/:addstock_id", controller.InsertAddStock)
 
 	e.GET("/products/stock/subtract/all", controller.GetAllSubtractStock)
-	e.GET("/products/stock/subtract/:subtractstock_id", controller.GetSubtractStockBySWID)
+	e.GET("/products/stock/subtract/:subtractstock_id", controller.GetSubtractStockByID)
 	e.GET("/products/stock/subtract/store_warehouse/:sw_id", controller.GetSubtractStockBySWID)
 	e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractStock)
 
@@ -218,11 +218,11 @@ func Init() *echo.Echo {
 	e.GET("/payment/method", controller.GetAllPaymentMethod)
 	e.POST("/payment/method/add", controller.InsertPaymentMethod)
 
-	e.GET("/products/moving/transaction/:order/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingByAllTransaction)
-	e.GET("/products/moving/transaction/range/:order/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionByDateRange)
-	e.GET("/products/moving/transaction/:order/:sw_id/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
-	e.GET("/products/moving/transaction/range/:order/:sw_id/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
-	e.GET("/products/moving/stock/card/:order", controller.GetSlowFastMovingFromStockOut)
+	e.GET("/products/moving/transaction/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingByAllTransaction)
+	e.GET("/products/moving/transaction/range/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionByDateRange)
+	e.GET("/products/moving/transaction/:sw_id/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
+	e.GET("/products/moving/transaction/range/:sw_id/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
+	e.GET("/products/moving/stock/card/:asc/:limit/:offset", controller.GetSlowFastMovingFromStockOut)
 
 	e.GET("/promos/verify/:status/:pd_name_code/:promo_code/:limit/:offset", controller.GetVerifiedPromoProducts)
 	e.PUT("/promos/verify/:promo_id/:product_id/:status", controller.VerifyPromoProduct)
