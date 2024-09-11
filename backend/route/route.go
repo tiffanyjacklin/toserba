@@ -140,9 +140,9 @@ func Init() *echo.Echo {
 	e.POST("/orders/supplier/add/:user_id/:role_id", controller.InsertAddStockDetails) 
 	e.PUT("/orders/supplier/update/:addstock_id", controller.InsertAddStock)
 
-	e.GET("/products/stock/subtract/all", controller.GetAllSubtractStock)
+	e.GET("/products/stock/subtract/all/:asc/:limit/:offset", controller.GetAllSubtractStock)
 	e.GET("/products/stock/subtract/:subtractstock_id", controller.GetSubtractStockByID)
-	e.GET("/products/stock/subtract/store_warehouse/:sw_id", controller.GetSubtractStockBySWID)
+	e.GET("/products/stock/subtract/store_warehouse/:sw_id/:asc/:limit/:offset", controller.GetSubtractStockBySWID)
 	e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractStock)
 
 	// Admin
@@ -234,16 +234,16 @@ func Init() *echo.Echo {
 
 	e.GET("/promos/cost/difference/:promo_id/:product_id", controller.GetPromoPriceDiff)
 
-	e.GET("/profit/all/:year/:month/:day", controller.GetAllProfit)
-	e.GET("/profit/all/sum/:year/:month/:day", controller.GetSumProfit)
-	e.GET("/profit/all/date/:start_date/:end_date", controller.GetAllProfitByDate)
-	e.GET("/profit/all/product/:product_id", controller.GetAllProfitByProductID)
+	e.GET("/profit/all/:year/:month/:day/:asc/:limit/:offset", controller.GetAllProfit)
+	e.GET("/profit/sum/all/:year/:month/:day", controller.GetSumProfit)
+	e.GET("/profit/all/date/:start_date/:end_date/:asc/:limit/:offset", controller.GetAllProfitByDate)
+	e.GET("/profit/all/product/:product_id/:asc/:limit/:offset", controller.GetAllProfitByProductID)
 	e.GET("/profit/sum/date/:start_date/:end_date", controller.GetSumProfitByDate)
 	e.GET("/profit/sum/product/:product_id", controller.GetSumProfitByProductID)
 	e.GET("/profit/sum/transaction/:transaction_id", controller.GetSumProfitByTransactionID)
 	e.GET("/profit/sum/store/:sw_id", controller.GetSumProfitBySWID)
-	e.GET("/profit/all/transaction/:transaction_id", controller.GetAllProfitByTransactionID)
-	e.GET("/profit/all/store/:sw_id", controller.GetAllProfitBySWID)
+	e.GET("/profit/all/transaction/:transaction_id/:asc/:limit/:offset", controller.GetAllProfitByTransactionID)
+	e.GET("/profit/all/store/:sw_id/:asc/:limit/:offset", controller.GetAllProfitBySWID)
 	e.GET("/profit/sum/all/year/:start_date/:end_date", controller.GetSumProfitByAllYear)
 	e.GET("/profit/sum/all/month/:start_date/:end_date", controller.GetSumProfitByAllMonth)
 	e.GET("/profit/sum/all/date/:start_date/:end_date", controller.GetSumProfitByAllDate)
@@ -251,7 +251,7 @@ func Init() *echo.Echo {
 	e.GET("/profit/sum/all/product/:start_date/:end_date", controller.GetSumProfitByAllProduct)
 	e.GET("/profit/sum/all/store/:start_date/:end_date", controller.GetSumProfitByAllSW)
 
-	e.GET("/notifications", controller.GetAllNotification)
+	e.GET("/notifications/:limit/:offset", controller.GetAllNotification)
 	e.GET("/notifications/:role_id", controller.GetNotificationByRoleId)
 	e.POST("/notifications/add", controller.InsertNotification)
 
