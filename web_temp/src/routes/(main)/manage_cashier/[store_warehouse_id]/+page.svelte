@@ -84,7 +84,7 @@
    }
     
    async function fetchAllSWSession() {
-      const response = await fetch(`http://${$uri}:8888/sessions/store_warehouse/${store_warehouse_id}`, {
+      const response = await fetch(`http://${$uri}:8888/sessions/store_warehouse/${store_warehouse_id}/100/0`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'
@@ -110,7 +110,7 @@
    }
     
    async function fetchTransactions() {
-      const response = await fetch(`http://${$uri}:8888/transaction/store_warehouse/${store_warehouse_id}`, {
+      const response = await fetch(`http://${$uri}:8888/transaction/store_warehouse/${store_warehouse_id}/100/0`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'
@@ -137,7 +137,7 @@
 
    let transactionByID = [];
    async function fetchTransactionBySession(sessionIdnya) {
-      const response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${sessionIdnya}`, {
+      const response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${sessionIdnya}/''/100/0`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'

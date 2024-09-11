@@ -20,7 +20,7 @@
     let role_to_reassign = [];
 
     $: role_id_reassign = null;
-    $: sw_reassign = [];
+    $: sw_reassign = 0;
 
     $: showModal = false;
     function closeModal() {
@@ -193,39 +193,24 @@
         }
     }
 
-    function addSWToList(sw){
-      let store = sw_reassign.find((id) => id == sw)
-      if (store != null){
-        let index = sw_reassign.findIndex((id) => id == sw)
-        sw_reassign.splice(index,1);
-        console.log("sw_id",sw_reassign);
-      } else {
-        sw_reassign.push(sw);
-        console.log("sw_id",sw_reassign);
-      }
-    }
-
     async function reassignEmployee() {
       let occupied_already = false;
-      for (let i = 0; i < sw_reassign.length; i++) {
-        let occupied = role_user.find((role) => role.role_id == role_id_reassign 
-        && role.store_warehouse_id == sw_reassign[i]);
-        if (occupied != null){
-          occupied_already = true;
-          break;
-        }
+      
+      let occupied = role_user.find((role) => role.role_id == role_id_reassign 
+      && role.store_warehouse_id == sw_reassign);
+      if (occupied != null){
+        occupied_already = true;
       }
       
       if (occupied_already == false) {
-          for (let i = 0; i < sw_reassign.length; i++) {
-          let atribut = {
-            role_id: role_id_reassign,
-            store_warehouse_id: sw_reassign[i],
-            custom: 0
-          }
-          console.log("update role", JSON.stringify(atribut))
-          await UpdateRoleUser(user_id, role_id,atribut)
+        let atribut = {
+          role_id: role_id_reassign,
+          store_warehouse_id: sw_reassign,
+          custom: 0
         }
+        console.log("update role", JSON.stringify(atribut))
+        await UpdateRoleUser(user_id, role_id,atribut)
+
         
         Swal.fire({
           title: "Update Role User Berhasil",
@@ -397,16 +382,11 @@
       </div>
       <div class="flex flex-col my-1">
         <span class="text-peach font-semibold">Assigned Location</span>
-        <ul class="font-semibold text-white ml-2">
+        <select bind:value={sw_reassign} class="w-full p-2 rounded-xl">
           {#each admin_handled_store as store}
-            <li class="mb-1">
-              <div class="flex items-center">
-                <input on:change={() => {addSWToList(store.StoreWarehouses.store_warehouse_id)}} value={store.StoreWarehouses.store_warehouse_id} class="border border-white bg-darkGray  mr-2" type="checkbox">
-                <span class="">{store.StoreWarehouses.store_warehouse_name}</span>
-              </div>
-            </li>
+            <option value={store.StoreWarehouses.store_warehouse_id}>{store.StoreWarehouses.store_warehouse_name}</option>
           {/each}
-        </ul>
+        </select>
       </div>
       <div class="flex mt-8 items-center justify-center">
         <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>

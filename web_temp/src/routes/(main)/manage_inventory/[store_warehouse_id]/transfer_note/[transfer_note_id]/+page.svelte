@@ -23,6 +23,9 @@
 
     let tf_details = [];
     let ori_tf_details = [];
+    let tf_note = [];
+    $: sw_from = [];
+    $: sw_to = [];
 
     let produk = [];
     let filteredProduk = [];
@@ -69,8 +72,64 @@
         console.log("tf_details", tf_details);
     }
     
+    async function fetchTransferNote() {
+        const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/${transfer_note_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all supplier fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch suppliers', data);
+            return;
+        }
+ 
+        tf_note = data.data;
+        console.log(tf_note)
+
+        let from = await getStoreWarehouse(tf_note.store_warehouse_from);
+        let to = await getStoreWarehouse(tf_note.store_warehouse_to);
+
+        tf_note.from_warehouse_name = from.store_warehouse_name;
+        tf_note.from_warehouse_address = from.store_warehouse_address;
+        
+        tf_note.to_warehouse_name = to.store_warehouse_name;
+        tf_note.to_warehouse_address = to.store_warehouse_address;
+    }
+
+    async function getStoreWarehouse(sw_id) {
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${sw_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all supplier fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch suppliers', data);
+            return;
+        }
+ 
+        return data.data;
+    }
+    
     async function fetchProduct() {
-        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${userId}/${roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -185,6 +244,7 @@
 
     onMount(async () => {
       await getTransferNotetDetails();
+      await fetchTransferNote();
       fetchProduct();
     });
    
@@ -196,6 +256,17 @@
     </div>
     <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Assign Product</span>       
     <div class="w-11/12 overflow-x-auto shadow-md sm:rounded-lg">
+      <div class="flex flex-col mb-10">
+        <div class="my-2 flex flex-col">
+          <span class="text-xl font-bold mb-1">Origin</span>
+          <span class="text-xl">{tf_note.from_warehouse_name}, {tf_note.from_warehouse_address}</span>
+        </div>
+        <div class="my-2 flex flex-col">
+          <span class="text-xl font-bold mb-1">Origin</span>
+          <span class="text-xl">{tf_note.to_warehouse_name}, {tf_note.to_warehouse_address}</span>
+        </div>
+      </div>
+
         <table class="w-full text-sm text-left rtl:text-right">
           <thead class="text-xs text-gray-700 uppercase bg-gray-100">
             <tr class="border-b-2 border-black">
