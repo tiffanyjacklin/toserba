@@ -17,6 +17,8 @@ export const totalAmount = writable(loadFromLocalStorage('totalAmount', ''));
 export const storeId = writable(loadFromLocalStorage('storeId', ''));
 export const sw_name = writable(loadFromLocalStorage('sw_name', ''));
 
+export const prev_path = writable(loadFromLocalStorage('prev_path', ''));
+
 if (browser) {
     uri.subscribe(value => saveToLocalStorage('uri', value));
     userId.subscribe(value => saveToLocalStorage('userId', value));
@@ -30,4 +32,6 @@ if (browser) {
     // warehouse operational employee
     storeId.subscribe(value => saveToLocalStorage('storeId', value));
     sw_name.subscribe(value => saveToLocalStorage('sw_name', value));
+
+    prev_path.subscribe(value => saveToLocalStorage('prev_path', value));
 }
