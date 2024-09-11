@@ -842,19 +842,20 @@ e.POST("/payment/method/add", controller.InsertPaymentMethod)
 // order 0 - fast; 1 - slow; 
 // year month day kalau tidak spesifik tulis 0. Misal ambil di Agustus 2024 jadi 2024/08/0
 // Kalau ambil semua tanpa filter tanggal, jadi 0/0/0. BERLAKU UNTUK BAWAH NYA JUGA
-e.GET("/products/moving/transaction/:order/:year/:month/:day", controller.GetSlowFastMovingByAllTransaction)
+e.GET("/products/moving/transaction/:order/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingByAllTransaction)
+	
 
 // Mengambil barang fast/slow moving dari jumlah barang di transaksi berdasarkan range tanggal
 // /products/moving/transaction/range/0/2024-08-20/2024-08-22
-e.GET("/products/moving/transaction/range/:order/:start_date/:end_date", controller.GetSlowFastMovingFromTransactionByDateRange)
+e.GET("/products/moving/transaction/range/:order/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionByDateRange)
 
 // Mengambil barang fast/slow moving dari jumlah barang di transaksi pada store tertentu
 // order 0 - fast; 1 - slow; 
-e.GET("/products/moving/transaction/:order/:sw_id/:year/:month/:day", controller.GetSlowFastMovingFromTransactionBySWID)
+e.GET("/products/moving/transaction/:order/:sw_id/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
 
 // Mengambil barang fast/slow moving dari jumlah barang di transaksi pada store tertentu berdasarkan range tanggal
 // /products/moving/transaction/range/0/1/2024-08-20/2024-08-22
-e.GET("/products/moving/transaction/range/:order/:sw_id/:start_date/:end_date", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
+e.GET("/products/moving/transaction/range/:order/:sw_id/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
 
 // Mengambil barang fast/slow moving dari jumlah barang di stock out stock cards
 // order 0 - fast; 1 - slow; 

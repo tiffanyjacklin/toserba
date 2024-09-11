@@ -172,7 +172,7 @@ func Init() *echo.Echo {
 	e.GET("/promos/:promo_id", controller.GetPromoByID)
 	e.GET("/promos/last", controller.GetLastPromo)
 	e.GET("/promos/:start_date/:end_date/:product_name_promo_code/:promo_type/:limit/:offset", controller.GetAllPromos)  
-	e.GET("/promos/active", controller.GetAllActivePromos)  
+	e.GET("/promos/active/:limit/:offset", controller.GetAllActivePromos)  
 	e.POST("/promos/add", controller.InsertPromos) 
 	e.GET("/promos/product/:product_id/:limit/:offset", controller.GetPromoIDByProductID)
 	e.POST("/promos/product/add", controller.InsertPromoProducts) 
@@ -218,10 +218,10 @@ func Init() *echo.Echo {
 	e.GET("/payment/method", controller.GetAllPaymentMethod)
 	e.POST("/payment/method/add", controller.InsertPaymentMethod)
 
-	e.GET("/products/moving/transaction/:order/:year/:month/:day", controller.GetSlowFastMovingByAllTransaction)
-	e.GET("/products/moving/transaction/range/:order/:start_date/:end_date", controller.GetSlowFastMovingFromTransactionByDateRange)
-	e.GET("/products/moving/transaction/:order/:sw_id/:year/:month/:day", controller.GetSlowFastMovingFromTransactionBySWID)
-	e.GET("/products/moving/transaction/range/:order/:sw_id/:start_date/:end_date", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
+	e.GET("/products/moving/transaction/:order/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingByAllTransaction)
+	e.GET("/products/moving/transaction/range/:order/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionByDateRange)
+	e.GET("/products/moving/transaction/:order/:sw_id/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
+	e.GET("/products/moving/transaction/range/:order/:sw_id/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
 	e.GET("/products/moving/stock/card/:order", controller.GetSlowFastMovingFromStockOut)
 
 	e.GET("/promos/verify/:status/:pd_name_code/:promo_code/:limit/:offset", controller.GetVerifiedPromoProducts)
