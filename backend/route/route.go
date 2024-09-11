@@ -187,7 +187,7 @@ func Init() *echo.Echo {
 	e.PUT("/orders/transfer/notes/verify/:transfernote_id/:status", controller.VerifyTransferNotes)
 	e.POST("/orders/transfer/detail/add/product/:transfernote_id", controller.InsertProductToTransferNoteDetails) 
 	e.PUT("/orders/transfer/detail/update/product/:transfernote_id/:product_id/:quantity", controller.UpdateProductQtyTransferNote)
-	e.DELETE("/orders/transfer/detail/delete/product/:transfernote_id/:product_id", controller.DelProductFromTransferNote)
+	e.DELETE("/orders/transfer/detail/delete/product/:transfernote_id/:product_id/:batch/:exp_date", controller.DelProductFromTransferNote)
 
 	e.GET("/orders/supplier/verify/:status/:sw_name/:limit/:offset", controller.GetNotVerifiedAddStock)
 	e.PUT("/orders/supplier/verify/:addstock_id/:status", controller.VerifyAddStock)
