@@ -240,23 +240,23 @@
           <span class="font-bold text-xl mb-1">Sorting By</span>
           <div class="grid grid-cols-4 flex w-full flex-wrap">
             {#each product_sorts as type}
-              <button on:click={() => {if (sort_type === '' || sort_type !== type.sort_id) {sort_type = type.sort_id} else {sort_type = '';}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${sort_type === type.sort_id ? 'bg-white text-peach2' : 'bg-gray-100'}`}>{type.sort_type}</button>
+              <button on:click={() => {sort_type = (sort_type === '' || sort_type !== type.sort_id) ? type.sort_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${sort_type === type.sort_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{type.sort_type}</button>
             {/each}
           </div>
           <span class="font-bold text-xl mb-1">Sorting Order</span>
           <div class="grid grid-cols-4 flex w-full flex-wrap">
-              <button on:click={() => {if (sorting === '' || sorting !== "asc") {sorting = "asc";} else {sorting = '';}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${sorting === 'asc' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Ascending</button>
-              <button on:click={() => {if (sorting === '' || sorting !== "desc") {sorting = "desc";} else {sorting = '';}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${sorting === 'desc' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Descending</button>
+              <button on:click={() => {sorting = (sorting === '' || sorting !== "asc") ? "asc" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${sorting === 'asc' ? 'bg-white text-peach2 border-[#f2b082] border-[#f2b082]' : 'bg-gray-100'}`}>Ascending</button>
+              <button on:click={() => {sorting = (sorting === '' || sorting !== "desc") ? "desc" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${sorting === 'desc' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Descending</button>
           </div>
           <span class="font-bold text-xl mb-1">Unit Type</span>
           <div class="grid grid-cols-4 flex w-full flex-wrap">
-              <button on:click={() => {if (unit_type === '' || unit_type !== 'unit') {unit_type = "unit";} else {unit_type = ''}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'unit' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Units</button>
-              <button on:click={() => {if (unit_type === '' || unit_type !== 'gram') {unit_type = "gram";} else {unit_type = ''}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'gram' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Grams</button>
+              <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "unit") ? "unit" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'unit' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Units</button>
+              <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "gram") ? "gram" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'gram' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Grams</button>
           </div>
           <span class="font-bold text-xl mb-1">Product Category</span>
           <div class="grid grid-cols-4 flex w-full flex-wrap">
             {#each categories as cat}
-              <button on:click={() => {if (category === '' || category !== cat.product_category_id) {category = cat.product_category_id;} else {category = ''}}} class={`border-transparent border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.product_category_id ? 'bg-white text-peach2' : 'bg-gray-100'}`}>{cat.product_category_name}</button>
+              <button on:click={() => {category = (category === '' || category !== cat.product_category_id) ? cat.product_category_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.product_category_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cat.product_category_name}</button>
             {/each}
           </div>
           
