@@ -314,6 +314,9 @@ e.GET("/products/stock/card/product/total_stock/batch/:product_id/:sw_id/:batch"
 // Mengambil total stok berdasarkan exp date, produk id, dan store/warehouse tertentu
 e.GET("/products/stock/card/product/total_stock/:product_id/:sw_id/:exp_date", controller.GetTotalStockByEXPPIDSWID)
 
+// Mengambil total stok berdasarkan batch, exp date, produk id, dan store/warehouse tertentu
+e.GET("/products/stock/card/product/total_stock/:product_id/:sw_id/:exp_date/:batch", controller.GetTotalStockByBatchEXPPIDSWID)
+
 // Mengambil list expdate pada produk tertentu
 e.GET("/products/stock/card/exp_date/:product_id/:limit/:offset", controller.GetAllEXPDateByProductID)
 
