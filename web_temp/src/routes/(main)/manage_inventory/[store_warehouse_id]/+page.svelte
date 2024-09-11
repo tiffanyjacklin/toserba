@@ -421,7 +421,7 @@
   }
   
   async function fetchAssign() {
-        const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/all/''/0/''/''/''/100/0`, {
+        const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/verify/0/${store_warehouse_id}/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
