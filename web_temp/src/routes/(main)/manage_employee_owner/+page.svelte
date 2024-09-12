@@ -15,6 +15,7 @@
 
     let users = [];
     $: filtered_users = [];
+    let stores = [];
 
     //FILTER
     let showFilter = false;
@@ -37,6 +38,11 @@
     let store_warehouse_id = 0;
 
     let role_to_assign = [];
+
+    //ADD NEW ROLE
+    let roles_name = "";
+    let roles_id = 0;
+    let list_privilege_id = [];
 
     function toggleFilter() {
         showFilter = !showFilter;
@@ -67,6 +73,7 @@
 
         users = data.data;
         filtered_users = structuredClone(users);
+        console.log(users)
     }
   
   async function fetchUserFiltered(start_date,end_date,role_id,gender){
@@ -125,6 +132,31 @@
         return data.data.user_id
         console.log("last",data.data.user_id)
     }
+
+  async function fetchSW(){
+    const response = await fetch(`http://${$uri}:8888/store_warehouses/all`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('fetch SW failed', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid fetch SW', data);
+        return;
+    }
+
+    stores = data.data;
+
+    // console.log("stores",stores)
+  }
 
   async function addUser() {
       const response = await fetch(`http://${$uri}:8888/user/add`, {
@@ -254,6 +286,21 @@
    <div class="mx-8  mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Manage Employees</span>
 
+      <div class="w-11/12 mb-10">
+        <div class="grid grid-cols-4 gap-x-2 gap-y-4">
+            {#if tampilan == "manage"}
+                <button on:click={() => {tampilan = "manage"; tampilan = tampilan;}} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
+            {:else}
+                <button on:click={() => {tampilan = "manage"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
+            {/if}
+            {#if tampilan == "edit"}
+                <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
+            {:else}
+                <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
+            {/if}
+        </div>
+    </div>
+
         <div class="w-11/12 flex items-center">
             <div class="relative w-9/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
                 <input 
@@ -307,21 +354,10 @@
                 {/if}
             </div>
             <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
-                <button on:click={() => {showModal = "add_employee"}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Employee</button>
-            </div>
-        </div>
-         
-        <div class="w-11/12 my-10">
-            <div class="grid grid-cols-4 gap-x-2 gap-y-4">
                 {#if tampilan == "manage"}
-                    <button on:click={() => {tampilan = "manage"; tampilan = tampilan;}} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
-                {:else}
-                    <button on:click={() => {tampilan = "manage"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
-                {/if}
-                {#if tampilan == "edit"}
-                    <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
-                {:else}
-                    <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
+                  <button on:click={async() => {showModal = "add_employee"; await fetchSW();}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Employee</button>
+                {:else if tampilan == "edit"}
+                  <button on:click={async() => {showModal = "add_role";}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Role</button>
                 {/if}
             </div>
         </div>
@@ -369,7 +405,7 @@
 
       {#if tampilan == "manage"}
         {#each filtered_users as user}
-        {#if user.role_id != 5}
+        {#if user.role_id != 6}
           <button on:click={() => {goto(`/manage_employee_owner/manage/${user.user_id}/${user.role_id}/${user.store_warehouse_id}`)}} class="w-[96%] font-roboto">
             <div class="relative overflow-x-auto sm:rounded-lg">
                 <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3">                        
@@ -379,7 +415,7 @@
                     <div class="flex flex-col items-start font-semibold text-lg">
                         <span class="">{user.user_fullname}</span>
                         <span class="">{user.roles_name}</span>
-                        <!-- <span class="">Join Date: {new Date(user.user_created_at).toJSON().slice(0, 10)}</span> -->
+                        <span class="">Join Date: {new Date(user.user_created_at).toJSON().slice(0, 10)}</span>
                     </div>
                 </div>
             </div>
@@ -462,6 +498,10 @@
   </div>
   <div class="flex flex-col justify-center p-8">
     <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Employee Profile Picture</span>
+      <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" aria-describedby="file_input_help" type="file">
+    </div>
+    <div class="flex flex-col my-2">
       <span class="text-peach font-semibold mb-1">Employee Full Name</span>
       <input type="text" bind:value={user_fullname} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
     </div>
@@ -515,14 +555,59 @@
     <div class="flex flex-col my-1">
       <span class="text-peach font-semibold mb-1">Assigned Location</span>
       <select bind:value={store_warehouse_id} class="w-full p-2 rounded-xl">
-        {#each handled_store as store}
-            <option value={store.StoreWarehouses.store_warehouse_id}>{store.StoreWarehouses.store_warehouse_name}</option>
+        {#each stores as store}
+          <option value={store.store_warehouse_id}>{store.store_warehouse_name}</option>
         {/each}
       </select>
     </div>
     <div class="flex mt-8 items-center justify-center">
       <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
       <button on:click={() => {addEmployee()}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
+    </div>
+  </div>
+</TaskModal> 
+{/if}
+
+<!-- ADD NEW ROLE -->
+{#if showModal == "add_role" }
+<TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+  <div class="flex items-center justify-center pt-8 font-roboto">
+    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add New Employee</div>
+  </div>
+  <div class="flex flex-col justify-center p-8">
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Employee Full Name</span>
+      <input type="text" bind:value={user_fullname} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+    </div>
+   
+    <!-- CHOOSE PRIVILEGE (PRIVILEGE LIST) -->
+    <div class="flex flex-col my-1">
+      <div class="flex items-center mb-1">
+        <span class="text-peach font-semibold mr-2">Permissions</span>
+        <!-- <input on:change={() => {addStoreToList("all"); toggleSwListAll();}} class="border border-peach bg-darkGray" type="checkbox"> -->
+      </div>
+      
+      <!-- {#each storeWarehouse as store}
+      {#if store.StoreWarehouses.store_warehouse_type == "STORE"}
+        <ul class="font-semibold text-white ml-2">
+          <li class="mb-1">
+            <div class="flex items-center">
+              {#if swListAll == false}
+                <input on:change={() => {addStoreToList(store.StoreWarehouses.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
+              {:else}
+                <input checked disabled class="border border-white bg-darkGray  mr-2" type="checkbox">
+              {/if}
+                <span class="">{store.StoreWarehouses.store_warehouse_name}</span>
+            </div>
+          </li>
+        </ul>
+      {/if}
+      {/each} -->
+    </div>
+
+    <div class="flex mt-8 items-center justify-center">
+      <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
+      <button on:click={() => {addEmployee()}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Create</button>
     </div>
   </div>
 </TaskModal> 

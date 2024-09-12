@@ -409,7 +409,7 @@
 
       <!-- {#if tampilan == "manage"} -->
         {#each filtered_users as user}
-        {#if user.role_id != 5}
+        {#if user.role_id != 5 && user.role_id != 6}
           <button on:click={() => {goto(`/manage_employee_admin/manage/${user.user_id}/${user.role_id}/${user.sw_id}`)}} class="w-[96%] font-roboto">
             <div class="relative overflow-x-auto sm:rounded-lg">
                 <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3">                        
@@ -501,6 +501,10 @@
     <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add New Employee</div>
   </div>
   <div class="flex flex-col justify-center p-8">
+    <div class="flex flex-col my-2">
+      <span class="text-peach font-semibold mb-1">Employee Profile Picture</span>
+      <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" aria-describedby="file_input_help" type="file">
+    </div>
     <div class="flex flex-col my-2">
       <span class="text-peach font-semibold mb-1">Employee Full Name</span>
       <input type="text" bind:value={user_fullname} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
