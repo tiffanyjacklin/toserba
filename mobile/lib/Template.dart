@@ -162,6 +162,11 @@ class TableContentTextStyle {
 
 }
 
+const TextStyle notFoundData = TextStyle(
+  fontSize: 20,
+  fontWeight: FontWeight.bold
+);
+
 // date formatter
 String getDateWithTime(String date){
   return DateFormat('dd-MM-yyyy, hh:mm aaa').format(DateTime.parse(date));

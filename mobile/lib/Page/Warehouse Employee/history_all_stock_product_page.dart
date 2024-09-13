@@ -294,8 +294,6 @@ var jsonProduct = {
 };
 
 Future _FetchAllStockProductWarehouse(int warehouseId) async {
-    // link api http://leap.crossnet.co.id:8888/user/1/1
-    // link localhost -> http://localhost:8888/user/
     final link =
         'http://leap.crossnet.co.id:8888/products/stock/card/product/store_warehouse/$warehouseId';
 
@@ -428,7 +426,6 @@ class _HistoryAllStockProductPageState extends State<HistoryAllStockProductPage>
                   ),
                 ),
               ) : Container(),
-
 
               // table 
               TableStockCardAllProducts(listStockCard: this.searchedHistoryProduct, startIndex: 5),

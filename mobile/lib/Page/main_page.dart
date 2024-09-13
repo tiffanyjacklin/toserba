@@ -63,12 +63,15 @@ class MainPage extends StatelessWidget {
                           ),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          padding: const EdgeInsets.only(left: 20, right: 20),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                child: Icon(Icons.ac_unit),
+                                height: 45,
+                                child: Image(
+                                  image: AssetImage('assets/logo2.png'),
+                                ),
                               ),
                               Container(
                                 child: Row(
@@ -262,12 +265,11 @@ class MenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        flex: 8,
-        child: Container(
-          decoration: BoxDecoration(color: Colors.grey[100]),
-            child: InventoryTakingPage(),
-          ),
-        
+      flex: 8,
+      child: Container(
+        decoration: BoxDecoration(color: Colors.grey[100]),
+        child: InventoryTakingPageWithProvider(),
+      ),
     );
   }
 }

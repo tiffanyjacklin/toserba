@@ -3,13 +3,23 @@
     import { browser } from '$app/environment';
     import { goto } from '$app/navigation';
     import { get } from 'svelte/store';
+	import { page } from '$app/stores';
 
-    import { uri, userId, roleId, sessionId, privileges, user, totalAmount } from '$lib/uri.js';
+    import { uri, userId, roleId, sessionId, privileges, user, totalAmount, prev_path, storeId, sw_name } from '$lib/uri.js';
 
     export let pathname = "";
     let full_name = "Loading...";
     let role_name = "Loading...";
     let privilegess ;
+
+    
+    $: pathnameIs = $page.url.pathname;
+
+    $: if ($prev_path === 'assign_products_to_store' && pathnameIs.startsWith('/assign_products_to_store')) {
+        storeId.set('');  
+        sw_name.set('');  
+    }
+
     $: {
         full_name = $user.user_fullname;
         role_name = $user.roles_name;

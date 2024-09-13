@@ -5,10 +5,10 @@
   import { onMount } from 'svelte';
   import { uri, userId, roleId } from '$lib/uri.js';
   import img_produk from "$lib/assets/produk.png";
-  $: limit = 10; // Number of items per page
-  $: offset = 0; // Offset for pagination
-  $: totalNotes = 100; // Total number of notes (assumed to be fetched from server)
-  $: currentPage = 1; // Current page
+  $: limit = 10; 
+  $: offset = 0;
+  $: totalNotes = 100; 
+  $: currentPage = 1; 
 
   let sw_id = 0;
   let products = [];
@@ -74,7 +74,6 @@
       }
 
       warehouse = data.data[0];  
-      // all_stores = [...stores];
       console.log(warehouse);
   }
   async function fetchStockCard(product_id) {
@@ -199,7 +198,6 @@
       products = [...data.data];  
       
   }
-  // || (categories !== '' || unit_type !== '' || sort_type !== '' || sorting !== '')
   $: if ((searchQuery_temp !== searchQuery) ){
     console.log(searchQuery);
     fetchProduk();
@@ -208,14 +206,6 @@
     searchQuery_temp = '';
   }
 
-  // $: if (searchQuery.length > 0) {
-  //     products = products.filter(item => 
-  //       item.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //       item.ProductDetails.product_detail_id.toString().includes(searchQuery)
-  //     );
-  // } else {
-  //     products = [...products];
-  // }
 </script>
 
  
