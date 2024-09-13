@@ -667,11 +667,55 @@
                     </button>
                   </div>
                   {#if showBatchExpiredDate && pd_id === product.ProductDetails.product_detail_id}
-                    <div class="">
-                      {#each expired_dates as exp_date}
-                        <div class="">{exp_date.product_batch} - {exp_date.expired_date}: {exp_date.product_stock} {exp_date.unit_type}</div>
-                      {/each}
+                  <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute z-20 mt-2 w-1/4 bg-gray-100 p-4 rounded-lg font-roboto">
+                    <span class="font-bold text-xl mb-4">Batch & Expired Date for {product.ProductDetails.product_name}</span>
+                    <div class="mt-4 grid-cols-4 flex w-full flex-wrap">
+                      <table class="w-full rounded-lg text-sm text-left rtl:text-right">
+                        <thead class="text-xs text-gray-700 uppercase bg-white">
+                          <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase">
+                            No
+                          </th>
+                          <th scope="col" class="px-3 py-2 text-sm font-bold uppercase text-center">
+                            Batch
+                          </th>
+                          <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase">
+                            Expiry Date
+                          </th>
+                          <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase">
+                            Stock
+                          </th>
+                          <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase">
+                            Unit Type
+                          </th>
+                        </thead>
+                        <tbody>
+                          {#each expired_dates as exp_date, i}
+                          <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
+                            <th scope="row" class="px-3 py-2  text-center font-medium text-gray-900 whitespace-nowrap">
+                              {i+1}
+                            </th>
+                            <td class="px-1 py-2 text-center">
+                              {exp_date.product_batch}
+                            </td>
+                            <td class="px-1 py-2 text-center">
+                              <DateConverter value={exp_date.expired_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                            </td>
+                            <td class="px-1 py-2 text-center">
+                              {exp_date.product_stock}
+                            </td>
+                            <td class="px-1 py-2 text-center">
+                              {exp_date.unit_type}
+                            </td>
+                          </tr>
+                          {/each}
+                        </tbody>
+                      </table>
                     </div>
+                    
+                    <div class="flex justify-center font-semibold mt-4">
+                        <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {toggleShowBatchExpiredDate(product.ProductDetails.product_detail_id, product.quantity, product.ProductDetails.product_unit)}}>Close</button>
+                    </div>
+                  </div>
                   {/if}
                 </td>
                 <td class="px-1 py-2 text-center">
