@@ -209,6 +209,7 @@ func Init() *echo.Echo {
 	e.PUT("/store_warehouses/edit/:sw_id", controller.UpdateStoreWarehouse)
 	e.GET("/roles/all/:role_name/:limit/:offset", controller.GetAllRoles)
 	e.POST("/roles/add", controller.InsertRoles)
+	e.GET("/privileges/all/:priv_name/:limit/:offset", controller.GetAllPrivileges)
 	e.POST("/privileges/add", controller.InsertPrivileges)
 	e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
 	e.GET("/suppliers/:supplier_id", controller.GetSupplierByID)
@@ -218,10 +219,9 @@ func Init() *echo.Echo {
 	e.GET("/payment/method", controller.GetAllPaymentMethod)
 	e.POST("/payment/method/add", controller.InsertPaymentMethod)
 
-	e.GET("/products/moving/transaction/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingByAllTransaction)
-	e.GET("/products/moving/transaction/range/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionByDateRange)
-	e.GET("/products/moving/transaction/:sw_id/:year/:month/:day/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
-	e.GET("/products/moving/transaction/range/:sw_id/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
+	e.GET("/products/moving/transaction/product/:product_id/:asc/:limit/:offset", controller.GetSlowFastMovingPerProduct)
+	e.GET("/products/moving/transaction/:sw_id/:year/:month/:day/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
+	e.GET("/products/moving/transaction/range/:sw_id/:start_date/:end_date/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
 	e.GET("/products/moving/stock/card/:asc/:limit/:offset", controller.GetSlowFastMovingFromStockOut)
 
 	e.GET("/promos/verify/:status/:pd_name_code/:promo_code/:limit/:offset", controller.GetVerifiedPromoProducts)
