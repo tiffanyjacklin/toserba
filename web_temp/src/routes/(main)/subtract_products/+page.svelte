@@ -1,392 +1,321 @@
 <script>
-    import TaskModal from '$lib/TaskModal.svelte';
-    import DateConverter from '$lib/DateConverter.svelte';
-    import MoneyConverter from '$lib/MoneyConverter.svelte';
-    import { onMount } from 'svelte';
-    import { uri, userId, roleId, storeId, sw_name } from '$lib/uri.js';
-    import { get } from 'svelte/store';
-    import { goto } from '$app/navigation';
-    storeId.set('');
-  
-    let productId = '';
-    let productName = '';
-    let expired_date = '';
-    $: console.log('Reactive Expired Date:', expired_date);
-    let batch = '';
-    let stores = [];
-    let all_stores = [];
-    let stocks = [];
-    let all_stocks = [];
-    let warehouse = [];
-    $: filteredStock = [];
-    $: expiredDateOfSelectedProduct = [];
-    $: batchOfSelectedProduct = [];
-    let product = [];
+  import TaskModal from '$lib/TaskModal.svelte';
+  import DateConverter from '$lib/DateConverter.svelte';
+  import MoneyConverter from '$lib/MoneyConverter.svelte';
+  import { onMount } from 'svelte';
+  import { uri, userId, roleId, sw_name } from '$lib/uri.js';
+  import { get } from 'svelte/store';
+  import { goto } from '$app/navigation';
 
-    // let stock_card = [];
-    let searchQuery = '';
-    let showModal = false; 
-    let showTable = false;
-    let showAddProduct = false;
-    $: products_to_subtract = [];
-  
-    $: showExpiredDateList = false;
-    $: showBatchList = false;
-    $: showIDList = false;
-    $: showNameList = false;
+  let warehouse = [];
+  $: products = [];
+  $: all_products = [];
+  $: stocks = [];
+  $: all_stocks = [];
 
-    function handleClick() {
-      showModal = true;
-    }
-    function closeModal() {
-      showModal = false;
-    }
-    function toggleTable(product_id) {
-      showTable = !showTable;
-    }
-    function toggleProductAdd() {
-      showAddProduct = !showAddProduct;
-    }
-    onMount(async () => {
-        await fetchWarehouse(); 
-        await fetchStockOpname();
+  let showModal = false;
+  let showAddProduct = false;
+  $: showIDList = false;
+  $: showNameList = false;
+  $: showExpiredDateList = false;
+  $: showBatchList = false;
+  let userClearedBatch = false;
+  let userClearedExpiredDate = false;
+
+  $: productId = '';
+  $: productName = '';
+  $: expired_date = '';
+  $: batch = '';
+  
+  $: expiredDateOfSelectedProduct = [];
+  $: batchOfSelectedProduct = [];
+  $: products_to_subtract = [];
+  let products_to_send_fix = [];
+  
+  onMount(async () => {
+      await fetchWarehouse();
+      await fetchProducts();
+      await fetchStockOpname();
+  });
+  async function fetchWarehouse() {
+    const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
     });
-  
-  
-    async function fetchWarehouse() {
-        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-  
-        if (!response.ok) {
-            console.error('get all produk fetch failed', response);
-            return;
-        }
-  
-        const data = await response.json();
-  
-        if (data.status !== 200) {
-            console.error('Invalid fetch last', data);
-            return;
-        }
-  
-        warehouse = data.data;  
-        // all_stores = [...stores];
-        console.log(warehouse);
-    }
-  
-    async function fetchStockOpname() {
-        const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${warehouse.store_warehouse_id}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-  
-        if (!response.ok) {
-            console.error('get all produk fetch failed', response);
-            return;
-        }
-  
-        const data = await response.json();
-  
-        if (data.status !== 200) {
-            console.error('Invalid fetch last', data);
-            return;
-        }
-  
-        stocks = [...data.data];  
-        // all_stocks = [...stocks];
-        all_stocks = stocks.filter(item => 
-          item.expected_stock > 0     
-        );
-        filteredStock = filterOneTypeOnly(all_stocks);
-        // console.log(all_stocks);
-        // console.log(filteredStock);
-    }
-    
-    function filterStock(value, type) {
-      // Filter based on productId or productName
-      if (type === 'id') {
-        filteredStock = filteredStock.filter(stock => String(stock.product_detail_id).includes(value));
-      } else {
-        filteredStock = filteredStock.filter(stock => stock.product_name.toLowerCase().includes(value.toLowerCase()));
-      }
-    }
-    function toggleExpiredDateList() {
-      if (productId && productName) {
-        showExpiredDateList = !showExpiredDateList;
-        showBatchList = false;
-      }
+
+    if (!response.ok) {
+        console.error('get all produk fetch failed', response);
+        return;
     }
 
-    function toggleBatchList() {
-      if (productId && productName) {
-        showBatchList = !showBatchList;
-        showExpiredDateList = false;
-      }
-    }
-    function toggleIDList() {
-      showIDList = !showIDList;
-      showNameList = false;
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid fetch last', data);
+        return;
     }
 
-    function toggleNameList() {
-      showNameList = !showNameList;
-      showIDList = false;
+    warehouse = data.data[0].StoreWarehouses;
+  }
+  async function fetchProducts() {
+    const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////////0/0`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('Fetch stock opname failed', response);
+        return;
     }
-    function selectProduct(stock) {
-      productId = stock.product_detail_id;
-      productName = stock.product_name;
-      expired_date = '';
-      batch = '';
-      updateFilteredStocks();
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid stock opname fetch', data);
+        return;
+    }
+
+    products = [...data.data];
+    all_products = products.filter(item => item.ProductDetails.product_stock > 0);
+    // console.log("dari fetch products",products);
+    // console.log("dari fetch products",all_products);
+  }
+  async function fetchStockOpname() {
+    const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${warehouse.store_warehouse_id}/${productName}/${batch}/''/${productId}/${expired_date}/''/''/0/0`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('get all produk fetch failed', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid fetch last', data);
+        return;
+    }
+
+    stocks = [...data.data];
+    all_stocks = stocks.filter(item => item.expected_stock > 0);
+    // console.log("dari fetch stocks",stocks);
+    // console.log("dari fetch stocks",all_stocks);
+  }
+  function toggleProductAdd() {
+    showAddProduct = !showAddProduct;
+  }
+  function handleClick() {
+    showModal = true;
+  }
+  function closeModal() {
+    showModal = false;
+  }
+  function toggleIDList() {
+    showIDList = !showIDList;
+    showNameList = false;
+  }
+  function toggleNameList() {
+    showNameList = !showNameList;
+    showIDList = false;
+  }
+  async function selectProduct(stock) {
+    productId = stock.ProductDetails.product_detail_id;
+    productName = stock.ProductDetails.product_name;
+    expired_date = '';
+    batch = '';
+
+    showIDList = false;
+    showNameList = false;
+    autoFillIfOnlyOneStock();
+  } 
+  async function toggleExpiredDateList() {
+    if (productId && productName) {
       autoFillIfOnlyOneStock();
-    }
-
-    function selectProductExp(stock) {
-      console.log('Selected Expired Date1:', expired_date); 
-      expired_date = stock.expired_date;
-      console.log('Selected Expired Date2:', expired_date);
-
-      showExpiredDateList = false;
-      filterUniqueBatches();
-      filterUniqueExpiredDates();
-      autoFillIfOnlyOneStock();
-    }
-
-
-    function selectProductBatch(stock) {
-      // console.log('Selected Batch1:', stock.batch); 
-      batch = stock.batch;
-      // console.log('Selected Batch2:', batch); 
+      showExpiredDateList = !showExpiredDateList;
       showBatchList = false;
-      filterUniqueExpiredDates(); 
+    }
+  }
+  async function toggleBatchList() {
+    if (productId && productName) {
       autoFillIfOnlyOneStock();
+      showBatchList = !showBatchList;
+      showExpiredDateList = false;
     }
+  }
+  async function autoFillIfOnlyOneStock() {
+    await fetchStockOpname();
+    filterUniqueExpiredDates(); 
+    filterUniqueBatches(); 
+    if (all_stocks.length === 1 || (batchOfSelectedProduct.length === 1 && expiredDateOfSelectedProduct.length === 1)) {
+      if (!userClearedBatch) {
+        batch = expiredDateOfSelectedProduct[0].batch;
+      }
+      if (!userClearedExpiredDate) {
+        expired_date = batchOfSelectedProduct[0].expired_date;
+      }
+    }
+  }
+  async function selectProductExp(stock) {
+    expired_date = stock.expired_date;
+    showExpiredDateList = false;
+    autoFillIfOnlyOneStock();
+    userClearedBatch = false;
+    userClearedExpiredDate = false;
+  }
+  async function selectProductBatch(stock) {
+    batch = stock.batch;
+    showBatchList = false;
+    autoFillIfOnlyOneStock();
+    userClearedBatch = false;
+    userClearedExpiredDate = false;
+  }
+  async function clearBatch() {
+    batch = '';
+    userClearedBatch = true;
+    autoFillIfOnlyOneStock();
+  }
+  async function clearExpiredDate() {
+    expired_date = '';
+    userClearedExpiredDate = true;
+    autoFillIfOnlyOneStock();
+  }
+  function filterUniqueExpiredDates() {
+    const uniqueDates = new Map();
 
-    function filterOneTypeOnly(all_stockss) {
-      let stockMap = new Map();
-  
-      const filteredForTransfer = all_stockss.filter(stock => {
-          return !products_to_subtract.some(transfer =>
-              transfer.product_name === stock.product_name &&
-              transfer.batch === stock.batch
-          );
-      });
-  
-      filteredForTransfer.forEach(stock => {
-          let existing = stockMap.get(stock.product_name);
-  
-          if (!existing || isOlder(stock.expired_date, existing.expired_date)) {
-              stockMap.set(stock.product_name, stock);
-          }
-      });
-  
-      return Array.from(stockMap.values());
-    }
-    function isOlder(date1, date2) {
-      // Convert "0000-00-00" to a very old date
-      if (date1 === "0000-00-00") return true;
-      if (date2 === "0000-00-00") return false;
-  
-      // Compare actual dates
-      return new Date(date1) < new Date(date2);
-    }
-    function addProductToProductList(productIdnya, productNamenya, expired_dateNya, batchNya) {
-        console.log(expired_dateNya);
-        let temp = all_stocks.filter(stock => 
-            stock.product_detail_id === productIdnya && 
-            stock.product_name.toLowerCase().includes(productNamenya.toLowerCase()) &&
-            stock.expired_date === expired_dateNya && 
-            stock.batch === batchNya
-        );
-    
-        products_to_subtract = [...products_to_subtract, ...temp];
-    
-        product = [];
-        productId = ''; 
-        productName = '';
-        expired_date = '';
-        batch = '';
-    
-        all_stocks = stocks.filter(item => item.expected_stock > 0);
-        filteredStock = filterOneTypeOnly(all_stocks);
-        expiredDateOfSelectedProduct = [];
-        batchOfSelectedProduct = [];
-    }
-    function filterUniqueExpiredDates() {
-      const uniqueDates = new Map();
-      all_stocks.forEach(stock => {
+    all_stocks.forEach(stock => {
         if (stock.product_detail_id === productId) {
-          if ((batch === '' || stock.batch === batch) && stock.expired_date) {
-            uniqueDates.set(stock.expired_date, {
-              batch: stock.batch,
-              expired_date: stock.expired_date,
-              product_detail_id: stock.product_detail_id
-            });
-          }
+            if ((batch === '' || stock.batch === batch) && stock.expired_date && !isAlreadyInProductsToSubtract(stock)) {
+                uniqueDates.set(stock.expired_date, stock);
+            }
         }
-      });
-      console.log('Unique Dates:', Array.from(uniqueDates.values())); // Debugging line
-      expiredDateOfSelectedProduct = Array.from(uniqueDates.values());
-      console.log('Selected Batch3:', batch); 
-    }
+    });
 
-    function filterUniqueBatches() {
-      const uniqueBatches = new Map();
-      all_stocks.forEach(stock => {
+    expiredDateOfSelectedProduct = Array.from(uniqueDates.values());
+
+    if (expiredDateOfSelectedProduct.length === 1) {
+        expired_date = expiredDateOfSelectedProduct[0].expired_date;
+    }
+  }
+  function filterUniqueBatches() {
+    const uniqueBatches = new Map();
+
+    all_stocks.forEach(stock => {
         if (stock.product_detail_id === productId) {
-          // Check if expired_date is not empty and if stock's expired_date matches the selected expired_date
-          if ((expired_date === '' || stock.expired_date === expired_date) && stock.batch) {
-            uniqueBatches.set(stock.batch, {
-              batch: stock.batch,
-              expired_date: stock.expired_date, 
-              product_detail_id: stock.product_detail_id
-            }); 
-          }
+            if ((expired_date === '' || stock.expired_date === expired_date) && stock.batch && !isAlreadyInProductsToSubtract(stock)) {
+                uniqueBatches.set(stock.batch, stock);
+            }
         }
+    });
+
+    batchOfSelectedProduct = Array.from(uniqueBatches.values());
+
+    if (batchOfSelectedProduct.length === 1) {
+        batch = batchOfSelectedProduct[0].batch;
+    }
+  }
+  function isAlreadyInProductsToSubtract(stock) {
+    return products_to_subtract.some(subtract =>
+        subtract.product_detail_id === stock.product_detail_id &&
+        subtract.batch === stock.batch &&
+        subtract.expired_date === stock.expired_date
+    );
+  }
+  function filterProductsBasedOnSubtraction() {
+    if (products_to_subtract.length > 0) {
+      all_products = all_products.filter(product => {
+        const productStocks = all_stocks.filter(stock => stock.product_detail_id === product.ProductDetails.product_detail_id);
+        const allSubtracted = areAllStocksSubtracted(productStocks);
+        return !allSubtracted;
       });
-      console.log('Unique Batches:', Array.from(uniqueBatches.values())); // Debugging line
-      batchOfSelectedProduct = Array.from(uniqueBatches.values());
-      console.log('Selected Expired Date4:', expired_date); 
+    }
+  }
+  function areAllStocksSubtracted(productStocks) {
+    const allSubtracted = productStocks.every(stock => {
+      const isSubtracted = products_to_subtract.some(subtract => 
+        subtract.product_detail_id === stock.product_detail_id &&
+        subtract.batch === stock.batch &&
+        subtract.expired_date === stock.expired_date
+      );
+      return isSubtracted;
+    });
+    return allSubtracted;
+  }
+  function addProductToProductList(productIdnya, productNamenya, expired_dateNya, batchNya) {
+    let temp = all_stocks.filter(stock =>
+      stock.product_detail_id === productIdnya &&
+      stock.product_name.toLowerCase().includes(productNamenya.toLowerCase()) &&
+      stock.expired_date === expired_dateNya &&
+      stock.batch === batchNya
+    );
+    products_to_subtract = [...products_to_subtract, ...temp];
+    resetVariables();
+  }
+  function deleteProductFromList(product_id, expired_dateNya, batchnya) {
+    products_to_subtract = products_to_subtract.filter(stock =>
+      !(stock.product_detail_id === product_id &&
+        stock.expired_date === expired_dateNya &&
+        stock.batch === batchnya)
+    );
+  }
+  function filterProductForSubtract(products){
+    return products.map(product => ({
+      product_detail_id: product.product_detail_id,
+      subtract_quantity: product.subtract_quantity,
+      notes: product.notes,
+      expired_date: product.expired_date,
+      batch: product.batch
+    }));
+  }
+  async function subtractProducts(){
+    products_to_send_fix = filterProductForSubtract(products_to_subtract);
+    console.log(products_to_send_fix);
+
+    const response = await fetch(`http://${$uri}:8888/products/stock/subtract/${$userId}/${$roleId}`, {
+      method: 'POST',
+      body: JSON.stringify(products_to_send_fix)
+    });
+
+    if (!response.ok) {
+      console.error('POST subtract product gagal', response);
+      return;
     }
 
-    function updateFilteredStocks() {
-      expiredDateOfSelectedProduct = all_stocks.filter(item =>
-        item.product_detail_id === productId &&
-        item.product_name.toLowerCase().includes(productName.toLowerCase()) &&
-        !products_to_subtract.some(transfer =>
-          transfer.product_detail_id === item.product_detail_id &&
-          transfer.batch === item.batch &&
-          transfer.expired_date === item.expired_date
-        )
-      );
-      batchOfSelectedProduct = all_stocks.filter(item =>
-        item.product_detail_id === productId &&
-        item.product_name.toLowerCase().includes(productName.toLowerCase()) &&
-        !products_to_subtract.some(transfer =>
-          transfer.product_detail_id === item.product_detail_id &&
-          transfer.batch === item.batch &&
-          transfer.expired_date === item.expired_date
-        )
-      );
+    const data = await response.json();
+
+    if (data.status !== 200) {
+      console.error('Invalid post subtract product', data);
+      return;
     }
-    function autoFillIfOnlyOneStock() {
-      if (expiredDateOfSelectedProduct.length === 1) {
-        batch = expiredDateOfSelectedProduct[0].batch;
-        expired_date = expiredDateOfSelectedProduct[0].expired_date;
-      }
-      if (expiredDateOfSelectedProduct.filter(stock => stock.batch === batch).length === 1) {
-        batch = expiredDateOfSelectedProduct[0].batch;
-      }
-      if (expiredDateOfSelectedProduct.filter(stock => stock.expired_date === expired_date).length === 1) {
-        expired_date = expiredDateOfSelectedProduct[0].expired_date;
-      }
-      if (batchOfSelectedProduct.length === 1) {
-        batch = expiredDateOfSelectedProduct[0].batch;
-        expired_date = expiredDateOfSelectedProduct[0].expired_date;
-      }
-      if (batchOfSelectedProduct.filter(stock => stock.batch === batch).length === 1) {
-        batch = expiredDateOfSelectedProduct[0].batch;
-      }
-      if (batchOfSelectedProduct.filter(stock => stock.expired_date === expired_date).length === 1) {
-        expired_date = expiredDateOfSelectedProduct[0].expired_date;
-      }
-    }
-    $: if (expired_date === ''){
-      expired_date = '';
-      filterUniqueBatches();
-      filterUniqueExpiredDates();
-      // autoFillIfOnlyOneStock();
-    }
-    $: if (batch === ''){
-      batch === '';
-      filterUniqueBatches();
-      filterUniqueExpiredDates();
-      // autoFillIfOnlyOneStock();
-    }
-    $: if (productId) {
-      filterStock(productId, 'id');
-    } else if (productName) {
-      filterStock(productName, 'name');
-    } else {
-      all_stocks = all_stocks.filter(item => 
-        item.expected_stock > 0     
-      );
-      filteredStock = filterOneTypeOnly(all_stocks);
-    }
-    $: if (productId === '' && productName.length === '') {
-      all_stocks = all_stocks.filter(item => 
-        item.expected_stock > 0     
-      );
-      filteredStock = filterOneTypeOnly(all_stocks);
-      expiredDateOfSelectedProduct = [];
-      batchOfSelectedProduct = [];
-      batch = '';
-      expired_date = '';
-      console.log('test');
-    }
-    $: if (productId !== '' && productName.length > 0) {
-      showIDList = false;
-      showNameList = false;
-      filterUniqueExpiredDates();
-      filterUniqueBatches();
-    }
+    console.log("insert subtract product detail",data);
+    products_to_subtract = [];
+    resetVariables();
+    closeModal();
+  }
+  async function resetVariables(){
+    productId = '';
+    productName = '';
+    expired_date = '';
+    batch = '';
+    showExpiredDateList = false;
+    showBatchList = false;
+    showIDList = false;
+    showNameList = false;
+    expiredDateOfSelectedProduct = [];
+    batchOfSelectedProduct = [];
     
-    let temp = [];
-    function deleteProductFromList(product_id, expired_dateNya, batchnya) {
-      console.log(product_id, expired_dateNya, batchnya);
-      
-      products_to_subtract = products_to_subtract.filter(stock => 
-        !(stock.product_detail_id === product_id && 
-          stock.expired_date === expired_dateNya && 
-          stock.batch === batchnya)
-      );
-
-      all_stocks = stocks.filter(item => item.expected_stock > 0);
-      filteredStock = filterOneTypeOnly(all_stocks);
-    }
-    function filterProductForSubtract(products){
-      return products.map(product => ({
-          product_detail_id: product.product_detail_id,
-          subtract_quantity: product.subtract_quantity,
-          notes: product.notes,
-          expired_date: product.expired_date,
-          batch: product.batch
-      }));
-    }
-    let products_to_send_fix = [];
-
-    async function subtractProducts(){
-      products_to_send_fix = filterProductForSubtract(products_to_subtract);
-      console.log(products_to_send_fix);
-  
-      const response = await fetch(`http://${$uri}:8888/products/stock/subtract/${$userId}/${$roleId}`, {
-        method: 'POST',
-        body: JSON.stringify(products_to_send_fix)
-      });
-  
-      if (!response.ok) {
-        console.error('POST subtract product gagal', response);
-        return;
-      }
-  
-      const data = await response.json();
-  
-      if (data.status !== 200) {
-        console.error('Invalid post subtract product', data);
-        return;
-      }
-      console.log("insert subtract product detail",data);
-      products_to_subtract = [];
-      closeModal();
-    //   goto(`/subtra`);
-    }
-  
+    await fetchProducts();
+    await fetchStockOpname();
+    filterProductsBasedOnSubtraction();
+    autoFillIfOnlyOneStock();
+  }
   </script>
   <div class="select-none font-roboto text-[#364445] mx-8 mt-[90px] mb-10 flex flex-col items-center justify-center bg-white shadow-[0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <div class="flex flex-col w-full pb-10 justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
@@ -447,7 +376,7 @@
                   {product.expected_stock}
                 </td>
                 <td class="px-1 py-2 text-center">
-                  <input type="number" max={product.expected_stock} step="0.5" bind:value={product.subtract_quantity} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
+                  <input type="number" max={product.expected_stock} min={0} step="0.5" bind:value={product.subtract_quantity} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
                 </td>
                 <td class="px-1 py-2 text-center">
                   {product.unit_type}
@@ -469,76 +398,37 @@
         </table>
       </div>
       <div class="relative flex items-center justify-center w-full">
-        <!-- Horizontal Line behind the button -->
         <hr class="absolute w-1/2 border-t-[1px] border-black  top-1/2 transform -translate-y-1/2"/>
       
-        <!-- Button in front of the line -->
         <button on:click={toggleProductAdd} type="button" 
           class="z-10 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#F2AA7E] outline outline-[1.5px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg px-3 py-3 text-center">
-          
-          <!-- SVG Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
-      
         </button>
       </div>
-      <!-- <div class="select-text	">
-      Stocks:
-      {#each stocks as stock}
-        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} &  
-      {/each}
-      <br>
-      All Stocks:
-      {#each all_stocks as stock}
-        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & 
-      {/each}
-      <br>
-      Filtered for Double Value:
-      {#each filteredStock as stock}
-        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} &  
-      {/each}
-      <br>
-      Product to Transfer:
-      {#each products_to_subtract as stock}
-        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & 
-      {/each}
-      <br>
-      Expired Date of Selected Product:
-      {#each expiredDateOfSelectedProduct as stock}
-        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & 
-      {/each}
-      <br>
-      Batch of Selected Product:
-      {#each batchOfSelectedProduct as stock}
-        {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & 
-      {/each}
-      <br>
-      ShowModal: {showModal}
-      
+    <!-- <div class="select-text	">
+      Products: {#each products as stock} {stock.ProductDetails.product_detail_id}, {stock.ProductDetails.product_batch}, {stock.ProductDetails.expiry_date} & <br> {/each} <br>
+      All Products: {#each all_products as stock} {stock.ProductDetails.product_detail_id}, {stock.ProductDetails.product_batch}, {stock.ProductDetails.expiry_date} & <br> {/each} <br>
+      Stocks: {#each stocks as stock} {stock.product_detail_id}, {stock.batch}, {stock.expired_date} &   {/each} <br>
+      All Stocks: {#each all_stocks as stock} {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & {/each} <br>
+      Product to Transfer: {#each products_to_subtract as stock} {stock.product_detail_id}, {stock.batch}, {stock.expired_date} &  {/each} <br>
+      Expired Date of Selected Product: {#each expiredDateOfSelectedProduct as stock} {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & {/each} <br>
+      Batch of Selected Product: {#each batchOfSelectedProduct as stock} {stock.product_detail_id}, {stock.batch}, {stock.expired_date} & {/each}
+      <br> ShowModal: {showModal} <br> showIDList: {showIDList} <br> showNameList: {showNameList} <br> Expired Date: {expired_date} <br> Batch: {batch} <br> showBatchList: {showBatchList} <br> showExpiredDateList: {showExpiredDateList} <br>
     </div> -->
-      <!-- showIDList: {showIDList}
-      <br>
-      showNameList: {showNameList}
-      <br> -->
-      <!-- Expired Date: {expired_date}
-      <br>
-      Batch: {batch}
-      <br>
-      showBatchList: {showBatchList}
-      <br>
-      showExpiredDateList: {showExpiredDateList}
-      <br> -->
+      
       {#if showAddProduct}
       <div class="relative mt-8 flex items-center justify-center w-full">
         <div class="rounded-lg w-1/3 p-4 outline outline-1 bg-white text-black gap-2">
+          <button class="" on:click={resetVariables}>Reset</button>
           <div class="my-3">
             <div class="font-semibold">Product ID</div>
             <input type="text" bind:value={productId} on:click={toggleIDList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
-            {#if showIDList && filteredStock.length > 0}
+            {#if showIDList && all_products.length > 0}
               <ul class="absolute w-1/4 bg-white shadow-md z-10">
-                {#each filteredStock as stock}
-                  <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.product_detail_id} - {stock.product_name}</li>
+                {#each all_products as stock}
+                  <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_detail_id} - {stock.ProductDetails.product_name}</li>
                 {/each}
               </ul>
             {/if}
@@ -547,17 +437,17 @@
           <div class="my-3">
             <div class="font-semibold">Product Name</div>
             <input type="text" bind:value={productName} on:click={toggleNameList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
-            {#if showNameList && filteredStock.length > 0}
+            {#if showNameList && all_products.length > 0}
             <ul class="absolute w-1/4  bg-white shadow-md z-10">
-              {#each filteredStock as stock}
-                <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.product_name} - {stock.product_detail_id}</li>
+              {#each all_products as stock}
+                <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_name} - {stock.ProductDetails.product_detail_id}</li>
               {/each}
             </ul>
             {/if}
           </div>
           <div class="my-3">
             <div class="font-semibold">Product Batch</div>
-            <input type="text" bind:value={batch} on:click={toggleBatchList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
+            <input type="text" on:input={clearBatch} bind:value={batch} on:click={toggleBatchList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
             {#if showBatchList && batchOfSelectedProduct.length > 0}
             <ul class="absolute w-1/4  bg-white shadow-md z-10">
               {#each batchOfSelectedProduct as stock}
@@ -569,7 +459,7 @@
 
           <div class="my-3">
             <div class="font-semibold">Expired date</div>
-            <input type="text" bind:value={expired_date} on:click={toggleExpiredDateList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
+            <input type="text" on:input={clearExpiredDate} bind:value={expired_date} on:click={toggleExpiredDateList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
             {#if showExpiredDateList && expiredDateOfSelectedProduct.length > 0}
             <ul class="absolute w-1/4  bg-white shadow-md z-10">
               {#each expiredDateOfSelectedProduct as stock}
@@ -581,6 +471,7 @@
 
           <div class="flex justify-center">
             <button on:click={() => addProductToProductList(productId, productName, expired_date, batch)} type="button" 
+              disabled={productId === '' || productName === '' || expired_date === '' || batch === ''}
               class="w-1/2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#F2AA7E] outline outline-[1px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg px-3 py-1 my-3 text-center">
               Add
             </button>
@@ -588,7 +479,6 @@
         </div>
       </div>
       {/if}
-      <!-- disabled={products_to_subtract.length === 0} -->
       <div class="flex items-center justify-center my-8">
         <button on:click={() => handleClick()} type="button" 
           class="mt-2 flex items-center justify-center bg-[#3d4c52] text-[#F2AA7E] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] hover:bg-darkGray focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg px-12 py-3 text-center"
