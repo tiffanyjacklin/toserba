@@ -118,7 +118,7 @@ func Init() *echo.Echo {
 	e.GET("/orders/transfer/notes/all/:transfernote_id/:sw_from/:sw_to/:status_verif/:status_send/:start_date/:end_date/:limit/:offset", controller.GetAllTransferNotes)
 	e.GET("/orders/transfer/notes/verified/:transfernote_id/:limit/:offset", controller.GetVerifiedTransferNotes)
 	e.GET("/orders/transfer/notes/sent/:transfernote_id/:limit/:offset", controller.GetSentTransferNotes)
-	e.GET("/orders/transfer/notes/stock/left/:product_id/:transfernote_id", controller.GetStockLeftInTransferNotes)
+	e.GET("/orders/transfer/notes/stock/left/:product_id/:batch/:exp_date/:transfernote_id", controller.GetStockLeftInTransferNotes)
 	e.GET("/orders/transfer/notes/detail/:transfernote_id", controller.GetTransferNoteDetailByTNID)
 	e.POST("/orders/transfer/notes/add/:user_id/:role_id", controller.InsertTransferNoteDetails) 
 	e.PUT("/orders/transfer/notes/update/:transfernote_id", controller.InsertTransferNotes)

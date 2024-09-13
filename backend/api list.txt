@@ -377,7 +377,7 @@ e.GET("/orders/transfer/notes/verified/:transfernote_id/:limit/:offset", control
 e.GET("/orders/transfer/notes/sent/:transfernote_id/:limit/:offset", controller.GetSentTransferNotes)
 
 // Mengambil sisa stok dari suatu produk dalam suatu transfer note yang belum dikirimkan
-e.GET("/orders/transer/notes/stock/left/:product_id/:transfernote_id", controller.GetStockLeftInTransferNotes)
+e.GET("/orders/transfer/notes/stock/left/:product_id/:batch/:exp_date/:transfernote_id", controller.GetStockLeftInTransferNotes)
 
 // Mengambil data produk dalam suatu transfer notes
 e.GET("/orders/transfer/notes/detail/:transfernote_id", controller.GetTransferNoteDetailByTNID)
