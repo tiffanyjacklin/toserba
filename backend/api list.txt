@@ -801,6 +801,9 @@ e.POST("/owner/roles/add", controller.InsertRoles)
     }
 ]
 
+// Mengambil data privilege. nama untuk search
+e.GET("/privileges/all/:priv_name/:limit/:offset", controller.GetAllPrivileges)
+
 // Menambah privilege baru
 e.POST("/privileges/add", controller.InsertPrivileges)
 [
