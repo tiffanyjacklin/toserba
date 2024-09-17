@@ -13,6 +13,7 @@
     $: tab_menu = "detail"
 
     let produk_promos = [];
+    let filtered_produk_promos = [];
     let all_produk = [];
     let filtered_all_produk = [];
     let storeWarehouse = [];
@@ -49,7 +50,7 @@
     }
 
    async function fetchPromos(){
-        const response = await fetch(`http://${$uri}:8888/promos/''/''/''/''/100/0`, {
+        const response = await fetch(`http://${$uri}:8888/promos/''/''/''/''/0/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -69,11 +70,14 @@
         }
 
         produk_promos = data.data;
-        console.log(produk_promos);
+        console.log("produk_promos",produk_promos);
         
         for (let i = 0; i < produk_promos.length; i++) {
           produk_promos[i].total_store = await fetchPromoProductStoreTotal(produk_promos[i].ProductDetail.product_detail_id)
+          produk_promos[i].username = await getUsername(produk_promos[i].Promo.user_id)
         }
+
+        filtered_produk_promos = structuredClone(produk_promos);
     }
    
     async function fetchPromoProductStoreTotal(product_detail_id){
@@ -128,7 +132,7 @@
     }
     
     async function fetchSW(){
-        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/all`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -172,6 +176,29 @@
 
         return data.data.promo_id;
         console.log(data.data.promo_id);
+    }
+   
+    async function getUsername(user_id){
+        const response = await fetch(`http://${$uri}:8888/user/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch user failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch user', data);
+            return;
+        }
+
+        return data.data.user_fullname;
     }
 
     function matchIDandName(atribut,jenis){
@@ -288,6 +315,17 @@
       }
 
     async function addPromo() {
+        console.log(JSON.stringify([{
+              promo_code,
+              promo_type_id,
+              promo_start_date,
+              promo_end_date,
+              promo_percentage,
+              promo_discount,
+              promo_term_and_cond,
+              x_amount,
+              y_amount
+            }]))
         const response = await fetch(`http://${$uri}:8888/promos/add`, {
             method: 'POST',
             body: JSON.stringify([{
@@ -378,15 +416,43 @@
         });
     }
 
+    async function verifyPromo(promo_id,product_id,status) {
+        const response = await fetch(`http://${$uri}:8888/promos/verify/${promo_id}/${product_id}/${status}`, {
+            method: 'PUT',
+        });
+
+        if (!response.ok) {
+            console.error('PUT verify promo gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid put verify promo', data);
+            return;
+        }
+        console.log("verify promo berhasil")
+      }
+
     
     onMount(async () => {
       await fetchPromos();
       await fetchProduk();
     });
-
+    
+    //SEARCH BAR
+    $: if (searchQuery != null) {
+        filtered_produk_promos = produk_promos.filter(item => 
+            item.ProductDetail.product_name.toLowerCase().includes(searchQuery)
+        );
+    } else {
+        filtered_produk_promos = [...produk_promos];
+    }
+    
+    //UNTUK ADD PROMO
     $: if (choosen_product_id != null) {
         all_produk = filtered_all_produk.filter(item => 
-            // item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
             item.ProductDetails.product_detail_id.toString().includes(choosen_product_id)
         );
     } else {
@@ -395,7 +461,6 @@
     
     $: if (choosen_product_name.length > 0) {
         all_produk = filtered_all_produk.filter(item => 
-            // item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
             item.ProductDetails.product_name.toLowerCase().includes(choosen_product_name)
         );
     } else {
@@ -510,9 +575,55 @@
       <div class="w-[96%] my-5 font-roboto">
         {#if tampilan == "all_promos"}
         <div class="relative overflow-x-auto sm:rounded-lg">
-            {#each produk_promos as promo}
+            {#each filtered_produk_promos as promo}
+              {#if promo.PromoProducts.status_verify != 0}
+                <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
+                  <div class="w-10/12 flex flex-col font-semibold text-lg">
+                    <span class="my-1">{promo["ProductDetail"].product_name}</span>
+                    <div class="flex justify-between my-1">
+                      <span class="mx-1 text-peach2">Applied to {promo.total_store} Stores</span>
+                      <span class="mx-1">
+                        {#if promo["Promo"].promo_type_id == 1}
+                          BUYXGETY
+                        {:else if promo["Promo"].promo_type_id == 2}
+                          %DISCOUNT
+                        {:else if promo["Promo"].promo_type_id == 3}
+                          RPDISCOUNT
+                        {:else if promo["Promo"].promo_type_id == 4}
+                          BUYXDISCOUNT%
+                        {/if}
+                      </span>
+                      <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span>
+                    </div>
+                    <div class="flex">
+                      <span>Requested by {promo.username},
+                        {#if promo.PromoProducts.status_verify == 0}
+                          <span class="">UNVERIFIED</span>
+                        {:else if promo.PromoProducts.status_verify == 1}
+                          <span class="text-green-600">ACCEPTED</span>
+                        {:else}
+                          <span class="text-red-600">REJECTED</span>
+                        {/if}
+                      </span>
+                  </div>
+                  </div>
+              
+                  <div class="w-2/12 flex justify-end items-center">
+                    <button on:click={() => {showModal =  promo.ProductDetail.product_detail_id; showModal = showModal}} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              {/if}
+            {/each}
+        </div>
+        {:else if tampilan == "promo_req"}
+        <div class="relative overflow-x-auto sm:rounded-lg">
+            {#each filtered_produk_promos as promo}
             <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
-              <div class="w-10/12 flex flex-col font-semibold text-lg">
+              <div class="w-9/12 flex flex-col font-semibold text-lg">
                 <span class="my-1">{promo["ProductDetail"].product_name}</span>
                 <div class="flex justify-between my-1">
                   <span class="mx-1 text-peach2">Applied to {promo.total_store} Stores</span>
@@ -529,93 +640,56 @@
                   </span>
                   <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span>
                 </div>
+                <div class="flex justify-between my-1 font-semibold">
+                    <div class="flex">
+                        <span>Requested by {promo.username},
+                          {#if promo.PromoProducts.status_verify == 0}
+                            <span class="">UNVERIFIED</span>
+                          {:else if promo.PromoProducts.status_verify == 1}
+                            <span class="text-green-600">ACCEPTED</span>
+                          {:else}
+                            <span class="text-red-600">REJECTED</span>
+                          {/if}
+                        </span>
+                    </div>
+                    {#if promo.Promo.promo_type_id == 1}
+                      <span class="text-peach2 flex">-<MoneyConverter value={promo.ProductDetail.sell_price} currency={true} decimal={true}></MoneyConverter></span>
+                    {:else if promo.Promo.promo_type_id == 2 || promo.Promo.promo_type_id == 4}
+                      <span class="text-peach2 flex">-<MoneyConverter value={promo.ProductDetail.sell_price*(promo.Promo.promo_percentage/100)} currency={true} decimal={true}></MoneyConverter></span>
+                    {:else if promo.Promo.promo_type_id == 3}
+                      <span class="text-peach2 flex">-<MoneyConverter value={promo.ProductDetail.sell_price-promo.Promo.promo_discount} currency={true} decimal={true}></MoneyConverter></span>
+                    {/if}
+                </div>
               </div>
               
-              <div class="w-2/12 flex justify-end items-center">
-                <button on:click={() => {showModal =  promo.ProductDetail.product_detail_id; showModal = showModal}} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+              <div class="w-3/12 flex justify-end items-center">
+                {#if promo.PromoProducts.status_verify == 0}
+                  <button on:click={async() => {await verifyPromo(promo.Promo.promo_id,promo.ProductDetail.product_detail_id,2); 
+                  Swal.fire({
+                    title: "Promo berhasil direject",
+                    icon: "success",
+                    color: "white",
+                    background: "#364445",
+                    confirmButtonColor: '#F2AA7E'
+                  }); await fetchPromos(); closeModal();}} class="w-24 py-4 mr-2 bg-darkGray border-2 border-darkGray rounded-xl"><i class="fa-solid fa-xmark fa-3x" style="color: #FACFAD;"></i></button>
+                  <button on:click={async() => {await verifyPromo(promo.Promo.promo_id,promo.ProductDetail.product_detail_id,1); 
+                    Swal.fire({
+                      title: "Promo berhasil diaccept",
+                      icon: "success",
+                      color: "white",
+                      background: "#364445",
+                      confirmButtonColor: '#F2AA7E'
+                    }); await fetchPromos(); closeModal();}} class="w-24 py-4 bg-peach border-2 border-darkGray rounded-xl"><i class="fa-solid fa-check fa-3x" style="color: #364445;"></i></button>
+                {:else}
+                  <button on:click={() => {showModal =  promo.ProductDetail.product_detail_id; showModal = showModal}} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                   </button>
+                {/if}
               </div>
             </div>
             {/each}
-        </div>
-        {:else if tampilan == "promo_req"}
-        <div class="relative overflow-x-auto sm:rounded-lg">
-            <!-- {#each produk_promos as promo} -->
-            <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
-              <div class="w-9/12 flex flex-col font-semibold text-lg">
-                <!-- <span class="my-1">{promo["ProductDetail"].product_name}</span> -->
-                <span class="my-1">iNDOMIE</span>
-                <div class="flex justify-between my-1">
-                  <!-- <span class="mx-1 text-peach2">Applied to {promo.total_store} Stores</span> -->
-                  <span class="mx-1 text-peach2">Applied to XX Stores</span>
-                  <span class="mx-1">
-                    <!-- {#if promo["Promo"].promo_type_id == 1} -->
-                      BUYXGETY
-                    <!-- {:else if promo["Promo"].promo_type_id == 2}
-                      %DISCOUNT
-                    {:else if promo["Promo"].promo_type_id == 3}
-                      RPDISCOUNT
-                    {:else if promo["Promo"].promo_type_id == 4}
-                      BUYXDISCOUNT%
-                    {/if} -->
-                  </span>
-                  <!-- <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span> -->
-                  <span class="mx-1">Promo End : </span>
-                </div>
-                <div class="flex justify-between my-1 font-semibold">
-                    <div class="flex">
-                        <span>Requested by Alexander Louis, UNVERIFIED</span>
-                    </div>
-                    <span class="text-peach2">Rp -100.000,00</span>
-                </div>
-              </div>
-              
-              <div class="w-3/12 flex justify-end items-center">
-                <button class="w-24 py-4 mr-2 bg-darkGray border-2 border-darkGray rounded-xl"><i class="fa-solid fa-xmark fa-3x" style="color: #FACFAD;"></i></button>
-                <button class="w-24 py-4 bg-peach border-2 border-darkGray rounded-xl"><i class="fa-solid fa-check fa-3x" style="color: #364445;"></i></button>
-            </div>
-            </div>
-            <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
-              <div class="w-9/12 flex flex-col font-semibold text-lg">
-                <!-- <span class="my-1">{promo["ProductDetail"].product_name}</span> -->
-                <span class="my-1">iNDOMIE</span>
-                <div class="flex justify-between my-1">
-                  <!-- <span class="mx-1 text-peach2">Applied to {promo.total_store} Stores</span> -->
-                  <span class="mx-1 text-peach2">Applied to XX Stores</span>
-                  <span class="mx-1">
-                    <!-- {#if promo["Promo"].promo_type_id == 1} -->
-                      BUYXGETY
-                    <!-- {:else if promo["Promo"].promo_type_id == 2}
-                      %DISCOUNT
-                    {:else if promo["Promo"].promo_type_id == 3}
-                      RPDISCOUNT
-                    {:else if promo["Promo"].promo_type_id == 4}
-                      BUYXDISCOUNT%
-                    {/if} -->
-                  </span>
-                  <!-- <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span> -->
-                  <span class="mx-1">Promo End : </span>
-                </div>
-                <div class="flex justify-between my-1 font-semibold">
-                    <div class="flex">
-                        <span>Requested by Alexander Louis, ACCEPTED</span>
-                    </div>
-                    <span class="text-peach2">Rp -100.000,00</span>
-                </div>
-              </div>
-              
-              <div class="w-3/12 flex justify-end items-center">
-                <button on:click={() => {showModal =  promo.ProductDetail.product_detail_id; showModal = showModal}} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  </button>
-              </div>
-            </div>
-            <!-- {/each} -->
         </div>
         {:else if tampilan == "promo_cost"}
             <div class="flex my-4">
@@ -656,7 +730,7 @@
                     </div>
                 </div>
 
-                <hr class="border-4 border-gray-300">
+                <hr class="border-4 border-gray-300 mb-4">
 
                 <div class="flex flex-col mb-4">
                     <span class="font-semibold text-lg">Total</span>
@@ -763,7 +837,7 @@
         {/if}
       </div>
       <div class="flex mt-8 items-center justify-center">
-        <button on:click={() => closeModal} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
+        <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
         <button on:click={() => {checkChooseProduct();}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
       </div>
     </div>
@@ -863,16 +937,16 @@
           </div>
           
           {#each storeWarehouse as store}
-          {#if store.StoreWarehouses.store_warehouse_type == "STORE"}
+          {#if store.store_warehouse_type == "STORE"}
             <ul class="font-semibold text-white ml-2">
               <li class="mb-1">
                 <div class="flex items-center">
                   {#if swListAll == false}
-                    <input on:change={() => {addStoreToList(store.StoreWarehouses.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
+                    <input on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
                   {:else}
                     <input checked disabled class="border border-white bg-darkGray  mr-2" type="checkbox">
                   {/if}
-                    <span class="">{store.StoreWarehouses.store_warehouse_name}</span>
+                    <span class="">{store.store_warehouse_name}</span>
                 </div>
               </li>
             </ul>
@@ -902,7 +976,7 @@
       </div>
     </div>
   </TaskModal> 
-  {/if}
+{/if}
 
 {#each produk_promos as promo}
   <!-- MODAL VIEW PROMO PRODUCT-->
@@ -991,5 +1065,4 @@
     </div>
   </TaskModal> 
   {/if}
-
-  {/each}
+{/each}

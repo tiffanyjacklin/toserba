@@ -10,6 +10,7 @@
 	  import { read } from '$app/server';
     
     let produk_promos = [];
+    let filtered_produk_promos = [];
     let all_produk = [];
     let filtered_all_produk = [];
     let storeWarehouse = [];
@@ -46,7 +47,7 @@
     }
 
    async function fetchPromos(){
-        const response = await fetch(`http://${$uri}:8888/promos/''/''/''/''/100/0`, {
+        const response = await fetch(`http://${$uri}:8888/promos/''/''/''/''/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -381,9 +382,18 @@
       await fetchProduk();
     });
 
+    //SEARCH BAR
+    $: if (searchQuery != null) {
+        filtered_produk_promos = produk_promos.filter(item => 
+            item.ProductDetail.product_name.toLowerCase().includes(searchQuery)
+        );
+    } else {
+        filtered_produk_promos = [...produk_promos];
+    }
+    
+    //UNTUK ADD PROMO
     $: if (choosen_product_id != null) {
         all_produk = filtered_all_produk.filter(item => 
-            // item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
             item.ProductDetails.product_detail_id.toString().includes(choosen_product_id)
         );
     } else {
@@ -392,7 +402,6 @@
     
     $: if (choosen_product_name.length > 0) {
         all_produk = filtered_all_produk.filter(item => 
-            // item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
             item.ProductDetails.product_name.toLowerCase().includes(choosen_product_name)
         );
     } else {
@@ -467,35 +476,37 @@
 
       <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
-            {#each produk_promos as promo}
-            <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
-              <div class="w-10/12 flex flex-col font-semibold text-lg">
-                <span class="my-1">{promo["ProductDetail"].product_name}</span>
-                <div class="flex justify-between my-1">
-                  <span class="mx-1 text-peach2">Applied to {promo.total_store} Stores</span>
-                  <span class="mx-1">
-                    {#if promo["Promo"].promo_type_id == 1}
-                      BUYXGETY
-                    {:else if promo["Promo"].promo_type_id == 2}
-                      %DISCOUNT
-                    {:else if promo["Promo"].promo_type_id == 3}
-                      RPDISCOUNT
-                    {:else if promo["Promo"].promo_type_id == 4}
-                      BUYXDISCOUNT%
-                    {/if}
-                  </span>
-                  <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span>
+            {#each filtered_produk_promos as promo}
+              {#if promo.PromoProducts.status_verify == 1}
+              <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
+                <div class="w-10/12 flex flex-col font-semibold text-lg">
+                  <span class="my-1">{promo["ProductDetail"].product_name}</span>
+                  <div class="flex justify-between my-1">
+                    <span class="mx-1 text-peach2">Applied to {promo.total_store} Stores</span>
+                    <span class="mx-1">
+                      {#if promo["Promo"].promo_type_id == 1}
+                        BUYXGETY
+                      {:else if promo["Promo"].promo_type_id == 2}
+                        %DISCOUNT
+                      {:else if promo["Promo"].promo_type_id == 3}
+                        RPDISCOUNT
+                      {:else if promo["Promo"].promo_type_id == 4}
+                        BUYXDISCOUNT%
+                      {/if}
+                    </span>
+                    <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span>
+                  </div>
+                </div>
+                
+                <div class="w-2/12 flex justify-end items-center">
+                  <button on:click={() => {showModal =  promo.ProductDetail.product_detail_id; showModal = showModal}} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    </button>
                 </div>
               </div>
-              
-              <div class="w-2/12 flex justify-end items-center">
-                <button on:click={() => {showModal =  promo.ProductDetail.product_detail_id; showModal = showModal}} class="p-4 bg-darkGray rounded-xl"><svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 30C2.5 30 12.5 10 30 10C47.5 10 57.5 30 57.5 30C57.5 30 47.5 50 30 50C12.5 50 2.5 30 2.5 30Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M30 37.5C34.1421 37.5 37.5 34.1421 37.5 30C37.5 25.8579 34.1421 22.5 30 22.5C25.8579 22.5 22.5 25.8579 22.5 30C22.5 34.1421 25.8579 37.5 30 37.5Z" stroke="#FACFAD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  </button>
-              </div>
-            </div>
+              {/if}
             {/each}
         </div>
     </div>
@@ -584,7 +595,7 @@
         {/if}
       </div>
       <div class="flex mt-8 items-center justify-center">
-        <button on:click={() => closeModal} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
+        <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
         <button on:click={() => {checkChooseProduct();}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
       </div>
     </div>
