@@ -5,34 +5,208 @@
   import { onMount } from 'svelte';
   import { uri, userId, roleId } from '$lib/uri.js';
   import img_produk from "$lib/assets/produk.png";
-  $: limit = 10; // Number of items per page
+  
+  let warehouse = [];
+  
+  $: limit = 5; // Number of items per page
   $: offset = 0; // Offset for pagination
-  let totalNotes = 7; // Total number of notes (assumed to be fetched from server)
+  $: totalNotes = 10; // Total number of notes (assumed to be fetched from server)
   $: currentPage = 1; // Current page
+  let startDate = '';
+  let endDate = '';
+  let showFilter = false;
 
+  
   let tf_notes = [];
   let transfer_notes = [];
   let tf_notes_details = [];
   let transfer_notes_details = [];
   let delivery_orders = [];
   let delivery_order_details = [];
-  let searchQuery = '';
+  $: from = {};
+  $: to = {};
+  $: searchQuery = '';
+  $: searchQuery_temp = '';
+  $: send_status = '';
+  $: verify_status = '';
+
   let showModal = null; 
   let viewDeliveryOrders = true;
   let showSuratJalan = false;
   let idSuratJalan = 0;
   let productLeft = false;
-  let from = {};
-  let to = {};
   let notes = '';
   let products_to_send_fix = [];
+  
+  onMount(async () => {
+    await fetchWarehouse();
+    await fetchTransferNotes();
+  });
+  async function fetchWarehouse() {
+    const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('get all produk fetch failed', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid fetch last', data);
+        return;
+    }
+
+    warehouse = data.data[0];  
+    console.log(warehouse);
+  }
+  async function fetchTransferNotes() {
+    const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/all/${searchQuery}/${warehouse.StoreWarehouses.store_warehouse_id}//${verify_status}/${send_status}/${startDate}/${endDate}/${limit}/${offset}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('get all produk fetch failed', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid fetch last', data);
+        return;
+    }
+    totalNotes = data.total_rows;
+
+    transfer_notes = [...data.data];  
+    console.log(transfer_notes);
+  }
+  async function fetchTransferNotesDetails(transfer_note_id) {
+    const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/detail/${transfer_note_id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('get all produk fetch failed', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid fetch last', data);
+        return;
+    }
+
+    tf_notes_details = [...data.data];
+    tf_notes_details = await filterTransferNotesWithDeliveryOrder(tf_notes_details, delivery_orders);
+    transfer_notes_details = [...tf_notes_details];
+    console.log("tf", tf_notes_details);
+    console.log("tfd", transfer_notes_details);
+  }
+  async function toggleDeliveryOrderByID(delivery_order, id) {
+    if (showSuratJalan && idSuratJalan === id) {
+        showSuratJalan = false;
+        delivery_order_details = [];
+        from = [];
+        to = [];
+        idSuratJalan = 0;
+    } else {
+        showSuratJalan = true;
+        idSuratJalan = id;
+        fetchDeliveryOrderDetails(delivery_order.delivery_order_id);
+        from = await fetchStoreWarehouses(delivery_order.store_warehouse_from);
+        to = await fetchStoreWarehouses(delivery_order.store_warehouse_to);
+    }
+  }
+  async function fetchDeliveryOrder(transfer_note_id) {
+      const response = await fetch(`http://${$uri}:8888/orders/delivery/transfernote/${transfer_note_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('get all produk fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch last', data);
+          return;
+      }
+
+      delivery_orders = [...data.data];  
+      console.log("dododo", delivery_orders);
+
+  }
+  async function fetchDeliveryOrderDetails(delivery_order_id) {
+      const response = await fetch(`http://${$uri}:8888/orders/delivery/detail/${delivery_order_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('get all produk fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch last', data);
+          return;
+      }
+
+      delivery_order_details = [...data.data];  
+  }
+  async function fetchStoreWarehouses(store_warehouse_id) {
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/${store_warehouse_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('get all produk fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch last', data);
+          return;
+      }
+      return data.data;  
+  }
+  function toggleFilter() {
+    showFilter = !showFilter;
+  }
   function resetLoad(){
     transfer_notes_details = tf_notes_details;
     notes = '';
   }
   async function saveLoad(transfer_note_id){
     products_to_send_fix = filterBeforeLoadToDeliveryOrder(transfer_notes_details);
-    // console.log(products_to_add_fix);
+    console.log(products_to_send_fix);
 
     const response = await fetch(`http://${$uri}:8888/orders/delivery/add/${transfer_note_id}`, {
       method: 'POST',
@@ -97,237 +271,64 @@
     viewDeliveryOrders = !viewDeliveryOrders;
     if (!viewDeliveryOrders) {
       fetchTransferNotesDetails(transfer_note_id);
+      checkProductLeft(transfer_note_id);
     }
   }
   function handleClick(transfer_note_id) {
       showModal = transfer_note_id;
       fetchDeliveryOrder(transfer_note_id);
-      checkProductLeft(transfer_note_id);
       console.log(transfer_note_id)
-  }
-  function checkProductLeft(transfer_note_id){
-    const transferNote = transfer_notes.find(note => note.transfer_note_id === transfer_note_id);
-    productLeft = delivery_orders.quantity_total === transferNote.quantity_total;
   }
   function closeModal() {
     showModal = null;
     delivery_orders = [];
     viewDeliveryOrders = true;
   }
-  function toggleDeliveryOrderByID(delivery_order, id) {
-    // if (!showSuratJalan)
-    if (showSuratJalan && idSuratJalan === id) {
-        // If the same ID is clicked, toggle off the display
-        showSuratJalan = false;
-        delivery_order_details = [];
-        from = [];
-        to = [];
-        idSuratJalan = 0;
-    } else {
-        // If a different ID is clicked or currently closed, open the new delivery order
-        showSuratJalan = true;
-        idSuratJalan = id;
-        fetchDeliveryOrderDetails(delivery_order.delivery_order_id);
-        fetchStoreWarehouseFrom(delivery_order.store_warehouse_from);
-        fetchStoreWarehouseTo(delivery_order.store_warehouse_to);
-    }
+  function checkProductLeft(transfer_note_id){
+    // transfer_notes_details
+    // const transferNote = transfer_notes.find(note => note.transfer_note_id === transfer_note_id);
+    // productLeft = delivery_orders.quantity_total === transferNote.quantity_total;
+    // console.log("1--", transferNote.quantity_total);
+    // console.log("2--", delivery_orders.quantity_total);
   }
-  async function fetchDeliveryOrderDetails(delivery_order_id) {
-      const response = await fetch(`http://${$uri}:8888/orders/delivery/detail/${delivery_order_id}`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-
-      if (!response.ok) {
-          console.error('get all produk fetch failed', response);
-          return;
-      }
-
-      const data = await response.json();
-
-      if (data.status !== 200) {
-          console.error('Invalid fetch last', data);
-          return;
-      }
-
-      delivery_order_details = [...data.data];  
-  }
-  async function fetchStoreWarehouseFrom(store_warehouse_id) {
-      const response = await fetch(`http://${$uri}:8888/store_warehouses/${store_warehouse_id}`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-
-      if (!response.ok) {
-          console.error('get all produk fetch failed', response);
-          return;
-      }
-
-      const data = await response.json();
-
-      if (data.status !== 200) {
-          console.error('Invalid fetch last', data);
-          return;
-      }
-      
-      from = data.data;  
-      console.log(from);
-  }
-  async function fetchStoreWarehouseTo(store_warehouse_id) {
-      const response = await fetch(`http://${$uri}:8888/store_warehouses/${store_warehouse_id}`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-
-      if (!response.ok) {
-          console.error('get all produk fetch failed', response);
-          return;
-      }
-
-      const data = await response.json();
-
-      if (data.status !== 200) {
-          console.error('Invalid fetch last', data);
-          return;
-      }
-      
-      to = data.data;  
-      console.log(to);
-  }
-  async function fetchDeliveryOrder(transfer_note_id) {
-      const response = await fetch(`http://${$uri}:8888/orders/delivery/transfernote/${transfer_note_id}`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-
-      if (!response.ok) {
-          console.error('get all produk fetch failed', response);
-          return;
-      }
-
-      const data = await response.json();
-
-      if (data.status !== 200) {
-          console.error('Invalid fetch last', data);
-          return;
-      }
-
-      delivery_orders = [...data.data];  
-      console.log(delivery_orders);
-  }
-  onMount(async () => {
-      await fetchTransferNotes();
-  });
-  async function fetchTransferNotes() {
-      const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/all/${limit}/${offset}`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-
-      if (!response.ok) {
-          console.error('get all produk fetch failed', response);
-          return;
-      }
-
-      const data = await response.json();
-
-      if (data.status !== 200) {
-          console.error('Invalid fetch last', data);
-          return;
-      }
-
-      tf_notes = [...data.data];  
-      transfer_notes = [...tf_notes];
-      console.log(transfer_notes);
-  }
-  $: if (searchQuery.length > 0) {
-      transfer_notes = tf_notes.filter(item => 
-        item.transfer_note_id.toLowerCase().includes(searchQuery)
-          // product.ProductDetails.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          // product.ProductDetails.product_detail_id.toString().includes(searchQuery)
-      );
-  } else {
-      transfer_notes = [...tf_notes];
-  }
-   async function fetchTransferNotesDetails(transfer_note_id) {
-      const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/detail/${transfer_note_id}`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-
-      if (!response.ok) {
-          console.error('get all produk fetch failed', response);
-          return;
-      }
-
-      const data = await response.json();
-
-      if (data.status !== 200) {
-          console.error('Invalid fetch last', data);
-          return;
-      }
-
-      tf_notes_details = [...data.data];
-      tf_notes_details = await filterTransferNotesWithDeliveryOrder(tf_notes_details, delivery_orders);
-      transfer_notes_details = [...tf_notes_details];
-      console.log(transfer_notes_details);
-  }
-  function deleteProductFromList(product_detail_id) {
-    transfer_notes_details = transfer_notes_details.filter(note => note.product_detail_id !== product_detail_id);
+  
+  
+  
+  
+  
+  
+  function deleteProductFromList(product_detail_id, batche, expired_datee) {
+    transfer_notes_details = transfer_notes_details.filter(note => !((note.product_detail_id === product_detail_id)
+      && (note.batch === batche) && (note.expired_date === expired_datee))
+    );
   }
   async function filterTransferNotesWithDeliveryOrder(transfer_notes_details, delivery_orders) {
-    // Create an object to store the total quantity sent for each product_detail_id
     const sentQuantities = {};
 
-    // Loop through each delivery order to accumulate sent quantities
-    // for (const delivery_order of delivery_orders) {
-    //     const delivery_order_id = delivery_order.delivery_order_id;
-    //     const delivery_order_details_baru = await fetchDeliveryOrderDetails(delivery_order_id);
-    //     console.log(delivery_order_details_baru);
 
-    //     // Loop through each delivery order detail to update the sent quantities
-    //     for (const detail of delivery_order_details_baru) {
-    //         const product_detail_id = detail.product_detail_id;
-    //         const quantity_sent = detail.quantity;
-
-    //         if (sentQuantities[product_detail_id]) {
-    //             sentQuantities[product_detail_id] += quantity_sent;
-    //         } else {
-    //             sentQuantities[product_detail_id] = quantity_sent;
-    //         }
-    //     }
-    // }
-
-    // Filter the transfer notes details to keep only those that haven't been fully sent
     const filteredTransferNotesDetails = transfer_notes_details.map(note => {
         const product_detail_id = note.product_detail_id;
         const remainingQuantity = note.remaining_quantity;
 
-        // Calculate the quantity left to be sent
         const quantity_to_send = remainingQuantity;
 
-        // Add the quantity_to_send column to each note
         return {
             ...note,
-            quantity_to_send: Math.max(quantity_to_send, 0)  // Ensure the quantity is not negative
+            quantity_to_send: Math.max(quantity_to_send, 0) 
         };
-    }).filter(note => note.quantity_to_send > 0);  // Filter out notes that are fully sent
-
+    }).filter(note => note.quantity_to_send > 0); 
 
     return filteredTransferNotesDetails;
   }
+  $: if (searchQuery_temp !== searchQuery){
+    console.log('aaaa', searchQuery);
+    console.log('temp', searchQuery_temp);
+    fetchTransferNotes();
+    searchQuery_temp = searchQuery;
+  } else{
+    searchQuery_temp = '';
+  }
+
   async function goToPage(page) {
     if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
 
@@ -346,17 +347,46 @@
        <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
           <input 
           bind:value={searchQuery} 
-          on:keydown={(event) => handleSearch(event)} 
           type="text" id="voice-search" 
           class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
           placeholder="Search detail transfer notes..."/>
-          <button 
-                type="button" class="absolute inset-y-0 end-0 flex items-center pe-3 mr-1">
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-              </svg> -->
-              <i class="fa-solid fa-sliders fa-xl mr-2"></i>
-          </button>
+          <button on:click={toggleFilter}
+        type="button" 
+        class="absolute inset-y-0 end-0 flex items-center pe-3 ">
+        <i class="fa-solid fa-sliders fa-xl mr-2"></i>
+      </button>
+      {#if showFilter}
+        <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-4/12 bg-gray-100 p-4 rounded-lg font-roboto">
+          <span class="font-bold text-xl mb-1">Verify Status</span>
+          <div class="flex w-full flex-wrap gap-x-2">
+            <button on:click={() => {verify_status = (verify_status === '' || verify_status !== '1') ? '1' : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${verify_status === '1' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Verified</button>
+            <button on:click={() => {verify_status = (verify_status === '' || verify_status !== '0') ? '0' : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${verify_status === '0' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Not Verified</button>
+          </div>
+          <span class="font-bold text-xl mb-1">Send Status</span>
+          <div class="flex w-full flex-wrap gap-x-2">
+              <button on:click={() => {send_status = (send_status === '' || send_status !== '1') ? '1' : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${send_status === '1' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Sent</button>
+              <button on:click={() => {send_status = (send_status === '' || send_status !== '0') ? '0' : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${send_status === '0' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Not Sent</button>
+          </div>
+          <div class="flex gap-x-4"> 
+            <div>
+              <span class="font-bold text-xl mb-1">Start Date</span>
+              <div class="flex w-full flex-wrap">
+                <input type="date" bind:value={startDate} class="w-full mb-4 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded" />
+              </div>
+            </div>
+            <div>
+              <span class="font-bold text-xl mb-1">End Date</span>
+              <div class="flex w-full flex-wrap">
+                <input type="date" bind:value={endDate} class="w-full mb-4 p-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] rounded" />
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between font-semibold mt-4">
+              <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { send_status = ''; verify_status = ''; endDate = ''; startDate = ''; }}>Clear</button>
+              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchTransferNotes(); toggleFilter()}}>Apply</button>
+          </div>
+        </div>
+      {/if}
        </div>
     <!-- </form> -->
  
@@ -434,7 +464,7 @@
               <!-- Stock: {product.ProductDetails.product_detail} {product.ProductDetails.product_unit} -->
             </div>
             <button 
-            on:click={() => handleClick(note.transfer_note_id)}
+            on:click={() => {handleClick(note.transfer_note_id); fetchTransferNotesDetails(note.transfer_note_id);}}
             type="button" 
             class="flex items-center rounded-r-lg justify-center py-2 w-full h-full px-4 font-bold bg-[#3d4c52] text-[#f2b082] hover:bg-darkGray ">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="size-10">
@@ -634,13 +664,14 @@
                     Create delivery order
                   </div>
                 </button>
-                {#if productLeft}
-                <div>
-                  WARNING:  product(s) not loaded.
-                </div>
-                {/if}
+               
               </div>
-            </div>
+              <!-- {#if note.remaining_quantity > 0} -->
+              <div class="text-white text-lg font-semibold mt-2">
+                WARNING:   product(s) not loaded.
+              </div>
+                <!-- {/if} -->
+              </div>
            
             <div class="flex items-center justify-center">
                 <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
@@ -690,7 +721,7 @@
                               <DateConverter value={detail.expired_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
                             </td>
                             <td class="px-1 py-2 text-center">
-                              <button on:click={() => deleteProductFromList(detail.product_detail_id)} type="button" 
+                              <button on:click={() => deleteProductFromList(detail.product_detail_id, detail.batch, detail.expired_date)} type="button" 
                                 class="flex items-center justify-center text-black hover:text-[#3d4c52] font-semibold text-lg rounded-lg px-3 py-2 text-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                   <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
