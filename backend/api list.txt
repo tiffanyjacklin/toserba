@@ -852,7 +852,7 @@ e.POST("/payment/method/add", controller.InsertPaymentMethod)
 ]
 
 
-e.GET("/products/moving/transaction/product/:product_id/:asc/:limit/:offset", controller.GetSlowFastMovingPerProduct)
+e.GET("/products/moving/transaction/product/:product_id/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingPerProduct)
 
 
 // Mengambil barang fast/slow moving dari jumlah barang di transaksi

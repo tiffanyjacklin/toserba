@@ -217,7 +217,7 @@ func Init() *echo.Echo {
 	e.GET("/payment/method", controller.GetAllPaymentMethod)
 	e.POST("/payment/method/add", controller.InsertPaymentMethod)
 
-	e.GET("/products/moving/transaction/product/:product_id/:asc/:limit/:offset", controller.GetSlowFastMovingPerProduct)
+	e.GET("/products/moving/transaction/product/:product_id/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingPerProduct)
 	e.GET("/products/moving/transaction/:sw_id/:year/:month/:day/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
 	e.GET("/products/moving/transaction/range/:sw_id/:start_date/:end_date/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
 	e.GET("/products/moving/stock/card/:asc/:limit/:offset", controller.GetSlowFastMovingFromStockOut)
