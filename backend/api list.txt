@@ -817,6 +817,12 @@ e.POST("/owner/roles/add", controller.InsertRoles)
     }
 ]
 
+// Mengganti nama role
+e.PUT("/roles/update/name/:role_id", controller.UpdateRoleName)
+{
+    "roles_name": "Cashier"
+}
+
 // Mengambil data privilege. nama untuk search
 e.GET("/privileges/all/:priv_name/:limit/:offset", controller.GetAllPrivileges)
 

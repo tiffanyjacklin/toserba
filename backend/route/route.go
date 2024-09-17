@@ -211,6 +211,7 @@ func Init() *echo.Echo {
 	e.PUT("/store_warehouses/edit/:sw_id", controller.UpdateStoreWarehouse)
 	e.GET("/roles/all/:role_name/:limit/:offset", controller.GetAllRoles)
 	e.POST("/roles/add", controller.InsertRoles)
+	e.PUT("/roles/update/name/:role_id", controller.UpdateRoleName)
 	e.GET("/privileges/all/:priv_name/:limit/:offset", controller.GetAllPrivileges)
 	e.POST("/privileges/add", controller.InsertPrivileges)
 	e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
