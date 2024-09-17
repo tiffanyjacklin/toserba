@@ -54,11 +54,11 @@
             else if (value === String(4)){
                 goto(`/products`);
             }
-            else if (value === String(6)){
-                goto(`/sales_analytic`);
+            else if (value === String(5)){
+                goto(`/manage_cashier`);
             }
-            else{
-                goto(`/dashboard/`);
+            else if (value === String(6)){
+                goto(`/dashboard`);
             }
         });
     }
