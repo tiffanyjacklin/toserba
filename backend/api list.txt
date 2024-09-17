@@ -70,6 +70,12 @@ e.POST("/user/roles/add", controller.InsertNewUserRoles)
 // Menghapus role user
 e.DELETE("/user/roles/delete/:user_id/:role_id/:sw_id", controller.DelUserRoles)
 
+// Mengambil privilege template
+e.GET("/user/roles/default/:role_id", controller.GetPrivilegesDefault)
+
+// Menghapus satu privilege dari template
+e.DELETE("/user/roles/default/delete/:role_id/:privilege_id", controller.DelRoleDefault)
+
 // Mengubah role untuk user tertentu. Yang di uri role id sebelumnya, yang di body role id setelah
 // Kalau custom = 1, harus insert/update userprivilege
 e.PUT("/user/roles/update/:user_id/:role_id", controller.UpdateUserRoles)
