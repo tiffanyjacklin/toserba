@@ -79,8 +79,6 @@ func Init() *echo.Echo {
 	e.PUT("/store/orders/delivery/accept/:deliveryorder_id/:user_id", controller.AcceptDeliveryOrders)
 	e.GET("/store/orders/delivery/accept/:deliveryorder_id/:status/:start_date/:end_date/:limit/:offset", controller.GetAcceptedDeliveryOrder)
 
-	// KASIH OFFSET DAN LIMIT DI QUERY
-	// Buat get jumlah stock itu jangan didalam rows.next() tp buat for loop lg dibawahnya
 	// Warehouse
 	e.GET("/products/stock/card/description", controller.GetAllStockDescription)
 	e.POST("/products/stock/card/add", controller.InsertStockCards)
@@ -164,7 +162,7 @@ func Init() *echo.Echo {
 	e.GET("/products/detail/store_warehouse/:user_id/:role_id/:product_name_id/:limit/:offset", controller.GetAllProductDetailInSW) 
 	e.GET("/products/store_warehouse/:user_id/:role_id/:product_name_id/:limit/:offset", controller.GetAllProductsInSW) 
 	e.GET("/products/store_warehouse/:user_id/:role_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset", controller.GetAllProductsInSWFilter) 
-	e.GET("/products/supplier/:supplier_id", controller.GetAllProductDetailFromSupplier) 
+	e.GET("/products/supplier/:supplier_id/:limit/:offset", controller.GetAllProductDetailFromSupplier) 
 	e.POST("/products/add", controller.InsertProductDetails)
 	e.PUT("/products/edit/:product_id", controller.UpdateProductDetails)
 
