@@ -109,7 +109,7 @@ func Init() *echo.Echo {
 	e.GET("/products/stock/min/:product_id/:sw_id", controller.CheckMinStock)
 
 	e.GET("/products/stock/opname/data/:limit/:offset", controller.GetDataforStockOpname)
-	e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:category/:asc/:limit/:offset", controller.GetDataforStockOpnameBySWID)
+	e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:category/:product_sort/:asc/:limit/:offset", controller.GetDataforStockOpnameBySWID)
 	e.GET("/products/stock/opname/data/store_warehouse/:product_id/:sw_id/:limit/:offset", controller.GetDataforStockOpnameByPIDSWID)
 	e.GET("/products/stock/opname/store_warehouse/:sw_id", controller.GetStockOpnameBySWID)
 	e.GET("/products/stock/opname/:limit/:offset", controller.GetAllStockOpname)
