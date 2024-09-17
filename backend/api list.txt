@@ -608,7 +608,7 @@ e.POST("/promos/type/add", controller.InsertPromoType)
 e.GET("/promos/:promo_id", controller.GetPromoByID)
 
 // Mengambil semua promo yang tersedia. :product_name_promo_code untuk search nama produk atau kode promo. promo_type = id tipe promo
-e.GET("/promos/:start_date/:end_date/:product_name_promo_code/:promo_type/:limit/:offset", controller.GetAllPromos)    
+e.GET("/promos/:start_date/:end_date/:product_name_promo_code/:promo_type/:status/:limit/:offset", controller.GetAllPromos) 
 
 // Mengambil semua promo yang masih aktif
 e.GET("/promos/active", controller.GetAllActivePromos)

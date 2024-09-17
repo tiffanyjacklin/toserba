@@ -106,7 +106,7 @@ func Init() *echo.Echo {
 
 	e.GET("/products/stock/opname/data/:limit/:offset", controller.GetDataforStockOpname)
 	e.GET("/products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:category/:asc/:limit/:offset", controller.GetDataforStockOpnameBySWID)
-	e.GET("/products/stock/opname/data/store_warehouse/:product_id/:sw_id", controller.GetDataforStockOpnameByPIDSWID)
+	e.GET("/products/stock/opname/data/store_warehouse/:product_id/:sw_id/:limit/:offset", controller.GetDataforStockOpnameByPIDSWID)
 	e.GET("/products/stock/opname/store_warehouse/:sw_id", controller.GetStockOpnameBySWID)
 	e.GET("/products/stock/opname/:limit/:offset", controller.GetAllStockOpname)
 	e.POST("/products/stock/opname/add", controller.InsertStockOpname)
@@ -169,7 +169,7 @@ func Init() *echo.Echo {
 	e.POST("/promos/type/add", controller.InsertPromoType)
 	e.GET("/promos/:promo_id", controller.GetPromoByID)
 	e.GET("/promos/last", controller.GetLastPromo)
-	e.GET("/promos/:start_date/:end_date/:product_name_promo_code/:promo_type/:limit/:offset", controller.GetAllPromos)  
+	e.GET("/promos/:start_date/:end_date/:product_name_promo_code/:promo_type/:status/:limit/:offset", controller.GetAllPromos)  
 	e.GET("/promos/active/:limit/:offset", controller.GetAllActivePromos)  
 	e.POST("/promos/add", controller.InsertPromos) 
 	e.GET("/promos/product/:product_id/:limit/:offset", controller.GetPromoIDByProductID)
