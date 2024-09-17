@@ -89,7 +89,7 @@ e.PUT("/user/roles/update/:user_id/:role_id", controller.UpdateUserRoles)
 e.PUT("/user/roles/update/:user_id/:role_id/:sw_id", controller.UpdateUserStoreWarehouse)
 
 // Menambah user privilege baru yang sebelumnya tidak ada
-e.POST("/user/privileges/add/new/:user_id/:role_id", controller.InsertUserPrivilege)
+e.POST("/user/privileges/add/new/:user_id/:role_id/:sw_id", controller.InsertUserPrivilege)
 [
     {
         "privilege_id":4
@@ -117,7 +117,7 @@ e.GET("/user/privileges/:user_id/:role_id", controller.GetPriv)
 e.DELETE("/user/privileges/delete/:user_id/:role_id/:privilege_id", controller.DelUserPrivilege)
 
 // Menghapus semua privilege custom id dan role tertentu
-e.DELETE("/user/privileges/delete/:user_id/:role_id", controller.DelAllUserPrivilege)
+e.DELETE("/user/privileges/delete/:user_id/:role_id/:sw_id", controller.DelAllUserPrivilege)
 
 // Mengirim OTP 
 e.PUT("/cashier/session/edit/sendotp/:user_id", controller.AccountSendOTP)
