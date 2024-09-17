@@ -40,6 +40,7 @@ func Init() *echo.Echo {
 	e.PUT("/user/roles/update/:user_id/:role_id", controller.UpdateUserRoles)
 	e.PUT("/user/roles/update/:user_id/:role_id/:sw_id", controller.UpdateUserStoreWarehouse)
 	e.GET("/user/roles/default/:role_id", controller.GetPrivilegesDefault)
+	e.DELETE("/user/all/roles/default/:role_id", controller.DelAllRolesDefault)
 	e.DELETE("/user/roles/default/delete/:role_id/:privilege_id", controller.DelRoleDefault)
 	e.POST("/user/privileges/add/new/:user_id/:role_id/:sw_id", controller.InsertUserPrivilege)
 	e.POST("/user/privileges/add/exist/:user_id/:role_id", controller.InsertExistUserPrivilege)
