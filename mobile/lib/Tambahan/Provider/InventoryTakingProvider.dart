@@ -2,7 +2,8 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_app_all/Model/AllCategory.dart' as category;
 import 'package:flutter_app_all/Model/StockOpname.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:http/http.dart' as http;
@@ -18,6 +19,16 @@ class itemSubmit {
       {required this.stockData, required this.quantity, required this.notes});
 }
 
+
+class ResultFilter{
+  String productOrder;
+  String sort;
+  String unit;
+  String type;
+
+  ResultFilter({required this.productOrder, required this.sort,  required this.unit, required this.type});
+}
+
 class InventoryTakingProvider extends ChangeNotifier {
   // constructor
   InventoryTakingProvider() {
@@ -26,6 +37,8 @@ class InventoryTakingProvider extends ChangeNotifier {
       (index) => TextEditingController(),
     );
     searchItemWithFilter('');
+    fetchAllProductType();
+
     currentPage = 0;
   }
 
@@ -68,6 +81,29 @@ class InventoryTakingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // >> for filter
+  bool isFiltering = false;
+    List<String> productOrder = [
+    'Expire Date',
+    'Stock',
+    'Last Checked',
+    'Alphabetical',
+    'Batch Number',
+  ];
+  List<String> ascDec = ['Ascending', 'Descending'];
+  List<String> unitType = ['Units', 'Grams'];
+  List<category.Data> productType = [];
+
+  String _filterProduct = 'Expire Date'; // productOrder[0]
+  String _ascDecNow = 'Ascending';
+  String _unitNow = '';
+  String _typeNow = '';
+  late Map<String, category.Data> _mapCategory;
+
+  String get ascDecNow => _ascDecNow;
+  String get unitNow => _unitNow;
+  String get typeNow => _typeNow;
+
   // >> for submit item
   // bikin map aja kah?
   Map<String, itemSubmit> _mapListItemSubmit = {};
@@ -88,6 +124,74 @@ class InventoryTakingProvider extends ChangeNotifier {
   //   // kerjakan untuk pass ke dalam submited
   //   return [];
   // }
+
+  // for filter function 
+  bool isSelected(int index) {
+    if (_filterProduct == productOrder[index]) {
+      return true;
+    }
+    return false;
+  }
+
+  void clickFilter(String name) {
+    isFiltering = !isFiltering;
+
+    if(isFiltering == false){
+      // search gas
+      var resultfilter = getResult();
+      searchItemWithFilter(name, asc: resultfilter.sort, category: resultfilter.type, unitType: resultfilter.unit);
+    }
+    notifyListeners();
+  }
+
+  void setFilterProduct(String name) {
+    _filterProduct = name;
+    notifyListeners();
+  }
+
+  void setAcs(String name) {
+    _ascDecNow = name;
+    notifyListeners();
+  }
+
+  void setUnitType(String name) {
+    _unitNow = name;
+    notifyListeners();
+  }
+
+  void setProductType(String name) {
+    _typeNow = name;
+    notifyListeners();
+  }
+
+  void resetFilter() {
+    _filterProduct = 'Expire Date';
+    _ascDecNow = 'Ascending';
+    _unitNow = '';
+    _typeNow = '';
+    notifyListeners();
+  }
+
+  ResultFilter getResult(){
+    var asc = 'dec';
+    // var unit = '';
+    if(_ascDecNow == 'Ascending'){
+      asc = 'asc';
+    }
+    var category = '';
+    if(_typeNow != ''){
+      // cari dalam index
+      category =  _mapCategory[_typeNow]!.productCategoryId.toString(); // kudu cari namanya !!!!
+    }
+
+    var unit = '';
+    if(_unitNow != ''){
+      unit = _unitNow.substring(0, _unitNow.length-1).toLowerCase();
+    }
+
+    return ResultFilter(productOrder: _filterProduct, sort: asc, unit: unit, type: category);
+  }
+
 
   // for paginator function
   int findLengthListItem() {
@@ -248,7 +352,7 @@ class InventoryTakingProvider extends ChangeNotifier {
         name, batch, unitType, productId, expDate, category, asc);
     // _resultSearched = result.where((i) => i.expectedStock! > 0).toList();
     _resultSearched = result;
-
+    changeControllerQtyValue();
     isLoading = false;
     notifyListeners();
   }
@@ -291,6 +395,31 @@ class InventoryTakingProvider extends ChangeNotifier {
     } else {
       print('fetch failed');
       return [];
+    }
+  }
+  // future brow
+  Future<void> fetchAllProductType() async {
+    // http://leap.crossnet.co.id:8888/products/category
+    final link = 'http://leap.crossnet.co.id:8888/products/category';
+
+    // call api (method PUT)
+    final response = await http.get(Uri.parse(link));
+    print('---> response ' + response.statusCode.toString());
+
+    // cek status
+    if (response.statusCode == 200) {
+      Map<String, dynamic> temp = json.decode(response.body);
+      print(response.body);
+
+      if (temp['status'] == 200) {
+        print(temp);
+        // insert here ....
+        productType = category.AllCategory.fromJson(temp).data!;
+        _mapCategory = {for (int i = 0; i < productType.length; i++) productType[i].productCategoryName!: productType[i]};
+        notifyListeners();
+      }
+    } else {
+      print('fetch failed');
     }
   }
 
