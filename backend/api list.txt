@@ -107,6 +107,12 @@ e.PUT("/user/privileges/update/:user_id/:role_id/:privilege_id", controller.Upda
 // Mengambil privilege berdasarkan user dan role
 e.GET("/user/privileges/:user_id/:role_id", controller.GetPriv)
 
+// Menghapus satu privilege dari table user_privilege
+e.DELETE("/user/privileges/delete/:user_id/:role_id/:privilege_id", controller.DelUserPrivilege)
+
+// Menghapus semua privilege custom id dan role tertentu
+e.DELETE("/user/privileges/delete/:user_id/:role_id", controller.DelAllUserPrivilege)
+
 // Mengirim OTP 
 e.PUT("/cashier/session/edit/sendotp/:user_id", controller.AccountSendOTP)
 

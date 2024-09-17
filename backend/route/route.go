@@ -43,6 +43,8 @@ func Init() *echo.Echo {
 	e.POST("/user/privileges/add/exist/:user_id/:role_id", controller.InsertExistUserPrivilege)
 	e.PUT("/user/privileges/update/:user_id/:role_id/:privilege_id", controller.UpdateUserPrivilege)
 	e.GET("/user/privileges/:user_id/:role_id", controller.GetUserPriv)
+	e.DELETE("/user/privileges/delete/:user_id/:role_id/:privilege_id", controller.DelUserPrivilege)
+	e.DELETE("/user/privileges/delete/:user_id/:role_id", controller.DelAllUserPrivilege)
 
 	e.PUT("/cashier/session/edit/sendotp/:user_id", controller.AccountSendOTP)
 	e.PUT("/cashier/session/edit/verifotp/:user_id", controller.OTPVerification)
