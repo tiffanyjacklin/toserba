@@ -253,7 +253,7 @@ func Init() *echo.Echo {
 	e.GET("/profit/sum/all/date/:start_date/:end_date", controller.GetSumProfitByAllDate)
 	e.GET("/profit/sum/all/transaction/:start_date/:end_date", controller.GetSumProfitByAllTransaction)
 	e.GET("/profit/sum/all/product/:start_date/:end_date", controller.GetSumProfitByAllProduct)
-	e.GET("/profit/sum/all/store/:start_date/:end_date", controller.GetSumProfitByAllSW)
+	e.GET("/profit/sum/all/store/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllSW)
 
 	e.GET("/notifications/:limit/:offset", controller.GetAllNotification)
 	e.GET("/notifications/:role_id", controller.GetNotificationByRoleId)
