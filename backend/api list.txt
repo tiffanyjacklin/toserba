@@ -821,7 +821,7 @@ e.POST("/owner/roles/add", controller.InsertRoles)
 ]
 
 // Mengganti nama role
-e.PUT("/roles/update/name/:role_id", controller.UpdateRoleName)
+e.PUT("/roles/edit/name/:role_id", controller.UpdateRoleName)
 {
     "roles_name": "Cashier"
 }
@@ -837,6 +837,14 @@ e.POST("/privileges/add", controller.InsertPrivileges)
         "Navbar" : 1
     }
 ]
+
+// Mengganti atribut privilege
+// Navbar 1 == muncul di sidebar
+e.PUT("/privileges/edit/:priv_id", controller.UpdatePrivName)
+{
+    "privileges_name": "session",
+    "navbar": 1
+}
 
 // Menambah privilege untuk role default
 e.POST("/owner/roles/default/add", controller.InsertRolesDefault)
