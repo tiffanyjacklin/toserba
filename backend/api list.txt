@@ -934,11 +934,11 @@ e.GET("/profit/sum/transaction/:transaction_id", controller.GetSumProfitByTransa
 e.GET("/profit/sum/store/:sw_id", controller.GetSumProfitBySWID)
 e.GET("/profit/all/transaction/:transaction_id/:asc/:limit/:offset", controller.GetAllProfitByTransactionID)
 e.GET("/profit/all/store/:sw_id/:asc/:limit/:offset", controller.GetAllProfitBySWID)
-e.GET("/profit/sum/all/year/:start_date/:end_date", controller.GetSumProfitByAllYear)
-e.GET("/profit/sum/all/month/:start_date/:end_date", controller.GetSumProfitByAllMonth)
-e.GET("/profit/sum/all/date/:start_date/:end_date", controller.GetSumProfitByAllDate)
-e.GET("/profit/sum/all/transaction/:start_date/:end_date", controller.GetSumProfitByAllTransaction)
-e.GET("/profit/sum/all/product/:start_date/:end_date", controller.GetSumProfitByAllProduct)
+e.GET("/profit/sum/all/year/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllYear)
+e.GET("/profit/sum/all/month/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllMonth)
+e.GET("/profit/sum/all/date/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllDate)
+e.GET("/profit/sum/all/transaction/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllTransaction)
+e.GET("/profit/sum/all/product/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllProduct)
 e.GET("/profit/sum/all/store/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllSW)
 
 // Mengambil semua data notifikasi
