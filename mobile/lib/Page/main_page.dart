@@ -268,7 +268,7 @@ class MenuPage extends StatelessWidget {
       flex: 8,
       child: Container(
         decoration: BoxDecoration(color: Colors.grey[100]),
-        child: InventoryTakingPageWithProvider(),
+        child: HistoryAllProductPage(),
       ),
     );
   }

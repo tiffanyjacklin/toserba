@@ -13,41 +13,6 @@ import 'package:number_paginator/number_paginator.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-Future _fetchStockOpname(String name) async {
-  var storeId = 2;
-
-  var batch = '';
-  var unitType = '';
-
-  final link =
-      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$storeId/$name/$batch/$unitType/0/0';
-
-  // call api (method PUT)
-  final response = await http.get(Uri.parse(link));
-  print('---> response ' + response.statusCode.toString());
-
-  // cek status
-  if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
-    Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
-    print(response.body);
-    if (temp['status'] == 200) {
-      print(temp);
-      return FetchStockOpnameWarehouse.fromJson(temp).data!;
-    } else {
-      return [];
-    }
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    // throw Exception('Login Failed, Try Again');
-    print('fetch failed');
-    return [];
-  }
-}
-
 class InventoryTakingPageWithProvider extends StatefulWidget {
   const InventoryTakingPageWithProvider({super.key});
 
@@ -77,10 +42,6 @@ class InventoryTakingPage extends StatefulWidget {
 class _InventoryTakingPageState extends State<InventoryTakingPage> {
   // final NumberPaginatorController _controller = NumberPaginatorController();
   final TextEditingController _searchController = TextEditingController();
-  // var _currentPage = 1;
-
-  // List<Data> contentTableInventory =
-  //     FetchStockOpnameWarehouse.fromJson(jsonStockOpname).data!;
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +66,6 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                 height: 10,
               ),
 
-               
               Container(
                 width: MediaQuery.of(context).size.width * 0.8,
                 child: TextField(
@@ -185,7 +145,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                   
                                     // order
                                     Text(
-                                      'Product Order',
+                                      'Sort By',
                                       style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold),
@@ -193,17 +153,20 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                     SizedBox(
                                       height: 5,
                                     ),
-                                    Row(
+                                    Wrap(
+                                      spacing: 10,
                                       children: List.generate(
                                           providerInventory.productOrder.length, (index) {
                                         return Container(
                                           margin:
                                               EdgeInsets.symmetric(horizontal: 2),
-                                          child: providerInventory.isSelected(index)
+                                          child: providerInventory.filterProduct == providerInventory.productOrder[index].sortType
                                               ? OutlinedButton(
-                                                  onPressed: () {},
+                                                  onPressed: () {
+                                                    providerInventory.setFilterProduct('');
+                                                  },
                                                   child: Text(
-                                                    providerInventory.productOrder[index],
+                                                    providerInventory.productOrder[index].sortType!,
                                                     style: TextStyle(
                                                         fontSize: 18,
                                                         fontWeight: FontWeight.bold,
@@ -223,10 +186,10 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                                   onPressed: () {
                                                     providerInventory.setFilterProduct(
                                                         providerInventory
-                                                            .productOrder[index]);
+                                                            .productOrder[index].sortType!);
                                                   },
                                                   child: Text(
-                                                    providerInventory.productOrder[index],
+                                                    providerInventory.productOrder[index].sortType!,
                                                     style: TextStyle(
                                                         fontSize: 18,
                                                         fontWeight: FontWeight.bold,
@@ -259,7 +222,8 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                     SizedBox(
                                       height: 5,
                                     ),
-                                    Row(
+                                    Wrap(
+                                      spacing: 10,
                                       children: List.generate(
                                           providerInventory.ascDec.length, (index) {
                                         return Container(
@@ -325,7 +289,8 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                     SizedBox(
                                       height: 5,
                                     ),
-                                    Row(
+                                    Wrap(
+                                      spacing: 10,
                                       children: List.generate(
                                           providerInventory.unitType.length, (index) {
                                         return Container(
@@ -393,7 +358,8 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                     SizedBox(
                                       height: 5,
                                     ),
-                                    Row(
+                                    Wrap(
+                                      spacing: 10,
                                       children: List.generate(
                                           providerInventory.productType.length, (index) {
                                         return Container(
@@ -477,7 +443,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                 onPageChange: (int index) {
                                   // providerInventory.currentPage = index;
                                   providerInventory
-                                      .checkControllerPageChanges(); // BUG / POTENTIAL ERROR (maybe)
+                                      .checkControllerPageChanges(_searchController.text); // BUG / POTENTIAL ERROR (maybe)
                                 },
 
                                 showPrevButton: true,
@@ -510,6 +476,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                             ),
                             TableInventoryTaking(
                               startIndex: providerInventory.getStartIndex(),
+                              contentTable: providerInventory.listPerPage,
                             ),
                           ],
                         ),
@@ -1187,16 +1154,16 @@ class DiscardPopup extends StatelessWidget {
 
 class TableInventoryTaking extends StatelessWidget {
   int startIndex;
+  List<Data> contentTable;
   TableInventoryTaking({
     super.key,
-    // required this.contentTable,
+    required this.contentTable,
     required this.startIndex,
   });
 
   @override
   Widget build(BuildContext context) {
     final providerInventory = Provider.of<InventoryTakingProvider>(context);
-    List<Data> contentTable = providerInventory.listPerPage;
     List<TextEditingController> controllerQty =
         providerInventory.resultController;
 

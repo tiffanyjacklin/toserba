@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
-import 'package:flutter_app_all/Page/Login/login_tablet.dart';
+// import 'package:flutter_app_all/Page/Login/login_tablet.dart';
 import 'package:flutter_app_all/Page/main_page.dart';
 
 
@@ -23,6 +23,14 @@ class MainApp extends StatelessWidget {
       home: MainPage(FetchUsers.fromJson(jsonUser).data!, FetchPrivileges.fromJson(jsonPrivileges).data! ),
       );
   }
+  //   @override
+  // Widget build(BuildContext context) {
+  //   return MaterialApp(
+  //     theme: ThemeData(fontFamily: "Helvetica"),
+  //     debugShowCheckedModeBanner: false,
+  //     home: LoginTablet(),
+  //     );
+  // }
 }
 
 
