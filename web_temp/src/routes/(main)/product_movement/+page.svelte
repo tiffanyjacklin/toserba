@@ -41,6 +41,9 @@
     $: endTransaction = '';
     $: dateChosen = '1M';
 
+    $: searchQuery = '';
+    $: searchQuery_temp = '';
+
     let specific_product = [];
     let selectedYear = 0;
     let selectedMonth = 0;
@@ -196,8 +199,8 @@
   
     async function fetchProducts() {
       let uri_temp = isLeft
-      ? `products/moving/transaction/range/${sw_id}/${startDate}/${endDate}/${category}/${unit_type}/${fast_slow}/${limit}/${offset}`
-      : `products/moving/transaction/${sw_id}/${selectedYear}/${selectedMonth}/${selectedDay}/${category}/${unit_type}/${fast_slow}/${limit}/${offset}`;
+      ? `products/moving/transaction/range/${sw_id}/${startDate}/${endDate}/${searchQuery}/${category}/${unit_type}/${fast_slow}/${limit}/${offset}`
+      : `products/moving/transaction/${sw_id}/${selectedYear}/${selectedMonth}/${selectedDay}/${searchQuery}/${category}/${unit_type}/${fast_slow}/${limit}/${offset}`;
       console.log(uri_temp);
         const response = await fetch(`http://${$uri}:8888/${uri_temp}`, {
             method: 'GET',

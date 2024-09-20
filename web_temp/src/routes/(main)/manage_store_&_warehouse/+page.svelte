@@ -13,13 +13,14 @@
     let totalNotes = 10; 
     $: currentPage = 1; 
 
-    let searchQuery = '';
+    $: searchQuery = '';
+    $: searchQuery_temp = '';
     $: tampilan = 'View';
     $: showModal = null;
     $: id_modal = null;
     $: sw_name = '';
     $: sw_type = '';
-    $: sw_filter_type = '';
+    $: sw_name_address = '';
     $: phone_number = '';
     $: address = '';
 
@@ -75,9 +76,17 @@
       // await fetchPromos();
       await fetchStoreWarehouse();
     });
+    $: if ((searchQuery_temp !== searchQuery) ){
+      console.log(searchQuery);
+      fetchStoreWarehouse();
+      searchQuery_temp = searchQuery;
+    } else{
+      searchQuery_temp = '';
+    }
+
     async function fetchStoreWarehouse() {
     
-      const response = await fetch(`http://${$uri}:8888/store_warehouses/all`, {
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/type/${sw_type}/${searchQuery}/${limit}/${offset}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -219,14 +228,14 @@
                     <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-2/5 bg-gray-100 p-4 rounded-lg font-roboto">
                       <span class="font-bold text-xl mb-1">Location Type</span>
                       <div class="flex w-full flex-wrap">
-                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_filter_type === 'Store' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Store</button>
-                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_filter_type === 'Warehouse' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Warehouse</button>
+                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_type === 'store' ? 'bg-white text-peach2' : 'bg-gray-100'}`} on:click={() => {sw_type = (sw_type === '' || sw_type !== "store") ? "store" : '';}}>Store</button>
+                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_type === 'warehouse' ? 'bg-white text-peach2' : 'bg-gray-100'}`} on:click={() => {sw_type = (sw_type === '' || sw_type !== "warehouse") ? "warehouse" : '';}}>Warehouse</button>
                       </div>
                       
                       
                       <div class="flex justify-between font-semibold mt-4">
-                          <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ''; endDate = ''; }}>Clear</button>
-                          <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={toggleDatePicker}>Apply</button>
+                          <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { sw_type = ""; }}>Clear</button>
+                          <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchStoreWarehouse(); showFilter = false;}}>Apply</button>
                       </div>
                     </div>
                 {/if}
@@ -285,6 +294,11 @@
             </div>
           </button>
           {/each}
+          {#if all_store_warehouses.length === 0}
+          <div class="justify-center w-full h-full flex border-2 rounded-xl py-4 border-gray-400 my-3 ">
+            No Store or Warehouse found.
+          </div>
+          {/if}
         </div>
       </div>
       <!-- {:else if tampilan="Edit"}

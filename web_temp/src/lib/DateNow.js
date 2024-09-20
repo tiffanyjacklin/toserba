@@ -28,6 +28,15 @@ export function getThirtyDaysBefore(dateString, sum) {
   return `${year}-${month}-${day}`;
 }
 
+export function getDateCount(start_date, end_date) {
+  const startDate = new Date(start_date);
+  const endDate = new Date(end_date);
+
+  const timeDifference = endDate - startDate;
+  const dayDifference = timeDifference / (1000 * 60 * 60 * 24);
+
+  return Math.round(dayDifference);
+}
 
 export function isInTimeRange(closingTime, rangeMinutes = 30) {
     const now = new Date();

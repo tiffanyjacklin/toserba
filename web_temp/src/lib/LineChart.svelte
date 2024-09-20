@@ -14,6 +14,7 @@
     export let axisLineColor = "lightgray";
     export let labelColor = "black";
     export let lineColor = "#f2b082";
+    export let ticks = 5;
     let maxNumber = data.length > 0 ? Math.max(...data) : 0;
     let roundedMax = Math.ceil(maxNumber);
 
@@ -43,7 +44,7 @@
         .call(g => g.selectAll(".tick text").remove()); 
   
     $: d3.select(gyLabel)
-        .call(d3.axisLeft(y).ticks(5).tickSize(0).tickSizeOuter(0)) 
+        .call(d3.axisLeft(y).ticks(ticks).tickSize(0).tickSizeOuter(0)) 
         .call(g => g.select(".domain").remove()) 
         .call(g => g.selectAll(".tick text").attr("fill", labelColor));
 </script>
