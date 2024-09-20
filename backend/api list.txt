@@ -888,11 +888,11 @@ e.GET("/products/moving/transaction/product/:product_id/:start_date/:end_date/:a
 // order 0 - fast; 1 - slow; 
 // year month day kalau tidak spesifik tulis 0. Misal ambil di Agustus 2024 jadi 2024/08/0
 // Kalau ambil semua tanpa filter tanggal, jadi 0/0/0. BERLAKU UNTUK BAWAH NYA JUGA
-e.GET("/products/moving/transaction/:sw_id/:year/:month/:day/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
+e.GET("/products/moving/transaction/:sw_id/:year/:month/:day/:product_id_name_code/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
 
 // Mengambil barang fast/slow moving dari jumlah barang di transaksi pada store tertentu berdasarkan range tanggal
 // /products/moving/transaction/range/0/1/2024-08-20/2024-08-22
-e.GET("/products/moving/transaction/range/:sw_id/:start_date/:end_date/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
+e.GET("/products/moving/transaction/range/:sw_id/:start_date/:end_date/:product_id_name_code/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
 
 // Mengambil barang fast/slow moving dari jumlah barang di stock out stock cards
 // order 0 - fast; 1 - slow; 
@@ -948,6 +948,7 @@ e.GET("/profit/sum/all/date/:start_date/:end_date/:limit/:offset", controller.Ge
 e.GET("/profit/sum/all/transaction/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllTransaction)
 e.GET("/profit/sum/all/product/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllProduct)
 e.GET("/profit/sum/all/store/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllSW)
+e.GET("/profit/sum/all/store/:start_date/:end_date/:sw_name_address/:limit/:offset", controller.GetSumProfitByAllSWv2)
 
 // Mengambil semua data notifikasi
 e.GET("/notifications/:limit/:offset", controller.GetAllNotification)

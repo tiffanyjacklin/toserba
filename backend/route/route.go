@@ -225,8 +225,8 @@ func Init() *echo.Echo {
 	e.POST("/payment/method/add", controller.InsertPaymentMethod)
 
 	e.GET("/products/moving/transaction/product/:product_id/:start_date/:end_date/:asc/:limit/:offset", controller.GetSlowFastMovingPerProduct)
-	e.GET("/products/moving/transaction/:sw_id/:year/:month/:day/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
-	e.GET("/products/moving/transaction/range/:sw_id/:start_date/:end_date/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
+	e.GET("/products/moving/transaction/:sw_id/:year/:month/:day/:product_id_name_code/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
+	e.GET("/products/moving/transaction/range/:sw_id/:start_date/:end_date/:product_id_name_code/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWIDDateRange)
 	e.GET("/products/moving/stock/card/:asc/:limit/:offset", controller.GetSlowFastMovingFromStockOut)
 
 	e.GET("/promos/verify/:status/:pd_name_code/:promo_code/:limit/:offset", controller.GetVerifiedPromoProducts)
@@ -255,6 +255,7 @@ func Init() *echo.Echo {
 	e.GET("/profit/sum/all/transaction/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllTransaction)
 	e.GET("/profit/sum/all/product/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllProduct)
 	e.GET("/profit/sum/all/store/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllSW)
+	e.GET("/profit/sum/all/store/:start_date/:end_date/:sw_name_address/:limit/:offset", controller.GetSumProfitByAllSWv2)
 
 	e.GET("/notifications/:limit/:offset", controller.GetAllNotification)
 	e.GET("/notifications/:role_id", controller.GetNotificationByRoleId)
