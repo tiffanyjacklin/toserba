@@ -5,9 +5,9 @@
   import receipt from '$lib/assets/receipt-1.png';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  import { uri, userId, roleId, sessionId} from '$lib/uri.js';
+  import { uri, userId, roleId, sessionId, privileges} from '$lib/uri.js';
   import user_pp from "$lib/assets/user.png";
-import { json } from '@sveltejs/kit';
+  import { json } from '@sveltejs/kit';
 
   export let data;
   let user_id = data.user_id;
@@ -21,6 +21,13 @@ import { json } from '@sveltejs/kit';
 
   $: role_id_reassign = null;
   $: sw_reassign = 0;
+
+  //Untuk edit privilege user
+  let all_privilege = [];
+  let priv_template_role = [];
+  let prev_user_priv = [];
+  let custom_user_priv = [];
+  $: isUserCustom = false;
 
   $: showModal = false;
   function closeModal() {
@@ -54,8 +61,8 @@ import { json } from '@sveltejs/kit';
       }
 
       user = data.data;
+      user.sw_name = await getStoreWarehouse(user.store_warehouse_id);
       console.log(user);
-      
   }
   
   async function fetchRoleUser(){
@@ -105,6 +112,88 @@ import { json } from '@sveltejs/kit';
       stores = data.data;
 
       console.log("admin_handled_store",stores)
+  }
+  
+  async function fetchAllPrivilege(){
+      const response = await fetch(`http://${$uri}:8888/privileges/all/''/100/0`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch all privilege failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch all privilege', data);
+          return;
+      }
+
+      all_privilege = data.data;
+
+      console.log("all_privilege",all_privilege)
+  }
+  
+  async function fetchUserPrivilege(){
+      const response = await fetch(`http://${$uri}:8888/user/privileges/${user_id}/${role_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch user privilege failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch user privilege', data);
+          return;
+      }
+
+      prev_user_priv = data.data;
+      // console.log("prev_user_priv",prev_user_priv)
+
+      for (let i = 0; i < prev_user_priv.length; i++) {
+        if (priv_template_role.find((priv) => priv.Privileges.privileges_id == prev_user_priv[i].privilege_id) == null){
+            custom_user_priv.push({privilege_id: prev_user_priv[i].privilege_id})
+            isUserCustom = true;
+            console.log("isUserCustom",isUserCustom)
+        }
+      }
+      console.log("custom_user_priv",custom_user_priv)
+  }
+
+  async function fetchTemplatePriv(){
+      const response = await fetch(`http://${$uri}:8888/user/roles/default/${role_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch all template role failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch all template role', data);
+          return;
+      }
+
+      priv_template_role = data.data;
+      console.log("priv_template_role", priv_template_role);
   }
 
   async function UpdateDataUser(user_id,atribut) {
@@ -193,6 +282,30 @@ import { json } from '@sveltejs/kit';
       }
   }
 
+  async function getStoreWarehouse(sw_id) {
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/${sw_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('get all supplier fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch suppliers', data);
+          return;
+      }
+
+      let nama_wr = data.data.store_warehouse_name ;
+      return nama_wr;
+  }
+
   async function reassignEmployee() {
     let occupied_already = false;
     
@@ -220,7 +333,7 @@ import { json } from '@sveltejs/kit';
         confirmButtonColor: '#F2AA7E'
       });
       closeModal();
-      goto(`/manage_employee_admin`);
+      goto(`/manage_employee_owner`);
 
     } else {
       Swal.fire({
@@ -233,12 +346,106 @@ import { json } from '@sveltejs/kit';
     }
   }
 
+  async function savePrivilege() {
+    if (isUserCustom == true){
+      await deleteCustomPrivUser();
+    }
+
+    if (custom_user_priv.length > 0){
+    // for (let i = 0; i < custom_user_priv.length; i++) {
+        await addPrivilegeNew(custom_user_priv);
+    // }
+      custom_user_priv = [];
+      await fetchUser();
+      await fetchUserPrivilege();
+      closeModal();
+
+      Swal.fire({
+        title: "Privilege user berhasil diupdate",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E'
+      });
+    } else {
+      custom_user_priv = [];
+      await fetchUser();
+      await fetchUserPrivilege();
+      closeModal();
+
+      Swal.fire({
+        title: "Privilege user kosong",
+        icon: "error",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E'
+      });
+    }
+
+    
+  }
+  //post privilege satu2
+  async function addPrivilegeNew(priv) {
+    console.log(JSON.stringify(priv))
+      const response = await fetch(`http://${$uri}:8888/user/privileges/add/new/${user_id}/${role_id}/${sw_id}`, {
+          method: 'POST',
+          body: JSON.stringify(priv)
+      });
+
+      if (!response.ok) {
+          console.error('POST add new priv gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid POST new priv', data);
+          return;
+      }
+      console.log("Add new priv satu2 berhasil")
+    }
+  
+  async function deleteCustomPrivUser() {
+      const response = await fetch(`http://${$uri}:8888/user/privileges/delete/${user_id}/${role_id}/${sw_id}`, {
+          method: 'DELETE'
+      });
+
+      if (!response.ok) {
+          console.error('DELETE custom priv gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid DELETE custom priv', data);
+          return;
+      }
+      console.log("delete custom priv berhasil")
+    }
+
+  function addPrivilegetoList(priv_id){
+      let priv = custom_user_priv.find((priv) => priv.privilege_id == priv_id)
+      if (priv != null){
+        let index = custom_user_priv.findIndex((priv) => priv.privilege_id == priv_id)
+        custom_user_priv.splice(index,1);
+        console.log("custom_user_priv",custom_user_priv);
+      } else {
+        custom_user_priv.push({privilege_id: priv_id});
+        console.log("custom_user_priv",custom_user_priv);
+      }
+    }
+
   $: editMode = false;
   onMount(async () => {
     await fetchUser();
     await fetchSW();
     await fetchRoleUser();
     await fetchRoleReassign();
+    await fetchAllPrivilege();
+    await fetchTemplatePriv();
+    await fetchUserPrivilege();
   });
  
 </script>
@@ -255,6 +462,7 @@ import { json } from '@sveltejs/kit';
           <button on:click={() => {editMode = false;}} class="w-48 rounded-2xl bg-darkGray text-peach font-semibold py-2 border border-peach mx-2 shadow">Cancel Edit</button>
       {/if}
       <button on:click={() => {showModal = "reassign"}} class="w-48 rounded-2xl bg-peach2 text-darkGray font-semibold py-2 border border-darkGray hover:bg-darkGray hover:text-peach mx-2 shadow">Reassign</button>
+      <button on:click={() => {showModal = "edit_privilege"}} class="w-48 rounded-2xl bg-peach2 text-darkGray font-semibold py-2 border border-darkGray hover:bg-darkGray hover:text-peach mx-2 shadow">Edit Privilege</button>
   </div>
 
   <div class="flex w-full mb-10">
@@ -270,6 +478,10 @@ import { json } from '@sveltejs/kit';
           <div class="flex flex-col my-2">
               <span class="text-peach2">Employee Role</span>
               <span class="">{user.roles_name}</span>
+          </div>
+          <div class="flex flex-col my-2">
+              <span class="text-peach2">Assigned At</span>
+              <span class="">{user.sw_name}</span>
           </div>
           <div class="flex flex-col my-2">
               <span class="text-peach2">Employee Email</span>
@@ -374,7 +586,7 @@ import { json } from '@sveltejs/kit';
       <span class="text-peach font-semibold">Employee Role</span>
       <select bind:value={role_id_reassign} class="w-full p-2 rounded-xl">
         {#each role_to_reassign as role}
-          {#if role.roles_id != 6 && role.roles_id != 5}
+          {#if role.roles_id != 6}
             <option value={role.roles_id}>{role.roles_name}</option>
           {/if}
         {/each}
@@ -391,6 +603,72 @@ import { json } from '@sveltejs/kit';
     <div class="flex mt-8 items-center justify-center">
       <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
       <button on:click={() => reassignEmployee()} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Reassign</button>
+    </div>
+  </div>
+</TaskModal> 
+{/if}
+
+<!-- MODAL EDIT PRIVILEGE EMPLOYEE -->
+{#if showModal == "edit_privilege" }
+<TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+  <div class="flex items-center justify-center pt-8 font-roboto">
+    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Edit Employee Privilege</div>
+  </div>
+  <div class="flex flex-col justify-center p-8 font-semibold">
+    <div class="flex flex-col my-2">
+      <span class="text-peach">Employee Profile Picture</span>
+      <img src={user_pp} class="w-40 rounded-xl border border-darkGray">
+    </div>
+    <div class="flex flex-col my-2">
+      <span class="text-peach">Employee Full Name</span>
+        <span class="text-white">{user.user_fullname}</span>
+    </div>
+    <div class="flex flex-col my-2">
+        <span class="text-peach">Employee Role</span>
+        <span class="text-white">{user.roles_name}</span>
+    </div>
+    
+    <div class="flex flex-col my-2">
+        <span class="text-peach">Permissions</span>
+          <div class="mt-4 flex flex-col">
+            <span class="text-peach2">Default : </span>
+              <ul class="font-semibold text-white ml-2">
+                {#each priv_template_role as priv_def}
+                <li class="mb-1">
+                  <div class="flex items-center">
+                    <input disabled checked class="border border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white  mr-2" type="checkbox">
+                    <span class="">{priv_def.Privileges.privileges_name}</span>
+                  </div>
+                </li>
+                {/each}
+              </ul>
+          </div>
+          
+          <div class="mt-4 flex flex-col">
+            <span class="text-peach2">Custom : </span>
+              <ul class="font-semibold text-white ml-2">
+                {#each all_privilege as privilege}
+                  {#if (priv_template_role.find((priv) => priv.Privileges.privileges_id == privilege.privileges_id) == null)}
+                    <li class="mb-1">
+                      <div class="flex items-center">
+                          {#if (custom_user_priv.find((priv) => priv.privilege_id == privilege.privileges_id) != null)}
+                            <!-- <input on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox"> -->
+                            <input on:change={() => {addPrivilegetoList(privilege.privileges_id)}} checked class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white  mr-2" type="checkbox">
+                          {:else}
+                            <input on:change={() => {addPrivilegetoList(privilege.privileges_id)}} class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white mr-2" type="checkbox">
+                          {/if}
+                            <span class="">{privilege.privileges_name}</span>
+                        </div>
+                    </li>
+                  {/if}
+                {/each}
+              </ul>
+          </div>
+    </div>
+
+    <div class="flex mt-8 items-center justify-center">
+      <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
+      <button on:click={() => {savePrivilege()}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Save</button>
     </div>
   </div>
 </TaskModal> 
@@ -424,6 +702,7 @@ import { json } from '@sveltejs/kit';
   </form>
 </TaskModal> 
 {/if}
+
 
 <!-- MODAL CREATE NEW ROLE (OWNER AJA) -->
 <!-- {#if showModal == "create_role" }

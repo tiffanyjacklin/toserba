@@ -4,7 +4,7 @@
 
    import { onMount } from 'svelte';
    import { uri, userId, roleId } from '$lib/uri.js';
-   import FrappeChart from 'svelte-frappe-charts';
+   // import FrappeChart from 'svelte-frappe-charts';
 	import { getFormattedDate, getThirtyDaysBefore } from '$lib/DateNow';
 
    let showDateRange = false;

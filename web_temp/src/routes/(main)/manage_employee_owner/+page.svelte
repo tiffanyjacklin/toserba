@@ -39,10 +39,15 @@
 
     let role_to_assign = [];
 
+    //ADD NEW PRIVILEGE
+    let privilege_name = "";
+    let show_on_navbar = 0;
+
     //ADD NEW ROLE
     let roles_name = "";
     let roles_id = 0;
-    let list_privilege_id = [];
+    let all_privilege = [];
+    let list_new_priv_id = [];
 
     function toggleFilter() {
         showFilter = !showFilter;
@@ -72,8 +77,13 @@
         }
 
         users = data.data;
+
+        for (let i = 0; i < users.length; i++) {
+          users[i].sw_name = await getStoreWarehouse(users[i].store_warehouse_id)
+        }
+
         filtered_users = structuredClone(users);
-        console.log(users)
+        console.log(filtered_users)
     }
   
   async function fetchUserFiltered(start_date,end_date,role_id,gender){
@@ -132,6 +142,30 @@
         return data.data.user_id
         console.log("last",data.data.user_id)
     }
+
+  async function getStoreWarehouse(sw_id) {
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/${sw_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('get all supplier fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch suppliers', data);
+          return;
+      }
+
+      let nama_wr = data.data.store_warehouse_name ;
+      return nama_wr;
+  }
 
   async function fetchSW(){
     const response = await fetch(`http://${$uri}:8888/store_warehouses/all`, {
@@ -267,9 +301,176 @@
       console.log("role_to_assign",role_to_assign)
   }
 
+  async function fetchAllPrivilege(){
+        const response = await fetch(`http://${$uri}:8888/privileges/all/''/100/0`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch all privilege failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch all privilege', data);
+            return;
+        }
+
+        all_privilege = data.data;
+
+        console.log("all_privilege",all_privilege)
+    }
+
+  function addPrivilegetoList(priv_id){
+      let priv = list_new_priv_id.find((id) => id == priv_id)
+      if (priv != null){
+        let index = list_new_priv_id.findIndex((id) => id == priv_id)
+        list_new_priv_id.splice(index,1);
+        console.log("list_new_priv_id",list_new_priv_id);
+
+      } else {
+        list_new_priv_id.push(priv_id);
+        console.log("list_new_priv_id",list_new_priv_id);
+      }
+    }
+
+  async function addNewRoleName() {
+    console.log(JSON.stringify([{roles_name: roles_name}]))
+      const response = await fetch(`http://${$uri}:8888/roles/add`, {
+          method: 'POST',
+          body: JSON.stringify([{roles_name: roles_name}])
+      });
+
+      if (!response.ok) {
+          console.error('POST add new role name gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid POST new role name', data);
+          return;
+      }
+      console.log("Add new role name berhasil")
+    }
+
+  async function getRoleData(role_name){
+        const response = await fetch(`http://${$uri}:8888/roles/all/${role_name}/100/0`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch SW failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch SW', data);
+            return;
+        }
+
+        return data.data[0].roles_id;
+    }
+
+  async function addPrivilegeNew(priv) {
+    console.log(JSON.stringify(priv))
+      const response = await fetch(`http://${$uri}:8888/owner/roles/default/add`, {
+          method: 'POST',
+          body: JSON.stringify(priv)
+      });
+
+      if (!response.ok) {
+          console.error('POST add new priv default gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid POST new priv default', data);
+          return;
+      }
+      console.log("Add new priv default berhasil")
+    }
+
+  async function addNewRole(){
+    await addNewRoleName();
+
+    console.log(roles_name);
+    roles_id = await getRoleData(roles_name);
+    console.log("roles_id",roles_id);
+
+    let tmp_list_priv = [];
+    for (let i = 0; i < list_new_priv_id.length; i++) {
+      tmp_list_priv.push({roles_id: roles_id, privileges_id: list_new_priv_id[i]});
+    }
+  
+    await addPrivilegeNew(tmp_list_priv);
+    
+    list_new_priv_id = [];
+    await fetchRoletoAssign();
+    closeModal();
+    Swal.fire({
+                title: "Privilege user berhasil diupdate",
+                icon: "success",
+                color: "white",
+                background: "#364445",
+                confirmButtonColor: '#F2AA7E'
+            });
+  
+  }
+
+  async function addNewPriv() {
+    console.log(JSON.stringify([{privileges_name: privilege_name, Navbar: show_on_navbar}]))
+      const response = await fetch(`http://${$uri}:8888/privileges/add`, {
+          method: 'POST',
+          body: JSON.stringify([{privileges_name: privilege_name, Navbar: show_on_navbar}])
+      });
+
+      if (!response.ok) {
+          console.error('POST add new priv gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid POST new priv', data);
+          return;
+      }
+    }
+  
+  async function checkAddNewPriv() {
+      if(privilege_name != ""){
+        await addNewPriv();
+        
+        privilege_name = "";
+        await fetchAllPrivilege();
+        Swal.fire({
+                title: "Privilege user berhasil ditambahkan",
+                icon: "success",
+                color: "white",
+                background: "#364445",
+                confirmButtonColor: '#F2AA7E'
+            });
+      }
+  }
+
     onMount(async () => {
       await fetchUsers();
       await fetchRoletoAssign();
+      await fetchAllPrivilege();
     });
 
     $: if (searchQuery.length > 0) {
@@ -298,9 +499,15 @@
             {:else}
                 <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
             {/if}
+            {#if tampilan == "add_priv"}
+                <button on:click={() => {tampilan = "add_priv"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add Privilege</button>
+            {:else}
+                <button on:click={() => {tampilan = "add_priv"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add Privilege</button>
+            {/if}
         </div>
     </div>
 
+    {#if tampilan != "add_priv"}
         <div class="w-11/12 flex items-center">
             <div class="relative w-9/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
                 <input 
@@ -402,6 +609,7 @@
           </li>
         </ul>
       </nav>
+    {/if}
 
       {#if tampilan == "manage"}
         {#each filtered_users as user}
@@ -412,10 +620,15 @@
                     <div class="m-4 w-1/12 flex">
                         <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
                     </div>
-                    <div class="flex flex-col items-start font-semibold text-lg">
-                        <span class="">{user.user_fullname}</span>
+                    <div class="flex w-full pr-6 items-center justify-between font-semibold text-lg">
+                      <div class="flex flex-col items-start">
+                        <span class="text-xl">{user.user_fullname}</span>
                         <span class="">{user.roles_name}</span>
+                      </div>
+                      <div class="flex flex-col items-start">
+                        <span class="">{user.sw_name}</span>
                         <span class="">Join Date: {new Date(user.user_created_at).toJSON().slice(0, 10)}</span>
+                      </div>
                     </div>
                 </div>
             </div>
@@ -425,28 +638,46 @@
      {:else if tampilan == "edit"}
      <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
-                <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 pr-4">                        
-                    <div class="m-4 w-1/12 flex">
-                        <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
-                    </div>
-                    <div class="w-9/12 flex flex-col font-semibold text-lg">
-                        <span class="">NAMA ROLE</span>
-                        <span class="">Default XXX</span>
-                    </div>
-                    <div class="w-2/12 flex justify-end items-center">
-                        <button on:click={() => goto(``)} class="p-4 bg-peach text-darkGray rounded-xl flex items-center"><svg width="56" height="54" viewBox="0 0 56 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2.33594 27C2.33594 27 11.6693 9 28.0026 9C44.3359 9 53.6693 27 53.6693 27C53.6693 27 44.3359 45 28.0026 45C11.6693 45 2.33594 27 2.33594 27Z" stroke="#3E4E50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M28.0026 33.75C31.8686 33.75 35.0026 30.7279 35.0026 27C35.0026 23.2721 31.8686 20.25 28.0026 20.25C24.1366 20.25 21.0026 23.2721 21.0026 27C21.0026 30.7279 24.1366 33.75 28.0026 33.75Z" stroke="#3E4E50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                                                       
-                          </button>
-                      </div>
+          {#each role_to_assign as role}
+            <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 pr-4">                        
+                <div class="m-4 w-1/12 flex">
+                    <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
                 </div>
+                <div class="w-9/12 flex flex-col font-semibold text-lg">
+                    <span class="text-2xl">{role.roles_name}</span>
+                    <!-- <span class="">Default XXX</span> -->
+                </div>
+                <div class="w-2/12 flex justify-end items-center">
+                    <button on:click={() => goto(`/manage_employee_owner/edit/${role.roles_id}`)} class="p-4 bg-peach2 text-darkGray rounded-xl flex items-center"><svg width="56" height="54" viewBox="0 0 56 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.33594 27C2.33594 27 11.6693 9 28.0026 9C44.3359 9 53.6693 27 53.6693 27C53.6693 27 44.3359 45 28.0026 45C11.6693 45 2.33594 27 2.33594 27Z" stroke="#3E4E50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M28.0026 33.75C31.8686 33.75 35.0026 30.7279 35.0026 27C35.0026 23.2721 31.8686 20.25 28.0026 20.25C24.1366 20.25 21.0026 23.2721 21.0026 27C21.0026 30.7279 24.1366 33.75 28.0026 33.75Z" stroke="#3E4E50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                                                    
+                    </button>
+                </div>
+            </div>
+          {/each}
+        </div>
+     </div>
+     {:else if tampilan == "add_priv"}
+     <div class="w-[96%] my-5 font-roboto">
+        <div class="relative overflow-x-auto sm:rounded-lg">
+          <div class="flex flex-col">
+            <span class="text-lg font-semibold text-darkGray">Privilege Name</span>
+            <input type="text" bind:value={privilege_name} class="p-3 rounded-xl focus:ring-peach2 w-96">
+            <div class="flex items-center my-2">
+              <span class="text-darkGray text-lg font-semibold mr-2">Show in Navbar</span>
+              <input class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white  mr-2" type="checkbox">
+            </div>
+          </div>
+          <div class="mt-10 mb-5 flex justify-center">
+            <button on:click={() => {showModal = "confirm_req_priv"; showModal = showModal}} class="bg-peach text-darkGray hover:bg-[#F2AA7E] font-semibold w-60 py-4 text-lg border-2 border-darkGray rounded-xl">Request Privilege</button>
+          </div>
         </div>
      </div>
      {/if}
       
-  
+      {#if tampilan != "add_priv"}
        <nav class="my-8 ">
           <ul class="flex items-center -space-x-px h-8 text-sm">
             <li>
@@ -487,7 +718,7 @@
             </li>
           </ul>
         </nav>
-       
+      {/if}
    </div>
 
    <!-- ADD NEW EMPLOYEE -->
@@ -576,39 +807,54 @@
   </div>
   <div class="flex flex-col justify-center p-8">
     <div class="flex flex-col my-2">
-      <span class="text-peach font-semibold mb-1">Employee Full Name</span>
-      <input type="text" bind:value={user_fullname} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+      <span class="text-peach font-semibold mb-1">Role Name</span>
+      <input type="text" bind:value={roles_name} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
     </div>
    
     <!-- CHOOSE PRIVILEGE (PRIVILEGE LIST) -->
     <div class="flex flex-col my-1">
       <div class="flex items-center mb-1">
         <span class="text-peach font-semibold mr-2">Permissions</span>
-        <!-- <input on:change={() => {addStoreToList("all"); toggleSwListAll();}} class="border border-peach bg-darkGray" type="checkbox"> -->
       </div>
       
-      <!-- {#each storeWarehouse as store}
-      {#if store.StoreWarehouses.store_warehouse_type == "STORE"}
-        <ul class="font-semibold text-white ml-2">
-          <li class="mb-1">
-            <div class="flex items-center">
-              {#if swListAll == false}
-                <input on:change={() => {addStoreToList(store.StoreWarehouses.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
-              {:else}
-                <input checked disabled class="border border-white bg-darkGray  mr-2" type="checkbox">
-              {/if}
-                <span class="">{store.StoreWarehouses.store_warehouse_name}</span>
-            </div>
-          </li>
-        </ul>
-      {/if}
-      {/each} -->
+      <ul class="font-semibold text-white ml-2">
+        {#each all_privilege as privilege}
+            <li class="mb-1 text-darkGray">
+                <div class="flex items-center">
+                    <input on:change={() => {addPrivilegetoList(privilege.privileges_id)}} class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white mr-2" type="checkbox">
+                    <span class="text-white">{privilege.privileges_name}</span>
+                </div>
+            </li>
+        {/each}
+      </ul>
     </div>
 
     <div class="flex mt-8 items-center justify-center">
       <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
-      <button on:click={() => {addEmployee()}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Create</button>
+      <button on:click={() => {addNewRole()}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Create</button>
     </div>
   </div>
+</TaskModal> 
+{/if}
+
+<!-- MODAL CONFIRM ADD PRIV-->
+{#if showModal == "confirm_req_priv" }
+<TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+  <div class="flex items-center justify-center pt-8 font-roboto">
+    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Request New Privilege</div>
+  </div>
+  <form class="my-4 p-4 md:p-5 font-roboto text-xl">
+        <div class="text-[#f7d4b2] font-medium text-center mb-8">
+          Are you sure you want to submit the changes you've made?
+        </div>
+        <div class="flex items-center justify-center gap-4">
+            <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+              Back
+            </button>
+            <button type="button" on:click={async() => {await checkAddNewPriv(); closeModal()}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+              Request
+            </button>
+        </div>
+  </form>
 </TaskModal> 
 {/if}
