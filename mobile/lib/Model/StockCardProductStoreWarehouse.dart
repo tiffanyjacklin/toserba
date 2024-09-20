@@ -44,6 +44,7 @@ class Data {
   int? stockIn;
   int? stockOut;
   int? storeWarehouseId;
+  int? totalStock;
 
   Data(
       {this.stockCardId,
@@ -57,7 +58,8 @@ class Data {
       this.expiredDate,
       this.stockIn,
       this.stockOut,
-      this.storeWarehouseId});
+      this.storeWarehouseId,
+      this.totalStock});
 
   Data.fromJson(Map<String, dynamic> json) {
     stockCardId = json['stock_card_id'];
@@ -72,6 +74,7 @@ class Data {
     stockIn = json['stock_in'];
     stockOut = json['stock_out'];
     storeWarehouseId = json['store_warehouse_id'];
+    totalStock = json['total_stock'];
   }
 
   Map<String, dynamic> toJson() {
@@ -88,6 +91,7 @@ class Data {
     data['stock_in'] = this.stockIn;
     data['stock_out'] = this.stockOut;
     data['store_warehouse_id'] = this.storeWarehouseId;
+    data['total_stock'] = this.totalStock;
     return data;
   }
 }
