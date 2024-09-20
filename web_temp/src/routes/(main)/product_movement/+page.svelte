@@ -7,7 +7,8 @@
     import { uri, userId, roleId } from '$lib/uri.js';
     import img_produk from "$lib/assets/produk.png";
     import Switch from '$lib/Switch.svelte';
-    import FrappeChart from 'svelte-frappe-charts';
+    import LineChart from '$lib/LineChart.svelte';
+    import { getFormattedDateNow, getThirtyDaysBefore } from '$lib/DateNow';
 
     let switchValue;
     let sliderValue;
@@ -38,6 +39,7 @@
     $: isLeft = false;
     $: startTransaction = '';
     $: endTransaction = '';
+    $: dateChosen = '1M';
 
     let specific_product = [];
     let selectedYear = 0;
@@ -69,6 +71,7 @@
         console.log(product_id)
         fetchProduk(product_id);
         fetchTransactions(product_id);
+        
         fetchStockCard(product_id);
         fetchCurrentStock(product_id, sw_id);
         fetchSuppliers();
@@ -267,41 +270,38 @@
             return;
         }
 
-        transactions = [...data.data];  
+        transactions = [...data.data].sort((a, b) => {
+          return new Date(a.Transaction.transaction_timestamp) - new Date(b.Transaction.transaction_timestamp);
+        });
         console.log(transactions);
         list_of_dates = transactions.map(transaction => {
-        const date = new Date(transaction.Transaction.transaction_timestamp);
-            return `${date.getMonth() + 1}/${date.getDate()}`;
-        });
+         const date = new Date(transaction.Transaction.transaction_timestamp);
+         return date.toLocaleDateString('en-GB', {
+               day: '2-digit',
+               month: 'short',
+               year: 'numeric'
+         });
+      });
 
         list_of_quantity = transactions.map(transaction => transaction.TransactionDetails.quantity);
-
-        console.log('List of Dates:', list_of_dates);
-        console.log('List of Quantities:', list_of_quantity);
-
-        
     }
     $: list_of_dates = [];
     $: list_of_quantity = [];
-    $: data = {
-          labels: list_of_dates,
-          datasets: [
-            {
-              values: list_of_quantity
-            }
-          ]
-        }
+    function updateVariables(quantities_profits, chart_type) {
+      const date_list = quantities_profits.map(transaction => {
+         const date = new Date(transaction.Transaction.transaction_timestamp);
+         return date.toLocaleDateString('en-GB', {
+               day: '2-digit',
+               month: 'short',
+               year: 'numeric'
+         });
+      });
 
-    // let data = {
-    //   labels: ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'],
-    //   datasets: [
-    //     {
-    //       values: [10, 12, 3, 9, 8, 15, 9]
-    //     }
-    //   ]
-    // };
-  
-    let chartType = 'line'; 
+      const quantity = quantities_profits.map(transaction => transaction.TransactionDetails.quantity);
+      // console.log(date_list);
+      // console.log(profits);
+      return { date_list, quantity }; // Return as an object
+   }
     async function editProduct(product_id,atribut) {
       const response = await fetch(`http://${$uri}:8888/products/edit/${product_id}`, {
           method: 'PUT',
@@ -598,9 +598,27 @@
                 {:else}
                   <div class="text-white">{product.ProductDetails.product_name}</div>
                 {/if}
+              </div>
+              <div class="w-full y-full items-center border border-[#f2b082] rounded-xl py-2 px-4 justify-center">
+               <div class="text-white text-center text-2xl font-bold mt-4">Product Sales</div>
+               <div class="flex justify-center">
+                  {#if list_of_quantity.length > 0 && list_of_dates.length > 0}
+                      <LineChart data={list_of_quantity} dates={list_of_dates} labelColor={"white"}/>
+                  {:else}
+                    <div class="text-white m-4">No Transaction have been made.</div>
+                  {/if}
                 </div>
-                
-            
+                <div class="flex justify-center mb-4">
+                  <button on:click={() => {dateChosen = '1Y'; endTransaction = getFormattedDateNow(); startTransaction = getThirtyDaysBefore(endTransaction, 365); console.log(startTransaction, endTransaction); fetchTransactions(product.ProductDetails.product_detail_id)}} class={`border border-[#f2b082] border-r-0 text-xs font-light py-2 px-4 ${dateChosen === '1Y' ? 'bg-[#f2b082] text-black' : 'bg-transparent text-white'}`}>1Y</button>
+                  <button on:click={() => {dateChosen = '6M'; endTransaction = getFormattedDateNow(); startTransaction = getThirtyDaysBefore(endTransaction, 182); console.log(startTransaction, endTransaction); fetchTransactions(product.ProductDetails.product_detail_id)}} class={`border border-[#f2b082] border-r-0 text-xs font-light py-2 px-4 ${dateChosen === '6M' ? 'bg-[#f2b082] text-black' : 'bg-transparent text-white'}`}>6M</button>
+                  <button on:click={() => {dateChosen = '3M'; endTransaction = getFormattedDateNow(); startTransaction = getThirtyDaysBefore(endTransaction, 91); console.log(startTransaction, endTransaction); fetchTransactions(product.ProductDetails.product_detail_id)}} class={`border border-[#f2b082] border-r-0 text-xs font-light py-2 px-4 ${dateChosen === '3M' ? 'bg-[#f2b082] text-black' : 'bg-transparent text-white'}`}>3M</button>
+                  <button on:click={() => {dateChosen = '1M'; endTransaction = getFormattedDateNow(); startTransaction = getThirtyDaysBefore(endTransaction, 30); console.log(startTransaction, endTransaction); fetchTransactions(product.ProductDetails.product_detail_id)}} class={`border border-[#f2b082] border-r-0 text-xs font-light py-2 px-4 ${dateChosen === '1M' ? 'bg-[#f2b082] text-black' : 'bg-transparent text-white'}`}>1M</button>
+                  <button on:click={() => {dateChosen = '2W'; endTransaction = getFormattedDateNow(); startTransaction = getThirtyDaysBefore(endTransaction, 14); console.log(startTransaction, endTransaction); fetchTransactions(product.ProductDetails.product_detail_id)}} class={`border border-[#f2b082] border-r-0 text-xs font-light py-2 px-4 ${dateChosen === '2W' ? 'bg-[#f2b082] text-black' : 'bg-transparent text-white'}`}>2W</button>
+                  <button on:click={() => {dateChosen = '1W'; endTransaction = getFormattedDateNow(); startTransaction = getThirtyDaysBefore(endTransaction, 7); console.log(startTransaction, endTransaction); fetchTransactions(product.ProductDetails.product_detail_id)}} class={`border border-[#f2b082] border-r-0 text-xs font-light py-2 px-4 ${dateChosen === '1W' ? 'bg-[#f2b082] text-black' : 'bg-transparent text-white'}`}>1W</button>
+                  <button on:click={() => {dateChosen = '3D'; endTransaction = getFormattedDateNow(); startTransaction = getThirtyDaysBefore(endTransaction, 3); console.log(startTransaction, endTransaction); fetchTransactions(product.ProductDetails.product_detail_id)}} class={`border border-[#f2b082] text-xs font-light py-2 px-4 ${dateChosen === '3D' ? 'bg-[#f2b082] text-black' : 'bg-transparent text-white'}`}>3D</button>
+                </div>
+              </div>
+
               <div class="">
                 <div class="text-[#f7d4b2]">Product Brand</div>
                 {#if editMode == true}

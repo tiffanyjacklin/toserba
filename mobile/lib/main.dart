@@ -23,6 +23,16 @@ class MainApp extends StatelessWidget {
       home: MainPage(FetchUsers.fromJson(jsonUser).data!, FetchPrivileges.fromJson(jsonPrivileges).data! ),
       );
   }
+
+
+  //   @override
+  // Widget build(BuildContext context) {
+  //   return MaterialApp(
+  //     theme: ThemeData(fontFamily: "Helvetica"),
+  //     debugShowCheckedModeBanner: false,
+  //     home: LoginTablet(),
+  //     );
+  // }
 }
 
 

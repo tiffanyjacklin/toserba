@@ -11,14 +11,15 @@ import 'package:provider/provider.dart';
 // buat api baru
 Future<List<opname.Data>> _fetchStockOpnameSubstract(
     int storeId, String productName, String batch) async {
-  // NOTE : kalo mau satu kosong bisa di "-"
+  // NOTE : kalo mau satu kosong bisa di "-" , /products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:category/:product_sort/:asc/:limit/:offset
   final link =
-      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$storeId/$productName/$batch/0/0';
+      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$storeId/$productName/$batch///:expired_date/:category/:product_sort/:asc/0/0';
 
   // call api
   final response = await http.get(Uri.parse(link));
   print('---> response ' + response.statusCode.toString());
-
+  print(link);
+  
   // cek status
   if (response.statusCode == 200) {
     Map<String, dynamic> temp = json.decode(response.body);

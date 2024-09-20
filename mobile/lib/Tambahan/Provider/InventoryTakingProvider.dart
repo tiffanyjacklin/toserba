@@ -4,10 +4,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Model/AllCategory.dart' as category;
-import 'package:flutter_app_all/Model/StockOpname.dart';
+import 'package:flutter_app_all/Model/AllSort.dart' as sort;
 import 'package:flutter_app_all/Template.dart';
 import 'package:http/http.dart' as http;
 import 'package:number_paginator/number_paginator.dart';
+
+import 'package:flutter_app_all/Model/StockOpname.dart';
 // import 'package:provider/provider.dart';
 
 class itemSubmit {
@@ -19,14 +21,17 @@ class itemSubmit {
       {required this.stockData, required this.quantity, required this.notes});
 }
 
-
-class ResultFilter{
+class ResultFilter {
   String productOrder;
   String sort;
   String unit;
   String type;
 
-  ResultFilter({required this.productOrder, required this.sort,  required this.unit, required this.type});
+  ResultFilter(
+      {required this.productOrder,
+      required this.sort,
+      required this.unit,
+      required this.type});
 }
 
 class InventoryTakingProvider extends ChangeNotifier {
@@ -36,8 +41,9 @@ class InventoryTakingProvider extends ChangeNotifier {
       _lengthPerPage,
       (index) => TextEditingController(),
     );
+    fetchAllSorting();
+    fetchAllProductCategories();
     searchItemWithFilter('');
-    fetchAllProductType();
 
     currentPage = 0;
   }
@@ -49,6 +55,7 @@ class InventoryTakingProvider extends ChangeNotifier {
   // int _currentPage = 1;
   int _lengthPerPage = 4;
   int _checkerIndex = 0;
+  bool afterFetch = false;
 
   final NumberPaginatorController _paginatorController =
       NumberPaginatorController();
@@ -64,7 +71,7 @@ class InventoryTakingProvider extends ChangeNotifier {
 
   // for content table awal
   List<Data> get listPerPage => UnmodifiableListView(
-      resultSearched.sublist((currentPage) * _lengthPerPage, getEndIndex()));
+      resultSearched.sublist(getStartIndex(), getEndIndex()));
   late List<TextEditingController> _resultController;
   List<TextEditingController> get resultController =>
       UnmodifiableListView(_resultController);
@@ -83,23 +90,20 @@ class InventoryTakingProvider extends ChangeNotifier {
 
   // >> for filter
   bool isFiltering = false;
-    List<String> productOrder = [
-    'Expire Date',
-    'Stock',
-    'Last Checked',
-    'Alphabetical',
-    'Batch Number',
-  ];
+
+  List<sort.Data> productOrder = [];
   List<String> ascDec = ['Ascending', 'Descending'];
   List<String> unitType = ['Units', 'Grams'];
   List<category.Data> productType = [];
 
-  String _filterProduct = 'Expire Date'; // productOrder[0]
-  String _ascDecNow = 'Ascending';
+  String _filterProduct = ''; // productOrder[0]
+  String _ascDecNow = '';
   String _unitNow = '';
   String _typeNow = '';
   late Map<String, category.Data> _mapCategory;
+  late Map<String, sort.Data> _mapSort;
 
+  String get filterProduct => _filterProduct;
   String get ascDecNow => _ascDecNow;
   String get unitNow => _unitNow;
   String get typeNow => _typeNow;
@@ -125,21 +129,17 @@ class InventoryTakingProvider extends ChangeNotifier {
   //   return [];
   // }
 
-  // for filter function 
-  bool isSelected(int index) {
-    if (_filterProduct == productOrder[index]) {
-      return true;
-    }
-    return false;
-  }
-
   void clickFilter(String name) {
     isFiltering = !isFiltering;
 
-    if(isFiltering == false){
-      // search gas
+    if (!isFiltering) {
       var resultfilter = getResult();
-      searchItemWithFilter(name, asc: resultfilter.sort, category: resultfilter.type, unitType: resultfilter.unit);
+      searchItemWithFilter(name,
+          order: resultfilter.productOrder,
+          asc: resultfilter.sort,
+          category: resultfilter.type,
+          unitType: resultfilter.unit,
+          search: true);
     }
     notifyListeners();
   }
@@ -164,34 +164,43 @@ class InventoryTakingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
+
   void resetFilter() {
-    _filterProduct = 'Expire Date';
+    _filterProduct = '';
     _ascDecNow = 'Ascending';
     _unitNow = '';
     _typeNow = '';
     notifyListeners();
   }
 
-  ResultFilter getResult(){
-    var asc = 'dec';
+  ResultFilter getResult() {
+    var asc = 'desc';
     // var unit = '';
-    if(_ascDecNow == 'Ascending'){
+    if (_ascDecNow == 'Ascending') {
       asc = 'asc';
     }
     var category = '';
-    if(_typeNow != ''){
+    if (_typeNow != '') {
       // cari dalam index
-      category =  _mapCategory[_typeNow]!.productCategoryId.toString(); // kudu cari namanya !!!!
+      category = _mapCategory[_typeNow]!
+          .productCategoryId
+          .toString(); // kudu cari namanya !!!!
     }
 
     var unit = '';
-    if(_unitNow != ''){
-      unit = _unitNow.substring(0, _unitNow.length-1).toLowerCase();
+    if (_unitNow != '') {
+      unit = _unitNow.substring(0, _unitNow.length - 1).toLowerCase();
     }
 
-    return ResultFilter(productOrder: _filterProduct, sort: asc, unit: unit, type: category);
-  }
+    var sortBy = '';
+    if (_filterProduct != '') {
+      sortBy = _mapSort[_filterProduct]!.sortId!.toString();
+    }
 
+    return ResultFilter(
+        productOrder: sortBy, sort: asc, unit: unit, type: category);
+  }
 
   // for paginator function
   int findLengthListItem() {
@@ -206,12 +215,18 @@ class InventoryTakingProvider extends ChangeNotifier {
     if (currentPage != getMaxPage() - 1) {
       return (currentPage + 1) * _lengthPerPage;
     }
-    print(_resultSearched.length);
+    // print(_resultSearched.length);
     return _resultSearched.length;
   }
 
   int getStartIndex() {
     return currentPage * _lengthPerPage;
+  }
+
+  int getEndPage() {
+    return (_resultSearched.length.toDouble() / _lengthPerPage.toDouble())
+            .ceil() -
+        1;
   }
 
   String getNotes(Data data) {
@@ -221,11 +236,22 @@ class InventoryTakingProvider extends ChangeNotifier {
     return '';
   }
 
-  void checkControllerPageChanges() {
+  void checkControllerPageChanges(String name) {
     if (_paginatorController.currentPage != _checkerIndex) {
       _checkerIndex = _paginatorController.currentPage;
       changeControllerQtyValue();
       notifyListeners();
+      
+      // check misal sudah melebihi limit page (misal sudah sama dengan batas fetch dan fetch masih belum ke max page)
+      if (_checkerIndex == getEndPage() && getEndPage() + 1 != getMaxPage()) {
+        var resultfilter = getResult();
+        searchItemWithFilter(name,
+            order: resultfilter.productOrder,
+            asc: resultfilter.sort,
+            category: resultfilter.type,
+            unitType: resultfilter.unit);
+        afterFetch = true;
+      } 
     }
   }
 
@@ -263,7 +289,7 @@ class InventoryTakingProvider extends ChangeNotifier {
   void changeControllerQtyValue() {
     if (_resultController.isNotEmpty) {
       for (int i = 0; i < findLengthListItem(); i++) {
-        print(i);
+        // print(i);
         // check misal ada dalam mapping
         if (_mapListItemSubmit.isNotEmpty) {
           if (_mapListItemSubmit
@@ -338,6 +364,7 @@ class InventoryTakingProvider extends ChangeNotifier {
     String expDate = '',
     String category = '',
     String asc = 'asc',
+    String order = '',
     bool search = false,
   }) async {
     if (search) {
@@ -349,10 +376,16 @@ class InventoryTakingProvider extends ChangeNotifier {
     notifyListeners();
 
     List<Data> result = await fetchSuggestionName(
-        name, batch, unitType, productId, expDate, category, asc);
-    // _resultSearched = result.where((i) => i.expectedStock! > 0).toList();
+        name, batch, unitType, productId, expDate, category, asc, order);
+
+    if(search){
     _resultSearched = result;
+    }
+    else{
+      _resultSearched += result;
+    }
     changeControllerQtyValue();
+
     isLoading = false;
     notifyListeners();
   }
@@ -364,13 +397,14 @@ class InventoryTakingProvider extends ChangeNotifier {
       String productId,
       String expDate,
       String category,
-      String asc) async {
+      String asc,
+      String order) async {
     // NOTE : kalo mau satu kosong bisa di "" , batch misal kosongin aja , offset limit belum di set
     // cari offset (start index)
-    // products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:category/:asc/:limit/:offset
+    // products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:category/:asc/:limit/:offset /:category/:product_sort/:asc/:limit/:offset
     var startIndex = (currentPage) * _lengthPerPage;
     final link =
-        'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/${this._storeId}/$name/$batch/$unitType/$productId/$expDate/$category/$asc/$startIndex/20';
+        'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/${this._storeId}/$name/$batch/$unitType/$productId/$expDate/$category/$order/$asc/0/$startIndex';
 
     // call api
     final response = await http.get(Uri.parse(link));
@@ -397,8 +431,9 @@ class InventoryTakingProvider extends ChangeNotifier {
       return [];
     }
   }
-  // future brow
-  Future<void> fetchAllProductType() async {
+
+  // future for intial value
+  Future<void> fetchAllProductCategories() async {
     // http://leap.crossnet.co.id:8888/products/category
     final link = 'http://leap.crossnet.co.id:8888/products/category';
 
@@ -415,7 +450,38 @@ class InventoryTakingProvider extends ChangeNotifier {
         print(temp);
         // insert here ....
         productType = category.AllCategory.fromJson(temp).data!;
-        _mapCategory = {for (int i = 0; i < productType.length; i++) productType[i].productCategoryName!: productType[i]};
+        _mapCategory = {
+          for (int i = 0; i < productType.length; i++)
+            productType[i].productCategoryName!: productType[i]
+        };
+        notifyListeners();
+      }
+    } else {
+      print('fetch failed');
+    }
+  }
+
+  Future<void> fetchAllSorting() async {
+    // http://leap.crossnet.co.id:8888/products/category
+    final link = 'http://leap.crossnet.co.id:8888/products/sorting';
+
+    // call api (method PUT)
+    final response = await http.get(Uri.parse(link));
+    print('---> response ' + response.statusCode.toString());
+
+    // cek status
+    if (response.statusCode == 200) {
+      Map<String, dynamic> temp = json.decode(response.body);
+      print(response.body);
+
+      if (temp['status'] == 200) {
+        print(temp);
+        // insert here ....
+        productOrder = sort.AllSortProduct.fromJson(temp).data!;
+        _mapSort = {
+          for (int i = 0; i < productOrder.length; i++)
+            productOrder[i].sortType!: productOrder[i]
+        };
         notifyListeners();
       }
     } else {

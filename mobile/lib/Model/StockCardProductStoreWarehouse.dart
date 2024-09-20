@@ -1,13 +1,16 @@
 class FetchStockCardProductStoreWarehouse {
   int? status;
   String? message;
+  int? totalRows;
   List<Data>? data;
 
-  FetchStockCardProductStoreWarehouse({this.status, this.message, this.data});
+  FetchStockCardProductStoreWarehouse(
+      {this.status, this.message, this.totalRows, this.data});
 
   FetchStockCardProductStoreWarehouse.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
+    totalRows = json['total_rows'];
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
@@ -20,6 +23,7 @@ class FetchStockCardProductStoreWarehouse {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['status'] = this.status;
     data['message'] = this.message;
+    data['total_rows'] = this.totalRows;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -40,6 +44,7 @@ class Data {
   int? stockIn;
   int? stockOut;
   int? storeWarehouseId;
+  int? totalStock;
 
   Data(
       {this.stockCardId,
@@ -53,7 +58,8 @@ class Data {
       this.expiredDate,
       this.stockIn,
       this.stockOut,
-      this.storeWarehouseId});
+      this.storeWarehouseId,
+      this.totalStock});
 
   Data.fromJson(Map<String, dynamic> json) {
     stockCardId = json['stock_card_id'];
@@ -68,6 +74,7 @@ class Data {
     stockIn = json['stock_in'];
     stockOut = json['stock_out'];
     storeWarehouseId = json['store_warehouse_id'];
+    totalStock = json['total_stock'];
   }
 
   Map<String, dynamic> toJson() {
@@ -84,6 +91,7 @@ class Data {
     data['stock_in'] = this.stockIn;
     data['stock_out'] = this.stockOut;
     data['store_warehouse_id'] = this.storeWarehouseId;
+    data['total_stock'] = this.totalStock;
     return data;
   }
 }

@@ -17,6 +17,26 @@ class ColorPalleteLogin {
   static const TableColor = Color(0xFFfff2cc);
 }
 
+var fontSizeBody = 18.0;
+
+class bodyText extends StatelessWidget {
+  String judul;
+
+  bodyText({
+    required this.judul,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      judul,
+      style: TextStyle(
+          fontSize: fontSizeBody,
+          fontWeight: FontWeight.bold),
+    );
+  }
+}
+
 class SubTitleText extends StatelessWidget {
   String judul;
   String data;
@@ -40,14 +60,14 @@ class SubTitleText extends StatelessWidget {
                 Text(
                   this.judul,
                   style: TextStyle(
-                      fontSize: 18,
+                      fontSize: fontSizeBody,
                       color: ColorPalleteLogin.OrangeLightColor,
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
                   this.data,
                   style: TextStyle(
-                      fontSize: 18,
+                      fontSize: fontSizeBody,
                       color: Colors.white,
                       fontWeight: FontWeight.bold),
                 ),
@@ -66,14 +86,14 @@ class SubTitleText extends StatelessWidget {
                 Text(
                   this.judul,
                   style: TextStyle(
-                      fontSize: 18,
+                      fontSize: fontSizeBody,
                       color: ColorPalleteLogin.OrangeLightColor,
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
                   this.data,
                   style: TextStyle(
-                      fontSize: 18,
+                      fontSize: fontSizeBody,
                       color: Colors.white,
                       fontWeight: FontWeight.bold),
                 ),
@@ -116,7 +136,7 @@ class BodyPage extends StatelessWidget {
     return Text(
       '$name',
       style: TextStyle(
-          fontSize: 18,
+          fontSize: fontSizeBody,
           fontWeight: FontWeight.bold,
           color: ColorPalleteLogin.PrimaryColor),
     );
@@ -136,57 +156,53 @@ class TableTitlePage extends StatelessWidget {
     return Text(
       '$name',
       style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                                blurRadius: 2.0,
-                                color: Colors.black,
-                                offset: Offset(1, 1)),
-                          ]),
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          shadows: [
+            Shadow(blurRadius: 2.0, color: Colors.black, offset: Offset(1, 1)),
+          ]),
     );
   }
 }
 
-
-
 class TableContentTextStyle {
   static const TextStyle textStyle = TextStyle(
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: FontWeight.bold,
   );
   static const TextStyle textStyleBody = TextStyle(
-    fontSize: 14,
+    fontSize: 16,
   );
-
 }
 
-const TextStyle notFoundData = TextStyle(
-  fontSize: 20,
-  fontWeight: FontWeight.bold
-);
+const TextStyle notFoundData =
+    TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 
 // date formatter
-String getDateWithTime(String date){
+String getDateWithTime(String date) {
   return DateFormat('dd-MM-yyyy, hh:mm aaa').format(DateTime.parse(date));
 }
 
-String getTimeWithDate(String date){
+String getTimeWithDate(String date) {
   return DateFormat('hh:mm aaa, d MMMM y').format(DateTime.parse(date));
 }
 
-String getOnlyDate(String date){
+String getOnlyDate(String date) {
   return DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
-}  
+}
 
-String getOnlyDateSQL(String date){
+String getOnlyDateSQL(String date) {
   return DateFormat('yyyy-MM-dd').format(DateTime.parse(date));
-}  
+}
 
-String getOnlyTime(String date){
+String getOnlyTime(String date) {
   return DateFormat('hh:mm aaa').format(DateTime.parse(date));
-}  
+}
+
+String formatOnlyDateSQL(DateTime date){
+  return DateFormat('yyyy-MM-dd').format(date);
+}
 
 Future<void> saveImage(Uint8List bytes, String name1) async {
   final time = DateTime.now().toIso8601String().replaceAll('.', '-');

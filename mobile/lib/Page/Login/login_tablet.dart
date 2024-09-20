@@ -175,6 +175,7 @@ class _LoginTabletState extends State<LoginTablet> {
                             ),
                             TextField(
                               controller: usernameController,
+                              style: TextStyle(fontSize: fontSizeBody),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(20.0),
@@ -184,6 +185,7 @@ class _LoginTabletState extends State<LoginTablet> {
                                 fillColor: Colors.white,
                               ),
                             ),
+                            SizedBox(height: 10,),
 
                             Text(
                               ' Password',
@@ -194,6 +196,7 @@ class _LoginTabletState extends State<LoginTablet> {
                             ),
                             TextField(
                               controller: passwordController,
+                              style: TextStyle(fontSize: fontSizeBody),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(20.0),
@@ -209,7 +212,7 @@ class _LoginTabletState extends State<LoginTablet> {
                             Align(
                               child: AutoSizeText('Forgot Password?',
                                   maxLines: 1,
-                                  style: TextStyle(color: Colors.white)),
+                                  style: TextStyle(fontSize: fontSizeBody, color: Colors.white)),
                               alignment: Alignment.centerRight,
                             ),
 
@@ -350,7 +353,8 @@ class _LoginTabletState extends State<LoginTablet> {
               {
                 // show snackbar
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: const Text('Wrong Username/Password'),
+                  backgroundColor: Colors.red,
+                  content: Text('Wrong Username/Password', style: TextStyle(fontSize: fontSizeBody),),
                 ))
               }
           });
