@@ -813,7 +813,7 @@ e.PUT("/store_warehouses/edit/:sw_id", controller.UpdateStoreWarehouse)
 e.GET("/roles/all/:role_name/:limit/:offset", controller.GetAllRoles)
 
 // Menambah role baru
-e.POST("/owner/roles/add", controller.InsertRoles)
+e.POST("/roles/add", controller.InsertRoles)
 [
     {
         "roles_name": "Owner"
