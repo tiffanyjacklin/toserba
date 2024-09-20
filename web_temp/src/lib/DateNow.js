@@ -14,25 +14,20 @@ export function getFormattedDateNow() {
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
 }
-export function getThirtyDaysBefore(date, sum) {
-  const today = new Date(date);
-  const now = new Date(today);
-  now.setDate(today.getDate() - sum);
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+export function getThirtyDaysBefore(dateString, sum) {
+  const today = new Date(dateString);
+  today.setDate(today.getDate() - sum);
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
 }
+
 
 export function isInTimeRange(closingTime, rangeMinutes = 30) {
     const now = new Date();
