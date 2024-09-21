@@ -1,13 +1,15 @@
 class FetchUsers {
   int? status;
   String? message;
+  int? totalRows;
   Data? data;
 
-  FetchUsers({this.status, this.message, this.data});
+  FetchUsers({this.status, this.message, this.totalRows, this.data});
 
   FetchUsers.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
+    totalRows = json['total_rows'];
     data = json['data'] != null ? new Data.fromJson(json['data']) : null;
   }
 
@@ -15,6 +17,7 @@ class FetchUsers {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['status'] = this.status;
     data['message'] = this.message;
+    data['total_rows'] = this.totalRows;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -34,6 +37,9 @@ class Data {
   String? userPhoneNumber;
   UserPhotoProfile? userPhotoProfile;
   UserPhotoProfile? userLoginTimestamp;
+  String? userCreatedAt;
+  String? userDeletedAt;
+  String? userUpdatedAt;
   int? roleId;
   String? rolesName;
   String? userOtp;
@@ -52,6 +58,9 @@ class Data {
       this.userPhoneNumber,
       this.userPhotoProfile,
       this.userLoginTimestamp,
+      this.userCreatedAt,
+      this.userDeletedAt,
+      this.userUpdatedAt,
       this.roleId,
       this.rolesName,
       this.userOtp,
@@ -74,6 +83,9 @@ class Data {
     userLoginTimestamp = json['user_login_timestamp'] != null
         ? new UserPhotoProfile.fromJson(json['user_login_timestamp'])
         : null;
+    userCreatedAt = json['user_created_at'];
+    userDeletedAt = json['user_deleted_at'];
+    userUpdatedAt = json['user_updated_at'];
     roleId = json['role_id'];
     rolesName = json['roles_name'];
     userOtp = json['user_otp'];
@@ -98,6 +110,9 @@ class Data {
     if (this.userLoginTimestamp != null) {
       data['user_login_timestamp'] = this.userLoginTimestamp!.toJson();
     }
+    data['user_created_at'] = this.userCreatedAt;
+    data['user_deleted_at'] = this.userDeletedAt;
+    data['user_updated_at'] = this.userUpdatedAt;
     data['role_id'] = this.roleId;
     data['roles_name'] = this.rolesName;
     data['user_otp'] = this.userOtp;
@@ -125,4 +140,3 @@ class UserPhotoProfile {
     return data;
   }
 }
-

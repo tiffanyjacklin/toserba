@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
 import 'package:flutter_app_all/Page/Login/login_tablet.dart';
+import 'package:flutter_app_all/Page/Umum/splash_page.dart';
 import 'package:flutter_app_all/Page/main_page.dart';
 
 
@@ -15,24 +16,26 @@ void main() {
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(fontFamily: "Helvetica"),
-      debugShowCheckedModeBanner: false,
-      home: MainPage(FetchUsers.fromJson(jsonUser).data!, FetchPrivileges.fromJson(jsonPrivileges).data! ),
-      );
-  }
-
-
-  //   @override
+  // @override
   // Widget build(BuildContext context) {
   //   return MaterialApp(
   //     theme: ThemeData(fontFamily: "Helvetica"),
   //     debugShowCheckedModeBanner: false,
-  //     home: LoginTablet(),
+  //     home: MainPage(FetchUsers.fromJson(jsonUser).data!, FetchPrivileges.fromJson(jsonPrivileges).data! ),
   //     );
   // }
+
+
+    @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(fontFamily: "Helvetica"),
+      debugShowCheckedModeBanner: false,
+      home: SplashScreen(),
+      );
+  }
+
+
 }
 
 

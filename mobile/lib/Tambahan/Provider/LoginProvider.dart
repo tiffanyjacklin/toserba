@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_app_all/Model/UserData.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Loginprovider extends ChangeNotifier{
@@ -11,8 +12,19 @@ class Loginprovider extends ChangeNotifier{
   final keyPassword = 'UPassword';
 
   final _secureStorage = FlutterSecureStorage();
-  late String _username, _password;
 
+  // this for data?
+  late String _username, _password;
+  late FetchUsers _users;
+
+
+  bool wasLogged(){
+    if(_username.isNotEmpty && _password.isNotEmpty){
+      return true;
+    }
+    return false;
+  }  
+  
   Future <bool> isLoggedBefore() async {
     return await _secureStorage.containsKey(key: keyUsername);
   }
