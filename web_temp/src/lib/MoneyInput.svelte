@@ -1,7 +1,7 @@
 <script>
     export let value = 0;
     export let shadow = true; // Initial value in the smallest currency unit (e.g., Rp 400,000.00)
-    let displayValue = formatCurrency(value);
+    $: displayValue = formatCurrency(value);
     function formatCurrency(value) {
         return "Rp " + Number(value).toLocaleString('en-US', {
             minimumFractionDigits: 2,

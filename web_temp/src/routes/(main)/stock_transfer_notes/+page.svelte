@@ -389,9 +389,9 @@
       {/if}
        </div>
     <!-- </form> -->
- 
     <nav class="my-8">
       <ul class="flex items-center -space-x-px h-8 text-sm">
+        {#if totalNotes !== 0}
         <li>
           <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
             <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
@@ -400,6 +400,7 @@
             Previous
           </a>
         </li>
+        {/if}
     
         <!-- Pagination Links -->
         {#each Array(Math.ceil(totalNotes / limit)) as _, i}
@@ -408,6 +409,7 @@
           </li>
         {/each}
     
+        {#if totalNotes !== 0}
         <li>
           <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
             Next
@@ -416,6 +418,7 @@
             </svg>
           </a>
         </li>
+         {/if}
       </ul>
     </nav>
  
@@ -476,11 +479,17 @@
           </div>
       </div>
         {/each}
+        {#if transfer_notes.length === 0}
+        <div class="justify-center w-full h-full flex rounded-xl py-4 my-3 ">
+            No transfer notes found.
+          </div>
+        {/if}
       </div>
     </div>
 
     <nav class="my-8">
       <ul class="flex items-center -space-x-px h-8 text-sm">
+        {#if totalNotes !== 0}
         <li>
           <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
             <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
@@ -489,6 +498,7 @@
             Previous
           </a>
         </li>
+        {/if}
     
         <!-- Pagination Links -->
         {#each Array(Math.ceil(totalNotes / limit)) as _, i}
@@ -497,6 +507,7 @@
           </li>
         {/each}
     
+        {#if totalNotes !== 0}
         <li>
           <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
             Next
@@ -505,6 +516,7 @@
             </svg>
           </a>
         </li>
+         {/if}
       </ul>
     </nav>
      
