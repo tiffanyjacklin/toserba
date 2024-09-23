@@ -5,6 +5,8 @@ import 'package:flutter_app_all/Page/Store%20Inventory/inventory_taking_page.dar
 import 'package:flutter_app_all/Page/Umum/notification_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/history_all_stock_product_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
+import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
+import 'package:flutter_app_all/Tambahan/Provider/RouteProvider.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
@@ -20,9 +22,10 @@ import 'package:provider/provider.dart';
 // import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
 
 class MainPage extends StatelessWidget {
-  final Data dataUser;
-  final List<DataPrivileges> listPrivileges;
-  const MainPage(this.dataUser, this.listPrivileges);
+  // final Data dataUser;
+  // final List<DataPrivileges> listPrivileges;
+  // const MainPage(this.dataUser, this.listPrivileges);
+  const MainPage();
 
   // cek layar tablet atau hp
   bool isTablet(BuildContext context) =>
@@ -38,8 +41,7 @@ class MainPage extends StatelessWidget {
         drawer: isMobile(context)
             ? Drawer(
                 child: // SIDEBAR
-                    SidebarMainPage(
-                        dataUser: dataUser, listPrivileges: listPrivileges),
+                    SidebarMainPage(),
               )
             : null,
         body: Row(
@@ -123,17 +125,19 @@ class MainPage extends StatelessWidget {
 }
 
 class SidebarMainPage extends StatelessWidget {
-  const SidebarMainPage({
-    super.key,
-    required this.dataUser,
-    required this.listPrivileges,
-  });
+  // const SidebarMainPage({
+  //   super.key,
+  //   required this.dataUser,
+  //   required this.listPrivileges,
+  // });
 
-  final Data dataUser;
-  final List<DataPrivileges> listPrivileges;
+  const SidebarMainPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final routeProvider = Provider.of<RouteProvider>(context);
+    final authProvider = Provider.of<AuthState>(context);
+
     return Expanded(
         flex: 2,
         child: Container(
@@ -201,7 +205,7 @@ class SidebarMainPage extends StatelessWidget {
                             Expanded(
                                 flex: 1,
                                 child: Text(
-                                  '${dataUser.userFullname}',
+                                  '${authProvider.userData.userFullname}',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white),
@@ -209,7 +213,7 @@ class SidebarMainPage extends StatelessWidget {
                             Expanded(
                                 flex: 1,
                                 child: Text(
-                                  '${dataUser.rolesName}',
+                                  '${authProvider.userData.rolesName}',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white54),
@@ -223,12 +227,38 @@ class SidebarMainPage extends StatelessWidget {
                   thickness: 2,
                   color: Colors.white,
                 ),
-                Expanded(flex: 7, child: menuSideBar(context, listPrivileges)),
+                Expanded(
+                    flex: 7,
+                    child: Column(
+                      children: List.generate(routeProvider.sidebarMenu.length,
+                          (index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 4.0),
+                          child: Container(
+                            color: routeProvider.selectedMenuIndex == index
+                                ? Colors.white
+                                : ColorPalleteLogin.PrimaryColor,
+                            child: Center(
+                              child: Text(
+                                '${routeProvider.sidebarMenu[index].privilegesName!.toCapitalized()}',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: routeProvider.selectedMenuIndex == index
+                                    ?  ColorPalleteLogin.PrimaryColor 
+                                    : Colors.white ,
+                                    fontSize: fontSizeBody),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    )),
                 Expanded(
                   flex: 1,
                   child: GestureDetector(
                     onTap: () {
                       // logout
+                      authProvider.logout();
                       // keluar dari page ini pindah ke login
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
                           builder: (BuildContext context) => LoginTablet()));
@@ -274,74 +304,56 @@ class MenuPage extends StatelessWidget {
   }
 }
 
-// pisah aja buat widget item sidebar
-Column menuSideBar(BuildContext context, List<DataPrivileges> list) {
-  List<Widget> children = [];
-  for (var privileges in list) {
-    if (privileges.navbar == 1) {
-      children.add(
-        Expanded(
-          flex: 2,
-          child: ChildMenu(privileges: privileges),
-        ),
-      );
-    }
-  }
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: children,
-  );
-}
+// class ChildMenu extends StatefulWidget {
+//   ChildMenu({
+//     super.key,
+//     required this.privileges,
+//   });
 
-class ChildMenu extends StatefulWidget {
-  ChildMenu({
-    super.key,
-    required this.privileges,
-  });
+//   final DataPrivileges privileges;
 
-  final DataPrivileges privileges;
+//   @override
+//   State<ChildMenu> createState() => _ChildMenuState();
+// }
 
-  @override
-  State<ChildMenu> createState() => _ChildMenuState();
-}
+// class _ChildMenuState extends State<ChildMenu> {
+//   bool isHover = false;
 
-class _ChildMenuState extends State<ChildMenu> {
-  bool isHover = false;
+//   @override
+//   Widget build(BuildContext context) {
 
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (event) {
-        setState(() {
-          isHover = true;
-        });
-      },
-      onExit: (event) => {
-        setState(() {
-          isHover = false;
-        })
-      },
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 4.0),
-        child: AnimatedContainer(
-          duration: Duration(milliseconds: 200),
-          color: isHover
-              ? Color.fromARGB(93, 242, 171, 126)
-              : ColorPalleteLogin.PrimaryColor,
-          child: Center(
-            child: Text(
-              '${widget.privileges.privilegesName.toString().toCapitalized()}',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 16),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//     return MouseRegion(
+//       onEnter: (event) {
+//         setState(() {
+//           isHover = true;
+//         });
+//       },
+//       onExit: (event) => {
+//         setState(() {
+//           isHover = false;
+//         })
+//       },
+//       child: Padding(
+//         padding: const EdgeInsets.only(bottom: 4.0),
+//         child: AnimatedContainer(
+//           duration: Duration(milliseconds: 200),
+//           color: isHover
+//               ? Color.fromARGB(93, 242, 171, 126)
+//               : ColorPalleteLogin.PrimaryColor,
+//           child: Center(
+//             child: Text(
+//               '${widget.privileges.privilegesName.toString().toCapitalized()}',
+//               style: TextStyle(
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.white,
+//                   fontSize: 16),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // Extension
 extension StringCasingExtension on String {

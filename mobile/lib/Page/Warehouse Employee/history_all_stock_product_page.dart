@@ -10,7 +10,6 @@ import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-
 class HistoryAllProductPage extends StatefulWidget {
   const HistoryAllProductPage({super.key});
 
@@ -687,27 +686,42 @@ class TableStockCardAllProducts2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return DataTable(
       columns: [
-        DataColumn(label: Text('No.', style: TableContentTextStyle.textStyle)),
         DataColumn(
-            label:
-                Text('Product Name', style: TableContentTextStyle.textStyle)),
+          label: Text('No.', style: TableContentTextStyle.textStyle),
+        ),
         DataColumn(
-            label: Text('Batch', style: TableContentTextStyle.textStyle)),
+          label: Text('Product Name', style: TableContentTextStyle.textStyle),
+        ),
         DataColumn(
-            label: Text('Expiry Date', style: TableContentTextStyle.textStyle)),
-        DataColumn(label: Text('In', style: TableContentTextStyle.textStyle)),
-        DataColumn(label: Text('Out', style: TableContentTextStyle.textStyle)),
+          label: Text('Batch', style: TableContentTextStyle.textStyle),
+        ),
         DataColumn(
-            label: Text('Unit Type', style: TableContentTextStyle.textStyle)),
+          label: Text('Expiry Date', style: TableContentTextStyle.textStyle),
+        ),
         DataColumn(
-            label: Text('Historical Stock',
-                style: TableContentTextStyle.textStyle)),
+          label: Text('In', style: TableContentTextStyle.textStyle),
+        ),
         DataColumn(
-            label:
-                Text('Current Stock', style: TableContentTextStyle.textStyle)),
+          label: Text('Out', style: TableContentTextStyle.textStyle),
+        ),
         DataColumn(
-            label: Text('Reason', style: TableContentTextStyle.textStyle)),
-        DataColumn(label: Text('Date', style: TableContentTextStyle.textStyle)),
+          label: Text('Unit Type', style: TableContentTextStyle.textStyle),
+        ),
+        DataColumn(
+          label: Text('Initial Stock', style: TableContentTextStyle.textStyle),
+        ),
+        DataColumn(
+          label: Text('Changed Stock', style: TableContentTextStyle.textStyle),
+        ),
+        DataColumn(
+          label: Text('Current Stock', style: TableContentTextStyle.textStyle),
+        ),
+        DataColumn(
+          label: Text('Reason', style: TableContentTextStyle.textStyle),
+        ),
+        DataColumn(
+          label: Text('Date', style: TableContentTextStyle.textStyle),
+        ),
       ],
       rows: List.generate(
         !listStockCard.isEmpty ? listStockCard.length : 0,
@@ -721,22 +735,47 @@ class TableStockCardAllProducts2 extends StatelessWidget {
                 (startIndex + i + 1).toString(),
                 style: TableContentTextStyle.textStyleBody,
               )),
-              DataCell(Text(listStockCard[i].productName!,
-                  style: TableContentTextStyle.textStyleBody)),
-              DataCell(Text(listStockCard[i].productBatch!,
-                  style: TableContentTextStyle.textStyleBody)),
-              DataCell(Text(getOnlyDate(listStockCard[i].expiredDate!),
-                  style: TableContentTextStyle.textStyleBody)),
-              DataCell(Text(listStockCard[i].stockIn!.toString(),
-                  style: TableContentTextStyle.textStyleBody)),
-              DataCell(Text(listStockCard[i].stockOut!.toString(),
-                  style: TableContentTextStyle.textStyleBody)),
-              DataCell(Text(listStockCard[i].productUnit!,
-                  style: TableContentTextStyle.textStyleBody)),
+              DataCell(
+                Text(listStockCard[i].productName!,
+                    style: TableContentTextStyle.textStyleBody),
+              ),
+              DataCell(
+                Text(listStockCard[i].productBatch!,
+                    style: TableContentTextStyle.textStyleBody),
+              ),
+              DataCell(
+                Text(getOnlyDate(listStockCard[i].expiredDate!),
+                    style: TableContentTextStyle.textStyleBody),
+              ),
+              DataCell(
+                Text(listStockCard[i].stockIn!.toString(),
+                    style: TableContentTextStyle.textStyleBody),
+              ),
+              DataCell(
+                Text(listStockCard[i].stockOut!.toString(),
+                    style: TableContentTextStyle.textStyleBody),
+              ),
+              DataCell(
+                Text(listStockCard[i].productUnit!,
+                    style: TableContentTextStyle.textStyleBody),
+              ),
+              DataCell(
+                Center(
+                    child: Text(
+                        (listStockCard[i].productStock! -
+                                listStockCard[i].stockIn! +
+                                listStockCard[i].stockOut!)
+                            .toString(),
+                        style: TableContentTextStyle.textStyleBody)),
+              ),
+              DataCell(
+                Center(
+                    child: Text(listStockCard[i].productStock!.toString(),
+                        style: TableContentTextStyle.textStyleBody)),
+              ),
               DataCell(Center(
-                  child: Text(listStockCard[i].productStock!.toString(),
-                      style: TableContentTextStyle.textStyleBody))),
-              DataCell(Center(child: Text(listStockCard[i].totalStock!.toString()))),
+                child: Text(listStockCard[i].totalStock!.toString()),
+              )),
               DataCell(Text(listStockCard[i].stockDescription!.toString(),
                   style: TableContentTextStyle.textStyleBody)),
               DataCell(Text(getOnlyDate(listStockCard[i].stockDate!.toString()),

@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
-import 'package:flutter_app_all/Page/Login/login_tablet.dart';
 import 'package:flutter_app_all/Page/main_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 // manual nama
 var roleName = [
@@ -30,7 +31,14 @@ class ChooseRolePage extends StatefulWidget {
 
 class _ChooseRolePageState extends State<ChooseRolePage> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<AuthState>(context);
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -62,20 +70,19 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                       _roleValidate(widget.userId, index + 1).then((hasil) => {
                             if (hasil != null)
                               {
-                                // getting also the priviledges and passing it
-                                _fetchPriviledge(widget.userId, index + 1)
-                                    .then((listPrivileges) => {
-                                          if (listPrivileges != null)
-                                            {
-                                              // pindah halaman dengan kirim data user
-                                              Navigator.of(context)
-                                                  .pushReplacement(
-                                                      MaterialPageRoute(
-                                                          builder: (BuildContext
-                                                                  context) =>
-                                                              MainPage(hasil, listPrivileges)))
-                                            }
-                                        }),
+                                // Provider.of<AuthState>(context)
+                                //     .saveToStorage(widget.userId.toString(),
+                                //         (index + 1).toString(), hasil)
+                                //     .then((hasil) {
+                                //     Provider.of<AuthState>(context).setDisplayLoginPage(true);
+
+                                // }),
+                                Navigator.of(context).pop<List>([
+                                  widget.userId.toString(),
+                                  (index + 1).toString(),
+                                  hasil,
+                                  true
+                                ]),
                               },
                             // print(hasil.runtimeType)
                           });
@@ -139,7 +146,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
       // ambil data yang ada
       FetchUsers userData = FetchUsers.fromJson(temp);
 
-      if (temp['data'].length != 0) {
+      if (temp['data'].length != 0 && temp['data']['user_id'] != 0) {
         // masukin data login ke dalam sharedpreference
         return userData.data;
       }
@@ -148,7 +155,6 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
         content: const Text('Akses ditolak'),
       ));
       return null;
-
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -166,7 +172,8 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
 
   Future _fetchPriviledge(int userId, int roleId) async {
     // link api
-    final link = 'http://leap.crossnet.co.id:8888/user/privileges/$userId/$roleId';
+    final link =
+        'http://leap.crossnet.co.id:8888/user/privileges/$userId/$roleId';
 
     // call api (method GET)
     final response = await http.get(Uri.parse(link));
