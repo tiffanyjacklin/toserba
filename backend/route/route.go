@@ -33,6 +33,7 @@ func Init() *echo.Echo {
 	e.GET("/user/:user_id/:role_id", controller.GetDataUser)
 	e.POST("/user/add", controller.InsertNewUser)
 	e.PUT("/user/update/:user_id", controller.UpdateUser)
+	e.PUT("/user/update/deactivate/:user_id", controller.DeactivateUser)
 	e.PUT("/user/update/password/:user_id/:password", controller.UpdatePassword)
 	e.GET("/user/roles/:user_id", controller.GetUserRoles)
 	e.POST("/user/roles/add", controller.InsertNewUserRoles)
@@ -261,6 +262,8 @@ func Init() *echo.Echo {
 	e.GET("/profit/sum/all/product/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllProduct)
 	e.GET("/profit/sum/all/store/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllSW)
 	e.GET("/profit/sum/all/store/:start_date/:end_date/:sw_name_address/:limit/:offset", controller.GetSumProfitByAllSWv2)
+
+	e.GET("/loss/sum/all/:year/:month/:day", controller.GetSumLoss)
 
 	e.GET("/notifications/:limit/:offset", controller.GetAllNotification)
 	e.GET("/notifications/:role_id", controller.GetNotificationByRoleId)

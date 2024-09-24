@@ -52,6 +52,9 @@ e.PUT("/user/update/:user_id", controller.UpdateUser)
     "user_updated_at": "2024-08-18 13:48:04"
 }
 
+// Mengubah status user menjadi tidak aktif
+e.PUT("/user/update/deactivate/:user_id", controller.DeactivateUser)
+
 // Update password user
 e.PUT("/user/update/password/:user_id/:password", controller.UpdatePassword)
 
@@ -956,6 +959,8 @@ e.GET("/profit/sum/all/transaction/:start_date/:end_date/:limit/:offset", contro
 e.GET("/profit/sum/all/product/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllProduct)
 e.GET("/profit/sum/all/store/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllSW)
 e.GET("/profit/sum/all/store/:start_date/:end_date/:sw_name_address/:limit/:offset", controller.GetSumProfitByAllSWv2)
+
+e.GET("/loss/sum/all/:year/:month/:day", controller.GetSumLoss)
 
 // Mengambil semua data notifikasi
 e.GET("/notifications/:limit/:offset", controller.GetAllNotification)
