@@ -30,7 +30,7 @@
     });
   
     async function getAllStoreWarehouse(){
-        const response = await fetch(`http://${$uri}:8888/store_warehouses/all`, {
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -72,13 +72,13 @@
       <!-- </form> -->
 
       {#each storeWarehouse as warehouse}
-          {#if warehouse.store_warehouse_type != "STORE"}
-              <button on:click={() => navigateToWarehousePage(warehouse.store_warehouse_id)} class="my-4 p-4 border-2 border-black rounded-xl w-11/12 hover:bg-gray-200">
+          {#if warehouse.StoreWarehouses.store_warehouse_type != "STORE"}
+              <button on:click={() => navigateToWarehousePage(warehouse.StoreWarehouses.store_warehouse_id)} class="my-4 p-4 border-2 border-black rounded-xl w-11/12 hover:bg-gray-200">
                   <div class="flex">
                       <img class="w-32 rounded-xl mr-8 " src={img_toko} alt="">
                       <div class="w-10/12 flex flex-col items-start justify-center">
-                          <span class="text-2xl font-semibold text-wrap my-1">{warehouse.store_warehouse_name}</span>
-                          <span class="text-2xl font-semibold text-wrap my-1 text-start">{warehouse.store_warehouse_address}</span>
+                          <span class="text-2xl font-semibold text-wrap my-1">{warehouse.StoreWarehouses.store_warehouse_name}</span>
+                          <span class="text-2xl font-semibold text-wrap my-1 text-start">{warehouse.StoreWarehouses.store_warehouse_address}</span>
                       </div>
                   </div>
               </button>

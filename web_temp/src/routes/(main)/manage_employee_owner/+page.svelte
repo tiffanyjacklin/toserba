@@ -15,6 +15,7 @@
 
     let users = [];
     $: filtered_users = [];
+    let listAdmin = [];
     let stores = [];
 
     //FILTER
@@ -77,10 +78,29 @@
         }
 
         users = data.data;
+        console.log(users)
+
+        // let indexDelete = [];
 
         for (let i = 0; i < users.length; i++) {
-          users[i].sw_name = await getStoreWarehouse(users[i].store_warehouse_id)
+          users[i].show = true
+          if (users[i].role_id == 5){
+            if (listAdmin.find((user_id) => user_id == users[i].user_id) != null){
+              // users.splice(i,1);
+              users[i].show = false
+            } else {
+              listAdmin.push(users[i].user_id)
+              users[i].total_sw = await getAdminTotalSW(users[i].user_id,users[i].role_id);
+              console.log("listAdmin",listAdmin)
+            }
+          } else {
+            users[i].sw_name = await getStoreWarehouse(users[i].store_warehouse_id)
+          }
         }
+
+        // for (let i = 0; i < indexDelete.length; i++){
+        //   users.splice(indexDelete[i],1)
+        // }
 
         filtered_users = structuredClone(users);
         console.log(filtered_users)
@@ -166,6 +186,30 @@
       let nama_wr = data.data.store_warehouse_name ;
       return nama_wr;
   }
+
+  async function getAdminTotalSW(user_id,role_id){
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${user_id}/${role_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch sw failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch sw', data);
+            return;
+        }
+
+        // console.log(data.data);
+        return data.data.length
+    }
 
   async function fetchSW(){
     const response = await fetch(`http://${$uri}:8888/store_warehouses/all`, {
@@ -613,7 +657,7 @@
 
       {#if tampilan == "manage"}
         {#each filtered_users as user}
-        {#if user.role_id != 6}
+        {#if user.role_id != 6 && user.show == true}
           <button on:click={() => {goto(`/manage_employee_owner/manage/${user.user_id}/${user.role_id}/${user.store_warehouse_id}`)}} class="w-[96%] font-roboto">
             <div class="relative overflow-x-auto sm:rounded-lg">
                 <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3">                        
@@ -626,7 +670,11 @@
                         <span class="">{user.roles_name}</span>
                       </div>
                       <div class="flex flex-col items-start">
-                        <span class="">{user.sw_name}</span>
+                        {#if user.role_id == 5}
+                          <span class="">Total Store/Warehouse: {user.total_sw}</span>
+                        {:else}
+                          <span class="">{user.sw_name}</span>
+                        {/if}
                         <span class="">Join Date: {new Date(user.user_created_at).toJSON().slice(0, 10)}</span>
                       </div>
                     </div>
@@ -740,7 +788,7 @@
         <span class="text-peach font-semibold mb-1">Employee Role</span>
         <select bind:value={role_id} class="w-full p-2 rounded-xl">
           {#each role_to_assign as role}
-            {#if role.roles_id != 5 && role.roles_id != 6}
+            {#if role.roles_id != 6}
               <option value={role.roles_id}>{role.roles_name}</option>
             {/if}
           {/each}
@@ -763,7 +811,7 @@
         </div>
         <div class="flex flex-col my-2 w-1/2 pl-1">
             <span class="text-peach font-semibold mb-1">Employee Password</span>
-            <input type="text" bind:value={user_password} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+            <input type="password" bind:value={user_password} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
         </div>
     </div>
     <div class="flex flex-col my-2">

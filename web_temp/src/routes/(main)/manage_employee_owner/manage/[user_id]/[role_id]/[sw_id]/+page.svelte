@@ -29,6 +29,12 @@
   let custom_user_priv = [];
   $: isUserCustom = false;
 
+  //assign location
+  let adminSW = [];
+  let prev_adminSW = [];
+  let searchQuery = '';
+  let filtered_stores = [];
+
   $: showModal = false;
   function closeModal() {
     showModal = false;
@@ -110,6 +116,7 @@
       }
 
       stores = data.data;
+      filtered_stores = structuredClone(stores)
 
       console.log("admin_handled_store",stores)
   }
@@ -437,9 +444,132 @@
       }
     }
 
+  async function fetchSWAdmin(){
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/${user_id}/${role_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch SW failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch SW', data);
+          return;
+      }
+
+      let tmp_adminSW = data.data;
+      for (let i = 0; i < tmp_adminSW.length; i++){
+        adminSW.push(tmp_adminSW[i].StoreWarehouses.store_warehouse_id)
+      }
+
+      prev_adminSW = structuredClone(adminSW);
+
+      console.log("adminSW",adminSW)
+  }
+  
+  function addSWtoList(sw_id){
+      let sw = adminSW.find((adminSW_id) => adminSW_id == sw_id)
+      if (sw != null){
+        let index = adminSW.findIndex((adminSW_id) => adminSW_id == sw_id)
+        adminSW.splice(index,1);
+        console.log("AdminSW",adminSW);
+      } else {
+        adminSW.push(sw_id);
+        console.log("AdminSW",adminSW);
+      }
+  }
+  
+  async function relocateAdmin() {
+    for (let i = 0; i < prev_adminSW.length; i++){
+      console.log(prev_adminSW)
+      await deleteRoleUserAdmin(prev_adminSW[i])
+    }
+
+    for (let i = 0; i < adminSW.length; i++){
+      let tmp_role = [{
+        user_id: parseInt(user_id),
+        role_id: parseInt(role_id),
+        store_warehouse_id: adminSW[i],
+        custom: 0
+      }]
+      await addUserRole(tmp_role);
+    }
+
+    prev_adminSW = [];
+    adminSW = [];
+
+    await fetchSWAdmin();
+    closeModal();
+
+    Swal.fire({
+        title: "Store/Warehouse Admin berhasil diupdate",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E'
+      });
+
+  }
+
+  async function deleteRoleUserAdmin(delete_sw_id) {
+      const response = await fetch(`http://${$uri}:8888/user/roles/delete/${user_id}/${role_id}/${delete_sw_id}`, {
+          method: 'DELETE'
+      });
+
+      if (!response.ok) {
+          console.error('DELETE role user admin gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid DELETE role user admin', data);
+          return;
+      }
+      console.log("delete role user admin berhasil")
+    }
+  
+  async function addUserRole(userRole) {
+  console.log(JSON.stringify(userRole))
+    const response = await fetch(`http://${$uri}:8888/user/roles/add`, {
+        method: 'POST',
+        body: JSON.stringify(userRole)
+    });
+
+    if (!response.ok) {
+        console.error('POST add new user role gagal', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid POST new user role', data);
+        return;
+    }
+    console.log("add user role admin berhasil")
+  }
+
+    $: if (searchQuery.length > 0) {
+      filtered_stores = stores.filter(item => 
+            item.store_warehouse_name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    } else {
+      filtered_stores = [...stores];
+    }
+
   $: editMode = false;
   onMount(async () => {
     await fetchUser();
+    await fetchSWAdmin();
     await fetchSW();
     await fetchRoleUser();
     await fetchRoleReassign();
@@ -463,6 +593,9 @@
       {/if}
       <button on:click={() => {showModal = "reassign"}} class="w-48 rounded-2xl bg-peach2 text-darkGray font-semibold py-2 border border-darkGray hover:bg-darkGray hover:text-peach mx-2 shadow">Reassign</button>
       <button on:click={() => {showModal = "edit_privilege"}} class="w-48 rounded-2xl bg-peach2 text-darkGray font-semibold py-2 border border-darkGray hover:bg-darkGray hover:text-peach mx-2 shadow">Edit Privilege</button>
+      {#if user.role_id == 5}
+        <button on:click={() => {showModal = "assign_location"}} class="w-48 rounded-2xl bg-peach2 text-darkGray font-semibold py-2 border border-darkGray hover:bg-darkGray hover:text-peach mx-2 shadow">Assign Location</button>
+      {/if}  
   </div>
 
   <div class="flex w-full mb-10">
@@ -700,6 +833,69 @@
             </button>
         </div>
   </form>
+</TaskModal> 
+{/if}
+
+<!-- MODAL ASSIGN LOCATION EMPLOYEE -->
+{#if showModal == "assign_location" }
+<TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+  <div class="flex items-center justify-center pt-8 font-roboto">
+    <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Assign Location to Manage</div>
+  </div>
+  <div class="flex flex-col justify-center p-8">
+    <input 
+      type="text" 
+      id="voice-search" 
+      bind:value={searchQuery}
+      class="py-2 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-xl focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+      placeholder="Search Location Name..."/>
+    <div class="flex flex-col my-1">
+      <div class="mt-4 flex flex-col">
+        <span class="text-peach mb-1 font-semibold">Stores : </span>
+          <ul class="font-semibold text-white ml-2">
+            {#each filtered_stores as sw}
+              {#if sw.store_warehouse_type == "STORE"}
+                <li class="mb-1">
+                  <div class="flex items-center">
+                      {#if (adminSW.find((sw_id) => sw_id == sw.store_warehouse_id) != null)}
+                        <!-- <input on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox"> -->
+                        <input on:change={() => {addSWtoList(sw.store_warehouse_id)}} checked class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white  mr-2" type="checkbox">
+                      {:else}
+                        <input on:change={() => {addSWtoList(sw.store_warehouse_id)}} class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white mr-2" type="checkbox">
+                      {/if}
+                        <span class="">{sw.store_warehouse_name}</span>
+                    </div>
+                </li>
+                {/if}
+            {/each}
+          </ul>
+      </div>
+    <div class="flex flex-col my-1">
+      <div class="mt-4 flex flex-col">
+        <span class="text-peach mb-1 font-semibold">Warehouses : </span>
+          <ul class="font-semibold text-white ml-2">
+            {#each filtered_stores as sw}
+              {#if sw.store_warehouse_type == "WAREHOUSE"}
+                <li class="mb-1">
+                  <div class="flex items-center">
+                      {#if (adminSW.find((sw_id) => sw_id == sw.store_warehouse_id) != null)}
+                        <!-- <input on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox"> -->
+                        <input on:change={() => {addSWtoList(sw.store_warehouse_id)}} checked class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white  mr-2" type="checkbox">
+                      {:else}
+                        <input on:change={() => {addSWtoList(sw.store_warehouse_id)}} class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white mr-2" type="checkbox">
+                      {/if}
+                        <span class="">{sw.store_warehouse_name}</span>
+                    </div>
+                </li>
+                {/if}
+            {/each}
+          </ul>
+      </div>
+    <div class="flex mt-8 items-center justify-center">
+      <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
+      <button on:click={() => relocateAdmin()} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Relocate</button>
+    </div>
+  </div>
 </TaskModal> 
 {/if}
 

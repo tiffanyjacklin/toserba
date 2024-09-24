@@ -12,6 +12,7 @@
     // let userId = data.id;
     // console.log($userId);
     let selectedRole = '';
+    $: isAdminAlreadyAppeared = false;
   
     // console.log("user id : " + $userId);
 
@@ -37,6 +38,17 @@
         }
         
         roles = data.data;
+
+        for (let i = 0; i < roles.length; i++) {
+            if (roles[i].role_id == 5){
+                if (isAdminAlreadyAppeared == false){
+                    isAdminAlreadyAppeared = true;
+                } else {
+                    roles.splice(i,1);
+                }
+            }
+        }
+
         console.log(roles);
     }
 
