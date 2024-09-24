@@ -3,15 +3,11 @@ import 'dart:convert';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Page/Login/choose_role.dart';
 import 'package:http/http.dart' as http;
-
-// anggep ini data
-var user = [];
-
-// anggep ini pilihan dropdown ( AMBIL DARI DATABASE )
-var itemDropDown = ['Cashier', 'Inventory', 'Admin', 'Owner'];
+import 'package:provider/provider.dart';
 
 class LoginTablet extends StatefulWidget {
   const LoginTablet({super.key});
@@ -21,8 +17,6 @@ class LoginTablet extends StatefulWidget {
 }
 
 class _LoginTabletState extends State<LoginTablet> {
-  String dropDownValue = itemDropDown[0];
-
   // Controller text edit
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -32,12 +26,6 @@ class _LoginTabletState extends State<LoginTablet> {
       MediaQuery.of(context).size.width >= 767;
   bool isMobile(BuildContext context) =>
       MediaQuery.of(context).size.width < 767;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +173,9 @@ class _LoginTabletState extends State<LoginTablet> {
                                 fillColor: Colors.white,
                               ),
                             ),
-                            SizedBox(height: 10,),
+                            SizedBox(
+                              height: 10,
+                            ),
 
                             Text(
                               ' Password',
@@ -212,7 +202,9 @@ class _LoginTabletState extends State<LoginTablet> {
                             Align(
                               child: AutoSizeText('Forgot Password?',
                                   maxLines: 1,
-                                  style: TextStyle(fontSize: fontSizeBody, color: Colors.white)),
+                                  style: TextStyle(
+                                      fontSize: fontSizeBody,
+                                      color: Colors.white)),
                               alignment: Alignment.centerRight,
                             ),
 
@@ -268,16 +260,6 @@ class _LoginTabletState extends State<LoginTablet> {
     });
   }
 
-  // tambahin callback
-  void onDropdownValueChanged(String? selectedValue) {
-    if (selectedValue is String) {
-      setState(() {
-        dropDownValue = selectedValue;
-
-        // perlu set selected jadi dipaling atas
-      });
-    }
-  }
   // CEK USER
   Future _fetchUser() async {
     // link api http://leap.crossnet.co.id:8888/user/1/1
@@ -300,11 +282,9 @@ class _LoginTabletState extends State<LoginTablet> {
         print(temp);
 
         return temp['data']['user_id'];
-      }
-      else{
+      } else {
         return -1;
       }
-
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -343,22 +323,36 @@ class _LoginTabletState extends State<LoginTablet> {
       _fetchUser().then((hasil) => {
             if (hasil != -1)
               {
-                // ambil nama user?
-                // pindah halaman terus pass userId , btw simpan juga di sharedpreference?
-
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (BuildContext context) => ChooseRolePage(hasil)))
+                result(hasil).then((hasil) => {
+                  // berati berhasil login
+                  Provider.of<AuthState>(context).saveToStorage(hasil[0], hasil[1], hasil[2]),
+                  Provider.of<AuthState>(context).setDisplayLoginPage(hasil[3]),
+                }),
               }
             else
               {
                 // show snackbar
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   backgroundColor: Colors.red,
-                  content: Text('Wrong Username/Password', style: TextStyle(fontSize: fontSizeBody),),
+                  content: Text(
+                    'Wrong Username/Password',
+                    style: TextStyle(fontSize: fontSizeBody),
+                  ),
                 ))
               }
           });
     }
+  }
+
+  // push bro
+  Future<List> result(var hasil) async {
+    // ambil nama user?
+    // pindah halaman terus pass userId , btw simpan juga di sharedpreference?
+    final result =
+        await Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (BuildContext context) => ChooseRolePage(hasil),
+    ));
+    return result;
   }
 }
 

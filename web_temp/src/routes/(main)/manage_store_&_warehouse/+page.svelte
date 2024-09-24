@@ -13,13 +13,14 @@
     let totalNotes = 10; 
     $: currentPage = 1; 
 
-    let searchQuery = '';
+    $: searchQuery = '';
+    $: searchQuery_temp = '';
     $: tampilan = 'View';
     $: showModal = null;
     $: id_modal = null;
     $: sw_name = '';
     $: sw_type = '';
-    $: sw_filter_type = '';
+    $: sw_name_address = '';
     $: phone_number = '';
     $: address = '';
 
@@ -75,9 +76,17 @@
       // await fetchPromos();
       await fetchStoreWarehouse();
     });
+    $: if ((searchQuery_temp !== searchQuery) ){
+      console.log(searchQuery);
+      fetchStoreWarehouse();
+      searchQuery_temp = searchQuery;
+    } else{
+      searchQuery_temp = '';
+    }
+
     async function fetchStoreWarehouse() {
     
-      const response = await fetch(`http://${$uri}:8888/store_warehouses/all`, {
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/type/${sw_type}/${searchQuery}/${limit}/${offset}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -219,14 +228,14 @@
                     <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-2/5 bg-gray-100 p-4 rounded-lg font-roboto">
                       <span class="font-bold text-xl mb-1">Location Type</span>
                       <div class="flex w-full flex-wrap">
-                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_filter_type === 'Store' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Store</button>
-                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_filter_type === 'Warehouse' ? 'bg-white text-peach2' : 'bg-gray-100'}`}>Warehouse</button>
+                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_type === 'store' ? 'bg-white text-peach2' : 'bg-gray-100'}`} on:click={() => {sw_type = (sw_type === '' || sw_type !== "store") ? "store" : '';}}>Store</button>
+                          <button class={`w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:border-peach2 hover:text-peach ${sw_type === 'warehouse' ? 'bg-white text-peach2' : 'bg-gray-100'}`} on:click={() => {sw_type = (sw_type === '' || sw_type !== "warehouse") ? "warehouse" : '';}}>Warehouse</button>
                       </div>
                       
                       
                       <div class="flex justify-between font-semibold mt-4">
-                          <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ''; endDate = ''; }}>Clear</button>
-                          <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={toggleDatePicker}>Apply</button>
+                          <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { sw_type = ""; }}>Clear</button>
+                          <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchStoreWarehouse(); showFilter = false;}}>Apply</button>
                       </div>
                     </div>
                 {/if}
@@ -238,30 +247,33 @@
          
         <nav class="my-8">
           <ul class="flex items-center -space-x-px h-8 text-sm">
-            <li>
+             {#if totalNotes !== 0}
+             <li>
               <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
                 <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
                 </svg>
                 Previous
               </a>
-            </li>
+             </li>
+             {/if}
         
-            <!-- Pagination Links -->
-            {#each Array(Math.ceil(totalNotes / limit)) as _, i}
-              <li>
-                <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
-              </li>
-            {/each}
-        
-            <li>
-              <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                Next
-                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                </svg>
-              </a>
-            </li>
+             {#each Array(Math.ceil(totalNotes / limit)) as _, i}
+                <li>
+                   <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+                </li>
+             {/each}
+    
+             {#if totalNotes !== 0}
+             <li>
+                <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                   Next
+                   <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                   </svg>
+                </a>
+             </li>
+             {/if}
           </ul>
         </nav>
 
@@ -285,6 +297,11 @@
             </div>
           </button>
           {/each}
+          {#if all_store_warehouses.length === 0}
+          <div class="justify-center w-full h-full flex border-2 rounded-xl py-4 border-gray-400 my-3 ">
+            No Store or Warehouse found.
+          </div>
+          {/if}
         </div>
       </div>
       <!-- {:else if tampilan="Edit"}
@@ -320,30 +337,33 @@
   
      <nav class="my-8">
       <ul class="flex items-center -space-x-px h-8 text-sm">
-        <li>
+         {#if totalNotes !== 0}
+         <li>
           <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
             <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
             </svg>
             Previous
           </a>
-        </li>
+         </li>
+         {/if}
     
-        <!-- Pagination Links -->
-        {#each Array(Math.ceil(totalNotes / limit)) as _, i}
-          <li>
-            <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
-          </li>
-        {/each}
-    
-        <li>
-          <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-            Next
-            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-            </svg>
-          </a>
-        </li>
+         {#each Array(Math.ceil(totalNotes / limit)) as _, i}
+            <li>
+               <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+            </li>
+         {/each}
+
+         {#if totalNotes !== 0}
+         <li>
+            <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+               Next
+               <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+               </svg>
+            </a>
+         </li>
+         {/if}
       </ul>
     </nav>
        
