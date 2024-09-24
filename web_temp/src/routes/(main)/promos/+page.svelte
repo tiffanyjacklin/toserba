@@ -10,7 +10,7 @@
     import { read } from '$app/server';
     import { getFormattedDateNow, getThirtyDaysBefore } from '$lib/DateNow';
     import LineChart from '$lib/LineChart.svelte';
-    $: limit = 5; 
+    $: limit = 10; 
     $: offset = 0; 
     $: totalNotes = 10; 
     $: currentPage = 1; 
@@ -699,9 +699,6 @@
             {/if}
         </div>
         {/if}
-    {totalNotes}
-    {limit}
-    {offset}
     {#if tampilan != "promo_cost"}
     <nav class="my-8">
       <ul class="flex items-center -space-x-px h-8 text-sm">
