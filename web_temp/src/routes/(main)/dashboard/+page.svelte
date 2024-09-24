@@ -31,7 +31,7 @@
 
    $: list_of_dates = [];
    $: list_of_profit1 = [];
-   $: data_for_donut = {};
+   $: data_for_donut = [];
    $: searchQuery = '';
    $: searchQuery_temp = '';
    $: all_store_profit = [];
@@ -61,11 +61,11 @@
       list_of_profit1 = profits;
 
       await fetchAllSWProfit(start_date, end_date);
-      data_for_donut = { ...updateVariablesSW(all_sw_profits) };
+      data_for_donut = [ ...updateVariablesSW(all_sw_profits) ];
       total_pendapatan = calculateTotalPendapatan(all_sw_profits);
       total_beban = 0;
       laba_kotor = total_pendapatan - total_beban;
-      console.log(data_for_donut);
+      console.log("data_for_donut1",data_for_donut);
       await fetchAllSwProfitFilter(startDate, endDate);
    }
    function calculateTotalPendapatan(profitsArray) {
@@ -110,21 +110,30 @@
       // console.log(profits);
       return { date_list, profits }; // Return as an object
    }
-   function updateVariablesSW(quantities_profits){
-      const data_profits = {};
+   function updateVariablesSW(quantities_profits) {
+      const data_profits = [];
 
       quantities_profits.forEach(item => {
          const warehouseName = item.StoreWarehouses.store_warehouse_name;
          const profit = item.profit;
 
-         if (data_profits[warehouseName]) {
-            data_profits[warehouseName] += profit; // Accumulate profits if multiple entries exist
+         // Find if there's already an entry for this warehouse in data_profits
+         const existingEntry = data_profits.find(entry => entry.store_warehouse_name === warehouseName);
+
+         if (existingEntry) {
+               existingEntry.profit += profit; // Accumulate profits if the warehouse already exists
          } else {
-            data_profits[warehouseName] = profit;
+               // Create a new entry for the warehouse if it doesn't exist yet
+               data_profits.push({
+                  store_warehouse_name: warehouseName,
+                  profit: profit
+               });
          }
       });
-      return data_profits;
+      console.log(data_profits);
+      return data_profits; // Return array of objects
    }
+
    async function fetchProfit(start_date, end_date) {
       const response = await fetch(`http://${$uri}:8888/profit/sum/date/${start_date}/${end_date}`, {
          method: 'GET',

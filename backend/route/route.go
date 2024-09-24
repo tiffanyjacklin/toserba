@@ -33,6 +33,7 @@ func Init() *echo.Echo {
 	e.GET("/user/:user_id/:role_id", controller.GetDataUser)
 	e.POST("/user/add", controller.InsertNewUser)
 	e.PUT("/user/update/:user_id", controller.UpdateUser)
+	e.PUT("/user/update/deactivate/:user_id", controller.DeactivateUser)
 	e.PUT("/user/update/password/:user_id/:password", controller.UpdatePassword)
 	e.GET("/user/roles/:user_id", controller.GetUserRoles)
 	e.POST("/user/roles/add", controller.InsertNewUserRoles)
@@ -55,10 +56,10 @@ func Init() *echo.Echo {
 	// Cashier - Session
 	e.GET("/cashier/session/:session_id", controller.GetSessionByID)
 	e.GET("/cashier/session/:sess_id_user_name/:limit/:offset", controller.GetAllSession)
-	e.GET("/cashier/session/:start_date/:end_date/:sess_id_user_name/:limit/:offset", controller.GetSessionByDateRange)
+	e.GET("/cashier/session/:start_date/:end_date/:user_id/:sess_id_user_name/:limit/:offset", controller.GetSessionByDateRange)
 	e.GET("/cashier/session/last", controller.GetLastSession)
 	e.GET("/cashier/session/transaction/:session_id/:transaction_id_user_name/:limit/:offset", controller.GetTransactionIDBySessionID)
-	e.GET("/cashier/session/transaction/:session_id/:start_date/:end_date/:transaction_id_user_name/:limit/:offset", controller.GetTransactionIDBySessionIDDateRange)
+	e.GET("/cashier/session/transaction/:session_id/:start_date/:end_date/:user_id/:start_price/:end_price/:transaction_id_user_name/:limit/:offset", controller.GetTransactionIDBySessionIDDateRange)
 	e.POST("/cashier/session/new", controller.InsertNewSession)
 	e.PUT("/cashier/session/close/:session_id", controller.UpdateClosingSession)
 	e.PUT("/cashier/session/edit/:session_id", controller.UpdateSessionData)
@@ -76,7 +77,7 @@ func Init() *echo.Echo {
 	e.GET("/transaction/user/:user_id/:limit/:offset", controller.GetTransactionByUserID)
 	e.GET("/transaction/last", controller.GetLastTransaction)
 	e.GET("/transaction/:transaction_id_user_name/:limit/:offset", controller.GetAllTransaction)
-	e.GET("/transaction/:start_date/:end_date/:transaction_id_user_name/:limit/:offset", controller.GetTransactionByTimestamp)
+	e.GET("/transaction/:start_date/:end_date/:user_id/:start_price/:end_price/:transaction_id_user_name/:limit/:offset", controller.GetTransactionByTimestamp)
 	e.GET("/transaction/detail/:transaction_id/:limit/:offset", controller.GetTransactionDetailByTransactionID)
 	e.POST("/transaction/details/add/:user_id/:role_id", controller.InsertTransactionDetails) 
 	e.PUT("/transaction/update/:transaction_id/:session_id/:member_id", controller.InsertTransaction)
@@ -171,6 +172,7 @@ func Init() *echo.Echo {
 	e.POST("/products/add", controller.InsertProductDetails)
 	e.PUT("/products/edit/:product_id", controller.UpdateProductDetails)
 
+	e.GET("/promos/type/all/:limit/:offset", controller.GetAllPromoType)
 	e.POST("/promos/type/add", controller.InsertPromoType)
 	e.GET("/promos/:promo_id", controller.GetPromoByID)
 	e.GET("/promos/last", controller.GetLastPromo)
@@ -202,6 +204,9 @@ func Init() *echo.Echo {
 	e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateStockInSubtractStock)
 
 	// Owner 
+	e.GET("/locations/all", controller.GetAllLocation)
+	e.GET("/locations/province/all", controller.GetAllProvinces)
+	e.GET("/locations/cities/all/:province", controller.GetAllCities)
 	e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
 	e.GET("/store_warehouses/type/:sw_type/:sw_name_address/:limit/:offset", controller.GetAllStoreWarehouseFilter)
 	e.GET("/store_warehouses/:user_id/:role_id", controller.GetStoreWarehouseByUIDRID)
@@ -236,6 +241,7 @@ func Init() *echo.Echo {
 	e.GET("/promos/cost/transaction/:transaction_id", controller.GetTotalPromoCostByTransactionID)
 	e.GET("/promos/cost/store/all", controller.GetTotalPromoCostPerStore)
 	e.GET("/promos/cost/store/:store_id", controller.GetTotalPromoCostByStoreID)
+	e.GET("/promos/cost/product/:start_date/:end_date/:limit/:offset", controller.GetTotalPromoCostPerProduct)
 
 	e.GET("/promos/cost/difference/:promo_id/:product_id", controller.GetPromoPriceDiff)
 
@@ -256,6 +262,8 @@ func Init() *echo.Echo {
 	e.GET("/profit/sum/all/product/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllProduct)
 	e.GET("/profit/sum/all/store/:start_date/:end_date/:limit/:offset", controller.GetSumProfitByAllSW)
 	e.GET("/profit/sum/all/store/:start_date/:end_date/:sw_name_address/:limit/:offset", controller.GetSumProfitByAllSWv2)
+
+	e.GET("/loss/sum/all/:year/:month/:day", controller.GetSumLoss)
 
 	e.GET("/notifications/:limit/:offset", controller.GetAllNotification)
 	e.GET("/notifications/:role_id", controller.GetNotificationByRoleId)

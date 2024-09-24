@@ -99,7 +99,7 @@
       stock_card = [...data.data];  
   }
   async function fetchCurrentStock(product_id, sw_id) {
-      const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${product_id}/${sw_id}`, {
+      const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${product_id}/${sw_id}/0/0`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'

@@ -85,7 +85,7 @@
     // console.log("dari fetch products",all_products);
   }
   async function fetchStockOpname() {
-    const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${warehouse.store_warehouse_id}/${productName}/${batch}/''/${productId}/${expired_date}/''/''/0/0`, {
+    const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${warehouse.store_warehouse_id}/${productName}/${batch}/''/${productId}/${expired_date}/''/''//0/0`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
