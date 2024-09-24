@@ -59,524 +59,526 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
         child: Padding(
           padding: const EdgeInsets.only(
               left: 20.0, right: 20.0, top: 16.0, bottom: 8.0),
-          child: Column(
-            children: [
-              TitlePage(name: 'Inventory Taking'),
-              SizedBox(
-                height: 10,
-              ),
-
-              Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                child: TextField(
-                  style: TextStyle(
-                    fontSize: 18,
-                  ),
-                  controller: _searchController,
-                  onSubmitted: (value) {
-                    providerInventory
-                        .searchItemWithFilter(_searchController.text, search: true);
-                    providerInventory.changeControllerQtyValue();
-                  },
-                  decoration: InputDecoration(
-                    fillColor: Colors.white,
-                    focusColor: ColorPalleteLogin.OrangeColor,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      borderSide: const BorderSide(
-                        color: Colors.grey,
-                        width: 2.0,
-                      ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                TitlePage(name: 'Inventory Taking'),
+                SizedBox(
+                  height: 10,
+                ),
+            
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  child: TextField(
+                    style: TextStyle(
+                      fontSize: 18,
                     ),
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          providerInventory.clickFilter(_searchController.text);
-                        },
-                        icon: Icon(Icons.filter_list)),
+                    controller: _searchController,
+                    onSubmitted: (value) {
+                      providerInventory
+                          .searchItemWithFilter(_searchController.text, search: true);
+                      providerInventory.changeControllerQtyValue();
+                    },
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      focusColor: ColorPalleteLogin.OrangeColor,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                          width: 2.0,
+                        ),
+                      ),
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            providerInventory.clickFilter(_searchController.text);
+                          },
+                          icon: Icon(Icons.filter_list)),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-      
-              providerInventory.isFiltering ?  
-              Container(
-                height: 350,
-                child: SingleChildScrollView(
-                  child: Column(
-                        children: [
-                          Center(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 4,
-                                    color: Colors.grey,
-                                    offset: Offset(0,1)
-                                  ),
-                                ]
-                              ),
-                              width: MediaQuery.of(context).size.width * 0.8 * 0.98,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          providerInventory.resetFilter();
-                                        },
-                                        child: Text(
-                                          'Reset',
-                                          style: TextStyle(
-                                              color:
-                                                  ColorPalleteLogin.OrangeDarkColor,
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold),
+                SizedBox(
+                  height: 10,
+                ),
+                  
+                providerInventory.isFiltering ?  
+                Container(
+                  height: 350,
+                  child: SingleChildScrollView(
+                    child: Column(
+                          children: [
+                            Center(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 4,
+                                      color: Colors.grey,
+                                      offset: Offset(0,1)
+                                    ),
+                                  ]
+                                ),
+                                width: MediaQuery.of(context).size.width * 0.8 * 0.98,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            providerInventory.resetFilter();
+                                          },
+                                          child: Text(
+                                            'Reset',
+                                            style: TextStyle(
+                                                color:
+                                                    ColorPalleteLogin.OrangeDarkColor,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                  
-                                    // order
-                                    Text(
-                                      'Sort By',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Wrap(
-                                      spacing: 10,
-                                      children: List.generate(
-                                          providerInventory.productOrder.length, (index) {
-                                        return Container(
-                                          margin:
-                                              EdgeInsets.symmetric(horizontal: 2),
-                                          child: providerInventory.filterProduct == providerInventory.productOrder[index].sortType
-                                              ? OutlinedButton(
-                                                  onPressed: () {
-                                                    providerInventory.setFilterProduct('');
-                                                  },
-                                                  child: Text(
-                                                    providerInventory.productOrder[index].sortType!,
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: ColorPalleteLogin
-                                                            .OrangeDarkColor),
-                                                  ),
-                                                  style: OutlinedButton.styleFrom(
-                                                      side: BorderSide(
-                                                          strokeAlign: 2,
+                    
+                                      // order
+                                      Text(
+                                        'Sort By',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Wrap(
+                                        spacing: 10,
+                                        children: List.generate(
+                                            providerInventory.productOrder.length, (index) {
+                                          return Container(
+                                            margin:
+                                                EdgeInsets.symmetric(horizontal: 2),
+                                            child: providerInventory.filterProduct == providerInventory.productOrder[index].sortType
+                                                ? OutlinedButton(
+                                                    onPressed: () {
+                                                      providerInventory.setFilterProduct('');
+                                                    },
+                                                    child: Text(
+                                                      providerInventory.productOrder[index].sortType!,
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
                                                           color: ColorPalleteLogin
                                                               .OrangeDarkColor),
-                                                      overlayColor:
-                                                          ColorPalleteLogin
-                                                              .OrangeDarkColor),
-                                                )
-                                              : OutlinedButton(
-                                                  onPressed: () {
-                                                    providerInventory.setFilterProduct(
-                                                        providerInventory
-                                                            .productOrder[index].sortType!);
-                                                  },
-                                                  child: Text(
-                                                    providerInventory.productOrder[index].sortType!,
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                  )
+                                                : OutlinedButton(
+                                                    onPressed: () {
+                                                      providerInventory.setFilterProduct(
+                                                          providerInventory
+                                                              .productOrder[index].sortType!);
+                                                    },
+                                                    child: Text(
+                                                      providerInventory.productOrder[index].sortType!,
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: Colors.grey[300]!),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor,
+                                                        backgroundColor:
+                                                            Colors.grey[300]),
                                                   ),
-                                                  style: OutlinedButton.styleFrom(
-                                                      side: BorderSide(
-                                                          strokeAlign: 2,
-                                                          color: Colors.grey[300]!),
-                                                      overlayColor:
-                                                          ColorPalleteLogin
-                                                              .OrangeDarkColor,
-                                                      backgroundColor:
-                                                          Colors.grey[300]),
-                                                ),
-                                        );
-                                      }),
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                  
-                                    // sorting
-                                    Text(
-                                      'Sorting Order',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Wrap(
-                                      spacing: 10,
-                                      children: List.generate(
-                                          providerInventory.ascDec.length, (index) {
-                                        return Container(
-                                          margin:
-                                              EdgeInsets.symmetric(horizontal: 2),
-                                          child: providerInventory.ascDec[index] ==
-                                                  providerInventory.ascDecNow
-                                              ? OutlinedButton(
-                                                  onPressed: () {},
-                                                  child: Text(
-                                                    providerInventory.ascDec[index],
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: ColorPalleteLogin
-                                                            .OrangeDarkColor),
-                                                  ),
-                                                  style: OutlinedButton.styleFrom(
-                                                      side: BorderSide(
-                                                          strokeAlign: 2,
+                                          );
+                                        }),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                    
+                                      // sorting
+                                      Text(
+                                        'Sorting Order',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Wrap(
+                                        spacing: 10,
+                                        children: List.generate(
+                                            providerInventory.ascDec.length, (index) {
+                                          return Container(
+                                            margin:
+                                                EdgeInsets.symmetric(horizontal: 2),
+                                            child: providerInventory.ascDec[index] ==
+                                                    providerInventory.ascDecNow
+                                                ? OutlinedButton(
+                                                    onPressed: () {},
+                                                    child: Text(
+                                                      providerInventory.ascDec[index],
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
                                                           color: ColorPalleteLogin
                                                               .OrangeDarkColor),
-                                                      overlayColor:
-                                                          ColorPalleteLogin
-                                                              .OrangeDarkColor),
-                                                )
-                                              : OutlinedButton(
-                                                  onPressed: () {
-                                                    providerInventory.setAcs(
-                                                        providerInventory.ascDec[index]);
-                                                  },
-                                                  child: Text(
-                                                    providerInventory.ascDec[index],
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                  )
+                                                : OutlinedButton(
+                                                    onPressed: () {
+                                                      providerInventory.setAcs(
+                                                          providerInventory.ascDec[index]);
+                                                    },
+                                                    child: Text(
+                                                      providerInventory.ascDec[index],
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: Colors.grey[300]!),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor,
+                                                        backgroundColor:
+                                                            Colors.grey[300]),
                                                   ),
-                                                  style: OutlinedButton.styleFrom(
-                                                      side: BorderSide(
-                                                          strokeAlign: 2,
-                                                          color: Colors.grey[300]!),
-                                                      overlayColor:
-                                                          ColorPalleteLogin
-                                                              .OrangeDarkColor,
-                                                      backgroundColor:
-                                                          Colors.grey[300]),
-                                                ),
-                                        );
-                                      }),
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                  
-                                    // sorting
-                                    Text(
-                                      'Unit Type',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Wrap(
-                                      spacing: 10,
-                                      children: List.generate(
-                                          providerInventory.unitType.length, (index) {
-                                        return Container(
-                                          margin:
-                                              EdgeInsets.symmetric(horizontal: 2),
-                                          child: providerInventory.unitType[index] ==
-                                                  providerInventory.unitNow
-                                              ? OutlinedButton(
-                                                  onPressed: () {
-                                                    providerInventory.setUnitType('');
-                                                  },
-                                                  child: Text(
-                                                    providerInventory.unitType[index],
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: ColorPalleteLogin
-                                                            .OrangeDarkColor),
-                                                  ),
-                                                  style: OutlinedButton.styleFrom(
-                                                      side: BorderSide(
-                                                          strokeAlign: 2,
+                                          );
+                                        }),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                    
+                                      // sorting
+                                      Text(
+                                        'Unit Type',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Wrap(
+                                        spacing: 10,
+                                        children: List.generate(
+                                            providerInventory.unitType.length, (index) {
+                                          return Container(
+                                            margin:
+                                                EdgeInsets.symmetric(horizontal: 2),
+                                            child: providerInventory.unitType[index] ==
+                                                    providerInventory.unitNow
+                                                ? OutlinedButton(
+                                                    onPressed: () {
+                                                      providerInventory.setUnitType('');
+                                                    },
+                                                    child: Text(
+                                                      providerInventory.unitType[index],
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
                                                           color: ColorPalleteLogin
                                                               .OrangeDarkColor),
-                                                      overlayColor:
-                                                          ColorPalleteLogin
-                                                              .OrangeDarkColor),
-                                                )
-                                              : OutlinedButton(
-                                                  onPressed: () {
-                                                    providerInventory.setUnitType(
-                                                        providerInventory.unitType[index]);
-                                                  },
-                                                  child: Text(
-                                                    providerInventory.unitType[index],
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                  )
+                                                : OutlinedButton(
+                                                    onPressed: () {
+                                                      providerInventory.setUnitType(
+                                                          providerInventory.unitType[index]);
+                                                    },
+                                                    child: Text(
+                                                      providerInventory.unitType[index],
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: Colors.grey[300]!),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor,
+                                                        backgroundColor:
+                                                            Colors.grey[300]),
                                                   ),
-                                                  style: OutlinedButton.styleFrom(
-                                                      side: BorderSide(
-                                                          strokeAlign: 2,
-                                                          color: Colors.grey[300]!),
-                                                      overlayColor:
-                                                          ColorPalleteLogin
-                                                              .OrangeDarkColor,
-                                                      backgroundColor:
-                                                          Colors.grey[300]),
-                                                ),
-                                        );
-                                      }),
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                  
-                                    // Product Type
-                                    Text(
-                                      'Product Type',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Wrap(
-                                      spacing: 10,
-                                      children: List.generate(
-                                          providerInventory.productType.length, (index) {
-                                        return Container(
-                                          margin:
-                                              EdgeInsets.symmetric(horizontal: 2),
-                                          child: providerInventory.productType[index].productCategoryName == providerInventory.typeNow
-                                              ? OutlinedButton(
-                                                  onPressed: () {
-                                                    providerInventory.setProductType('');
-                                                  },
-                                                  child: Text(
-                                                    providerInventory.productType[index].productCategoryName!,
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: ColorPalleteLogin
-                                                            .OrangeDarkColor),
-                                                  ),
-                                                  style: OutlinedButton.styleFrom(
-                                                      side: BorderSide(
-                                                          strokeAlign: 2,
+                                          );
+                                        }),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                    
+                                      // Product Type
+                                      Text(
+                                        'Product Type',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Wrap(
+                                        spacing: 10,
+                                        children: List.generate(
+                                            providerInventory.productType.length, (index) {
+                                          return Container(
+                                            margin:
+                                                EdgeInsets.symmetric(horizontal: 2),
+                                            child: providerInventory.productType[index].productCategoryName == providerInventory.typeNow
+                                                ? OutlinedButton(
+                                                    onPressed: () {
+                                                      providerInventory.setProductType('');
+                                                    },
+                                                    child: Text(
+                                                      providerInventory.productType[index].productCategoryName!,
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
                                                           color: ColorPalleteLogin
                                                               .OrangeDarkColor),
-                                                      overlayColor:
-                                                          ColorPalleteLogin
-                                                              .OrangeDarkColor),
-                                                )
-                                              : OutlinedButton(
-                                                  onPressed: () {
-                                                    providerInventory.setProductType(
-                                                        providerInventory.productType[index].productCategoryName!);
-                                                  },
-                                                  child: Text(
-                                                    providerInventory.productType[index].productCategoryName!,
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                  )
+                                                : OutlinedButton(
+                                                    onPressed: () {
+                                                      providerInventory.setProductType(
+                                                          providerInventory.productType[index].productCategoryName!);
+                                                    },
+                                                    child: Text(
+                                                      providerInventory.productType[index].productCategoryName!,
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: Colors.grey[300]!),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor,
+                                                        backgroundColor:
+                                                            Colors.grey[300]),
                                                   ),
-                                                  style: OutlinedButton.styleFrom(
-                                                      side: BorderSide(
-                                                          strokeAlign: 2,
-                                                          color: Colors.grey[300]!),
-                                                      overlayColor:
-                                                          ColorPalleteLogin
-                                                              .OrangeDarkColor,
-                                                      backgroundColor:
-                                                          Colors.grey[300]),
-                                                ),
-                                        );
-                                      }),
-                                    ),
-                                  ],
+                                          );
+                                        }),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
+                            SizedBox(height: 10,),
+                          ],
+                        ),
+                  ),
+                )
+                
+                // for submited form
+                : providerInventory.isLoading
+                    ? CircularProgressIndicator()
+                    : providerInventory.resultSearched.isEmpty
+                        ? Text(
+                            'Data Tidak Ditemukan',
+                            style: notFoundData,
+                          )
+                        : Column(
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.7,
+                                child: NumberPaginator(
+                                  controller:
+                                      providerInventory.paginatorController,
+                                  // by default, the paginator shows numbers as center content
+                                  numberPages: providerInventory.getMaxPage(),
+                                  onPageChange: (int index) {
+                                    // providerInventory.currentPage = index;
+                                    providerInventory
+                                        .checkControllerPageChanges(_searchController.text); // BUG / POTENTIAL ERROR (maybe)
+                                  },
+            
+                                  showPrevButton: true,
+                                  showNextButton: true, // defaults to true
+                                  nextButtonBuilder: (context) => TextButton(
+                                    onPressed: providerInventory.currentPage <
+                                            providerInventory.getMaxPage() - 1
+                                        ? () => providerInventory.currentPage++
+                                        : null,
+                                    child: const Row(
+                                      children: [
+                                        Text("Next"),
+                                        Icon(Icons.chevron_right),
+                                      ],
+                                    ),
+                                  ),
+                                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                                  prevButtonBuilder: (context) => TextButton(
+                                    onPressed: providerInventory.currentPage > 0
+                                        ? () => providerInventory.currentPage--
+                                        : null,
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.chevron_left),
+                                        Text("Previous"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TableInventoryTaking(
+                                startIndex: providerInventory.getStartIndex(),
+                                contentTable: providerInventory.listPerPage,
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 10,),
-                        ],
-                      ),
+            
+                SizedBox(
+                  height: 20,
                 ),
-              )
-              
-              // for submited form
-              : providerInventory.isLoading
-                  ? CircularProgressIndicator()
-                  : providerInventory.resultSearched.isEmpty
-                      ? Text(
-                          'Data Tidak Ditemukan',
-                          style: notFoundData,
-                        )
-                      : Column(
-                          children: [
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: NumberPaginator(
-                                controller:
-                                    providerInventory.paginatorController,
-                                // by default, the paginator shows numbers as center content
-                                numberPages: providerInventory.getMaxPage(),
-                                onPageChange: (int index) {
-                                  // providerInventory.currentPage = index;
-                                  providerInventory
-                                      .checkControllerPageChanges(_searchController.text); // BUG / POTENTIAL ERROR (maybe)
-                                },
-
-                                showPrevButton: true,
-                                showNextButton: true, // defaults to true
-                                nextButtonBuilder: (context) => TextButton(
-                                  onPressed: providerInventory.currentPage <
-                                          providerInventory.getMaxPage() - 1
-                                      ? () => providerInventory.currentPage++
-                                      : null,
-                                  child: const Row(
-                                    children: [
-                                      Text("Next"),
-                                      Icon(Icons.chevron_right),
-                                    ],
-                                  ),
-                                ),
-                                // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
-                                prevButtonBuilder: (context) => TextButton(
-                                  onPressed: providerInventory.currentPage > 0
-                                      ? () => providerInventory.currentPage--
-                                      : null,
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.chevron_left),
-                                      Text("Previous"),
-                                    ],
-                                  ),
+            
+                // Action Button
+                providerInventory.isFiltering ? Row() : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Container(
+                        height: 50,
+                        width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ColorPalleteLogin.PrimaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                          ),
+                          child: Wrap(
+                            spacing: 12,
+                            children: [
+                              Text(
+                                'Discard',
+                                style: TextStyle(
+                                  color: ColorPalleteLogin.OrangeColor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                            TableInventoryTaking(
-                              startIndex: providerInventory.getStartIndex(),
-                              contentTable: providerInventory.listPerPage,
-                            ),
-                          ],
-                        ),
-
-              SizedBox(
-                height: 20,
-              ),
-
-              // Action Button
-              providerInventory.isFiltering ? Row() : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Container(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorPalleteLogin.PrimaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            ],
                           ),
+                          onPressed: () async {
+                            // BELUM COBA
+                            // keluarin popup discard
+                            var data = await showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) => DiscardPopup(),
+                            );
+            
+                            // BELUM COBA
+                            if(data == true){
+                              providerInventory.resetAll();
+                            }
+                          },
                         ),
-                        child: Wrap(
-                          spacing: 12,
-                          children: [
-                            Text(
-                              'Discard',
-                              style: TextStyle(
-                                color: ColorPalleteLogin.OrangeColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onPressed: () async {
-                          // BELUM COBA
-                          // keluarin popup discard
-                          var data = await showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (context) => DiscardPopup(),
-                          );
-
-                          // BELUM COBA
-                          if(data == true){
-                            providerInventory.resetAll();
-                          }
-                        },
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 30,
-                  ),
-                  Center(
-                    child: Container(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorPalleteLogin.OrangeDarkColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
-                        child: Wrap(
-                          spacing: 12,
-                          children: [
-                            Text(
-                              'Save',
-                              style: TextStyle(
-                                color: ColorPalleteLogin.PrimaryColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Center(
+                      child: Container(
+                        height: 50,
+                        width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ColorPalleteLogin.OrangeDarkColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
-                          ],
+                          ),
+                          child: Wrap(
+                            spacing: 12,
+                            children: [
+                              Text(
+                                'Save',
+                                style: TextStyle(
+                                  color: ColorPalleteLogin.PrimaryColor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          onPressed: () async {
+                            // BELUM COBA
+                            // masuk ke popup lanjutan untuk buat stok card
+                            var data = await showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) => InventoryTakingFormPopUp(
+                                  listItem: providerInventory.listItemSubmit),
+                            );
+            
+                            if(data == true){
+                              providerInventory.SubmitInventoryTaking();
+                            }
+                          },
                         ),
-                        onPressed: () async {
-                          // BELUM COBA
-                          // masuk ke popup lanjutan untuk buat stok card
-                          var data = await showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (context) => InventoryTakingFormPopUp(
-                                listItem: providerInventory.listItemSubmit),
-                          );
-
-                          if(data == true){
-                            providerInventory.SubmitInventoryTaking();
-                          }
-                        },
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

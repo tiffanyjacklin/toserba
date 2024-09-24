@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
+import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
@@ -22,8 +22,7 @@ var roleName = [
 ];
 
 class ChooseRolePage extends StatefulWidget {
-  final int userId;
-  const ChooseRolePage(this.userId);
+  const ChooseRolePage();
 
   @override
   State<ChooseRolePage> createState() => _ChooseRolePageState();
@@ -67,25 +66,20 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                 itemBuilder: (_, index) {
                   return InkWell(
                     onTap: () {
-                      _roleValidate(widget.userId, index + 1).then((hasil) => {
-                            if (hasil != null)
-                              {
-                                // Provider.of<AuthState>(context)
-                                //     .saveToStorage(widget.userId.toString(),
-                                //         (index + 1).toString(), hasil)
-                                //     .then((hasil) {
-                                //     Provider.of<AuthState>(context).setDisplayLoginPage(true);
-
-                                // }),
-                                Navigator.of(context).pop<List>([
-                                  widget.userId.toString(),
-                                  (index + 1).toString(),
-                                  hasil,
-                                  true
-                                ]),
-                              },
-                            // print(hasil.runtimeType)
-                          });
+                      _roleValidate(int.parse(provider.userId), index + 1)
+                          .then((hasil) => {
+                                if (hasil != null)
+                                  {
+                                    provider
+                                        .saveToStorage(provider.userId,
+                                            (index + 1).toString(), hasil)
+                                        .then((hasil) {
+                                      provider.setDisplayLoginPage(true);
+                                    }),
+                                    //   Provider.of<AuthState>(context).saveToStorage(hasil[0], hasil[1], hasil[2]),
+                                    //   Provider.of<AuthState>(context).setDisplayLoginPage(hasil[3]),
+                                  },
+                              });
                     },
                     child: Container(
                       decoration: BoxDecoration(

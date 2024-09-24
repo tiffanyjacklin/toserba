@@ -157,6 +157,7 @@ class HistoryAllProductProvider extends ChangeNotifier {
     return (totalRow.toDouble()/limitPerPage.toDouble()).ceil();
   }
 
+  // lah rusak lagi ??
   void setCurrentPage(String name ,int number){
     currentPage = number;
     // cek butuh fetch setelah page ini?

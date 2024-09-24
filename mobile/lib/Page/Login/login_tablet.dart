@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Page/Login/choose_role.dart';
@@ -29,6 +30,8 @@ class _LoginTabletState extends State<LoginTablet> {
 
   @override
   Widget build(BuildContext context) {
+    LoginProvider provider = Provider.of<LoginProvider>(context);
+    AuthState providerAuth = Provider.of<AuthState>(context);
     return OrientationBuilder(builder: (context, orientation) {
       return Scaffold(
         body: CustomPaint(
@@ -224,7 +227,7 @@ class _LoginTabletState extends State<LoginTablet> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    _login();
+                                    _login(providerAuth, provider);
                                   },
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -295,7 +298,7 @@ class _LoginTabletState extends State<LoginTablet> {
   }
 
   // LOGIN
-  void _login() async {
+  void _login(AuthState providerAuth,LoginProvider provider) async {
     // cek semua apakah ada yang belum diisi
     var belumDiisi = '';
     if (usernameController.text == '') {
@@ -323,11 +326,9 @@ class _LoginTabletState extends State<LoginTablet> {
       _fetchUser().then((hasil) => {
             if (hasil != -1)
               {
-                result(hasil).then((hasil) => {
-                  // berati berhasil login
-                  Provider.of<AuthState>(context).saveToStorage(hasil[0], hasil[1], hasil[2]),
-                  Provider.of<AuthState>(context).setDisplayLoginPage(hasil[3]),
-                }),
+              //  // berati berhasil login
+              providerAuth.userId = hasil.toString(),
+              provider.chooseRole = true,
               }
             else
               {
@@ -344,16 +345,16 @@ class _LoginTabletState extends State<LoginTablet> {
     }
   }
 
-  // push bro
-  Future<List> result(var hasil) async {
-    // ambil nama user?
-    // pindah halaman terus pass userId , btw simpan juga di sharedpreference?
-    final result =
-        await Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (BuildContext context) => ChooseRolePage(hasil),
-    ));
-    return result;
-  }
+  // // push bro
+  // Future<List> result(var hasil) async {
+  //   // ambil nama user?
+  //   // pindah halaman terus pass userId , btw simpan juga di sharedpreference?
+  //   final result =
+  //       await Navigator.of(context).pushReplacement(MaterialPageRoute(
+  //     builder: (BuildContext context) => ChooseRolePage(hasil),
+  //   ));
+  //   return result;
+  // }
 }
 
 class DiagonalBackgroundPainter extends CustomPainter {

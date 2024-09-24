@@ -1,25 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_app_all/Page/Store%20Inventory/inventory_taking_page.dart';
-import 'package:flutter_app_all/Page/Umum/notification_page.dart';
-import 'package:flutter_app_all/Page/Warehouse%20Employee/history_all_stock_product_page.dart';
-import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
-import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
+import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/RouteProvider.dart';
 import 'package:flutter_app_all/Template.dart';
-import 'package:flutter_app_all/Model/PrivilegesData.dart';
-import 'package:flutter_app_all/Model/UserData.dart';
-import 'package:flutter_app_all/Page/Login/login_tablet.dart';
-import 'package:flutter_app_all/Page/Store%20Inventory/accept_order_page.dart';
 import 'package:provider/provider.dart';
-// import 'package:flutter_app_all/Page/Store%20Inventory/inventory_taking_page.dart';
-// import 'package:flutter_app_all/Page/Store%20Inventory/product_page.dart';
-// import 'package:flutter_app_all/Page/Umum/notification_page.dart';
-// import 'package:flutter_app_all/Page/Warehouse%20Employee/stock_transfer_notes_page.dart';
-// import 'package:flutter_app_all/Page/Warehouse%20Employee/history_all_stock_product_page.dart';
-// import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
-// import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
 
 class MainPage extends StatelessWidget {
   // final Data dataUser;
@@ -35,80 +20,73 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AuthState providerAuth = Provider.of<AuthState>(context);
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        drawer: isMobile(context)
-            ? Drawer(
+        appBar: AppBar(
+          backgroundColor: ColorPalleteLogin.OrangeLightColor,
+          actions: [
+            Container(
+              decoration: BoxDecoration(
+                color: ColorPalleteLogin.OrangeLightColor,
+                border: Border(
+                  bottom: BorderSide(width: 1, color: Colors.black),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      child: Row(
+                        children: [
+                          Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child:
+                                    Icon(Icons.help_outline_outlined),
+                              ),
+                              Text(
+                                'Help',
+                                style: TextStyle(
+                                    color: ColorPalleteLogin
+                                        .PrimaryColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Icon(Icons.notifications_outlined),
+                          SizedBox(
+                            width: 20,
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        drawer: Drawer(
                 child: // SIDEBAR
                     SidebarMainPage(),
-              )
-            : null,
+              ),
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // if (!isMobile(context))
-            //   SidebarMainPage(
-            //       dataUser: dataUser, listPrivileges: listPrivileges),
             // MENU PAGE
             Expanded(
               flex: 8,
               child: Column(
                 children: [
-                  Expanded(
-                      flex: 1,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: ColorPalleteLogin.OrangeLightColor,
-                          border: Border(
-                            bottom: BorderSide(width: 1, color: Colors.black),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 20, right: 20),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                height: 45,
-                                child: Image(
-                                  image: AssetImage('assets/logo2.png'),
-                                ),
-                              ),
-                              Container(
-                                child: Row(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child:
-                                              Icon(Icons.help_outline_outlined),
-                                        ),
-                                        Text(
-                                          'Help',
-                                          style: TextStyle(
-                                              color: ColorPalleteLogin
-                                                  .PrimaryColor,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Icon(Icons.notifications_outlined),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      )),
-
                   // buat pindah page
                   MenuPage(),
                 ],
@@ -124,7 +102,7 @@ class MainPage extends StatelessWidget {
   Widget headerSideBar(BuildContext context) => Container();
 }
 
-class SidebarMainPage extends StatelessWidget {
+class SidebarMainPage extends StatefulWidget {
   // const SidebarMainPage({
   //   super.key,
   //   required this.dataUser,
@@ -134,10 +112,15 @@ class SidebarMainPage extends StatelessWidget {
   const SidebarMainPage({super.key});
 
   @override
+  State<SidebarMainPage> createState() => _SidebarMainPageState();
+}
+
+class _SidebarMainPageState extends State<SidebarMainPage> {
+  @override
   Widget build(BuildContext context) {
     final routeProvider = Provider.of<RouteProvider>(context);
     final authProvider = Provider.of<AuthState>(context);
-
+    routeProvider.buildPriviledges(authProvider.userData.userId!, authProvider.userData.roleId!);
     return Expanded(
         flex: 2,
         child: Container(
@@ -229,24 +212,34 @@ class SidebarMainPage extends StatelessWidget {
                 ),
                 Expanded(
                     flex: 7,
-                    child: Column(
+                    child: routeProvider.isLoading ? Center(child: CircularProgressIndicator(),) 
+                    : Column(
                       children: List.generate(routeProvider.sidebarMenu.length,
                           (index) {
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: 4.0),
-                          child: Container(
-                            color: routeProvider.selectedMenuIndex == index
-                                ? Colors.white
-                                : ColorPalleteLogin.PrimaryColor,
-                            child: Center(
-                              child: Text(
-                                '${routeProvider.sidebarMenu[index].privilegesName!.toCapitalized()}',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: routeProvider.selectedMenuIndex == index
-                                    ?  ColorPalleteLogin.PrimaryColor 
-                                    : Colors.white ,
-                                    fontSize: fontSizeBody),
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Provider.of<RouteProvider>(context, listen: false).selectMenu = index;
+                              Navigator.of(context).pop();
+                            },
+                            child: Container(
+                              color: routeProvider.selectedMenuIndex == index
+                                  ? Colors.white
+                                  : ColorPalleteLogin.PrimaryColor,
+                              child: Center(
+                                child: Text(
+                                  '${routeProvider.sidebarMenu[index].privilegesName!.toCapitalized()}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          routeProvider.selectedMenuIndex == index
+                                              ? ColorPalleteLogin.PrimaryColor
+                                              : Colors.white,
+                                      fontSize: fontSizeBody,
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             ),
                           ),
@@ -259,9 +252,6 @@ class SidebarMainPage extends StatelessWidget {
                     onTap: () {
                       // logout
                       authProvider.logout();
-                      // keluar dari page ini pindah ke login
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (BuildContext context) => LoginTablet()));
                     },
                     child: Row(
                       children: [
@@ -287,18 +277,29 @@ class SidebarMainPage extends StatelessWidget {
 }
 
 // SIDE MENU
-class MenuPage extends StatelessWidget {
+class MenuPage extends StatefulWidget {
   const MenuPage({
     super.key,
   });
 
   @override
+  State<MenuPage> createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<MenuPage> {
+  @override
   Widget build(BuildContext context) {
+    RouteProvider providerRoute = Provider.of<RouteProvider>(context);
+    AuthState providerAuth = Provider.of<AuthState>(context);
     return Expanded(
       flex: 8,
       child: Container(
         decoration: BoxDecoration(color: Colors.grey[100]),
-        child: HistoryAllProductPage(),
+        child: providerRoute.isLoading || providerRoute.sidebarMenu.isEmpty
+        ? Center(
+          child: Text('Please Wait , Still Loading Page'),
+        )
+        : providerRoute.getPage() ,
       ),
     );
   }
