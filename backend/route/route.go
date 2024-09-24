@@ -171,7 +171,7 @@ func Init() *echo.Echo {
 	e.POST("/products/add", controller.InsertProductDetails)
 	e.PUT("/products/edit/:product_id", controller.UpdateProductDetails)
 
-	e.GET("/promos/type/all", controller.GetAllPromoType)
+	e.GET("/promos/type/all/:limit/:offset", controller.GetAllPromoType)
 	e.POST("/promos/type/add", controller.InsertPromoType)
 	e.GET("/promos/:promo_id", controller.GetPromoByID)
 	e.GET("/promos/last", controller.GetLastPromo)
@@ -203,6 +203,9 @@ func Init() *echo.Echo {
 	e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateStockInSubtractStock)
 
 	// Owner 
+	e.GET("/locations/all", controller.GetAllLocation)
+	e.GET("/locations/province/all", controller.GetAllProvinces)
+	e.GET("/locations/cities/all/:province", controller.GetAllCities)
 	e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
 	e.GET("/store_warehouses/type/:sw_type/:sw_name_address/:limit/:offset", controller.GetAllStoreWarehouseFilter)
 	e.GET("/store_warehouses/:user_id/:role_id", controller.GetStoreWarehouseByUIDRID)

@@ -800,7 +800,8 @@ e.POST("/store_warehouses/add", controller.InsertStoreWarehouse)
     "store_warehouse_type": "STORE", // STORE || WAREHOUSE
     "store_warehouse_name": "Toko ABC",
     "store_warehouse_address": "Jl. Jeruk Busuk No. 0, Surabaya",
-    "store_warehouse_phone_number": "081555666888"
+    "store_warehouse_phone_number": "081555666888",
+    "location_id": 256
 }
 
 // Mengubah data store warehouse
@@ -808,7 +809,8 @@ e.PUT("/store_warehouses/edit/:sw_id", controller.UpdateStoreWarehouse)
 {
     "store_warehouse_name": "Toko Tip",
     "store_warehouse_address": "Jl. Jeruk Busuk No. 12, Surabaya",
-    "store_warehouse_phone_number": "081555666886"
+    "store_warehouse_phone_number": "081555666886",
+    "location_id": 256
 }
 
 // Mengambil data role. name untuk search
