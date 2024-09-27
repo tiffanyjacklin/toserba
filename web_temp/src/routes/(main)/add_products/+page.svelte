@@ -131,7 +131,7 @@
       // console.log(warehouse);
   }
   async function fetchAllProductsFromSupplier() {
-      const response = await fetch(`http://${$uri}:8888/products/supplier/${supplier_id}`, {
+      const response = await fetch(`http://${$uri}:8888/products/supplier/${supplier_id}/0/0`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
