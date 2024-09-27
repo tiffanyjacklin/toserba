@@ -10,6 +10,7 @@
     import user_pp from "$lib/assets/user.png";
 
     let searchQuery = '';
+    let searchQueryEdit = '';
     $: tampilan = "manage";
     $: showModal = null;
 
@@ -39,6 +40,7 @@
     let store_warehouse_id = 0;
 
     let role_to_assign = [];
+    let filtered_role_to_assign = [];
 
     //ADD NEW PRIVILEGE
     let privilege_name = "";
@@ -341,6 +343,7 @@
       }
 
       role_to_assign = data.data;
+      filtered_role_to_assign = structuredClone(role_to_assign);
 
       console.log("role_to_assign",role_to_assign)
   }
@@ -525,6 +528,14 @@
     } else {
       filtered_users = [...users];
     }
+
+    $: if (searchQueryEdit.length > 0) {
+      filtered_role_to_assign = role_to_assign.filter(item => 
+            item.roles_name.toLowerCase().includes(searchQueryEdit.toLowerCase())
+        );
+    } else {
+      filtered_role_to_assign = [...role_to_assign];
+    }
   
   </script>
   
@@ -551,7 +562,7 @@
         </div>
     </div>
 
-    {#if tampilan != "add_priv"}
+    {#if tampilan == "manage"}
         <div class="w-11/12 flex items-center">
             <div class="relative w-9/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
                 <input 
@@ -653,6 +664,15 @@
           </li>
         </ul>
       </nav>
+    {:else if tampilan == "edit"}
+      <div class="w-11/12 flex items-center">
+          <input 
+              type="text" 
+              id="voice-search" 
+              bind:value={searchQueryEdit}
+              class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+              placeholder="Search..."/>
+      </div>
     {/if}
 
       {#if tampilan == "manage"}
@@ -686,7 +706,7 @@
      {:else if tampilan == "edit"}
      <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
-          {#each role_to_assign as role}
+          {#each filtered_role_to_assign as role}
             <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 pr-4">                        
                 <div class="m-4 w-1/12 flex">
                     <img class="rounded-lg border border-darkGray" src={user_pp} alt="">

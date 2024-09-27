@@ -646,7 +646,7 @@
             </div>
         </div>
 
-        {#if tampilan != "promo_cost"}
+        {#if tampilan == "all_promos"}
         <div class="w-11/12 flex items-center">
             <div class="relative w-9/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
                 <input 
@@ -692,11 +692,56 @@
                     </div>
                   {/if}
             </div>
-            {#if tampilan == "all_promos"}
             <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
                 <button on:click={async() => {await fetchProduk(); showModal = "choose_product"}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Promo</button>
             </div>
-            {/if}
+        </div>
+        {:else if tampilan == "promo_req"}
+        <div class="w-11/12 flex items-center">
+          <div class="relative w-full shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
+              <input 
+                  type="text" 
+                  id="voice-search" 
+                  bind:value={searchQuery}
+                  class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+                  placeholder="Search..."/>
+                  <button on:click={toggleFilter}
+                  type="button" 
+                  class="absolute inset-y-0 end-0 flex items-center pe-3 ">
+                  <i class="fa-solid fa-sliders fa-xl mr-2"></i>
+                </button>
+                {#if showFilter}
+                  <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-fit bg-gray-100 p-4 rounded-lg font-roboto">
+                    <span class="font-bold text-xl mb-1">Promo Period</span>
+
+                    <div class="flex gap-x-4 w-full items-center">
+                      <span class="font-semibold text-lg mb-4">From</span>
+                      <input type="date" bind:value={startDate} class="rounded-xl w-32 mb-4 p-2 border" />
+                      <span class="font-semibold text-lg mb-4">To</span>
+                      <input type="date" bind:value={endDate} class="rounded-xl w-32 mb-4 p-2 border" />
+                    </div>
+                    
+                    <span class="font-bold text-xl mb-1">Promo Type</span>
+                    <div class="grid grid-cols-4 flex w-full flex-wrap">
+                      {#each categories as cat}
+                        <button on:click={() => {category = (category === '' || category !== cat.promo_type_id) ? cat.promo_type_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.promo_type_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cat.promo_type_name}</button>
+                      {/each}
+                    </div>
+                    
+                    <span class="font-bold text-xl mb-1">Status</span>
+                    <div class="grid grid-cols-4 flex w-full flex-wrap">
+                        <button on:click={() => {status = (status === 0 || status !== 0) ? 0 : 0;}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${status === 0 ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Unverified</button>
+                        <button on:click={() => {status = (status === 0 || status !== 1) ? 1 : 0;}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${status === 1 ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Accepted</button>
+                        <button on:click={() => {status = (status === 0 || status !== 2) ? 2 : 0;}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${status === 2 ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Rejected</button>
+                    </div>
+                    
+                    <div class="flex justify-between font-semibold mt-4">
+                        <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { status = ''; startDate = ''; endDate = ''; category = ''; }}>Clear</button>
+                        <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchPromos(); toggleFilter()}}>Apply</button>
+                    </div>
+                  </div>
+                {/if}
+            </div>
         </div>
         {/if}
     {#if tampilan != "promo_cost"}
