@@ -580,7 +580,7 @@ e.GET("/products/supplier/:supplier_id", controller.GetAllProductDetailFromSuppl
 e.GET("/products/store_warehouse/:user_id/:role_id/:product_name_id/:limit/:offset", controller.GetAllProductsInSW) 
 
 // Mengambil data produk berdasarkan lokasi store/warehouse user dan range harga. product id dan product name untuk search
-e.GET("/products/store_warehouse/:user_id/:role_id/:start_price/:end_price/:product_name_id/:limit/:offset", controller.GetAllProductsInSWByPriceRange)
+e.GET("/products/store_warehouse/:user_id/:role_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset", controller.GetAllProductsInSWFilter) 
 
 // Menambah produk baru
 e.POST("/products/add", controller.InsertProductDetails)
