@@ -17,6 +17,7 @@
     // let userId = data.userId;
     // let total_amount = get(get(totalAmount));
     // console.log(total_amount);
+    let cashier_name = 'nama kasir';
     let checkout = [];
     let promos = [];
 
@@ -388,7 +389,32 @@
         }
 
         store_warehouse = data.data;
-        console.log(store_warehouse);
+        // console.log(store_warehouse);
+    }
+    
+    async function getUserName() {
+        let response;
+        response = await fetch(`http://${$uri}:8888/user/${$userId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get username fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch username', data);
+            return;
+        }
+
+        cashier_name = data.data.user_fullname;
+        console.log(data.data.user_fullname);
     }
 
     async function fetchTransaction(transactionId) {
@@ -489,6 +515,10 @@
         }
     }
 
+    onMount(async () => {
+        await getUserName();
+    });
+
     
 </script>
 
@@ -497,7 +527,7 @@
     <div class="w-1/2 h-full flex flex-col">
         <div class="flex my-2 mx-8">
             <button on:click={() => goto(`/session_main`)} class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Back</button>
-            <button class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-user mr-2"></i>Budi</button>
+            <button class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-user mr-2"></i>{cashier_name}</button>
         </div>
 
         <hr class="border-2 border-darkGray mx-auto w-11/12 mb-2">
