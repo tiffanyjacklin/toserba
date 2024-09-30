@@ -1,5 +1,3 @@
-import 'dart:collection';
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/FetchApi/TransferNote+Delivery.dart';
@@ -9,7 +7,6 @@ import 'package:flutter_app_all/Model/DeliveryTransferNote.dart'
     as deliveryTrasnfer;
 import 'package:flutter_app_all/Model/StockTransferNotesWarehouse.dart'
     as transfer;
-import 'package:flutter_app_all/Page/Store%20Inventory/product_page.dart';
 import 'package:flutter_app_all/TableTemplate/TableSuratJalan.dart';
 import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
@@ -48,8 +45,6 @@ class StockTransferNotesPage extends StatefulWidget {
 }
 
 class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
-  final NumberPaginatorController _controller = NumberPaginatorController();
-  var _currentPage = 1;
   TextEditingController controllerSearch = TextEditingController();
 
   @override
@@ -606,12 +601,6 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
               SizedBox(
                 height: 20,
               ),
-
-              // pagination nya
-
-              // list tiles view
-
-              // making self
             ],
           ),
         ),
@@ -621,7 +610,7 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
 }
 
 class StockTransferNotesChild extends StatelessWidget {
-  transfer.Data dataStockTransfer;
+  final transfer.Data dataStockTransfer;
   StockTransferNotesChild({
     required this.dataStockTransfer,
     super.key,
@@ -787,7 +776,7 @@ class StockTransferNotesChild extends StatelessWidget {
 }
 
 class CreateDeliveryOrderPopup extends StatefulWidget {
-  int noteId;
+  final int noteId;
   final controllerAdditional = TextEditingController();
 
   // list buat simpan table yg ada
@@ -1238,7 +1227,7 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
 }
 
 class StockTransferNotePopup extends StatefulWidget {
-  transfer.Data dataTransferNote;
+  final transfer.Data dataTransferNote;
 
   StockTransferNotePopup({
     required this.dataTransferNote,
@@ -1410,7 +1399,6 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                     ],
                   ),
 
-                  // action button (ini misal belum ke sent)
                   // Action Button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1463,13 +1451,13 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
 }
 
 class DeliveryOrderView extends StatefulWidget {
-  deliveryTrasnfer.Data dataDelivery;
+  final deliveryTrasnfer.Data dataDelivery;
   DeliveryOrderView({
     required this.dataDelivery,
     super.key,
   });
 
-  ScreenshotController controllerPrintOrder = ScreenshotController();
+  final ScreenshotController controllerPrintOrder = ScreenshotController();
   var isOpen = false;
 
   @override
@@ -1621,7 +1609,6 @@ class _DeliveryOrderViewState extends State<DeliveryOrderView> {
 
 class TableStockCardTransferNotes extends StatelessWidget {
   List<stock.Data> listStockCard = List.empty();
-  var size = 14;
   TableStockCardTransferNotes({
     required this.listStockCard,
     super.key,
@@ -1805,8 +1792,8 @@ class TableStockCardTransferNotes extends StatelessWidget {
 }
 
 class ProductDetailsChild extends StatelessWidget {
-  String judul;
-  String data;
+  final String judul;
+  final String data;
 
   ProductDetailsChild({
     this.judul = '',
