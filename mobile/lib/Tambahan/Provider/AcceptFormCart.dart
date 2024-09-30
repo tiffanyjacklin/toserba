@@ -50,12 +50,7 @@ class AcceptFormCart extends ChangeNotifier {
 
   // submit the cart
   Future<void> submit(String notes) async {
-    //   // panggil lah semua api untuk post + put update
-    // _InsertDeliveryOrderDetails(noteId, items, listControllerInput).then(
-    //       (result) => {
-    //             print('selesai insert ==='),
-    //             _UpdateDeliveryOrderDetails(result.first.deliveryOrderId!, 1, notes)
-    //           });
+
   }
 
   Future<void> _fetchAccepted() async {
@@ -64,7 +59,8 @@ class AcceptFormCart extends ChangeNotifier {
     // stock card minus (alternative solution)
   }
 
-  Future<bool> _fetchAcceptOrder(int deliveryOrder) async {
+  // buat taruh notes
+  Future<bool> fetchAcceptOrder(int deliveryOrder) async {
     final userId = 1;
 
     final link =

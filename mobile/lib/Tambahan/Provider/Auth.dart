@@ -38,13 +38,17 @@ class AuthState extends ChangeNotifier{
     _roleId = roleId;
   }
 
+  void setDisplayLoginPage(bool log){
+    displayLoginPage = log;
+    notifyListeners();
+  }
+
   String get userId{
     return _userId;
   }
 
-  void setDisplayLoginPage(bool log){
-    displayLoginPage = log;
-    notifyListeners();
+  String get roleId{
+    return _roleId;
   }
 
   Data get userData{

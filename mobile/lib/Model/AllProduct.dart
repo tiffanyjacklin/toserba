@@ -1,13 +1,15 @@
 class FetchAllProducts {
   int? status;
   String? message;
+  int? totalRows;
   List<Data>? data;
 
-  FetchAllProducts({this.status, this.message, this.data});
+  FetchAllProducts({this.status, this.message, this.totalRows, this.data});
 
   FetchAllProducts.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
+    totalRows = json['total_rows'];
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
@@ -20,6 +22,7 @@ class FetchAllProducts {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['status'] = this.status;
     data['message'] = this.message;
+    data['total_rows'] = this.totalRows;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -31,8 +34,13 @@ class Data {
   ProductDetails? productDetails;
   ProductCategories? productCategories;
   Suppliers? suppliers;
+  StockOpname? stockOpname;
 
-  Data({this.productDetails, this.productCategories, this.suppliers});
+  Data(
+      {this.productDetails,
+      this.productCategories,
+      this.suppliers,
+      this.stockOpname});
 
   Data.fromJson(Map<String, dynamic> json) {
     productDetails = json['ProductDetails'] != null
@@ -43,6 +51,9 @@ class Data {
         : null;
     suppliers = json['Suppliers'] != null
         ? new Suppliers.fromJson(json['Suppliers'])
+        : null;
+    stockOpname = json['StockOpname'] != null
+        ? new StockOpname.fromJson(json['StockOpname'])
         : null;
   }
 
@@ -56,6 +67,9 @@ class Data {
     }
     if (this.suppliers != null) {
       data['Suppliers'] = this.suppliers!.toJson();
+    }
+    if (this.stockOpname != null) {
+      data['StockOpname'] = this.stockOpname!.toJson();
     }
     return data;
   }
@@ -72,6 +86,7 @@ class ProductDetails {
   int? sellPrice;
   String? expiryDate;
   int? minStock;
+  bool? checkStock;
   int? productStock;
   String? productUnit;
   String? productTimestamp;
@@ -89,6 +104,7 @@ class ProductDetails {
       this.sellPrice,
       this.expiryDate,
       this.minStock,
+      this.checkStock,
       this.productStock,
       this.productUnit,
       this.productTimestamp,
@@ -106,6 +122,7 @@ class ProductDetails {
     sellPrice = json['sell_price'];
     expiryDate = json['expiry_date'];
     minStock = json['min_stock'];
+    checkStock = json['check_stock'];
     productStock = json['product_stock'];
     productUnit = json['product_unit'];
     productTimestamp = json['product_timestamp'];
@@ -125,6 +142,7 @@ class ProductDetails {
     data['sell_price'] = this.sellPrice;
     data['expiry_date'] = this.expiryDate;
     data['min_stock'] = this.minStock;
+    data['check_stock'] = this.checkStock;
     data['product_stock'] = this.productStock;
     data['product_unit'] = this.productUnit;
     data['product_timestamp'] = this.productTimestamp;
@@ -178,6 +196,67 @@ class Suppliers {
     data['supplier_name'] = this.supplierName;
     data['supplier_phone_number'] = this.supplierPhoneNumber;
     data['supplier_address'] = this.supplierAddress;
+    return data;
+  }
+}
+
+class StockOpname {
+  int? stockOpnameId;
+  int? productDetailId;
+  String? productName;
+  String? productCode;
+  String? batch;
+  String? expiredDate;
+  int? expectedStock;
+  int? actualStock;
+  String? unitType;
+  String? timestamp;
+  int? storeWarehouseId;
+  String? sectionPlacement;
+
+  StockOpname(
+      {this.stockOpnameId,
+      this.productDetailId,
+      this.productName,
+      this.productCode,
+      this.batch,
+      this.expiredDate,
+      this.expectedStock,
+      this.actualStock,
+      this.unitType,
+      this.timestamp,
+      this.storeWarehouseId,
+      this.sectionPlacement});
+
+  StockOpname.fromJson(Map<String, dynamic> json) {
+    stockOpnameId = json['stock_opname_id'];
+    productDetailId = json['product_detail_id'];
+    productName = json['product_name'];
+    productCode = json['product_code'];
+    batch = json['batch'];
+    expiredDate = json['expired_date'];
+    expectedStock = json['expected_stock'];
+    actualStock = json['actual_stock'];
+    unitType = json['unit_type'];
+    timestamp = json['timestamp'];
+    storeWarehouseId = json['store_warehouse_id'];
+    sectionPlacement = json['section_placement'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['stock_opname_id'] = this.stockOpnameId;
+    data['product_detail_id'] = this.productDetailId;
+    data['product_name'] = this.productName;
+    data['product_code'] = this.productCode;
+    data['batch'] = this.batch;
+    data['expired_date'] = this.expiredDate;
+    data['expected_stock'] = this.expectedStock;
+    data['actual_stock'] = this.actualStock;
+    data['unit_type'] = this.unitType;
+    data['timestamp'] = this.timestamp;
+    data['store_warehouse_id'] = this.storeWarehouseId;
+    data['section_placement'] = this.sectionPlacement;
     return data;
   }
 }

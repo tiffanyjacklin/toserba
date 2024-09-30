@@ -660,7 +660,7 @@ class _DetailProductInventoryTakingPopupState extends State<DetailProductInvento
 
               SubTitleText(
                 judul: 'Location',
-                data: widget.data.sectionPlacement!,
+                data: widget.data.sectionPlacement! == '' ? '-' : widget.data.sectionPlacement!,
               ),
 
               SizedBox(
@@ -1319,7 +1319,7 @@ class TableInventoryTaking extends StatelessWidget {
                           // >> note : BELUM DI LIMIT
                           child: TextField(
                             onChanged: (value) {
-                              if(value != null || value != ''){
+                              if(value != null && value != ''){
                               providerInventory.addToCart(startIndex + index,
                                   quantity:
                                       int.parse(controllerQty[index].text));

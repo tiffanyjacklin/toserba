@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +9,13 @@ import 'package:flutter_app_all/Model/DeliveryTransferNote.dart'
     as deliveryTrasnfer;
 import 'package:flutter_app_all/Model/StockTransferNotesWarehouse.dart'
     as transfer;
+import 'package:flutter_app_all/Page/Store%20Inventory/product_page.dart';
 import 'package:flutter_app_all/TableTemplate/TableSuratJalan.dart';
+import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
+import 'package:flutter_app_all/Tambahan/Provider/TransferNotesProvider.dart';
 import 'package:flutter_app_all/Template.dart';
+import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
@@ -20,6 +25,18 @@ import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
 
 
 
+
+class TransferNotesPage extends StatelessWidget {
+  const TransferNotesPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+  return ChangeNotifierProvider(
+      create: (context) => TransferNotesProvider(context.read<AuthState>().userData.storeWarehouseId!),
+      child: StockTransferNotesPage(),
+    );
+  }
+}
 
 
 class StockTransferNotesPage extends StatefulWidget {
@@ -33,9 +50,12 @@ class StockTransferNotesPage extends StatefulWidget {
 class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
   final NumberPaginatorController _controller = NumberPaginatorController();
   var _currentPage = 1;
+  TextEditingController controllerSearch = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+  TransferNotesProvider provider =
+        Provider.of<TransferNotesProvider>(context);
     return Padding(
       padding: EdgeInsets.all(20.0),
       child: Container(
@@ -60,87 +80,528 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
               SizedBox(
                 height: 20,
               ),
+
+
               // search bar
               Container(
-                width: MediaQuery.of(context).size.width * 0.70,
-                child: CupertinoSearchTextField(
-                    // trailing: Icon(Icons.abc),
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: TextField(
+                  style: TextStyle(
+                    fontSize: fontSizeBody,
+                  ),
+                  controller: controllerSearch,
+                  onSubmitted: (value) {
+                    provider.fetchTransferNotes(context.read<AuthState>().userData.storeWarehouseId!, search: controllerSearch.text, isSearch: true);
+                  },
+                  decoration: InputDecoration(
+                    fillColor: Colors.white,
+                    focusColor: ColorPalleteLogin.OrangeColor,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: const BorderSide(
+                        color: Colors.grey,
+                        width: 2.0,
+                      ),
                     ),
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          provider.clickFilter(
+                              context.read<AuthState>().userData.storeWarehouseId!, controllerSearch.text);
+                        },
+                        icon: Icon(Icons.filter_list)),
+                  ),
+                ),
               ),
 
               SizedBox(
                 height: 20,
               ),
 
-              Container(
-                width: MediaQuery.of(context).size.width * 0.70,
-                child: NumberPaginator(
-                  // by default, the paginator shows numbers as center content
-                  numberPages: 5,
-                  onPageChange: (int index) {
-                    setState(() {
-                      _currentPage =
-                          index; // _currentPage is a variable within State of StatefulWidget
-                    });
-                  },
-                  // show/hide the prev/next buttons
-                  showPrevButton: true,
-                  showNextButton: true, // defaults to true
-                  // custom content of the prev/next buttons, maintains their behavior
-                  nextButtonBuilder: (context) => TextButton(
-                    onPressed: _controller.currentPage > 0
-                        ? () => _controller.prev()
-                        : null, // _controller must be passed to NumberPaginator
-                    child: const Row(
-                      children: [
-                        Text("Next"),
-                        Icon(Icons.chevron_right),
-                      ],
-                    ),
-                  ),
-                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
-                  prevButtonBuilder: (context) => TextButton(
-                    onPressed: _controller.currentPage > 0
-                        ? () => _controller.prev()
-                        : null, // _controller must be passed to NumberPaginator
-                    child: const Row(
-                      children: [
-                        Icon(Icons.chevron_left),
-                        Text("Previous"),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              // paginate
+              provider.isFiltering
+                  ? Container(
+                      height: 350,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Center(
+                              child: Container(
+                                // height: 200,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 4,
+                                          color: Colors.grey,
+                                          offset: Offset(0, 1)),
+                                    ]),
+                                width: MediaQuery.of(context).size.width *
+                                    0.8 *
+                                    0.98,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            provider.resetFilter();
+                                          },
+                                          child: Text(
+                                            'Reset',
+                                            style: TextStyle(
+                                                color: ColorPalleteLogin
+                                                    .OrangeDarkColor,
+                                                fontSize: fontSizeBody,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
 
+                                      // order
+                                      Text(
+                                        'Status Verified',
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Wrap(
+                                        children: List.generate(
+                                            provider.listStatusVerify.length, (index) {
+                                          return Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 2),
+                                            child: provider.listStatusVerify[index]
+                                                        ==
+                                                    provider.statusVerify
+                                                ? OutlinedButton(
+                                                    onPressed: () {
+                                                      provider.statusVerify = '';
+                                                    },
+                                                    child: Text(
+                                                      provider.listStatusVerify[index],
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              fontSizeBody,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: ColorPalleteLogin
+                                                              .OrangeDarkColor),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                  )
+                                                : OutlinedButton(
+                                                    onPressed: () {
+                                                      provider.statusVerify = provider.listStatusVerify[index];
+                                                    },
+                                                    child: Text(
+                                                      provider.listStatusVerify[index],
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              fontSizeBody,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: Colors
+                                                                .grey[300]!),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor,
+                                                        backgroundColor:
+                                                            Colors.grey[300]),
+                                                  ),
+                                          );
+                                        }),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
 
-              Container(
-                // height: 400,
-                child: FutureBuilder<List<transfer.Data>>(
-                    future: fetchTransferNotes(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        // get error
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text('error fetch'),
-                          );
-                        } else {
-                          return ListView.builder(
+                                      // sorting
+                                      Text(
+                                        'Status Send',
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Wrap(
+                                        children: List.generate(
+                                            provider.listStatusSend.length, (index) {
+                                          return Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 2),
+                                            child: provider.listStatusSend[index] ==
+                                                    provider.statusSend
+                                                ? OutlinedButton(
+                                                    onPressed: () {
+                                                      provider.statusSend = '';
+                                                    },
+                                                    child: Text(
+                                                      provider.listStatusSend[index],
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              fontSizeBody,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: ColorPalleteLogin
+                                                              .OrangeDarkColor),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                  )
+                                                : OutlinedButton(
+                                                    onPressed: () {
+                                                      provider.statusSend = provider.listStatusSend[index];
+                                                    },
+                                                    child: Text(
+                                                      provider.listStatusSend[index],
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              fontSizeBody,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: Colors
+                                                                .grey[300]!),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor,
+                                                        backgroundColor:
+                                                            Colors.grey[300]),
+                                                  ),
+                                          );
+                                        }),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+
+                                      // time period
+                                      Text(
+                                        'Time Period',
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12.0),
+                                        child: Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          spacing: 10.0,
+                                          children: [
+                                            Text(
+                                              'From',
+                                              style: TextStyle(
+                                                  fontSize: fontSizeBody,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () async {
+                                                final DateTime? dateTime =
+                                                    await showDatePicker(
+                                                  context: context,
+                                                  initialDate: provider.rangeDate.first,
+                                                  firstDate: DateTime(2000),
+                                                  lastDate: DateTime.now(),
+                                                );
+
+                                                if (dateTime != null) {
+                                                  provider.setRangeDate(
+                                                      dateTime, true);
+                                                }
+                                              },
+                                              child: Container(
+                                                width: 160,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.black,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.0),
+                                                ),
+                                                child: Center(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        Text(
+                                                          '${DateFormat('dd/MM/yyyy').format(provider.rangeDate.first.toLocal())}',
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  fontSizeBody,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Icon(
+                                                          Icons
+                                                              .date_range_outlined,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              'To',
+                                              style: TextStyle(
+                                                  fontSize: fontSizeBody,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () async {
+                                                final DateTime? dateTime =
+                                                    await showDatePicker(
+                                                  context: context,
+                                                  initialDate: provider.rangeDate.last,
+                                                  firstDate: provider
+                                                      .rangeDate.last,
+                                                  lastDate: DateTime.now(),
+                                                );
+
+                                                if (dateTime != null) {
+                                                  provider.setRangeDate(
+                                                      dateTime, false);
+                                                }
+                                              },
+                                              child: Container(
+                                                width: 160,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.black,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.0),
+                                                ),
+                                                child: Center(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        Text(
+                                                          '${DateFormat('dd/MM/yyyy').format(provider.rangeDate.last.toLocal())}',
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  fontSizeBody,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Icon(
+                                                          Icons
+                                                              .date_range_outlined,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),       
+                            SizedBox(
+                              height: 5,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : provider.getItemPerPage().isEmpty 
+                      ? Center(
+                        child: Text('Data Tidak Ditemukan', style: TextStyle(fontSize: fontSizeBody),),
+                      )
+                      : Column(
+                          children: [
+                            // paginator
+                            Container(
+                                width: MediaQuery.of(context).size.width * 0.70,
+                                child: NumberPaginator(
+                                  // by default, the paginator shows numbers as center content
+                                  numberPages: provider.getMaxPage(),
+                                  onPageChange: (int index) {},
+                                  controller: provider.paginatorController,
+
+                                  // show/hide the prev/next buttons
+                                  showPrevButton: true,
+                                  showNextButton: true, // defaults to true
+                                  // custom content of the prev/next buttons, maintains their behavior
+                                  nextButtonBuilder: (context) => TextButton(
+                                    onPressed: provider.paginatorController.currentPage <
+                                            provider.getMaxPage() - 1
+                                        ? () => {provider.paginatorController.next()}
+                                        : null, // _controller must be passed to NumberPaginator
+                                    child: const Row(
+                                      children: [
+                                        Text("Next"),
+                                        Icon(Icons.chevron_right),
+                                      ],
+                                    ),
+                                  ),
+                                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                                  prevButtonBuilder: (context) => TextButton(
+                                    onPressed: provider.paginatorController.currentPage > 0
+                                        ? () => provider.paginatorController.prev()
+                                        : null, // _controller must be passed to NumberPaginator
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.chevron_left),
+                                        Text("Previous"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+
+                            // data
+                            ListView.builder(
                             shrinkWrap: true,
-                            itemCount: 3,
+                            itemCount: provider.getItemPerPage().length,
                             itemBuilder: (BuildContext context, int index) {
                               return StockTransferNotesChild(
-                                dataStockTransfer: snapshot.data![index + ((_currentPage-1)*3)],
+                                dataStockTransfer: provider.getItemPerPage()[index],
                               );
                             },
-                          );
-                        }
-                      } else {
-                        return CircularProgressIndicator();
-                      }
-                    }),
-              ),
+                          ),
+                          
+                          ],
+                        ),
+
+              // Container(
+              //   width: MediaQuery.of(context).size.width * 0.70,
+              //   child: NumberPaginator(
+              //     // by default, the paginator shows numbers as center content
+              //     numberPages: 5,
+              //     onPageChange: (int index) {
+              //       setState(() {
+              //         _currentPage =
+              //             index; // _currentPage is a variable within State of StatefulWidget
+              //       });
+              //     },
+              //     // show/hide the prev/next buttons
+              //     showPrevButton: true,
+              //     showNextButton: true, // defaults to true
+              //     // custom content of the prev/next buttons, maintains their behavior
+              //     nextButtonBuilder: (context) => TextButton(
+              //       onPressed: _controller.currentPage > 0
+              //           ? () => _controller.prev()
+              //           : null, // _controller must be passed to NumberPaginator
+              //       child: const Row(
+              //         children: [
+              //           Text("Next"),
+              //           Icon(Icons.chevron_right),
+              //         ],
+              //       ),
+              //     ),
+              //     // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+              //     prevButtonBuilder: (context) => TextButton(
+              //       onPressed: _controller.currentPage > 0
+              //           ? () => _controller.prev()
+              //           : null, // _controller must be passed to NumberPaginator
+              //       child: const Row(
+              //         children: [
+              //           Icon(Icons.chevron_left),
+              //           Text("Previous"),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
+
+
+              // Container(
+              //   // height: 400,
+              //   child: FutureBuilder<List<transfer.Data>>(
+              //       future: fetchTransferNotes(),
+              //       builder: (context, snapshot) {
+              //         if (snapshot.connectionState == ConnectionState.done) {
+              //           // get error
+              //           if (snapshot.hasError) {
+              //             return Center(
+              //               child: Text('error fetch'),
+              //             );
+              //           } else {
+              //             return ListView.builder(
+              //               shrinkWrap: true,
+              //               itemCount: 3,
+              //               itemBuilder: (BuildContext context, int index) {
+              //                 return StockTransferNotesChild(
+              //                   dataStockTransfer: snapshot.data![index + ((_currentPage-1)*3)],
+              //                 );
+              //               },
+              //             );
+              //           }
+              //         } else {
+              //           return CircularProgressIndicator();
+              //         }
+              //       }),
+              // ),
 
               SizedBox(
                 height: 20,

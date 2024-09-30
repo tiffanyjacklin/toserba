@@ -4,49 +4,23 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Model/StockOpname.dart' as opname;
+import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
+import 'package:flutter_app_all/Tambahan/Provider/ProductProvider.dart';
 // import 'package:flutter_app_all/Page/Login/login_tablet.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/AllProduct.dart';
 import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
     as stock;
 import 'package:http/http.dart' as http;
+import 'package:number_paginator/number_paginator.dart';
+import 'package:provider/provider.dart';
 
-Future _fetchProduct(int userId, int roleId) async {
-  final link =
-      'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId';
-
-  // call api
-  final response = await http.get(Uri.parse(link));
-  print('---> response ' + response.statusCode.toString());
-
-  // cek status
-  if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
-    Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
-    print(response.body);
-    if (temp['status'] == 200) {
-      print(temp);
-      return FetchAllProducts.fromJson(temp).data!;
-    } else {
-      return [];
-    }
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    // throw Exception('Login Failed, Try Again');
-    print('fetch failed');
-    return [];
-  }
-}
-
-Future _fetchProductStockOpname(int productId, int storeWarehouseId) async {
+Future <List<opname.Data>> _fetchProductStockOpname(int productId, int storeWarehouseId) async {
   // link api http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/:product_id/:sw_id
   // link localhost -> http://localhost:8888/user/
 
   final link =
-      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$productId/$storeWarehouseId';
+      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$productId/$storeWarehouseId/0/0';
 
   // call api
   final response = await http.get(Uri.parse(link));
@@ -80,8 +54,8 @@ Future _fetchProductStockCard(int productId, int storeWarehouseId) async {
   // link localhost -> http://localhost:8888/user/
 
   final link =
-      'http://leap.crossnet.co.id:8888/products/stock/card/product/store_warehouse/$productId/$storeWarehouseId';
-
+      'http://leap.crossnet.co.id:8888/products/stock/card/product/store_warehouse/$productId/$storeWarehouseId/0/0';
+    
   // call api
   final response = await http.get(Uri.parse(link));
   print('---> response ' + response.statusCode.toString());
@@ -96,8 +70,7 @@ Future _fetchProductStockCard(int productId, int storeWarehouseId) async {
     if (temp['status'] == 200) {
       print(temp);
       return stock.FetchStockCardProductStoreWarehouse.fromJson(temp).data!;
-    } 
-    else {
+    } else {
       return [];
     }
   } else {
@@ -106,6 +79,20 @@ Future _fetchProductStockCard(int productId, int storeWarehouseId) async {
     // throw Exception('Login Failed, Try Again');
     print('fetch failed');
     return [];
+  }
+}
+
+class ProductPages extends StatelessWidget {
+  const ProductPages({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var provider = Provider.of<AuthState>(context);
+    return ChangeNotifierProvider(
+      create: (context) =>
+          ProductProvider(provider.userData.userId!, provider.userData.roleId!),
+      child: ProductPage(),
+    );
   }
 }
 
@@ -119,25 +106,20 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   // manual
   // List<Data> listProduct = FetchAllProduct.fromJson(jsonAllProduct).data!;
-  List<Data> listProduct = [];
+  // List<Data> listProduct = [];
 
   // for searched list
-  List<Data> searchedList = [];
+  // List<Data> searchedList = [];
   TextEditingController controllerSearch = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _fetchProduct(1, 2).then((onValue) => {
-          setState(() {
-            listProduct = onValue;
-            searchedList = listProduct;
-          })
-        });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    int userId = int.parse(context.read<AuthState>().userId);
+    int roleId = int.parse(context.read<AuthState>().roleId);
+    var providerProduct = Provider.of<ProductProvider>(context);
+    var providerAuth = Provider.of<AuthState>(context);
+
+    List<Data> searchedList = providerProduct.getItemPerPage();
     return Padding(
       padding: EdgeInsets.all(20.0),
       child: Container(
@@ -165,18 +147,34 @@ class _ProductPageState extends State<ProductPage> {
               ),
 
               Container(
-                width: MediaQuery.of(context).size.width * 0.70,
-                child: CupertinoSearchTextField(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: TextField(
+                  style: TextStyle(
+                    fontSize: fontSizeBody,
+                  ),
                   controller: controllerSearch,
-                  onChanged: (value) {
-                    print('-->  ${controllerSearch.text} ');
-                    // result 
-                    var result = listProduct.where((data) => data.productDetails!.productName!.toLowerCase().contains(controllerSearch.text.toLowerCase())).toList();
-                    setState(() {
-                      // kerjain search logic
-                      searchedList = result;
-                    });
+                  onSubmitted: (value) {
+                    providerProduct.fetchProduct(userId, roleId,
+                        searchQuery: controllerSearch.text);
                   },
+                  decoration: InputDecoration(
+                    fillColor: Colors.white,
+                    focusColor: ColorPalleteLogin.OrangeColor,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: const BorderSide(
+                        color: Colors.grey,
+                        width: 2.0,
+                      ),
+                    ),
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          providerProduct.clickFilter(
+                              providerAuth.userData.userId!, providerAuth.userData.roleId!, controllerSearch.text);
+                        },
+                        icon: Icon(Icons.filter_list)),
+                  ),
                 ),
               ),
 
@@ -185,12 +183,468 @@ class _ProductPageState extends State<ProductPage> {
               ),
 
               // template listview
-              ...List.generate(
-                (searchedList.length),
-                (index) => ProductTile(dataProduct: searchedList[index]),
-              ),
+              providerProduct.isLoading
+                  ? CircularProgressIndicator()
+                  : providerProduct.isFiltering
+                      ? Container(
+                          height: 350,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 4,
+                                              color: Colors.grey,
+                                              offset: Offset(0, 1)),
+                                        ]),
+                                    width: MediaQuery.of(context).size.width *
+                                        0.8 *
+                                        0.98,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                providerProduct.resetFilter();
+                                              },
+                                              child: Text(
+                                                'Reset',
+                                                style: TextStyle(
+                                                    color: ColorPalleteLogin
+                                                        .OrangeDarkColor,
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
 
-              // Note : Kurang Pagination + desain search
+                                          // order
+                                          Text(
+                                            'Sort By',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Wrap(
+                                            spacing: 10,
+                                            children: List.generate(
+                                                providerProduct.productOrder
+                                                    .length, (index) {
+                                              return Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    horizontal: 2),
+                                                child: providerProduct
+                                                            .filterProduct ==
+                                                        providerProduct
+                                                            .productOrder[index]
+                                                            .sortType
+                                                    ? OutlinedButton(
+                                                        onPressed: () {
+                                                          providerProduct
+                                                              .filterProduct = '';
+                                                        },
+                                                        child: Text(
+                                                          providerProduct
+                                                              .productOrder[
+                                                                  index]
+                                                              .sortType!,
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: ColorPalleteLogin
+                                                                  .OrangeDarkColor),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color: ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                      )
+                                                    : OutlinedButton(
+                                                        onPressed: () {
+                                                          providerProduct
+                                                                  .filterProduct =
+                                                              providerProduct
+                                                                  .productOrder[
+                                                                      index]
+                                                                  .sortType!;
+                                                        },
+                                                        child: Text(
+                                                          providerProduct
+                                                              .productOrder[
+                                                                  index]
+                                                              .sortType!,
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.black),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color:
+                                                                    Colors.grey[
+                                                                        300]!),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .grey[300]),
+                                                      ),
+                                              );
+                                            }),
+                                          ),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+
+                                          // sorting
+                                          Text(
+                                            'Sorting Order',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Wrap(
+                                            spacing: 10,
+                                            children: List.generate(
+                                                providerProduct.ascDec.length,
+                                                (index) {
+                                              return Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    horizontal: 2),
+                                                child: providerProduct
+                                                            .ascDec[index] ==
+                                                        providerProduct
+                                                            .ascDecNow
+                                                    ? OutlinedButton(
+                                                        onPressed: () {},
+                                                        child: Text(
+                                                          providerProduct
+                                                              .ascDec[index],
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: ColorPalleteLogin
+                                                                  .OrangeDarkColor),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color: ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                      )
+                                                    : OutlinedButton(
+                                                        onPressed: () {
+                                                          providerProduct
+                                                                  .ascDecNow =
+                                                              providerProduct
+                                                                      .ascDec[
+                                                                  index];
+                                                        },
+                                                        child: Text(
+                                                          providerProduct
+                                                              .ascDec[index],
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.black),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color:
+                                                                    Colors.grey[
+                                                                        300]!),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .grey[300]),
+                                                      ),
+                                              );
+                                            }),
+                                          ),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+
+                                          // sorting
+                                          Text(
+                                            'Unit Type',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Wrap(
+                                            spacing: 10,
+                                            children: List.generate(
+                                                providerProduct.unitType.length,
+                                                (index) {
+                                              return Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    horizontal: 2),
+                                                child: providerProduct
+                                                            .unitType[index] ==
+                                                        providerProduct.unitNow
+                                                    ? OutlinedButton(
+                                                        onPressed: () {
+                                                          providerProduct
+                                                              .unitNow = '';
+                                                        },
+                                                        child: Text(
+                                                          providerProduct
+                                                              .unitType[index],
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: ColorPalleteLogin
+                                                                  .OrangeDarkColor),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color: ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                      )
+                                                    : OutlinedButton(
+                                                        onPressed: () {
+                                                          providerProduct
+                                                                  .unitNow =
+                                                              providerProduct
+                                                                      .unitType[
+                                                                  index];
+                                                        },
+                                                        child: Text(
+                                                          providerProduct
+                                                              .unitType[index],
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.black),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color:
+                                                                    Colors.grey[
+                                                                        300]!),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .grey[300]),
+                                                      ),
+                                              );
+                                            }),
+                                          ),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+
+                                          // Product Type
+                                          Text(
+                                            'Product Type',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Wrap(
+                                            spacing: 10,
+                                            children: List.generate(
+                                                providerProduct.productType
+                                                    .length, (index) {
+                                              return Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    horizontal: 2),
+                                                child: providerProduct
+                                                            .productType[index]
+                                                            .productCategoryName ==
+                                                        providerProduct.typeNow
+                                                    ? OutlinedButton(
+                                                        onPressed: () {
+                                                          providerProduct
+                                                              .typeNow = '';
+                                                        },
+                                                        child: Text(
+                                                          providerProduct
+                                                              .productType[
+                                                                  index]
+                                                              .productCategoryName!,
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: ColorPalleteLogin
+                                                                  .OrangeDarkColor),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color: ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                      )
+                                                    : OutlinedButton(
+                                                        onPressed: () {
+                                                          providerProduct
+                                                                  .typeNow =
+                                                              providerProduct
+                                                                  .productType[
+                                                                      index]
+                                                                  .productCategoryName!;
+                                                        },
+                                                        child: Text(
+                                                          providerProduct
+                                                              .productType[
+                                                                  index]
+                                                              .productCategoryName!,
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.black),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color:
+                                                                    Colors.grey[
+                                                                        300]!),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .grey[300]),
+                                                      ),
+                                              );
+                                            }),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : providerProduct.getItemPerPage().isEmpty 
+                      ? Center(
+                        child: Text('Data Tidak Ditemukan', style: TextStyle(fontSize: fontSizeBody),),
+                      )
+                      : Column(
+                          children: [
+                            // paginator
+                            Container(
+                                width: MediaQuery.of(context).size.width * 0.70,
+                                child: NumberPaginator(
+                                  // by default, the paginator shows numbers as center content
+                                  numberPages: providerProduct.getMaxPage(),
+                                  onPageChange: (int index) {},
+                                  controller: providerProduct.paginatorController,
+
+                                  // show/hide the prev/next buttons
+                                  showPrevButton: true,
+                                  showNextButton: true, // defaults to true
+                                  // custom content of the prev/next buttons, maintains their behavior
+                                  nextButtonBuilder: (context) => TextButton(
+                                    onPressed: providerProduct.paginatorController.currentPage <
+                                            providerProduct.getMaxPage() - 1
+                                        ? () => {providerProduct.paginatorController.next()}
+                                        : null, // _controller must be passed to NumberPaginator
+                                    child: const Row(
+                                      children: [
+                                        Text("Next"),
+                                        Icon(Icons.chevron_right),
+                                      ],
+                                    ),
+                                  ),
+                                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                                  prevButtonBuilder: (context) => TextButton(
+                                    onPressed: providerProduct.paginatorController.currentPage > 0
+                                        ? () => providerProduct.paginatorController.prev()
+                                        : null, // _controller must be passed to NumberPaginator
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.chevron_left),
+                                        Text("Previous"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+
+                            // this data 
+                            ...List.generate(
+                              (searchedList.length),
+                              (index) =>
+                                  ProductTile(dataProduct: searchedList[index]),
+                            ),
+                          ],
+                        ),
             ],
           ),
         ),
@@ -229,7 +683,7 @@ class ProductTile extends StatelessWidget {
           style: TextStyle(
             color: ColorPalleteLogin.OrangeDarkColor,
             fontWeight: FontWeight.w900,
-            fontSize: 16,
+            fontSize: fontSizeBody,
           ),
         ),
         subtitle: Text(
@@ -237,18 +691,18 @@ class ProductTile extends StatelessWidget {
           style: TextStyle(
             color: ColorPalleteLogin.PrimaryColor,
             fontWeight: FontWeight.bold,
-            fontSize: 16,
+            fontSize: fontSizeBody,
           ),
         ),
         trailing: Column(
           children: [
             Expanded(
               child: Text(
-                'Stock :${this.dataProduct.productDetails!.productStock}',
+                'Stock : ${this.dataProduct.productDetails!.productStock}',
                 style: TextStyle(
                     color: ColorPalleteLogin.PrimaryColor,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16),
+                    fontSize: fontSizeBody),
               ),
             ),
             Expanded(
@@ -261,12 +715,13 @@ class ProductTile extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.remove_red_eye,
-                      size: 20,
+                      size: 24,
                       color: ColorPalleteLogin.OrangeColor,
                     ),
                     Text(
                       'View',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(
+                          color: Colors.white, fontSize: fontSizeBody),
                     ),
                   ],
                 ),
@@ -276,6 +731,7 @@ class ProductTile extends StatelessWidget {
                     barrierDismissible: false,
                     context: context,
                     builder: (context) => ProductDetailsPopup(
+                      storeId: Provider.of<AuthState>(context).userData.storeWarehouseId!,
                       productData: dataProduct,
                     ),
                   );
@@ -292,7 +748,8 @@ class ProductTile extends StatelessWidget {
 // product detail popup
 class ProductDetailsPopup extends StatefulWidget {
   Data productData;
-  ProductDetailsPopup({super.key, required this.productData});
+  int storeId;
+  ProductDetailsPopup({super.key, required this.storeId, required this.productData});
 
   @override
   State<ProductDetailsPopup> createState() => _ProductDetailsPopupState();
@@ -425,7 +882,11 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                       ),
                       children: [
                         FutureBuilder(
-                            future: _fetchProductStockOpname(widget.productData.productDetails!.productDetailId!, 1),
+                            future: _fetchProductStockOpname(
+                                widget.productData.productDetails!
+                                    .productDetailId!,
+                                  widget.storeId
+                                ),
                             builder: (context, snapshot) {
                               // do something
                               if (snapshot.hasData) {
@@ -433,9 +894,10 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                                 return Align(
                                   alignment: Alignment.centerLeft,
                                   child: Container(
-                                    width: MediaQuery.of(context).size.width * 0.5,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.5,
                                     child: TableCurrentStockCardProducts(
-                                        listStockCard: snapshot.data ),
+                                        listStockCard: snapshot.data!),
                                   ),
                                 );
                               } else {
@@ -479,15 +941,15 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                             future: _fetchProductStockCard(
                                 widget.productData.productDetails!
                                     .productDetailId!,
-                                1),
+                                widget.storeId),
                             builder: (context, snapshot) {
                               // do something
                               if (snapshot.hasData) {
                                 // TableStockCardProducts(listStockCard: stock.FetchStockCardProductStoreWarehouse.fromJson(jsonSpinachStockCard).data!);
-                                
+
                                 // jika sudah ada data
                                 return TableStockCardProducts(
-                                    listStockCard: snapshot.data );
+                                    listStockCard: snapshot.data);
                               } else {
                                 // loading
                                 return Center(
@@ -546,8 +1008,6 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
     );
   }
 }
-
-
 
 class TableStockCardProducts extends StatelessWidget {
   List<stock.Data> listStockCard = List.empty();
@@ -749,7 +1209,6 @@ class TableCurrentStockCardProducts extends StatelessWidget {
             1: FlexColumnWidth(4),
             2: FlexColumnWidth(3),
             3: FlexColumnWidth(3),
-
           },
           children: [
             // making the judul
@@ -817,8 +1276,7 @@ class TableCurrentStockCardProducts extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        '${listStockCard[index].expectedStock}',
+                      child: Text('${listStockCard[index].expectedStock}',
                           style: TableContentTextStyle.textStyleBody),
                     ),
                   ),
@@ -876,7 +1334,6 @@ class ProductDetailsChild extends StatelessWidget {
     );
   }
 }
-
 
 Map<String, dynamic> jsonSpinachStockCard = {
   "status": 200,

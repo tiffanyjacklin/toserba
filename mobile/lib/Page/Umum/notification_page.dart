@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Model/NotificationsByRoles';
+import 'package:flutter_app_all/Model/NotificationsByRoles.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:http/http.dart' as http;
 
