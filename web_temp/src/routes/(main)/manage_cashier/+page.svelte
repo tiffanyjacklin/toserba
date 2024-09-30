@@ -8,6 +8,12 @@
     import img_toko from "$lib/assets/store.png";
   
     let storeWarehouse = [];
+    let filtered_sw = [];
+
+    $: limit = 10; 
+    $: offset = 0;
+    $: currentPage = 1; 
+    $: totalRows = 0;
     
     let showModal = false;
     let searchQuery = '';
@@ -49,9 +55,27 @@
             return;
         }
 
+        totalRows = data.data.length;
         storeWarehouse = data.data;
+        filtered_sw = structuredClone(storeWarehouse)
         console.log(storeWarehouse);
         
+    }
+
+    async function goToPage(page) {
+        if (page < 1 || page > Math.ceil(totalRows / limit)) return;
+
+        currentPage = page;
+        offset = (currentPage - 1) * limit;
+        await getAllStoreWarehouse()
+    }
+
+    $: if (searchQuery.length > 0) {
+      filtered_sw = storeWarehouse.filter(item => 
+            item.StoreWarehouses.store_warehouse_name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    } else {
+      filtered_sw = [...storeWarehouse];
     }
 
   </script>
@@ -70,7 +94,7 @@
               placeholder="Search..."/>
          </div>
       <!-- </form> -->
-         {#each storeWarehouse as store}
+         {#each filtered_sw as store}
             {#if store.StoreWarehouses.store_warehouse_type != "WAREHOUSE"}
                 <button on:click={() => navigateToStorePage(store.StoreWarehouses.store_warehouse_id)} class="my-4 p-4 border-2 border-black rounded-xl w-11/12 hover:bg-gray-200">
                     <div class="flex">
@@ -85,44 +109,36 @@
         {/each}
 
   
-       <nav class="my-8 ">
+        <nav class="my-8">
           <ul class="flex items-center -space-x-px h-8 text-sm">
+            {#if totalRows !== 0}
             <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
                 <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-                 </svg>
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                </svg>
                 Previous
               </a>
             </li>
-    
+            {/if}
+        
+            <!-- Pagination Links -->
+            {#each Array(Math.ceil(totalRows / limit)) as _, i}
+              <li>
+                <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+              </li>
+            {/each}
+        
+            {#if totalRows !== 0}
             <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-            </li>
-           
-            <li>
-              <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
                 Next
                 <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                 </svg>
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
               </a>
             </li>
+             {/if}
           </ul>
         </nav>
        

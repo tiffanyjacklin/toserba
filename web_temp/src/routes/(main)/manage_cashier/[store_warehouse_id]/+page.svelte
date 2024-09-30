@@ -13,8 +13,16 @@
 
     $: tampilan = "session"
     let searchQuery = '';
+    let searchQueryAll = '';
+    let searchQueryTrans = '';
+
+    $: limit = 10; 
+    $: offset = 0;
+    $: currentPage = 1; 
+    $: totalRows = 0;
     
     let sessionNotVerified = [];
+    let filteredSessionsNot = [];
     let all_session = [];
     let filteredSessions = [];
     let transactions = [];
@@ -23,16 +31,6 @@
     let showModal = null; 
     let showModal12 = null; 
     let showTable = false;
-    // let actual_closing_cash = 0;
-    // let actual_difference = 0;
-    // let deposit_money = 0;
-    // let deposit_difference = 0;
-    // let closing_notes = "";
-
-    // $: sessionNotVerified.forEach(item => {
-    //     item["Session"].actual_difference = item["Session"].actual_closing_cash - item["Session"].expected_closing_cash;
-    //     item["Session"].deposit_difference = item["Session"].actual_closing_cash - item["Session"].deposit_money;
-    // });
 
     function toggleTable() {
         showTable = !showTable;
@@ -50,12 +48,6 @@
         const url = `/manage_cashier/${store_warehouse_id}/${transactionId}`;
         goto(url);
     }
-  
-    onMount(async () => {
-      await fetchSessionNotVerified();
-      await fetchTransactions();
-      await fetchAllSWSession();
-    });
   
     async function fetchSessionNotVerified() {
       const response = await fetch(`http://${$uri}:8888/sessions/not_verified`, {
@@ -78,13 +70,13 @@
       }
 
       sessionNotVerified = data.data;
-      filteredSessions = sessionNotVerified;
+      filteredSessionsNot = structuredClone(sessionNotVerified);
     //   filteredSessions = data.data;
-    //  console.log("session",filteredSessions);
+    //  console.log("not",filteredSessionsNot);
    }
     
    async function fetchAllSWSession() {
-      const response = await fetch(`http://${$uri}:8888/sessions/store_warehouse/${store_warehouse_id}/100/0`, {
+      const response = await fetch(`http://${$uri}:8888/sessions/store_warehouse/${store_warehouse_id}/${limit}/${offset}`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'
@@ -103,14 +95,14 @@
          return;
       }
 
-      all_session = data.data;
-    //   filteredSessions = sessionNotVerified;
-    //   filteredSessions = data.data;
-     console.log("all session",all_session);
+    totalRows = data.data.length;
+    all_session = data.data;
+    filteredSessions = structuredClone(all_session);
+    console.log("all session",data);
    }
     
    async function fetchTransactions() {
-      const response = await fetch(`http://${$uri}:8888/transaction/store_warehouse/${store_warehouse_id}/100/0`, {
+      const response = await fetch(`http://${$uri}:8888/transaction/store_warehouse/${store_warehouse_id}/${limit}/${offset}`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'
@@ -129,10 +121,10 @@
          return;
       }
 
+      totalRows = data.total_rows;
       transactions = data.data;
-      filteredTransactions = transactions;
-    //   filteredSessions = data.data;
-     console.log("transaction",filteredTransactions);
+      filteredTransactions = structuredClone(transactions);
+     console.log("transaction",data);
    }
 
    let transactionByID = [];
@@ -198,6 +190,50 @@
         closeModal();
       }
 
+    async function goToPage(page) {
+        if (page < 1 || page > Math.ceil(totalRows / limit)) return;
+
+        currentPage = page;
+        offset = (currentPage - 1) * limit;
+        if (tampilan == "session_all"){
+            await fetchAllSWSession();
+        } else if (tampilan == "transaction"){
+            await fetchTransactions();
+        }
+    }
+
+    $: if (searchQuery.length > 0) {
+        filteredSessionsNot = sessionNotVerified.filter(item => 
+            item.Session.session_id.toString().includes(searchQuery) || 
+            item.Session.user_fullname.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    } else {
+        filteredSessionsNot = [...sessionNotVerified];
+    }
+    
+    $: if (searchQueryAll.length > 0) {
+        filteredSessions = all_session.filter(item => 
+            item.Session.session_id.toString().includes(searchQueryAll) || 
+            item.Session.user_fullname.toLowerCase().includes(searchQueryAll.toLowerCase())
+        );
+    } else {
+        filteredSessions = [...all_session];
+    }
+   
+    $: if (searchQueryTrans.length > 0) {
+        filteredTransactions = transactions.filter(item => 
+            item.Transaction.transaction_id.toString().includes(searchQueryTrans)
+        );
+    } else {
+        filteredTransactions = [...transactions];
+    }
+
+    onMount(async () => {
+      await fetchSessionNotVerified();
+    //   await fetchTransactions();
+    //   await fetchAllSWSession();
+    });
+
   </script>
   
    <div class="mt-[90px] mx-8  mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
@@ -209,77 +245,82 @@
     <div class="w-11/12 my-10">
         <div class="flex">
             {#if tampilan == "session"}
-                <button on:click={() => {tampilan = "session"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
-                <button on:click={() => {tampilan = "session_all"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
-                <button on:click={() => {tampilan = "transaction"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
+                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified();}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
+                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
+                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {:else if tampilan == "session_all"}
-                <button on:click={() => {tampilan = "session"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
-                <button on:click={() => {tampilan = "session_all"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
-                <button on:click={() => {tampilan = "transaction"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
+                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified();}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
+                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
+                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {:else if tampilan == "transaction"}
-                <button on:click={() => {tampilan = "session"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
-                <button on:click={() => {tampilan = "session_all"; tampilan = tampilan;}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
-                <button on:click={() => {tampilan = "transaction"; tampilan = tampilan;}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
+                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified();}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
+                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
+                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {/if}
         </div>    
     </div>
 
-
-      <!-- <form class="flex items-center max-w-lg mx-auto">    -->
          <label for="voice-search" class="sr-only">Search</label>
          <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
+        {#if tampilan == "session"}
           <input 
               type="text" 
               id="voice-search" 
               bind:value={searchQuery}
               class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
               placeholder="Search..."/>
+        {:else if tampilan == "session_all"}
+            <input 
+                type="text" 
+                id="voice-search" 
+                bind:value={searchQueryAll}
+                class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+                placeholder="Search..."/>
+        {:else if tampilan == "transaction"}
+            <input 
+                type="text" 
+                id="voice-search" 
+                bind:value={searchQueryTrans}
+                class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+                placeholder="Search..."/>
+        {/if}
          </div>
-      <!-- </form> -->
 
-      <nav class="my-8 ">
-        <ul class="flex items-center -space-x-px h-8 text-sm">
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-               </svg>
-              Previous
-            </a>
-          </li>
-  
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-          </li>
-         
-          <li>
-            <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              Next
-              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-               </svg>
-            </a>
-          </li>
-        </ul>
-      </nav>
+         <nav class="my-8">
+            <ul class="flex items-center -space-x-px h-8 text-sm">
+              {#if totalRows !== 0}
+              <li>
+                <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                  <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                  </svg>
+                  Previous
+                </a>
+              </li>
+              {/if}
+          
+              <!-- Pagination Links -->
+              {#each Array(Math.ceil(totalRows / limit)) as _, i}
+                <li>
+                  <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+                </li>
+              {/each}
+          
+              {#if totalRows !== 0}
+              <li>
+                <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                  Next
+                  <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                  </svg>
+                </a>
+              </li>
+               {/if}
+            </ul>
+          </nav>
 
       {#if tampilan == "session"}
-        {#each filteredSessions as item}
+        {#each filteredSessionsNot as item}
         <div class="bg-darkGray border-8 border-darkGray rounded-lg w-[96%] my-5">
             <div class=" flex">
                 <div class="w-4/5 p-3 text-darkGray bg-white rounded-tl-lg rounded-bl-lg shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">
@@ -454,7 +495,7 @@
             {/if}
         {/each}
       {:else if tampilan == "session_all"}
-      {#each all_session as item}
+      {#each filteredSessions as item}
         <div class="bg-darkGray border-8 border-darkGray rounded-lg w-[96%] my-5">
             <div class=" flex">
                 <div class="w-4/5 p-3 text-darkGray bg-white rounded-tl-lg rounded-bl-lg shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">
@@ -673,45 +714,37 @@
         </div>
       {/if}
   
-       <nav class="my-8 ">
-          <ul class="flex items-center -space-x-px h-8 text-sm">
+      <nav class="my-8">
+        <ul class="flex items-center -space-x-px h-8 text-sm">
+          {#if totalRows !== 0}
+          <li>
+            <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+              </svg>
+              Previous
+            </a>
+          </li>
+          {/if}
+      
+          <!-- Pagination Links -->
+          {#each Array(Math.ceil(totalRows / limit)) as _, i}
             <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-                 </svg>
-                Previous
-              </a>
+              <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
             </li>
-    
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-            </li>
-           
-            <li>
-              <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                Next
-                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                 </svg>
-              </a>
-            </li>
-          </ul>
-        </nav>
+          {/each}
+      
+          {#if totalRows !== 0}
+          <li>
+            <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              Next
+              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+              </svg>
+            </a>
+          </li>
+           {/if}
+        </ul>
+      </nav>
        
    </div>
