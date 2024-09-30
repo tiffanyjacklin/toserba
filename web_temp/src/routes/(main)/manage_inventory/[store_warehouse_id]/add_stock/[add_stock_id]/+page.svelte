@@ -28,7 +28,7 @@
     $: isSame = true;
 
     async function getAddStocktDetails() {
-        const response = await fetch(`http://${$uri}:8888/orders/supplier/detail/${add_stock_id}`, {
+        const response = await fetch(`http://${$uri}:8888/orders/supplier/detail/${add_stock_id}/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

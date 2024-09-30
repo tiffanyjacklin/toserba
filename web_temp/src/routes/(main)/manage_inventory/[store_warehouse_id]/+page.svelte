@@ -207,6 +207,7 @@
         }
  
         verify_add = data.data;
+        console.log("verify_add : ",verify_add)
     }
     
     async function fetchSubtractVerify() {
@@ -235,7 +236,7 @@
 
         for (let i = 0; i < tmp.length; i++) {
           let ProductDetails = await getProductDetail(tmp[i].product_detail_id)
-          console.log(ProductDetails);
+          // console.log(ProductDetails);
 
             tmp[i].product_name = ProductDetails.product_name;
             tmp[i].product_stock = ProductDetails.product_stock;
@@ -273,7 +274,7 @@
     }
     
     async function getAddStockDetails(add_stock_id) {
-        const response = await fetch(`http://${$uri}:8888/orders/supplier/detail/${add_stock_id}`, {
+        const response = await fetch(`http://${$uri}:8888/orders/supplier/detail/${add_stock_id}/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

@@ -144,7 +144,7 @@
     }
 
     async function getPromoProductId(product_detail_id){
-        const response = await fetch(`http://${$uri}:8888/promos/product/${product_detail_id}`, {
+        const response = await fetch(`http://${$uri}:8888/promos/product/${product_detail_id}/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -203,7 +203,8 @@
                 let quantity = checkout[i].jumlah;
                 let sell_price = promos[index]["ProductDetail"].sell_price;
                 let discount_price = ((promos[index]["ProductDetail"].sell_price)-(checkout[i]["ProductDetails"].sell_price))*quantity;
-                let total_price = (sell_price-discount_price)*quantity;
+                // let total_price = (sell_price-discount_price)*quantity;
+                let total_price = checkout[i]["ProductDetails"].sell_price*quantity;
                 let quantity_free = 0;
                 if (promos[index]["Promo"].promo_type_id == 1){
                     quantity_free = (parseInt(quantity/promos[index]["Promo"].x_amount)*promos[index]["Promo"].y_amount);
@@ -387,7 +388,7 @@
         }
 
         store_warehouse = data.data;
-        // console.log(transaction_detail);
+        console.log(store_warehouse);
     }
 
     async function fetchTransaction(transactionId) {
@@ -416,12 +417,14 @@
         payment_method = data.data.PaymentMethod;
         user = data.data.UserData;
         cashier_id = data.data.UserData.user_id;
+        // console.log("Transaction_Struk : ", transaction_struk)
+        // console.log("cashier id",cashier_id)
     }
 
     async function fetchTransactionDetail(transactionId) {
         let response;
 
-        response = await fetch(`http://${$uri}:8888/transaction/detail/${transactionId}`, {
+        response = await fetch(`http://${$uri}:8888/transaction/detail/${transactionId}/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -448,7 +451,7 @@
     async function fetchAllProduct() {
         let response;
 
-        response = await fetch(`http://${$uri}:8888/products`, {
+        response = await fetch(`http://${$uri}:8888/products/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -519,12 +522,14 @@
         </div>
         {:else}
         <div class="select-none	mx-8 bg-white p-3 font-roboto text-lg w-3/5">
+            {#if store_warehouse.length > 0}
             <div class="flex justify-center my-2 uppercase">
-              {store_warehouse.store_warehouse_name}
+              {store_warehouse[0].StoreWarehouses.store_warehouse_name}
             </div>
             <div class="flex justify-center uppercase">
-              {store_warehouse.store_warehouse_address}
+              {store_warehouse[0].StoreWarehouses.store_warehouse_address}
             </div>
+            {/if}
             <div class="text-wrap">
               ==================================================
             </div>
@@ -608,13 +613,13 @@
                   Total item
                 </div>
                 <div class="flex w-1/12 justify-end">
-                  {transaction.transaction_total_item + total_free}
+                  {transaction_struk.transaction_total_item + total_free}
                 </div>
                 <div class="flex w-3/12 justify-end">
       
                 </div>
                 <div class="flex w-3/12 justify-end">
-                  <MoneyConverter value={transaction.transaction_total_price + total_discount} currency={false} decimal={false}></MoneyConverter>
+                  <MoneyConverter value={transaction_struk.transaction_total_price + total_discount} currency={false} decimal={false}></MoneyConverter>
                 </div>
       
             </div>
@@ -696,7 +701,7 @@
                     </div>
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
                         <span class="">Received (Rp)</span>
-                        <MoneyInput bind:value={received} />
+                        <MoneyInput bind:value={received}  />
                         <!-- <input type="text" name="" id="" class="w-4/12 rounded-lg focus:ring-darkGray" bind:value={received} on:input={() => handleChange()}> -->
                     </div>
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
@@ -745,17 +750,17 @@
         <div class="h-2/6 my-8">
             <div class="h-full flex justify-center items-center">
                 {#if tampilan != "awal"}
-                <button on:click={() => {validate(); tampilan = "validasi"; tampilan = tampilan;}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">
                     {#if tampilan == "cash" && (received >=  (get(totalAmount)-member_points)) || tampilan == "qr"}
-                    <span class="text-white text-6xl font-bold">Validate</span>
-                    <i class="fa-regular fa-circle-check fa-5x" style="color: #ffffff;"></i>       
-                    {/if}      
-                </button>
-                    {#if tampilan == "validasi"}   
-                        <span class="text-white text-8xl font-bold">NEXT ORDER</span>
+                        <button on:click={() => {validate(); tampilan = "validasi"; tampilan = tampilan;}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">        
+                            <span class="text-white text-6xl font-bold">Validate</span>
+                            <i class="fa-regular fa-circle-check fa-5x" style="color: #ffffff;"></i>       
+                        </button>
+                    {:else if tampilan == "validasi"}
+                        <button on:click={() => {goto(`/session_main`);}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">        
+                            <span class="text-white text-8xl font-bold">NEXT ORDER</span>
+                        </button>
                     {/if}
                 {/if}
-                
             </div>
         </div>
     </div>
