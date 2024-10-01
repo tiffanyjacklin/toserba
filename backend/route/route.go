@@ -73,7 +73,7 @@ func Init() *echo.Echo {
 	e.GET("/cashier/members/transaction/:member_id", controller.GetTransactionIDByMemberID)
 
 	e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
-	e.GET("/transaction/store_warehouse/:sw_id/:limit/:offset", controller.GetTransactionBySWID)
+	e.GET("/transaction/store_warehouse/:sw_id/:start_date/:end_date/:start_price/:end_price/:transaction_id_user_name/:limit/:offset", controller.GetTransactionBySWID)
 	e.GET("/transaction/user/:user_id/:limit/:offset", controller.GetTransactionByUserID)
 	e.GET("/transaction/last", controller.GetLastTransaction)
 	e.GET("/transaction/:transaction_id_user_name/:limit/:offset", controller.GetAllTransaction)
@@ -150,7 +150,7 @@ func Init() *echo.Echo {
 	e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractStock)
 
 	// Admin
-	e.GET("/sessions/store_warehouse/:sw_id/:limit/:offset", controller.GetSessionBySWID)
+	e.GET("/sessions/store_warehouse/:sw_id/:start_date/:end_date/:sess_id_user_name/:limit/:offset", controller.GetSessionBySWID)
 	e.GET("/sessions/not_verified", controller.GetNotVerifiedSession)
 	e.PUT("/sessions/verify/:session_id", controller.VerifySession)
 
@@ -209,7 +209,7 @@ func Init() *echo.Echo {
 	e.GET("/locations/cities/all/:province", controller.GetAllCities)
 	e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
 	e.GET("/store_warehouses/type/:sw_type/:sw_name_address/:limit/:offset", controller.GetAllStoreWarehouseFilter)
-	e.GET("/store_warehouses/:user_id/:role_id", controller.GetStoreWarehouseByUIDRID)
+	e.GET("/store_warehouses/:user_id/:role_id/:sw_name/:limit/:offset", controller.GetStoreWarehouseByUIDRID)
 	e.GET("/store_warehouses/promos/:promo_id", controller.GetSWIDByPromoID)
 	e.GET("/store_warehouses/:store_warehouse_id", controller.GetStoreWarehouseByID)
 	e.GET("/store_warehouses/name/:sw_name", controller.GetStoreWarehouseByName)
