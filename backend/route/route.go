@@ -73,7 +73,7 @@ func Init() *echo.Echo {
 	e.GET("/cashier/members/transaction/:member_id", controller.GetTransactionIDByMemberID)
 
 	e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
-	e.GET("/transaction/store_warehouse/:sw_id/:start_date/:end_date/:start_price/:end_price/:transaction_id_user_name/:limit/:offset", controller.GetTransactionBySWID)
+	e.GET("/transaction/store_warehouse/:sw_id/:start_date/:end_date/:start_price/:end_price/:user_id/:transaction_id_user_name/:limit/:offset", controller.GetTransactionBySWID)
 	e.GET("/transaction/user/:user_id/:limit/:offset", controller.GetTransactionByUserID)
 	e.GET("/transaction/last", controller.GetLastTransaction)
 	e.GET("/transaction/:transaction_id_user_name/:limit/:offset", controller.GetAllTransaction)
@@ -150,8 +150,8 @@ func Init() *echo.Echo {
 	e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractStock)
 
 	// Admin
-	e.GET("/sessions/store_warehouse/:sw_id/:start_date/:end_date/:sess_id_user_name/:limit/:offset", controller.GetSessionBySWID)
-	e.GET("/sessions/not_verified", controller.GetNotVerifiedSession)
+	e.GET("/sessions/store_warehouse/:sw_id/:start_date/:end_date/:user_id/:sess_id_user_name/:limit/:offset", controller.GetSessionBySWID)
+	e.GET("/sessions/not_verified/:sw_id/:start_date/:end_date/:user_id/:sess_id_user_name/:limit/:offset", controller.GetNotVerifiedSession)
 	e.PUT("/sessions/verify/:session_id", controller.VerifySession)
 
 	e.GET("/products/sorting", controller.GetAllProductSorting)

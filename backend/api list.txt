@@ -217,7 +217,7 @@ e.GET("/cashier/members/transaction/:member_id", controller.GetTransactionIDByMe
 e.GET("/transaction/:transaction_id", controller.GetTransactionByID)
 
 // Mengambil transaksi berdasarkan store ID
-e.GET("/transaction/store_warehouse/:sw_id/:start_date/:end_date/:start_price/:end_price/:transaction_id_user_name/:limit/:offset", controller.GetTransactionBySWID)
+e.GET("/transaction/store_warehouse/:sw_id/:start_date/:end_date/:start_price/:end_price/:user_id/:transaction_id_user_name/:limit/:offset", controller.GetTransactionBySWID)
 
 // Mengambil transaksi berdasarkan user ID
 e.GET("/transaction/user/:user_id/:limit/:offset", controller.GetTransactionByUserID)
@@ -520,10 +520,10 @@ e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractSt
 
 ================================================= Admin =================================================
 // Mengambil data session berdasarkan store ID
-e.GET("/sessions/store_warehouse/:sw_id/:start_date/:end_date/:sess_id_user_name/:limit/:offset", controller.GetSessionBySWID)
+e.GET("/sessions/store_warehouse/:sw_id/:start_date/:end_date/:user_id/:sess_id_user_name/:limit/:offset", controller.GetSessionBySWID)
 
 // Mengambil data yang belum diverifikasi dan actual closing cash != 0
-e.GET("/sessions/not_verified", controller.GetNotVerifiedSession)
+e.GET("/sessions/not_verified/:sw_id/:start_date/:end_date/:user_id/:sess_id_user_name/:limit/:offset", controller.GetNotVerifiedSession)
 
 // Verifikasi Session
 e.PUT("/sessions/verify/:session_id", controller.VerifySession)
