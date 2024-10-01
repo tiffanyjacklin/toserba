@@ -205,6 +205,7 @@ func Init() *echo.Echo {
 
 	// Owner 
 	e.GET("/locations/all", controller.GetAllLocation)
+	e.GET("/locations/:location_id", controller.GetLocationByID)
 	e.GET("/locations/province/all", controller.GetAllProvinces)
 	e.GET("/locations/cities/all/:province", controller.GetAllCities)
 	e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
