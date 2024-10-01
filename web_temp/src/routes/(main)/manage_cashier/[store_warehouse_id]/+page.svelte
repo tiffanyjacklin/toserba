@@ -15,6 +15,12 @@
     let searchQuery = '';
     let searchQueryAll = '';
     let searchQueryTrans = '';
+    let searchQuery_temp = '';
+    let start_date = '';
+    let end_date = '';
+    let start_price = 0;
+    let end_price = 999999999;
+    let showFilter = false;
 
     $: limit = 10; 
     $: offset = 0;
@@ -27,18 +33,36 @@
     let filteredSessions = [];
     let transactions = [];
     let filteredTransactions = [];
+    let cashiers = [];
+    let cashier_name = '';
     
     let showModal = null; 
     let showModal12 = null; 
     let showTable = false;
 
+    function clearVariable(){
+        start_date = '';
+        end_date = '';
+        start_price = '';
+        end_price = '';
+        cashier_name = '';
+        start_price = 0;
+        end_price = 999999999;
+    }
+
     function toggleTable() {
         showTable = !showTable;
+    }
+
+   function toggleFilter() {
+      showFilter = !showFilter;
    }
+
    function handleClick(sessionId) {
       showModal = sessionId;
       fetchTransactionBySession(sessionId);
    }
+   
    function closeModal() {
         showModal = null;
         showModal12 = null;
@@ -48,9 +72,39 @@
         const url = `/manage_cashier/${store_warehouse_id}/${transactionId}`;
         goto(url);
     }
+
+    async function fetchCashiers() {
+        const response = await fetch(`http://${$uri}:8888/user/store_warehouse/${store_warehouse_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error(' session fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch ', data);
+            return;
+        }
+        
+        let tmp = data.data;
+
+        for (let i = 0; i < tmp.length; i++) {
+            if (tmp[i].role_id == 1){
+                cashiers.push(tmp[i])
+            }
+        }
+      console.log(cashiers);
+    }
   
     async function fetchSessionNotVerified() {
-      const response = await fetch(`http://${$uri}:8888/sessions/not_verified`, {
+      const response = await fetch(`http://${$uri}:8888/sessions/not_verified/${store_warehouse_id}/${start_date}/${end_date}/${cashier_name}/${searchQuery}/${limit}/${offset}`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'
@@ -72,11 +126,11 @@
       sessionNotVerified = data.data;
       filteredSessionsNot = structuredClone(sessionNotVerified);
     //   filteredSessions = data.data;
-    //  console.log("not",filteredSessionsNot);
+     console.log("not",filteredSessionsNot);
    }
     
    async function fetchAllSWSession() {
-      const response = await fetch(`http://${$uri}:8888/sessions/store_warehouse/${store_warehouse_id}/${limit}/${offset}`, {
+      const response = await fetch(`http://${$uri}:8888/sessions/store_warehouse/${store_warehouse_id}/${start_date}/${end_date}/${cashier_name}/${searchQueryAll}/${limit}/${offset}`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'
@@ -102,7 +156,7 @@
    }
     
    async function fetchTransactions() {
-      const response = await fetch(`http://${$uri}:8888/transaction/store_warehouse/${store_warehouse_id}/${limit}/${offset}`, {
+      const response = await fetch(`http://${$uri}:8888/transaction/store_warehouse/${store_warehouse_id}/${start_date}/${end_date}/${start_price}/${end_price}/''/${searchQueryTrans}/${limit}/${offset}`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'
@@ -129,7 +183,7 @@
 
    let transactionByID = [];
    async function fetchTransactionBySession(sessionIdnya) {
-      const response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${sessionIdnya}/''/100/0`, {
+      const response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${sessionIdnya}/''/${limit}/${offset}`, {
          method: 'GET',
          headers: {
                'Content-Type': 'application/json'
@@ -211,25 +265,26 @@
         filteredSessionsNot = [...sessionNotVerified];
     }
     
-    $: if (searchQueryAll.length > 0) {
-        filteredSessions = all_session.filter(item => 
-            item.Session.session_id.toString().includes(searchQueryAll) || 
-            item.Session.user_fullname.toLowerCase().includes(searchQueryAll.toLowerCase())
-        );
-    } else {
-        filteredSessions = [...all_session];
+    $: if ((searchQuery_temp !== searchQueryAll) ){
+      console.log(searchQueryAll);
+      fetchAllSWSession();
+      searchQuery_temp = searchQueryAll;
+    } else{
+      searchQuery_temp = '';
+      fetchAllSWSession();
     }
    
-    $: if (searchQueryTrans.length > 0) {
-        filteredTransactions = transactions.filter(item => 
-            item.Transaction.transaction_id.toString().includes(searchQueryTrans)
-        );
-    } else {
-        filteredTransactions = [...transactions];
+    $: if ((searchQuery_temp !== searchQueryTrans) ){
+      console.log(searchQueryTrans);
+      fetchTransactions();
+      searchQuery_temp = searchQueryTrans;
+    } else{
+      searchQuery_temp = '';
     }
 
     onMount(async () => {
-      await fetchSessionNotVerified();
+        fetchCashiers();
+        await fetchSessionNotVerified();
     //   await fetchTransactions();
     //   await fetchAllSWSession();
     });
@@ -245,17 +300,17 @@
     <div class="w-11/12 my-10">
         <div class="flex">
             {#if tampilan == "session"}
-                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified();}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
-                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
-                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
+                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified(); clearVariable()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
+                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
+                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {:else if tampilan == "session_all"}
-                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified();}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
-                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
-                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
+                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
+                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession(); clearVariable()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
+                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {:else if tampilan == "transaction"}
-                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified();}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
-                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
-                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
+                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
+                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
+                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions(); clearVariable()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {/if}
         </div>    
     </div>
@@ -271,18 +326,84 @@
               placeholder="Search..."/>
         {:else if tampilan == "session_all"}
             <input 
-                type="text" 
-                id="voice-search" 
-                bind:value={searchQueryAll}
-                class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                placeholder="Search..."/>
+            type="text" 
+            id="voice-search" 
+            class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+            placeholder="Search by Session ID..."
+            bind:value={searchQueryAll} />          
+            <button on:click={toggleFilter}
+                type="button" 
+                class="absolute inset-y-0 end-0 flex items-center pe-3 ">
+                <i class="fa-solid fa-sliders fa-xl mr-2"></i>
+            </button>
+            {#if showFilter}
+                <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-fit  bg-gray-100 p-4 rounded-lg font-roboto">
+                    <span class="font-bold text-xl mb-1">Join Date Period</span>
+    
+                    <div class="flex gap-x-4 w-full items-center">
+                    <span class="font-semibold text-lg mb-4">From</span>
+                    <input type="date" bind:value={start_date} class="rounded-xl w-32 mb-4 p-2 border" />
+                    <span class="font-semibold text-lg mb-4">To</span>
+                    <input type="date" bind:value={end_date} class="rounded-xl w-32 mb-4 p-2 border" />
+                    </div>
+
+                    <span class="font-bold text-xl mb-1">Cashier</span>
+                    <div class="flex gap-x-4 w-full items-center">
+                        {#each cashiers as cashier}
+                            <button on:click={() => {cashier_name = (cashier_name === '' || cashier_name !== cashier.user_id) ? cashier.user_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${cashier_name === cashier.user_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cashier.user_fullname}</button>
+                        {/each}
+                    </div>
+        
+                    <div class="flex justify-between font-semibold mt-4">
+                        <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { start_date = ""; end_date = ""; cashier_name = ""; }}>Clear</button>
+                        <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {console.log(cashier_name); fetchAllSWSession(); showFilter = false;}}>Apply</button>
+                    </div>
+                </div>
+            {/if}
         {:else if tampilan == "transaction"}
             <input 
-                type="text" 
-                id="voice-search" 
-                bind:value={searchQueryTrans}
-                class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                placeholder="Search..."/>
+            type="text" 
+            id="voice-search" 
+            bind:value={searchQuery}
+            class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+            placeholder="Search..."/>
+            <button on:click={toggleFilter}
+                type="button" 
+                class="absolute inset-y-0 end-0 flex items-center pe-3 ">
+                <i class="fa-solid fa-sliders fa-xl mr-2"></i>
+            </button>
+            {#if showFilter}
+                <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-fit  bg-gray-100 p-4 rounded-lg font-roboto">
+                <span class="font-bold text-xl mb-1">Time Period</span>
+
+                <div class="flex gap-x-4 w-full items-center">
+                    <span class="font-semibold text-lg mb-4">From</span>
+                    <input type="date" bind:value={start_date} class="rounded-xl w-32 mb-4 p-2 border" />
+                    <span class="font-semibold text-lg mb-4">To</span>
+                    <input type="date" bind:value={end_date} class="rounded-xl w-32 mb-4 p-2 border" />
+                </div>
+                {#if (String($sessionId) === String('') || String($sessionId) === String(0))}
+                    <span class="font-bold text-xl mb-1">Cashier</span>
+                    <div class="flex gap-x-4 w-full items-center">
+                    {#each cashiers as cashier}
+                        <button on:click={() => {cashier_name = (cashier_name === '' || cashier_name !== cashier.user_id) ? cashier.user_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${cashier_name === cashier.user_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cashier.user_fullname}</button>
+                    {/each}
+                    </div>
+                {/if}
+                <span class="font-bold text-xl mb-4">Price Range</span>
+                <div class="flex gap-x-4 w-full items-center mt-2">
+                    <span class="font-semibold text-lg ">From</span>
+                    <MoneyInput bind:value={start_price} shadow={false}/>
+                    <span class="font-semibold text-lg ">To</span>
+                    <MoneyInput bind:value={end_price} shadow={false}/>
+                </div>
+
+                <div class="flex justify-between font-semibold mt-4">
+                    <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ""; endDate = ""; cashier_name = ""; startPrice = 0; endPrice = 999999999;}}>Clear</button>
+                    <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchTransactions(); showFilter = false;}}>Apply</button>
+                </div>
+                </div>
+            {/if}
         {/if}
          </div>
 
@@ -701,7 +822,7 @@
                                 <td class="px-6 py-4">
                                     <MoneyConverter value={transaction["Transaction"].transaction_total_price} currency={true} decimal={true}></MoneyConverter>
                                 </td>
-                                <td class="px-6 py-4">{transaction["Transaction"].transaction_user}</td>
+                                <td class="px-6 py-4">{transaction["UserData"].user_fullname}</td>
                                 <td class="py-2">
                                     <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full" on:click={() => navigateToTransaction(transaction["Transaction"].transaction_id)}>View</button>
                                 </td>  

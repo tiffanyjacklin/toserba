@@ -90,7 +90,7 @@
     }
   
   async function fetchSW(){
-        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/''/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -285,6 +285,7 @@
 
         currentPage = page;
         offset = (currentPage - 1) * limit;
+        users = [];
         await fetchUsers()
     }
 

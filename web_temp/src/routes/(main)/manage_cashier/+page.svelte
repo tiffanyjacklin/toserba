@@ -17,6 +17,7 @@
     
     let showModal = false;
     let searchQuery = '';
+    let searchQuery_temp = '';
   
     function closeModal() {
        showModal = false;
@@ -36,7 +37,7 @@
     });
   
     async function getAllStoreWarehouse(){
-        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/${searchQuery}/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -70,12 +71,12 @@
         await getAllStoreWarehouse()
     }
 
-    $: if (searchQuery.length > 0) {
-      filtered_sw = storeWarehouse.filter(item => 
-            item.StoreWarehouses.store_warehouse_name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    } else {
-      filtered_sw = [...storeWarehouse];
+    $: if ((searchQuery_temp !== searchQuery) ){
+      console.log(searchQuery);
+      getAllStoreWarehouse();
+      searchQuery_temp = searchQuery;
+    } else{
+      searchQuery_temp = '';
     }
 
   </script>
