@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/FetchApi/TransferNote+Delivery.dart';
 import 'package:flutter_app_all/TableTemplate/TableSuratJalan.dart';
 import 'package:flutter_app_all/Tambahan/Provider/AcceptFormCart.dart';
+// import 'package:flutter_app_all/Tambahan/Provider/AcceptFormCart.dart';
 import 'package:flutter_app_all/Tambahan/Provider/AcceptOrderDelivery.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +17,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_app_all/Model/DeliveryOrderStore.dart' as deliveryStore;
 import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
+import 'package:http/http.dart' as http;
 
 class DeliveryOrderDetailPopUp extends StatefulWidget {
   deliveryStore.Data dataDelivery;
@@ -264,98 +267,110 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                     ),
                   ),
 
-                  // misal sudah accepted maka ga perlu buat lagi
-                  widget.dataDelivery.statusAccept == 0
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Table Accept Stock form
-                            DeliveryOrderDetailsChild(
-                              judul: 'Accept Stock Form',
-                            ),
-                            // cek button misal udah buka
-                            isFormNotCreated
-                                ? Container(
-                                    // height: 50,
-                                    width: MediaQuery.of(context).size.width *
-                                        0.55 *
-                                        0.45,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            ColorPalleteLogin.OrangeLightColor,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                        ),
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Wrap(
-                                          spacing: 6,
-                                          children: [
-                                            Text(
-                                              '+ Created Accept Stock Form',
-                                              style: TextStyle(
-                                                color: ColorPalleteLogin
-                                                    .PrimaryColor,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          isFormNotCreated = false;
-                                        });
-                                      },
-                                    ),
-                                  )
-                                : ChangeNotifierProvider(
-                                      create: (context) => AcceptFormCart(widget.dataDelivery.deliveryOrderId!, deliveryList.items),
-                                      child: TableAcceptStockForm(),
-                                ),
-                                
-                          ],
-                        )
-                      : Column(),
+                  // // misal sudah accepted maka ga perlu buat lagi
+                  // widget.dataDelivery.statusAccept == 0
+                  //     ? Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           // Table Accept Stock form
+                  //           DeliveryOrderDetailsChild(
+                  //             judul: 'Accept Stock Form',
+                  //           ),
+                  //           // cek button misal udah buka
+                  //           isFormNotCreated
+                  //               ? Container(
+                  //                   // height: 50,
+                  //                   width: MediaQuery.of(context).size.width *
+                  //                       0.55 *
+                  //                       0.45,
+                  //                   child: ElevatedButton(
+                  //                     style: ElevatedButton.styleFrom(
+                  //                       backgroundColor:
+                  //                           ColorPalleteLogin.OrangeLightColor,
+                  //                       shape: RoundedRectangleBorder(
+                  //                         borderRadius:
+                  //                             BorderRadius.circular(10.0),
+                  //                       ),
+                  //                     ),
+                  //                     child: Align(
+                  //                       alignment: Alignment.centerLeft,
+                  //                       child: Wrap(
+                  //                         spacing: 6,
+                  //                         children: [
+                  //                           Text(
+                  //                             '+ Created Accept Stock Form',
+                  //                             style: TextStyle(
+                  //                               color: ColorPalleteLogin
+                  //                                   .PrimaryColor,
+                  //                               fontSize: 14,
+                  //                               fontWeight: FontWeight.bold,
+                  //                             ),
+                  //                           ),
+                  //                         ],
+                  //                       ),
+                  //                     ),
+                  //                     onPressed: () {
+                  //                       setState(() {
+                  //                         isFormNotCreated = false;
+                  //                       });
+                  //                     },
+                  //                   ),
+                  //                 )
+                  //               : ChangeNotifierProvider(
+                  //                   create: (context) => AcceptFormCart(
+                  //                       widget.dataDelivery.deliveryOrderId!,
+                  //                       deliveryList.items),
+                  //                   child: TableAcceptStockForm(),
+                  //                 ),
+                  //         ],
+                  //       )
+                  //     : Column(),
 
                   SizedBox(
                     height: 20,
                   ),
                   // Button Save
-                  Center(
-                    child: Container(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.5,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorPalleteLogin.OrangeLightColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
-                        child: Wrap(
-                          spacing: 12,
-                          children: [
-                            Text(
-                              'Save',
-                              style: TextStyle(
-                                color: ColorPalleteLogin.PrimaryColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Center(
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.55 * 0.5,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorPalleteLogin.OrangeLightColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
                               ),
                             ),
-                          ],
+                            child: Wrap(
+                              spacing: 12,
+                              children: [
+                                Text(
+                                  'Save',
+                                  style: TextStyle(
+                                    color: ColorPalleteLogin.PrimaryColor,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              if(!deliveryList.isAccepted){
+                              // sementara masih close popup
+                              fetchAcceptOrder(widget.dataDelivery.deliveryOrderId!).then((onValue) => {
+                                Navigator.of(context).pop(),
+                              });
+                              }
+                              else{
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          ),
                         ),
-                        onPressed: () {
-                          // sementara masih close popup
-                          Navigator.of(context).pop();
-                        },
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
@@ -385,6 +400,30 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
     // final image = File('${dir!.path}/$name1$time.png');
     // image.writeAsBytes(bytes);
     // await Share.shareXFiles([XFile(image.path)]);
+  }
+
+  Future<bool> fetchAcceptOrder(int deliveryOrder) async {
+    final userId = 1;
+
+    final link =
+        'http://leap.crossnet.co.id:8888/store/orders/delivery/accept/$deliveryOrder/$userId'; // NOTE : diganti nanti kalo udah ada
+
+    // call api
+    final response = await http.put(Uri.parse(link));
+    print('---> response ' + response.statusCode.toString());
+
+    // cek status
+    if (response.statusCode == 200) {
+      // misal oke berati masuk
+      // json
+      Map<String, dynamic> temp = json.decode(response.body);
+      // decode?
+      print(response.body);
+      if (temp['status'] == 200) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

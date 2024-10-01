@@ -41,7 +41,7 @@ class _HistoryAllStockProductPageState
   List<stock.Data> searchedHistoryProduct = [];
 
   // cotnroller
-  final NumberPaginatorController _controller = NumberPaginatorController();
+  // final NumberPaginatorController _controller = NumberPaginatorController();
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -602,24 +602,34 @@ class _HistoryAllStockProductPageState
                                       width: MediaQuery.of(context).size.width *
                                           0.5,
                                       child: NumberPaginator(
-                                        controller: _controller,
-                                        initialPage: provider.currentPage,
+                                        config: NumberPaginatorUIConfig(
+                                          buttonSelectedForegroundColor:
+                                              Colors.white,
+                                          buttonUnselectedForegroundColor:
+                                              Colors.black,
+                                          buttonUnselectedBackgroundColor:
+                                              Colors.white,
+                                          buttonSelectedBackgroundColor:
+                                              Colors.black,
+                                          
+                                        ),
+                                        controller: provider.paginatorController,
+                                        initialPage: provider.paginatorController.currentPage,
                                         // by default, the paginator shows numbers as center content
                                         numberPages:
                                             (provider.totalRow.toDouble() /
                                                     provider.limitPerPage
                                                         .toDouble())
                                                 .ceil(),
-                                        onPageChange: (int index) {
-                                          provider.setCurrentPage(
-                                              _searchController.text, index);
-                                        },
+                                        onPageChange: (int index) {},
+
                                         nextButtonBuilder: (context) =>
                                             TextButton(
-                                          onPressed: provider.currentPage <
-                                                  provider.getMaxPage()
-                                              ? () => provider.increase(
-                                                  _searchController.text)
+                                          onPressed: provider.paginatorController.currentPage <
+                                                  provider.getMaxPage()-1
+                                              ? () => {
+                                                provider.paginatorController.next()
+                                                }
                                               : null, // _controller must be passed to NumberPaginator
                                           child: const Row(
                                             children: [
@@ -631,9 +641,11 @@ class _HistoryAllStockProductPageState
                                         // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
                                         prevButtonBuilder: (context) =>
                                             TextButton(
-                                          onPressed: provider.currentPage > 0
-                                              ? () => provider.decrease(
-                                                  _searchController.text)
+                                          onPressed: provider.paginatorController.currentPage > 0
+                                              ? () => {
+                                                provider.paginatorController.prev()
+                                                }
+
                                               : null, // _controller must be passed to NumberPaginator
                                           child: const Row(
                                             children: [

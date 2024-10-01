@@ -1,13 +1,16 @@
 class FetchDeliveryOrderStore {
   int? status;
   String? message;
+  int? totalRows;
   List<Data>? data;
 
-  FetchDeliveryOrderStore({this.status, this.message, this.data});
+  FetchDeliveryOrderStore(
+      {this.status, this.message, this.totalRows, this.data});
 
   FetchDeliveryOrderStore.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
+    totalRows = json['total_rows'];
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
@@ -20,6 +23,7 @@ class FetchDeliveryOrderStore {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['status'] = this.status;
     data['message'] = this.message;
+    data['total_rows'] = this.totalRows;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }

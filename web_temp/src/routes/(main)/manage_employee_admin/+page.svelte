@@ -13,6 +13,11 @@
     // $: tampilan = "manage";
     $: showModal = null;
 
+    $: limit = 10; 
+    $: offset = 0;
+    $: currentPage = 1; 
+    $: totalRows = 0;
+
     let handled_store = [];
     let users = [];
     $: filtered_users = [];
@@ -80,6 +85,7 @@
           }
       }
       filtered_users = structuredClone(users);
+      totalRows = users.length
       console.log("users",users)
     }
   
@@ -274,6 +280,14 @@
       console.log("role_to_assign",role_to_assign)
   }
 
+  async function goToPage(page) {
+        if (page < 1 || page > Math.ceil(totalRows / limit)) return;
+
+        currentPage = page;
+        offset = (currentPage - 1) * limit;
+        await fetchUsers()
+    }
+
     onMount(async () => {
       await fetchSW();
       await fetchUsers();
@@ -350,64 +364,40 @@
                 <button on:click={() => {showModal = "add_employee"}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Employee</button>
             </div>
         </div>
-         
-        <!-- <div class="w-11/12 my-10">
-            <div class="grid grid-cols-4 gap-x-2 gap-y-4">
-                {#if tampilan == "manage"}
-                    <button on:click={() => {tampilan = "manage"; tampilan = tampilan;}} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
-                {:else}
-                    <button on:click={() => {tampilan = "manage"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
-                {/if}
-                {#if tampilan == "edit"}
-                    <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
-                {:else}
-                    <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
-                {/if}
-            </div>
-        </div> -->
 
-      <nav class="my-8 ">
-        <ul class="flex items-center -space-x-px h-8 text-sm">
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-               </svg>
-              Previous
-            </a>
-          </li>
-  
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-          </li>
-         
-          <li>
-            <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              Next
-              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-               </svg>
-            </a>
-          </li>
-        </ul>
-      </nav>
+        <nav class="my-8">
+          <ul class="flex items-center -space-x-px h-8 text-sm">
+            {#if totalRows !== 0}
+            <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                </svg>
+                Previous
+              </a>
+            </li>
+            {/if}
+        
+            <!-- Pagination Links -->
+            {#each Array(Math.ceil(totalRows / limit)) as _, i}
+              <li>
+                <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+              </li>
+            {/each}
+        
+            {#if totalRows !== 0}
+            <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                Next
+                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+              </a>
+            </li>
+             {/if}
+          </ul>
+        </nav>
 
-      <!-- {#if tampilan == "manage"} -->
         {#each filtered_users as user}
         {#if user.role_id != 5 && user.role_id != 6}
           <button on:click={() => {goto(`/manage_employee_admin/manage/${user.user_id}/${user.role_id}/${user.sw_id}`)}} class="w-[96%] font-roboto">
@@ -426,71 +416,40 @@
           </button>
         {/if}
       {/each}
-     <!-- {:else if tampilan == "edit"}
-     <div class="w-[96%] my-5 font-roboto">
-        <div class="relative overflow-x-auto sm:rounded-lg">
-                <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 pr-4">                        
-                    <div class="m-4 w-1/12 flex">
-                        <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
-                    </div>
-                    <div class="w-9/12 flex flex-col font-semibold text-lg">
-                        <span class="">NAMA ROLE</span>
-                        <span class="">Default XXX</span>
-                    </div>
-                    <div class="w-2/12 flex justify-end items-center">
-                        <button on:click={() => goto(``)} class="p-4 bg-peach text-darkGray rounded-xl flex items-center"><svg width="56" height="54" viewBox="0 0 56 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2.33594 27C2.33594 27 11.6693 9 28.0026 9C44.3359 9 53.6693 27 53.6693 27C53.6693 27 44.3359 45 28.0026 45C11.6693 45 2.33594 27 2.33594 27Z" stroke="#3E4E50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M28.0026 33.75C31.8686 33.75 35.0026 30.7279 35.0026 27C35.0026 23.2721 31.8686 20.25 28.0026 20.25C24.1366 20.25 21.0026 23.2721 21.0026 27C21.0026 30.7279 24.1366 33.75 28.0026 33.75Z" stroke="#3E4E50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                                                       
-                          </button>
-                      </div>
-                </div>
-        </div>
-     </div>
-     {/if} -->
       
   
-       <nav class="my-8 ">
-          <ul class="flex items-center -space-x-px h-8 text-sm">
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-                 </svg>
-                Previous
-              </a>
-            </li>
+     <nav class="my-8">
+      <ul class="flex items-center -space-x-px h-8 text-sm">
+        {#if totalRows !== 0}
+        <li>
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+            <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+            </svg>
+            Previous
+          </a>
+        </li>
+        {/if}
     
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-            </li>
-           
-            <li>
-              <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                Next
-                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                 </svg>
-              </a>
-            </li>
-          </ul>
-        </nav>
+        <!-- Pagination Links -->
+        {#each Array(Math.ceil(totalRows / limit)) as _, i}
+          <li>
+            <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+          </li>
+        {/each}
+    
+        {#if totalRows !== 0}
+        <li>
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+            Next
+            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+            </svg>
+          </a>
+        </li>
+         {/if}
+      </ul>
+    </nav>
        
    </div>
 

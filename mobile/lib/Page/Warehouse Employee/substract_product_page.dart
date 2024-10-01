@@ -1,36 +1,45 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/SeachedSubstractProvider.dart';
 // import 'package:flutter_app_all/Model/AllProduct.dart';
 import 'package:flutter_app_all/Template.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_app_all/Model/StockOpname.dart' as opname;
 import 'package:provider/provider.dart';
+import 'package:flutter_app_all/Model/AllProduct.dart' as product;
 
-// buat api baru
-Future<List<opname.Data>> _fetchStockOpnameSubstract(
-    int storeId, String productName, String batch) async {
-  // NOTE : kalo mau satu kosong bisa di "-" , /products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:category/:product_sort/:asc/:limit/:offset
+Future fetchProduct(int userId, int roleId, String search) async {
+  // ${$userId}/${$roleId}///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}
   final link =
-      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$storeId/$productName/$batch///:expired_date/:category/:product_sort/:asc/0/0';
+      'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId///$search/////10/0';
+
+  print(link);
 
   // call api
   final response = await http.get(Uri.parse(link));
   print('---> response ' + response.statusCode.toString());
-  print(link);
-  
+
   // cek status
   if (response.statusCode == 200) {
+    // misal oke berati masuk
+    // json
     Map<String, dynamic> temp = json.decode(response.body);
-
+    // decode?
+    print(response.body);
     if (temp['status'] == 200) {
       print(temp);
-      return opname.FetchStockOpnameWarehouse.fromJson(temp).data!;
+      return product.FetchAllProducts.fromJson(temp).data!;
     } else {
       return [];
     }
   } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    // throw Exception('Login Failed, Try Again');
     print('fetch failed');
     return [];
   }
@@ -71,9 +80,9 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
   var isInput = false;
   var initialVal = '-';
 
-
   @override
   Widget build(BuildContext context) {
+    final providerAuth = Provider.of<AuthState>(context);
     final providerSubstract = Provider.of<SubstractProductProvider>(context);
     return Padding(
       padding: EdgeInsets.all(20.0),
@@ -180,37 +189,89 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                                 //     },
                                 //   ),
 
-                                child: SearchAnchor(builder:
-                                    (BuildContext context,
-                                        SearchController controller) {
-                                  return SearchBar(
-                                    controller: controllerName,
-                                    keyboardType: TextInputType.name,
-                                    hintText: 'Search Name',
-                                    backgroundColor:
-                                        WidgetStateProperty.all<Color>(
-                                            Colors.white),
-                                    onSubmitted: (value) {
-                                      // lakukan sesuatu
-                                      providerSubstract.searchItemByName(
-                                          controllerName.text);
-                                    },
-                                  );
-                                }, suggestionsBuilder: (BuildContext context,
-                                    SearchController controller) {
-                                  return List<ListTile>.generate(5,
-                                      (int index) {
-                                    final String item = 'item $index';
+                                //   child: SearchAnchor(builder:
+                                //       (BuildContext context,
+                                //           SearchController controller) {
+                                //     return SearchBar(
+                                //       controller: controllerName,
+                                //       keyboardType: TextInputType.name,
+                                //       hintText: 'Search Name',
+                                //       backgroundColor:
+                                //           WidgetStateProperty.all<Color>(
+                                //               Colors.white),
+                                //       onSubmitted: (value) {
+                                //         // lakukan sesuatu
+                                //         providerSubstract.searchItemByName(
+                                //             controllerName.text);
+                                //       },
+                                //     );
+                                //   }, suggestionsBuilder: (BuildContext context,
+                                //       SearchController controller) {
+                                //     return List<ListTile>.generate(5,
+                                //         (int index) {
+                                //       final String item = 'item $index';
+                                //       return ListTile(
+                                //         title: Text(item),
+                                //         onTap: () {
+                                //           setState(() {
+                                //             controller.closeView(item);
+                                //           });
+                                //         },
+                                //       );
+                                //     });
+                                //   }),
+
+                                // child: Autocomplete<product.Data>(
+                                //     fieldViewBuilder: (context,
+                                //             textEditingController,
+                                //             focusNode,
+                                //             onFieldSubmitted) =>
+                                //         TextField(
+                                //           decoration: InputDecoration(
+                                //               hintText: 'Search Name Product'),
+                                //         ),
+                                // optionsBuilder: (TextEditingValue value) async {
+                                //   if(value.text.isEmpty){
+                                //     return [];
+                                //   }
+                                //   else{
+                                //     final suggestion = await fetchProduct(providerAuth.userData.userId!, providerAuth.userData.roleId!, value.text.toLowerCase());
+                                //     providerSubstract.listAutoComplete = suggestion;
+                                //     return suggestion;
+                                //   }
+                                // } ,
+                                //     displayStringForOption: (option) => option.productDetails!.productName!,
+                                //     onSelected: (value) {
+                                //       providerSubstract.searchItemByName(value.toString());
+                                //     },
+                                //     ),
+                                child: TypeAheadField<product.Data>(
+                                  controller: controllerName,
+                                  hideWithKeyboard: false,
+                                  itemBuilder: (context, value) {
                                     return ListTile(
-                                      title: Text(item),
-                                      onTap: () {
-                                        setState(() {
-                                          controller.closeView(item);
-                                        });
-                                      },
+                                      title: Text(value.productDetails!.productName!),
                                     );
-                                  });
-                                }),
+                                  },
+                                  onSelected: (value) {
+                                    controllerName.text = value.productDetails!.productName!;
+                                    providerSubstract
+                                        .searchItemByName(value.productDetails!.productName!);
+                                  },
+                                  suggestionsCallback: (search) async {
+                                    if (search.isEmpty) {
+                                      return [];
+                                    } else {
+                                      final suggestion = await fetchProduct(
+                                          providerAuth.userData.userId!,
+                                          providerAuth.userData.roleId!,
+                                          search.toLowerCase());
+                                      providerSubstract.listAutoComplete =
+                                          suggestion;
+                                      return suggestion;
+                                    }
+                                  },
+                                ),
                               ),
                             ),
 
@@ -218,7 +279,6 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                             BodyPage(name: 'Product Batch and expire date'),
                             Padding(
                               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-                              // >> note : BELUM DI LIMIT
                               child: Container(
                                 width: MediaQuery.of(context).size.width *
                                     0.55 *
@@ -229,7 +289,9 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                                               .suggestionitems.length ==
                                           0
                                       ? '-'
-                                      : providerSubstract.suggestionitems[providerSubstract.itemSuggestionSelectedIndex],
+                                      : providerSubstract.suggestionitems[
+                                          providerSubstract
+                                              .itemSuggestionSelectedIndex],
 
                                   // Down Arrow Icon
                                   icon: const Icon(Icons.keyboard_arrow_down),
@@ -240,7 +302,8 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                                   // After selecting the desired option,it will
                                   // change button value to selected value
                                   onChanged: (val) {
-                                    providerSubstract.itemSuggestionSelectedIndex =
+                                    providerSubstract
+                                            .itemSuggestionSelectedIndex =
                                         providerSubstract.suggestionitems
                                             .indexOf(val);
                                   },
@@ -306,45 +369,55 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
               ),
 
               // save button
-              providerSubstract.cartItems.length != 0? Container(
-                height: 55,
-                width: MediaQuery.of(context).size.width * 0.55 * 0.4,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorPalleteLogin.PrimaryColor,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        side: BorderSide(color: Colors.black)),
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Wrap(
-                      spacing: 6,
-                      children: [
-                        Text(
-                          'Submit',
-                          style: TextStyle(
-                            color: ColorPalleteLogin.OrangeLightColor,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+              providerSubstract.cartItems.length != 0
+                  ? Container(
+                      height: 55,
+                      width: MediaQuery.of(context).size.width * 0.55 * 0.4,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalleteLogin.PrimaryColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              side: BorderSide(color: Colors.black)),
+                        ),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Wrap(
+                            spacing: 6,
+                            children: [
+                              Text(
+                                'Submit',
+                                style: TextStyle(
+                                  color: ColorPalleteLogin.OrangeLightColor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  onPressed: () {
-                    showDialog(
-                        barrierDismissible: false,
-                        context: context,
-                        builder: (context) => SubmitPopup(provider: providerSubstract));
-                  },
-                ),
-              ) : Container(),
+                        onPressed: () {
+                          showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) =>
+                                  SubmitPopup(provider: providerSubstract));
+                        },
+                      ),
+                    )
+                  : Container(),
             ]),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    controllerName.dispose();
   }
 }
 
@@ -355,9 +428,12 @@ class TableSubstractProduct extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<opname.Data> contentTable = context.select((SubstractProductProvider i) => i.cartItems);
-    final List<TextEditingController> controllerInputList = context.select((SubstractProductProvider i) => i.listInputQuantity);
-    final List<TextEditingController> controllerNotes = context.select((SubstractProductProvider i) => i.listNotes);
+    final List<opname.Data> contentTable =
+        context.select((SubstractProductProvider i) => i.cartItems);
+    final List<TextEditingController> controllerInputList =
+        context.select((SubstractProductProvider i) => i.listInputQuantity);
+    final List<TextEditingController> controllerNotes =
+        context.select((SubstractProductProvider i) => i.listNotes);
 
     return Container(
       decoration: BoxDecoration(
@@ -533,7 +609,7 @@ class TableSubstractProduct extends StatelessWidget {
                             controller: controllerNotes[index],
                             keyboardType: TextInputType.text,
                             textAlign: TextAlign.start,
-                            style: TextStyle(fontSize: 12),
+                            style: TableContentTextStyle.textStyleBody,
                             decoration: InputDecoration(
                               contentPadding: EdgeInsets.all(5.0),
                               isDense: true,
@@ -592,8 +668,8 @@ class TableSubstractProduct extends StatelessWidget {
 }
 
 class SubmitPopup extends StatelessWidget {
-  var provider;
-  
+  final provider;
+
   SubmitPopup({
     required this.provider,
     super.key,
@@ -743,8 +819,8 @@ class SubmitPopup extends StatelessWidget {
                         ),
                         onPressed: () {
                           // Note: GANTI
-                          provider.submitSubstract(3, 3).then((onValue){
-                              Navigator.pop(context);
+                          provider.submitSubstract(3, 3).then((onValue) {
+                            Navigator.pop(context);
                           });
                         },
                       ),

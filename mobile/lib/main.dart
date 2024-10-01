@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_all/Page/auth_page.dart';
-import 'package:flutter_app_all/Page/Umum/splash_page.dart';
 import 'package:flutter_app_all/Page/main_page.dart';
 import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';

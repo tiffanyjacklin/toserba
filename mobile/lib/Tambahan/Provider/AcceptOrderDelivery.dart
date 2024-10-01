@@ -2,22 +2,33 @@ import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_all/FetchApi/TransferNote+Delivery.dart';
-
 import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
 // import 'package:flutter_app_all/Model/DeliveryTransferNote.dart';
+import 'package:http/http.dart' as http;
 
 
 class AcceptOrderDeliveryProvider extends ChangeNotifier {
   // init value
   int _deliveryId = 0;
+  bool _isAccepted = true;
 
-  AcceptOrderDeliveryProvider(int deliveryId){
+  AcceptOrderDeliveryProvider(int deliveryId, bool accepted){
     this._deliveryId = deliveryId;
+    this._isAccepted = accepted;
 
     // call the api...
     _fetchDeliveryDetail();
   }
+
+  // >> for filter
+  List<DateTime> rangeDate = [DateTime(2000), DateTime.now()];
+  String _checkStatus = '';
+
+  // >> for paginator
+  int limitPerPage = 4;
+  int currentPage = 0;
+
 
    /// Internal, private state of the cart.
   List<deliveryDetail.Data> _items = [];
@@ -26,12 +37,16 @@ class AcceptOrderDeliveryProvider extends ChangeNotifier {
   UnmodifiableListView<deliveryDetail.Data> get items =>
       UnmodifiableListView(_items);
 
+
+  bool get isAccepted => _isAccepted; 
+
   /// checker
   bool get isEmpty => _items.isEmpty;
 
-    /// loading state
+  /// loading state
   bool _isLoading = false;
-  
+  int totalRow = 0;
+
   bool get isLoading => _isLoading;
 
   set isLoading(bool isload) {

@@ -42,7 +42,7 @@
     async function fetchTransactionDetail() {
         let response;
 
-        response = await fetch(`http://${$uri}:8888/transaction/detail/${transaction_id}`, {
+        response = await fetch(`http://${$uri}:8888/transaction/detail/${transaction_id}/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -139,7 +139,7 @@
             return;
         }
 
-        store_warehouse = data.data;
+        store_warehouse = data.data[0].StoreWarehouses;
         // console.log(transaction_detail);
     }
     function filterProductsBasedOnTransactionDetails() {

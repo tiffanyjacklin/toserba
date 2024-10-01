@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
 import 'package:flutter_app_all/Template.dart';
-import 'package:flutter_app_all/Page/Login/choose_role.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
@@ -265,8 +264,18 @@ class _LoginTabletState extends State<LoginTablet> {
 
   // CEK USER
   Future _fetchUser() async {
-    // link api http://leap.crossnet.co.id:8888/user/1/1
-    // link localhost -> http://localhost:8888/user/
+  //    try {
+  //   return await get(
+  //       'http://192.168.0.100:8080/login',
+  //       headers: {
+  //         HttpHeaders.AUTHORIZATION: authHeader,
+  //       },
+  //     );
+  // } catch (e) {
+  //   print(e);
+  //   return null;
+  // }
+  
     final link =
         'http://leap.crossnet.co.id:8888/user/login?username=${usernameController.text}&password=${passwordController.text}';
 

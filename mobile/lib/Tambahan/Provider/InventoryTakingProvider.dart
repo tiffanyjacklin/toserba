@@ -109,7 +109,6 @@ class InventoryTakingProvider extends ChangeNotifier {
   String get typeNow => _typeNow;
 
   // >> for submit item
-  // bikin map aja kah?
   Map<String, itemSubmit> _mapListItemSubmit = {};
   UnmodifiableListView<itemSubmit> get listItemSubmit => UnmodifiableListView(
       _mapListItemSubmit.entries.map((item) => item.value).toList());
@@ -122,12 +121,6 @@ class InventoryTakingProvider extends ChangeNotifier {
     _isLoading = isload;
     notifyListeners();
   }
-
-  // List<itemSubmit> getListSubmittedItem(){
-  //   // NOTES: selesai kan ini...
-  //   // kerjakan untuk pass ke dalam submited
-  //   return [];
-  // }
 
   void clickFilter(String name) {
     isFiltering = !isFiltering;

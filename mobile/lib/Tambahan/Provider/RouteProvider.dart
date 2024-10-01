@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_all/Model/PrivilegesData.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_app_all/Page/Umum/notification_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/history_all_stock_product_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/stock_transfer_notes_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
+import 'package:flutter_app_all/Page/coba_page.dart';
 import 'package:http/http.dart' as http;
 
 class RouteProvider extends ChangeNotifier {
@@ -50,12 +53,16 @@ class RouteProvider extends ChangeNotifier {
   }
 
   Future<void> fetchPriviledge(int userId, int roleId) async {
-    // link api
+      try {
+        // link api
     final link =
         'http://leap.crossnet.co.id:8888/user/privileges/$userId/$roleId';
 
     // call api (method GET)
-    final response = await http.get(Uri.parse(link));
+    final response = await http.get(Uri.parse(link)).timeout(const Duration(seconds: 10))
+          .catchError((error, stacktrace) {
+        print("catched error");
+      });;
 
     // cek status
     if (response.statusCode == 200) {
@@ -73,23 +80,36 @@ class RouteProvider extends ChangeNotifier {
         notifyListeners();
       }
     }
+    } on SocketException catch (e) {
+      print("Caught socketexception: $e");
+    } on TimeoutException catch (e) {
+      print('Caught: $e');
+    } catch (e) {}
+    //print('Done');
+    return null;
   }
 
-  Widget getPage() {
+  Widget getPage({String search = ''}) {
+    var routeName = search;
+
+    if(search.isEmpty){
+      routeName = sidebarMenu[_indexSidebar].privilegesName!.toLowerCase();
+    }
+
     var _mappingRoute = {
       'session': SessionPage(),
       'session history': SessionHistoryPage(),
-      'products': ProductPage(),
+      'products': ProductPages(),
       'notifications': NotificationPage(),
       'subtract products': SubstractProductPageWithProvider(),
       'stock history': HistoryAllProductPage(),
       'inventory taking': InventoryTakingPageWithProvider(),
-      'stock transfer notes': StockTransferNotesPage(),
-      'accept order' : AcceptOrderPage() ,
+      'stock transfer notes': TransferNotesPage(),
+      'accept order' : AcceptOrderPage2(),
     };
 
-    if (_mappingRoute.containsKey(sidebarMenu[_indexSidebar].privilegesName!.toLowerCase())) {
-      return _mappingRoute[sidebarMenu[_indexSidebar].privilegesName!.toLowerCase()]!;
+    if (_mappingRoute.containsKey(routeName)) {
+      return _mappingRoute[routeName]!;
     } 
     else {
       return Container(
@@ -99,7 +119,13 @@ class RouteProvider extends ChangeNotifier {
       );
     }
   }
+
+//   Widget getPage({String search = ''}) {
+//   return CobaPage(size: 20,);
+
+// }
 }
+
 
 
 // Expanded(

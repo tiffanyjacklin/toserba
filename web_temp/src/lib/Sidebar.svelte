@@ -126,10 +126,12 @@
      <ul class="space-y-2 font-medium mt-5">
         {#each privilegess as privilege}
            <li>
-                {#if privilege.navbar !== 0 && privilege.privileges_name !== 'notifications'}
-                <a href={`/${privilege.privileges_name.replace(/ /g, '_').toLowerCase()}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group {pathname === `${privilege.privileges_name.replace(/ /g, '_').toLowerCase()}` ? 'bg-coklat_hover' : ''}">
-                    <p class="text-center" style="text-transform: capitalize;">{privilege.privileges_name}</p>
-                </a>
+                {#if (privilege.navbar !== 0) && (privilege.privileges_name !== 'notifications')}
+                    {#if (role_name === 'Admin' && privilege.privilege_id !== 12) || role_name !== 'Admin'}
+                    <a href={`/${privilege.privileges_name.replace(/ /g, '_').toLowerCase()}`} class="flex items-center justify-center p-2 text-white hover:bg-coklat_hover group {pathname === `${privilege.privileges_name.replace(/ /g, '_').toLowerCase()}` ? 'bg-coklat_hover' : ''}">
+                        <p class="text-center" style="text-transform: capitalize;">{privilege.privileges_name}</p>
+                    </a>
+                    {/if}
                 {/if}
            </li>
         {/each}

@@ -3,41 +3,28 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Model/DeliveryOrderStore.dart' as deliveryStore;
+import 'package:flutter_app_all/Tambahan/Provider/AcceptFormCart.dart';
 import 'package:flutter_app_all/Tambahan/Provider/AcceptOrderDelivery.dart';
+import 'package:flutter_app_all/Tambahan/Provider/AcceptOrderProvider.dart';
+import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Page/Store%20Inventory/accept_order_popup_page.dart';
+import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
 import 'package:stroke_text/stroke_text.dart';
 import 'package:http/http.dart' as http;
 
-// api fetch accept order --> ambil semua delivery order yang ada ke toko ini anggep ni toko 1
-Future<List<deliveryStore.Data>> _fetchDeliveryOrderStore(int storeId) async {
-  final link =
-      'http://leap.crossnet.co.id:8888/orders/delivery/warehouse/to/$storeId/3/0'; // NOTE : diganti nanti kalo udah ada
+class AcceptOrderPage2 extends StatelessWidget {
+  const AcceptOrderPage2({super.key});
 
-  // NOTE : 3 = limit row yang diambil, 0 = start index,
-
-  // call api
-  final response = await http.get(Uri.parse(link));
-  print('---> response ' + response.statusCode.toString());
-
-  // cek status
-  if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
-    Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
-    print(response.body);
-    if (temp['status'] == 200) {
-      print(temp);
-      return deliveryStore.FetchDeliveryOrderStore.fromJson(temp).data!;
-    } else {
-      return [];
-    }
-  } else {
-    print('fetch failed');
-    return [];
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => AcceptOrderProvider(
+          context.read<AuthState>().userData.storeWarehouseId!),
+      child: AcceptOrderPage(),
+    );
   }
 }
 
@@ -50,10 +37,15 @@ class AcceptOrderPage extends StatefulWidget {
 
 class _AcceptOrderPageState extends State<AcceptOrderPage> {
   final NumberPaginatorController _controller = NumberPaginatorController();
-  var _currentPage = 1;
+  // var _currentPage = 1;
 
   @override
   Widget build(BuildContext context) {
+    var provider = Provider.of<AcceptOrderProvider>(context);
+    TextEditingController _searchController = TextEditingController();
+    // List<deliveryStore.Data> listPerPage = provider.listPerPage;
+    provider.currentPage = _controller.currentPage;
+
     return Padding(
       padding: EdgeInsets.all(20.0),
       child: Container(
@@ -74,61 +66,31 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
               ),
               // search bar
               Container(
-                width: MediaQuery.of(context).size.width * 0.70,
-                child: const CupertinoSearchTextField(
-                    // trailing: Icon(Icons.abc),
-                    ),
-              ),
-
-              SizedBox(
-                height: 20,
-              ),
-
-              // pagination nya
-
-              // list tiles view
-              // making self
-              // DeliveryOrderChild(),
-              // DeliveryOrderChild(),
-              // DeliveryOrderChild(),
-
-              Container(
-                width: MediaQuery.of(context).size.width * 0.70,
-                child: NumberPaginator(
-                  // by default, the paginator shows numbers as center content
-                  numberPages: 5,
-                  onPageChange: (int index) {
-                    setState(() {
-                      _currentPage =
-                          index; // _currentPage is a variable within State of StatefulWidget
-                    });
-                  },
-                  // show/hide the prev/next buttons
-                  showPrevButton: true,
-                  showNextButton: true, // defaults to true
-                  // custom content of the prev/next buttons, maintains their behavior
-                  nextButtonBuilder: (context) => TextButton(
-                    onPressed: _controller.currentPage > 0
-                        ? () => _controller.next()
-                        : null, // _controller must be passed to NumberPaginator
-                    child: const Row(
-                      children: [
-                        Text("Next"),
-                        Icon(Icons.chevron_right),
-                      ],
-                    ),
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: TextField(
+                  style: TextStyle(
+                    fontSize: 18,
                   ),
-                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
-                  prevButtonBuilder: (context) => TextButton(
-                    onPressed: _controller.currentPage > 0
-                        ? () => _controller.prev()
-                        : null, // _controller must be passed to NumberPaginator
-                    child: const Row(
-                      children: [
-                        Icon(Icons.chevron_left),
-                        Text("Previous"),
-                      ],
+                  controller: _searchController,
+                  onSubmitted: (value) {
+                    provider.filter(_searchController.text);
+                  },
+                  decoration: InputDecoration(
+                    fillColor: Colors.white,
+                    focusColor: ColorPalleteLogin.OrangeColor,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: const BorderSide(
+                        color: Colors.grey,
+                        width: 2.0,
+                      ),
                     ),
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          provider.filter(_searchController.text);
+                        },
+                        icon: Icon(Icons.filter_list)),
                   ),
                 ),
               ),
@@ -136,43 +98,373 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
                 height: 10,
               ),
 
-              // with api run
-              Container(
-                // height: 400,
-                child: FutureBuilder<List<deliveryStore.Data>>(
-                    future: _fetchDeliveryOrderStore(1),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        // get error
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text('error fetch'),
-                          );
-                        } else {
-                          if (!(snapshot.data!.isEmpty)) {
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: 3,
-                              itemBuilder: (BuildContext context, int index) {
-                                return DeliveryOrderChild(
-                                    data: snapshot.data![
-                                        index + 0 + ((_currentPage - 1) * 3)]);
-                              },
-                            );
-                          } else {
-                            return Column();
-                          }
-                        }
-                      } else {
-                        return CircularProgressIndicator();
-                      }
-                    }),
+              SizedBox(
+                height: 20,
               ),
+
+              // pagination nya
+              provider.isLoading
+                  ? CircularProgressIndicator()
+                  : provider.isFiltering ? 
+                  Container(
+                      height: 350,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Center(
+                              child: Container(
+                                // height: 200,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 4,
+                                          color: Colors.grey,
+                                          offset: Offset(0, 1)),
+                                    ]),
+                                width: MediaQuery.of(context).size.width *
+                                    0.8 *
+                                    0.98,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            provider.resetFilter();
+                                          },
+                                          child: Text(
+                                            'Reset',
+                                            style: TextStyle(
+                                                color: ColorPalleteLogin
+                                                    .OrangeDarkColor,
+                                                fontSize: fontSizeBody,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+
+                                      // Status
+                                      Text(
+                                        'Status',
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Wrap(
+                                        children: List.generate(
+                                            provider.listChecked.keys.length,
+                                            (index) {
+                                          return Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 2),
+                                            child: provider.listChecked.keys.toList()[index]
+                                                      ==
+                                                    provider.listChecked.keys.firstWhere((k) => provider.listChecked[k].toString() == provider.checkStatus, orElse: () => '')
+                                                ? OutlinedButton(
+                                                    onPressed: () {
+                                                      provider
+                                                          .setCheckStatus('');
+                                                    },
+                                                    child: Text(
+                                                      provider.listChecked.keys.toList()[index],
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              fontSizeBody,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: ColorPalleteLogin
+                                                              .OrangeDarkColor),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor),
+                                                  )
+                                                : OutlinedButton(
+                                                    onPressed: () {
+                                                      provider.setCheckStatus(
+                                                          provider.listChecked.keys.toList()[index]
+                                                      );
+                                                    },
+                                                    child: Text(
+                                                      provider.listChecked.keys.toList()[index],
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              fontSizeBody,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                        side: BorderSide(
+                                                            strokeAlign: 2,
+                                                            color: Colors
+                                                                .grey[300]!),
+                                                        overlayColor:
+                                                            ColorPalleteLogin
+                                                                .OrangeDarkColor,
+                                                        backgroundColor:
+                                                            Colors.grey[300]),
+                                                  ),
+                                          );
+                                        }),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+
+                                      // time period
+                                      Text(
+                                        'Time Period',
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12.0),
+                                        child: Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          spacing: 10.0,
+                                          children: [
+                                            Text(
+                                              'From',
+                                              style: TextStyle(
+                                                  fontSize: fontSizeBody,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () async {
+                                                final DateTime? dateTime =
+                                                    await showDatePicker(
+                                                  context: context,
+                                                  initialDate: provider.rangeDate.first,
+                                                  firstDate: DateTime(2000),
+                                                  lastDate: DateTime.now(),
+                                                );
+
+                                                if (dateTime != null) {
+                                                  provider.setRangeDate(
+                                                      dateTime, true);
+                                                }
+                                              },
+                                              child: Container(
+                                                width: 160,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.black,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.0),
+                                                ),
+                                                child: Center(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        Text(
+                                                          '${DateFormat('dd/MM/yyyy').format(provider.rangeDate.first.toLocal())}',
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  fontSizeBody,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Icon(
+                                                          Icons
+                                                              .date_range_outlined,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              'To',
+                                              style: TextStyle(
+                                                  fontSize: fontSizeBody,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () async {
+                                                final DateTime? dateTime =
+                                                    await showDatePicker(
+                                                  context: context,
+                                                  initialDate: provider.rangeDate.last,
+                                                  firstDate: provider
+                                                      .rangeDate.last,
+                                                  lastDate: DateTime.now(),
+                                                );
+
+                                                if (dateTime != null) {
+                                                  provider.setRangeDate(
+                                                      dateTime, false);
+                                                }
+                                              },
+                                              child: Container(
+                                                width: 160,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.black,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.0),
+                                                ),
+                                                child: Center(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        Text(
+                                                          '${DateFormat('dd/MM/yyyy').format(provider.rangeDate.last.toLocal())}',
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  fontSizeBody,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Icon(
+                                                          Icons
+                                                              .date_range_outlined,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : provider.items.isEmpty
+                      ? Container(
+                          child: Text('No Data'),
+                        )
+                      : ListenableBuilder(
+                          listenable: provider,
+                          builder: (BuildContext context, Widget? child) {
+                            return Column(children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.70,
+                                child: NumberPaginator(
+                                  // by default, the paginator shows numbers as center content
+                                  numberPages: provider.getMaxPage(),
+                                  onPageChange: (int index) {},
+                                  controller: _controller,
+
+                                  // show/hide the prev/next buttons
+                                  showPrevButton: true,
+                                  showNextButton: true, // defaults to true
+                                  // custom content of the prev/next buttons, maintains their behavior
+                                  nextButtonBuilder: (context) => TextButton(
+                                    onPressed: _controller.currentPage <
+                                            provider.getMaxPage() - 1
+                                        ? () => {_controller.next()}
+                                        : null, // _controller must be passed to NumberPaginator
+                                    child: const Row(
+                                      children: [
+                                        Text("Next"),
+                                        Icon(Icons.chevron_right),
+                                      ],
+                                    ),
+                                  ),
+                                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                                  prevButtonBuilder: (context) => TextButton(
+                                    onPressed: _controller.currentPage > 0
+                                        ? () => _controller.prev()
+                                        : null, // _controller must be passed to NumberPaginator
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.chevron_left),
+                                        Text("Previous"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+
+                              // with api run
+                              Container(
+                                // height: 400,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: provider.listPerPage.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return DeliveryOrderChild(
+                                        data: provider.listPerPage[index]);
+                                  },
+                                ),
+                              ),
+                            ]);
+                          }),
             ],
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _controller.dispose();
   }
 }
 
@@ -265,13 +557,22 @@ class DeliveryOrderChild extends StatelessWidget {
                   onTap: () {
                     // buat alert dialog
                     showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (context) => ChangeNotifierProvider(
-                        create: (context) => AcceptOrderDeliveryProvider(data.deliveryOrderId!),
-                        child: DeliveryOrderDetailPopUp(dataDelivery: data),
-                      ),
-                    );
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) => MultiProvider(
+                              providers: [
+                                ChangeNotifierProvider(
+                                  create: (context) =>
+                                      AcceptOrderDeliveryProvider(
+                                          data.deliveryOrderId!,
+                                          data.statusAccept == 0
+                                              ? false
+                                              : true),
+                                ),
+                              ],
+                              child:
+                                  DeliveryOrderDetailPopUp(dataDelivery: data),
+                            ));
                   },
                   child: Container(
                     height: double.maxFinite,

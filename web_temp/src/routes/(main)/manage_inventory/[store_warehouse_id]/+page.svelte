@@ -18,8 +18,14 @@
     let searchQuery_stock = '';
     let searchQuery_verify = '';
     let searchQuery_assign = '';
+    let searchQuery_temp = '';
     let showModal = null; 
     let showTable = false;
+
+    $: limit = 10; 
+    $: offset = 0;
+    $: currentPage = 1; 
+    $: totalRows = 0;
     
     //PRODUCTS
     let products = [];
@@ -67,7 +73,7 @@
     }
 
     async function fetchProduk() {
-        const response = await fetch(`http://${$uri}:8888/products/100/0`, {
+        const response = await fetch(`http://${$uri}:8888/products/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -86,6 +92,7 @@
             return;
         }
 
+        totalRows = data.total_rows;
         products = [...data.data];  
         all_produk = [...products];
         // console.log(all_produk);
@@ -162,7 +169,7 @@
     }
     
     async function fetchStockCardHistory() {
-        const response = await fetch(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${store_warehouse_id}/100/0`, {
+        const response = await fetch(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${store_warehouse_id}/''/''/''/''/''/${searchQuery_stock}/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -180,14 +187,15 @@
             console.error('Invalid fetch suppliers', data);
             return;
         }
- 
+        
+        totalRows = data.total_rows;
         stock_card_history = data.data;
-        filtered_stock_card_history = stock_card_history;
-        // console.log("stockcard History",stock_card_history);
+        filtered_stock_card_history = structuredClone(stock_card_history);
+        // console.log("stockcard History",data);
     }
 
     async function fetchAddVerify() {
-        const response = await fetch(`http://${$uri}:8888/orders/supplier/verify/0/''/100/0`, {
+        const response = await fetch(`http://${$uri}:8888/orders/supplier/verify/0/''/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -205,12 +213,14 @@
             console.error('Invalid fetch suppliers', data);
             return;
         }
- 
+        
+        totalRows = data.total_rows;
         verify_add = data.data;
+        console.log("verify_add : ",verify_add)
     }
     
     async function fetchSubtractVerify() {
-        const response = await fetch(`http://${$uri}:8888/products/stock/subtract/verify/0/''/100/0`, {
+        const response = await fetch(`http://${$uri}:8888/products/stock/subtract/verify/0/''/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -230,12 +240,12 @@
         }
  
         // verify_subtract = data.data;
-
+        totalRows = data.total_rows;
         let tmp = data.data;
 
         for (let i = 0; i < tmp.length; i++) {
           let ProductDetails = await getProductDetail(tmp[i].product_detail_id)
-          console.log(ProductDetails);
+          // console.log(ProductDetails);
 
             tmp[i].product_name = ProductDetails.product_name;
             tmp[i].product_stock = ProductDetails.product_stock;
@@ -273,7 +283,7 @@
     }
     
     async function getAddStockDetails(add_stock_id) {
-        const response = await fetch(`http://${$uri}:8888/orders/supplier/detail/${add_stock_id}`, {
+        const response = await fetch(`http://${$uri}:8888/orders/supplier/detail/${add_stock_id}/''/100/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -293,7 +303,7 @@
         }
  
         let details = data.data;
-        console.log("length", details.length);
+        // console.log("length", details.length);
         return details.length;
     }
 
@@ -421,7 +431,7 @@
   }
   
   async function fetchAssign() {
-        const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/verify/0/${store_warehouse_id}/''/100/0`, {
+        const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/verify/0/${store_warehouse_id}/''/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -440,6 +450,7 @@
             return;
         }
 
+        totalRows = data.total_rows
         assign_product = data.data;
         console.log("assign_product",assign_product)
   }
@@ -481,13 +492,31 @@
         all_produk = [...products];
     }
     //stock history
-    $: if (searchQuery_stock.length > 0) {
-        filtered_stock_card_history = stock_card_history.filter(item => 
-            item.product_name.toLowerCase().includes(searchQuery_stock.toLowerCase()) ||
-            item.product_detail_id.toString().includes(searchQuery_stock)
-        );
-    } else {
-        filtered_stock_card_history = [...stock_card_history];
+    $: if ((searchQuery_temp !== searchQuery_stock) ){
+        console.log(searchQuery_stock);
+        fetchStockCardHistory();
+        searchQuery_temp = searchQuery_stock;
+      } else{
+        searchQuery_temp = '';
+      }
+
+    async function goToPage(page) {
+        if (page < 1 || page > Math.ceil(totalRows / limit)) return;
+
+        currentPage = page;
+        offset = (currentPage - 1) * limit;
+
+        if(tampilan == "products"){
+          await fetchProduk();
+        } else if (tampilan == "stock_history"){
+          await fetchStockCardHistory()
+        } else if (tampilan == "verify_add"){
+          await fetchAddVerify();
+        }else if (tampilan == "verigy_subtract"){
+          await fetchSubtractVerify();
+        }else if (tampilan == "assign_product"){
+          await fetchAssign();
+        }
     }
 
     onMount(async () => {
@@ -511,34 +540,34 @@
     <div class="w-11/12 my-10">
         <div class="grid grid-cols-4 gap-x-2 gap-y-4">
             {#if tampilan == "products"}
-                <button on:click={() => {tampilan = "products"; tampilan = tampilan;}} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Products</button>
+                <button on:click={async() => {tampilan = "products"; tampilan = tampilan;}} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Products</button>
             {:else}
-                <button on:click={() => {tampilan = "products"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Products</button>
+                <button on:click={async() => {tampilan = "products"; tampilan = tampilan; goToPage(1);}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Products</button>
             {/if}
             {#if tampilan == "stock_history"}
-                <button on:click={() => {tampilan = "stock_history"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Stock History</button>
+                <button on:click={async() => {tampilan = "stock_history"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Stock History</button>
             {:else}
-                <button on:click={() => {tampilan = "stock_history"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Stock History</button>
+                <button on:click={async() => {tampilan = "stock_history"; tampilan = tampilan; goToPage(1);}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Stock History</button>
             {/if}
             {#if tampilan == "verify_add"}
-                <button on:click={() => {tampilan = "verify_add"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Add</button>
+                <button on:click={async() => {tampilan = "verify_add"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Add</button>
             {:else}
-                <button on:click={() => {tampilan = "verify_add"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Add</button>
+                <button on:click={async() => {tampilan = "verify_add"; tampilan = tampilan; goToPage(1);}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Add</button>
             {/if}
             {#if tampilan == "verify_subtract"}
-                <button on:click={() => {tampilan = "verify_subtract"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Subtract</button>
+                <button on:click={async() => {tampilan = "verify_subtract"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Subtract</button>
             {:else}
-                <button on:click={() => {tampilan = "verify_subtract"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Subtract</button>
+                <button on:click={async() => {tampilan = "verify_subtract"; tampilan = tampilan; goToPage(1);}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Verify Subtract</button>
             {/if}
             {#if tampilan == "assign_product"}
-                <button on:click={() => {tampilan = "assign_product"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Assign Product</button>
+                <button on:click={async() => {tampilan = "assign_product"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Assign Product</button>
             {:else}
-                <button on:click={() => {tampilan = "assign_product"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Assign Product</button>
+                <button on:click={async() => {tampilan = "assign_product"; tampilan = tampilan; goToPage(1);}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Assign Product</button>
             {/if}
             {#if tampilan == "add_product"}
-                <button on:click={() => {tampilan = "add_product"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add New Product</button>
+                <button on:click={async() => {tampilan = "add_product"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add New Product</button>
             {:else}
-                <button on:click={() => {tampilan = "add_product"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add New Product</button>
+                <button on:click={async() => {tampilan = "add_product"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add New Product</button>
             {/if}
         </div>    
     </div>
@@ -567,56 +596,48 @@
               bind:value={searchQuery_verify}
               class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
               placeholder="Search..."/>
-          {:else if tampilan == "assign_product"}
+          <!-- {:else if tampilan == "assign_product"}
             <input 
                 type="text" 
                 id="voice-search" 
                 bind:value={searchQuery_assign}
                 class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                placeholder="Search..."/>
+                placeholder="Search..."/> -->
           {/if}
          </div>
 
-      <nav class="my-8 ">
-        <ul class="flex items-center -space-x-px h-8 text-sm">
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-               </svg>
-              Previous
-            </a>
-          </li>
-  
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-          </li>
-         
-          <li>
-            <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              Next
-              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-               </svg>
-            </a>
-          </li>
-        </ul>
-      </nav>
+         <nav class="my-8">
+          <ul class="flex items-center -space-x-px h-8 text-sm">
+            {#if totalRows !== 0}
+            <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                </svg>
+                Previous
+              </a>
+            </li>
+            {/if}
+        
+            <!-- Pagination Links -->
+            {#each Array(Math.ceil(totalRows / limit)) as _, i}
+              <li>
+                <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+              </li>
+            {/each}
+        
+            {#if totalRows !== 0}
+            <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                Next
+                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+              </a>
+            </li>
+             {/if}
+          </ul>
+        </nav>
     {/if}
       
       {#if tampilan == "products"}
@@ -902,47 +923,40 @@
       {/if}
         
       {#if tampilan != "add_product"}
-       <nav class="my-8 ">
-          <ul class="flex items-center -space-x-px h-8 text-sm">
+       
+      <nav class="my-8">
+        <ul class="flex items-center -space-x-px h-8 text-sm">
+          {#if totalRows !== 0}
+          <li>
+            <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+              </svg>
+              Previous
+            </a>
+          </li>
+          {/if}
+      
+          <!-- Pagination Links -->
+          {#each Array(Math.ceil(totalRows / limit)) as _, i}
             <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-                 </svg>
-                Previous
-              </a>
+              <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
             </li>
-    
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-            </li>
-           
-            <li>
-              <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                Next
-                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                 </svg>
-              </a>
-            </li>
-          </ul>
-        </nav>
-      {/if}
+          {/each}
+      
+          {#if totalRows !== 0}
+          <li>
+            <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              Next
+              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+              </svg>
+            </a>
+          </li>
+           {/if}
+        </ul>
+      </nav>
+  {/if}
        
    </div>
 

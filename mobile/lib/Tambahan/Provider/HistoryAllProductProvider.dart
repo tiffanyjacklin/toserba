@@ -8,6 +8,7 @@ import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
     as stock;
 import 'package:flutter_app_all/Template.dart';
 import 'package:http/http.dart' as http;
+import 'package:number_paginator/number_paginator.dart';
 
 
 class ResultFilter {
@@ -53,6 +54,8 @@ class HistoryAllProductProvider extends ChangeNotifier {
   String get descNow => _descNow;
   String get unitNow => _unitNow;
   String get typeNow => _typeNow;
+
+  
   DateTime getIsStartDate(bool isStart) {
     if (isStart) {
       return rangeDate.first;
@@ -63,7 +66,11 @@ class HistoryAllProductProvider extends ChangeNotifier {
 
   // >> for paginator
   int limitPerPage = 4;
-  int currentPage = 0;
+  // int currentPage = 0;
+  final NumberPaginatorController _paginatorController =
+      NumberPaginatorController();
+  int get currentPage => _paginatorController.currentPage;
+  NumberPaginatorController get paginatorController => _paginatorController;
   List<stock.Data> get resultSearched => UnmodifiableListView(_result);
   List<stock.Data> get listPerPage => UnmodifiableListView(_result.sublist(getStartIndex(), getEndIndex()+1));
 
@@ -157,9 +164,9 @@ class HistoryAllProductProvider extends ChangeNotifier {
     return (totalRow.toDouble()/limitPerPage.toDouble()).ceil();
   }
 
-  // lah rusak lagi ??
+  // lah rusak lagi ?? lahhhhhh
   void setCurrentPage(String name ,int number){
-    currentPage = number;
+    _paginatorController.currentPage = number;
     // cek butuh fetch setelah page ini?
     if(number > getCurrentMaxPage()-1 && _result.length != totalRow){
       searchItemWithFilter(name);
@@ -167,13 +174,15 @@ class HistoryAllProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void increase(String name){
-    setCurrentPage(name, currentPage+1);
-  }
+  // void increase(String name){
+  //   setCurrentPage(name, currentPage+1);
+  // }
 
-  void decrease(String name){
-    setCurrentPage(name, currentPage-1);
-  }
+  // void decrease(String name){
+  //   setCurrentPage(name, currentPage-1);
+  // }
+
+
   // Api fetch
   Future<void> searchItemWithFilter(String name, {
     String startDate = '',
@@ -184,14 +193,10 @@ class HistoryAllProductProvider extends ChangeNotifier {
     String search = '',
     bool isSearch = false,
   }) async {
-    if(isSearch) {
-      currentPage = 0;
-    }
-    
     isLoading = true;
     notifyListeners();
 
-    List<stock.Data> result = await _fetchAllStockProductWarehouse(2, startDate, endDate, category, unitType, description, name);
+    List<stock.Data> result = await _fetchAllStockProductWarehouse(2, startDate, endDate, category, unitType, description, name, isSearch);
 
     if(isSearch){
       _result = result;
@@ -199,7 +204,6 @@ class HistoryAllProductProvider extends ChangeNotifier {
     else{
       _result += result;
     }
-    
     isLoading = false;
     notifyListeners();
   }
@@ -209,9 +213,10 @@ class HistoryAllProductProvider extends ChangeNotifier {
     String category,
     String unitType,
     String description,
-    String search ) async {
+    String search,
+    bool isSearch ) async {
     int startIndex = 0;
-    int limitData = 10;
+    int limitData = 100000;
     // /products/stock/card/product/store_warehouse/:storewarehouse_id/:start_date/:end_date/:category/:unit_type/:description/:product_name_id_code_batch/:limit/:offset
     final link =
         'http://leap.crossnet.co.id:8888/products/stock/card/product/store_warehouse/$warehouseId/$startDate/$endDate/$category/$unitType/$description/$search/$limitData/$startIndex';
@@ -230,6 +235,8 @@ class HistoryAllProductProvider extends ChangeNotifier {
       if (temp['status'] == 200) {
         print(temp);
         totalRow = stock.FetchStockCardProductStoreWarehouse.fromJson(temp).totalRows!;
+        if(isSearch){ _paginatorController.currentPage = 0;}
+
         return stock.FetchStockCardProductStoreWarehouse.fromJson(temp).data!;
       } else {
         return [];

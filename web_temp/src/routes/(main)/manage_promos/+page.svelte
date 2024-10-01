@@ -23,7 +23,13 @@
     $: showDropDownName = false;
     $: showPromoInput = 0;
     $: swListAll = false;
-    let searchQuery = "";
+    let searchQuery = '';
+    let searchQuery_temp = '';
+
+    $: limit = 10; 
+    $: offset = 0;
+    $: currentPage = 1; 
+    $: totalRows = 0;
 
     // ADD PROMO BARU
     let promo_code = "";
@@ -47,7 +53,8 @@
     }
 
    async function fetchPromos(){
-        const response = await fetch(`http://${$uri}:8888/promos/''/''/''/''/''/100/0`, {
+        // const response = await fetch(`http://${$uri}:8888/promos/''/''/${searchQuery}/''/''/${limit}/${offset}`, {
+        const response = await fetch(`http://${$uri}:8888/promos/''/''/''/''/''/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -66,6 +73,7 @@
             return;
         }
 
+        totalRows = data.total_rows;
         produk_promos = data.data;
         console.log(produk_promos);
         
@@ -376,6 +384,14 @@
         });
     }
 
+    async function goToPage(page) {
+        if (page < 1 || page > Math.ceil(totalRows / limit)) return;
+
+        currentPage = page;
+        offset = (currentPage - 1) * limit;
+        fetchPromos();
+    }
+
     
     onMount(async () => {
       await fetchPromos();
@@ -390,6 +406,13 @@
     } else {
         filtered_produk_promos = [...produk_promos];
     }
+    // $: if ((searchQuery_temp !== searchQuery) ){
+    //     console.log(searchQuery);
+    //     fetchPromos();
+    //     searchQuery_temp = searchQuery;
+    //   } else{
+    //     searchQuery_temp = '';
+    //   }
     
     //UNTUK ADD PROMO
     $: if (choosen_product_id != null) {
@@ -433,46 +456,38 @@
         </div>
          
 
-      <nav class="my-8 ">
-        <ul class="flex items-center -space-x-px h-8 text-sm">
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-               </svg>
-              Previous
-            </a>
-          </li>
-  
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-          </li>
-          <li>
-            <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-          </li>
-         
-          <li>
-            <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-              Next
-              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-               </svg>
-            </a>
-          </li>
-        </ul>
-      </nav>
+        <nav class="my-8">
+          <ul class="flex items-center -space-x-px h-8 text-sm">
+            {#if totalRows !== 0}
+            <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                </svg>
+                Previous
+              </a>
+            </li>
+            {/if}
+        
+            <!-- Pagination Links -->
+            {#each Array(Math.ceil(totalRows / limit)) as _, i}
+              <li>
+                <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+              </li>
+            {/each}
+        
+            {#if totalRows !== 0}
+            <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                Next
+                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+              </a>
+            </li>
+             {/if}
+          </ul>
+        </nav>
 
       <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
@@ -512,46 +527,38 @@
     </div>
       
   
-       <nav class="my-8 ">
-          <ul class="flex items-center -space-x-px h-8 text-sm">
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-                 </svg>
-                Previous
-              </a>
-            </li>
+    <nav class="my-8">
+      <ul class="flex items-center -space-x-px h-8 text-sm">
+        {#if totalRows !== 0}
+        <li>
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+            <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+            </svg>
+            Previous
+          </a>
+        </li>
+        {/if}
     
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">1</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">2</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">3</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg ">...</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">67</a>
-            </li>
-            <li>
-              <a href="#" class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">68</a>
-            </li>
-           
-            <li>
-              <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                Next
-                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                 </svg>
-              </a>
-            </li>
-          </ul>
-        </nav>
+        <!-- Pagination Links -->
+        {#each Array(Math.ceil(totalRows / limit)) as _, i}
+          <li>
+            <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+          </li>
+        {/each}
+    
+        {#if totalRows !== 0}
+        <li>
+          <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+            Next
+            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+            </svg>
+          </a>
+        </li>
+         {/if}
+      </ul>
+    </nav>
        
    </div>
 
