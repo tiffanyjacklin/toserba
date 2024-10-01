@@ -779,6 +779,10 @@ e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateSto
 }
 
 ================================================= Owner =================================================
+e.GET("/locations/all", controller.GetAllLocation)
+e.GET("/locations/province/all", controller.GetAllProvinces)
+e.GET("/locations/cities/all/:province", controller.GetAllCities)
+
 // Mengambil semua store/warehouse
 e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
 
