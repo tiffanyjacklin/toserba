@@ -9,11 +9,11 @@ import 'package:flutter_app_all/Page/Cashier/session_page.dart';
 import 'package:flutter_app_all/Page/Store%20Inventory/accept_order_page.dart';
 import 'package:flutter_app_all/Page/Store%20Inventory/inventory_taking_page.dart';
 import 'package:flutter_app_all/Page/Store%20Inventory/product_page.dart';
+import 'package:flutter_app_all/Page/Umum/not_found_page.dart';
 import 'package:flutter_app_all/Page/Umum/notification_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/history_all_stock_product_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/stock_transfer_notes_page.dart';
 import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
-import 'package:flutter_app_all/Page/coba_page.dart';
 import 'package:http/http.dart' as http;
 
 class RouteProvider extends ChangeNotifier {
@@ -100,7 +100,7 @@ class RouteProvider extends ChangeNotifier {
       'session': SessionPage(),
       'session history': SessionHistoryPage(),
       'products': ProductPages(),
-      'notifications': NotificationPage(),
+      'notifications': NotificationPage2(),
       'subtract products': SubstractProductPageWithProvider(),
       'stock history': HistoryAllProductPage(),
       'inventory taking': InventoryTakingPageWithProvider(),
@@ -112,67 +112,7 @@ class RouteProvider extends ChangeNotifier {
       return _mappingRoute[routeName]!;
     } 
     else {
-      return Container(
-        child: Center(
-          child: Text('404 Not Found'),
-        ),
-      );
+      return NotFoundPage();
     }
   }
-
-//   Widget getPage({String search = ''}) {
-//   return CobaPage(size: 20,);
-
-// }
 }
-
-
-
-// Expanded(
-//                       flex: 1,
-//                       child: Container(
-//                         decoration: BoxDecoration(
-//                           color: ColorPalleteLogin.OrangeLightColor,
-//                           border: Border(
-//                             bottom: BorderSide(width: 1, color: Colors.black),
-//                           ),
-//                         ),
-//                         child: Padding(
-//                           padding: const EdgeInsets.only(left: 20, right: 20),
-//                           child: Row(
-//                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                             children: [
-                             
-//                               Container(
-//                                 child: Row(
-//                                   children: [
-//                                     Row(
-//                                       children: [
-//                                         Padding(
-//                                           padding: const EdgeInsets.all(4.0),
-//                                           child:
-//                                               Icon(Icons.help_outline_outlined),
-//                                         ),
-//                                         Text(
-//                                           'Help',
-//                                           style: TextStyle(
-//                                               color: ColorPalleteLogin
-//                                                   .PrimaryColor,
-//                                               fontWeight: FontWeight.bold),
-//                                         ),
-//                                       ],
-//                                     ),
-//                                     SizedBox(
-//                                       width: 20,
-//                                     ),
-//                                     Icon(Icons.notifications_outlined),
-//                                     SizedBox(
-//                                       width: 20,
-//                                     ),
-//                                   ],
-//                                 ),
-//                               )
-//                             ],
-//                           ),
-//                         ),
-//                       )),

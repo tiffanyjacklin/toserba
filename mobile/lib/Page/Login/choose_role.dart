@@ -165,10 +165,11 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                                 return InkWell(
                                   onTap: () {
                                     _roleValidate(int.parse(provider.userId),
-                                            index + 1)
+                                            listData[index].roleId!)
                                         .then((hasil) => {
                                               if (hasil != null)
                                                 {
+                                                  
                                                   provider
                                                       .saveToStorage(
                                                           provider.userId,
@@ -205,15 +206,20 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                                           Icons.access_alarm_outlined,
                                           color: Colors.black,
                                         ),
-                                        Center(
-                                          child: Text(
+                                        Wrap(
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          alignment: WrapAlignment.center,
+                                          children: [
+                                            Text(
                                             listData[index].rolesName!,
+                                            textAlign: TextAlign.center,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 20,
+                                                fontSize: fontSizeBody+2,
                                                 color: ColorPalleteLogin
                                                     .PrimaryColor),
-                                          ),
+                                          )
+                                          ],
                                         ),
                                       ],
                                     ),

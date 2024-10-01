@@ -1,43 +1,44 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Model/NotificationsByRoles.dart';
+import 'package:flutter_app_all/Tambahan/Provider/Notification.dart';
 import 'package:flutter_app_all/Template.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
-Future<List<Data>> _fetchNotifications(int roleId) async {
-  final link =
-      'http://leap.crossnet.co.id:8888/notifications/$roleId'; // NOTE : diganti nanti kalo udah ada
-
-  // call api
-  final response = await http.get(Uri.parse(link));
-  print('---> response ' + response.statusCode.toString());
-
-  // cek status
-  if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
-    Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
-    print(response.body);
-    if (temp['status'] == 200) {
-      print(temp);
-      return FetchNotifications.fromJson(temp).data!;
-    } else {
-      return [];
-    }
-  } else {
-    print('fetch failed');
-    return [];
-  }
-}
-
-class NotificationPage extends StatelessWidget {
-  const NotificationPage({super.key});
+class NotificationPage2 extends StatelessWidget {
+  const NotificationPage2({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => NotificationProvider(),
+      child: NotificationPage(),
+    );
+  }
+}
+
+class NotificationPage extends StatefulWidget {
+  const NotificationPage({super.key});
+
+  @override
+  State<NotificationPage> createState() => _NotificationPageState();
+}
+
+class _NotificationPageState extends State<NotificationPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // context.read<NotificationProvider>().fetchNotificationsProvider(context.read<AuthState>().userData.roleId!);
+      context.read<NotificationProvider>().fetchNotificationsProvider(1);
+    });
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final providerNotification = Provider.of<NotificationProvider>(context);
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Container(
@@ -50,7 +51,7 @@ class NotificationPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.only(
               left: 8.0, right: 8.0, top: 16.0, bottom: 8.0),
-          
+
           // NOTE : perbaiki ini nanti
           child: SingleChildScrollView(
             child: Column(
@@ -65,32 +66,49 @@ class NotificationPage extends StatelessWidget {
                 SizedBox(
                   height: 10,
                 ),
-                
-                FutureBuilder<List<Data>>(
-                    future: _fetchNotifications(1), // NOTE ganti
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        // get error
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text('error fetch'),
-                          );
-                        } else {
-                          return Container(
-                            width: MediaQuery.of(context).size.width * 0.65,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: snapshot.data!.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return NotificationChild(dataNotif: snapshot.data![index]);
-                              },
+
+                // FutureBuilder<List<Data>>(
+                //     future: _fetchNotifications(1), // NOTE ganti
+                //     builder: (context, snapshot) {
+                //       if (snapshot.connectionState == ConnectionState.done) {
+                //         // get error
+                //         if (snapshot.hasError) {
+                //           return Center(
+                //             child: Text('error fetch'),
+                //           );
+                //         } else {
+                //           return Container(
+                //             width: MediaQuery.of(context).size.width * 0.65,
+                //             child: ListView.builder(
+                //               shrinkWrap: true,
+                //               itemCount: snapshot.data!.length,
+                //               itemBuilder: (BuildContext context, int index) {
+                //                 return NotificationChild(dataNotif: snapshot.data![index]);
+                //               },
+                //             ),
+                //           );
+                //         }
+                //       } else {
+                //         return CircularProgressIndicator();
+                //       }
+                //     }),
+
+                providerNotification.isLoading
+                    ? CircularProgressIndicator()
+                    : providerNotification.listNotification.length == 0
+                        ? Container()
+                        : Container(
+                          width: MediaQuery.of(context).size.width * 0.65,
+                          child: SingleChildScrollView(
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: providerNotification.listNotification.length,
+                                itemBuilder: (context, index) {
+                                  return NotificationChild(dataNotif: providerNotification.listNotification[index]);
+                                },
+                              ),
                             ),
-                          );
-                        }
-                      } else {
-                        return CircularProgressIndicator();
-                      }
-                    }),
+                        )
               ],
             ),
           ),
@@ -102,7 +120,7 @@ class NotificationPage extends StatelessWidget {
 
 class NotificationChild extends StatelessWidget {
   Data dataNotif;
-  
+
   NotificationChild({
     required this.dataNotif,
     super.key,
@@ -114,7 +132,7 @@ class NotificationChild extends StatelessWidget {
       children: [
         Container(
           // width: MediaQuery.of(context).size.width * 0.65,
-                // width: 400,
+          // width: 400,
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(
@@ -172,14 +190,16 @@ class NotificationChild extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                getOnlyTime(dataNotif.notifications!.timestamp!),
+                                getOnlyTime(
+                                    dataNotif.notifications!.timestamp!),
                                 style: TextStyle(
                                     color: ColorPalleteLogin.PrimaryColor,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                getOnlyDate(dataNotif.notifications!.timestamp!),
+                                getOnlyDate(
+                                    dataNotif.notifications!.timestamp!),
                                 style: TextStyle(
                                     color: ColorPalleteLogin.PrimaryColor,
                                     fontSize: 16,
@@ -196,7 +216,9 @@ class NotificationChild extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 10,),
+        SizedBox(
+          height: 10,
+        ),
       ],
     );
   }

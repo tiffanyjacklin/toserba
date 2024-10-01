@@ -584,6 +584,12 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
 }
 
 class DetailProductInventoryTakingPopup extends StatefulWidget {
