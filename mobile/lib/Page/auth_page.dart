@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_all/Page/Login/choose_role.dart';
 import 'package:flutter_app_all/Page/Login/login_tablet.dart';
-import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
 import 'package:provider/provider.dart';
 
