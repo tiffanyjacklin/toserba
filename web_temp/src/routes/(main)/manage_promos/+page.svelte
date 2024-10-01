@@ -134,7 +134,7 @@
     }
     
     async function fetchSW(){
-        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/''/0/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

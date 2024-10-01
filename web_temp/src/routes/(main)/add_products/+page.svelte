@@ -107,7 +107,7 @@
       console.log(suppliers);
   }
   async function fetchWarehouse() {
-      const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/''/0/0`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -581,7 +581,7 @@
         <div class="text-[#f7d4b2] mb-1">Product ID</div>
         <input type="text" bind:value={productId} on:click={toggleIDList} class="rounded-2xl w-full h-8 px-4"/>
         {#if all_stocks.length > 0 && showIDList}
-          <ul class="absolute w-1/4 bg-white shadow-md z-10">
+          <ul class={`${all_stocks.length > 5 ? 'h-40' : 'h-fit'} mt-2 overflow-y-auto absolute w-1/4 bg-white shadow-md z-10`}>
             {#each all_stocks as stock}
               <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_detail_id} - {stock.ProductDetails.product_name}</li>
             {/each}
@@ -593,7 +593,7 @@
         <div class="text-[#f7d4b2] mb-1">Product Name</div>
         <input type="text" bind:value={productName} on:click={toggleNameList} class="rounded-2xl w-full h-8 px-4"/>
         {#if all_stocks.length > 0 && showNameList}
-        <ul class="absolute w-1/4  bg-white shadow-md z-10">
+        <ul class={`${all_stocks.length > 5 ? 'h-24' : 'h-fit'} mt-2 overflow-y-auto absolute w-1/4  bg-white shadow-md z-10`}>
           {#each all_stocks as stock}
             <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_name} - {stock.ProductDetails.product_detail_id}</li>
           {/each}

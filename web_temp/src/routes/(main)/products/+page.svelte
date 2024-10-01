@@ -54,7 +54,7 @@
     showTable1 = !showTable1;
   }
   async function fetchWarehouse() {
-      const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}`, {
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/''/0/0`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
