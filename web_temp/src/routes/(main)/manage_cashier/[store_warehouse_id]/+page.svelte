@@ -149,7 +149,7 @@
          return;
       }
 
-    totalRows = data.data.length;
+    totalRows = data.total_rows;
     all_session = data.data;
     filteredSessions = structuredClone(all_session);
     console.log("all session",data);
@@ -300,17 +300,17 @@
     <div class="w-11/12 my-10">
         <div class="flex">
             {#if tampilan == "session"}
-                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified(); clearVariable()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
-                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
-                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
+                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified(); goToPage(1); clearVariable()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
+                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession(); goToPage(1); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
+                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions(); goToPage(1); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {:else if tampilan == "session_all"}
-                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
-                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession(); clearVariable()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
-                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
+                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified(); goToPage(1); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
+                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession(); goToPage(1); clearVariable()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
+                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions(); goToPage(1); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {:else if tampilan == "transaction"}
-                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
-                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession(); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
-                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions(); clearVariable()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
+                <button on:click={async() => {tampilan = "session"; tampilan = tampilan; await fetchSessionNotVerified(); goToPage(1); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Session Not Verified</button>
+                <button on:click={async() => {tampilan = "session_all"; tampilan = tampilan; await fetchAllSWSession(); goToPage(1); clearVariable()}} class="mx-4 bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Session</button>
+                <button on:click={async() => {tampilan = "transaction"; tampilan = tampilan; await fetchTransactions(); goToPage(1); clearVariable()}} class="mx-4 bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Transaction</button>
             {/if}
         </div>    
     </div>
