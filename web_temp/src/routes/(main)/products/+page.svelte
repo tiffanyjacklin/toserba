@@ -176,7 +176,7 @@
   });
 
   async function fetchProduk() {
-      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}`, {
+      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'

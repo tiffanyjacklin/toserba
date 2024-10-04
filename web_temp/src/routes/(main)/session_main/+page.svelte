@@ -299,8 +299,9 @@
     }
 
     async function fetchProduk() {
+
         // /products/store_warehouse/:user_id/:role_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset
-        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}/${startPrice}/${endPrice}/${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}`, {
+        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}//${startPrice}/${endPrice}/${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

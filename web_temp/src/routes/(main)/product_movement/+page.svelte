@@ -58,6 +58,7 @@
     let showTable1 = false;
     let warehouses = [];
     $: store_name = '';
+    $: store_name_temp = '';
     let showFilter = false;
     let showWarehouseList = false;
 
@@ -92,7 +93,7 @@
       showTable1 = !showTable1;
     }
     async function fetchWarehouses() {
-        const response = await fetch(`http://${$uri}:8888/store_warehouses/type/store/${store_name}/0/0`, {
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/type/store/${store_name_temp}/0/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -224,6 +225,14 @@
         products = [...data.data];  
         
     }
+    
+    $: if ((store_name_temp !== store_name) ){
+      store_name_temp = store_name;
+      fetchWarehouses();
+    } else{
+      store_name_temp = '';
+    }
+
     $: if ((searchQuery_temp !== searchQuery) ){
       console.log(searchQuery);
       fetchProducts();

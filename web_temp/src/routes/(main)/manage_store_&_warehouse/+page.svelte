@@ -394,7 +394,7 @@
         <div class="relative overflow-x-auto sm:rounded-lg">
           {#each all_store_warehouses as sw}
           <button class="w-full h-full flex border-2 rounded-xl ml-auto border-gray-700 my-3 hover:bg-gray-200" type="button"
-            on:click={() => {fetchSpecificSW(sw.store_warehouse_id); handleClick(sw.store_warehouse_id)}}>                        
+            on:click={() => {fetchSpecificSW(sw.store_warehouse_id); handleClick(sw.store_warehouse_id); tampilan = 'View';}}>                        
             <div class="m-4 w-1/12 flex items-center">
               <img class="rounded-lg aspect-square" src={supermarket} alt="">
             </div>
@@ -575,7 +575,13 @@
       <span class="text-peach font-semibold mb-1  capitalize flex">
         <div>Location Type</div>
       </span>
-      <input type="text" bind:value={sw_specific.store_warehouse_type} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+      
+      <div class="flex gap-x-2">
+        <button class={`w-48 py-2 rounded-2xl font-semibold border border-transparent p-2 hover:border-peach2 hover:text-peach2 ${sw_type === 'STORE' || sw_specific.store_warehouse_type === 'Store' ? 'bg-white text-peach2' : 'bg-gray-300'} `}
+        on:click={() => {sw_type = "STORE"}} >Store</button>
+        <button class={`w-48 py-2 rounded-2xl font-semibold p-2  border border-transparent hover:border-peach2 hover:text-peach2 ${sw_type === 'WAREHOUSE' || sw_specific.store_warehouse_type === 'Warehouse' ? 'bg-white text-peach2' : 'bg-gray-300'} `}
+        on:click={() => {sw_type = "WAREHOUSE"}} >Warehouse</button>
+      </div>
     </div>
     <div class="flex flex-col my-2">
       <span class="text-peach font-semibold mb-1">Province</span>
