@@ -475,6 +475,11 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                             Container(
                                 width: MediaQuery.of(context).size.width * 0.70,
                                 child: NumberPaginator(
+                                  config: NumberPaginatorUIConfig(
+                                    buttonUnselectedForegroundColor: Colors.black,
+                                    buttonSelectedBackgroundColor: Colors.black,
+                                    buttonSelectedForegroundColor: Colors.white, 
+                                  ),
                                   // by default, the paginator shows numbers as center content
                                   numberPages: provider.getMaxPage(),
                                   onPageChange: (int index) {},

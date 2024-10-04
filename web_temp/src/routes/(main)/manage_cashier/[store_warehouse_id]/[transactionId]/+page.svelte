@@ -120,7 +120,7 @@
     }
     async function getStoreWarehouse() {
         let response;
-        response = await fetch(`http://${$uri}:8888/store_warehouses/${cashier_id}/1`, {
+        response = await fetch(`http://${$uri}:8888/store_warehouses/${cashier_id}/1/''/10/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Model/AllProduct.dart';
@@ -104,7 +106,6 @@ class SubstractProductProvider extends ChangeNotifier {
     _suggestionItem = [];
     List<opname.Data> result = await _fetchSuggestionName(name, '', '');
     _suggestionItem = result.where((i) => i.expectedStock! > 0).toList();
-
     notifyListeners();
   }
 
@@ -112,12 +113,17 @@ class SubstractProductProvider extends ChangeNotifier {
     // var batch = '';
     // var unitType = '';
 
+    try{
     // NOTE : kalo mau satu kosong bisa di "-" , batch misal -
     final link =
         'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/${this._storeId}/$name/$batch///////0/0';
 
     // call api
-    final response = await http.get(Uri.parse(link));
+    final response = await http.get(Uri.parse(link)).timeout(const Duration(seconds: 10))
+          .catchError((error, stacktrace) {
+        print("catched error");
+      });
+
     print('---> response ' + response.statusCode.toString());
     print(link);
 
@@ -135,42 +141,49 @@ class SubstractProductProvider extends ChangeNotifier {
       print('fetch failed');
       return [];
     }
+    }  on SocketException catch (e) {
+      print("Caught socketexception: $e");
+    } on TimeoutException catch (e) {
+      print('Caught: $e');
+    } catch (e) {}
+    //print('Done');
+    return [];
   }
 
 
-  Future<void> fetchProduct(int userId, int roleId, String search) async {
-        // ${$userId}/${$roleId}///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}
-    final link =
-        'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId///$search/////10/0';
+  // Future<void> fetchProduct(int userId, int roleId, int swId, String search) async {
+  //       // ${$userId}/${$roleId}///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}
+  //   final link =
+  //       'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId/$swId///$search/////10/0';
     
-    print(link);
+  //   print(link);
 
-    // call api
-    final response = await http.get(Uri.parse(link));
-    print('---> response ' + response.statusCode.toString());
+  //   // call api
+  //   final response = await http.get(Uri.parse(link));
+  //   print('---> response ' + response.statusCode.toString());
 
-    // cek status
-    if (response.statusCode == 200) {
-      // misal oke berati masuk
-      // json
-      Map<String, dynamic> temp = json.decode(response.body);
-      // decode?
-      print(response.body);
-      if (temp['status'] == 200) {
-        print(temp);
-        listAutoComplete = FetchAllProducts.fromJson(temp).data!;
-        notifyListeners();
-      } else {
-        listAutoComplete = [];
-      }
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      // throw Exception('Login Failed, Try Again');
-      print('fetch failed');
-      listAutoComplete = [];
-    }
-  }
+  //   // cek status
+  //   if (response.statusCode == 200) {
+  //     // misal oke berati masuk
+  //     // json
+  //     Map<String, dynamic> temp = json.decode(response.body);
+  //     // decode?
+  //     print(response.body);
+  //     if (temp['status'] == 200) {
+  //       print(temp);
+  //       listAutoComplete = FetchAllProducts.fromJson(temp).data!;
+  //       notifyListeners();
+  //     } else {
+  //       listAutoComplete = [];
+  //     }
+  //   } else {
+  //     // If the server did not return a 200 OK response,
+  //     // then throw an exception.
+  //     // throw Exception('Login Failed, Try Again');
+  //     print('fetch failed');
+  //     listAutoComplete = [];
+  //   }
+  // }
 
 //   // Menambah subtract product baru
 // e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractStock)

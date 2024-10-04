@@ -16,6 +16,7 @@ import 'package:flutter_app_all/Page/Warehouse%20Employee/stock_transfer_notes_p
 import 'package:flutter_app_all/Page/Warehouse%20Employee/substract_product_page.dart';
 import 'package:http/http.dart' as http;
 
+
 class RouteProvider extends ChangeNotifier {
   List<DataPrivileges> _priviledge = [];
   List<DataPrivileges> _menuPrividges = [];
@@ -30,6 +31,7 @@ class RouteProvider extends ChangeNotifier {
   }
 
   int get selectedMenuIndex => _indexSidebar;
+
 
   // List<String> get sidebarMenu {
   //   List<String> result = [];

@@ -24,6 +24,7 @@
   let product = [];
 
   $: searchQuery = '';
+  $: searchQuery_temp = '';
   $: searchQuery_name = '';
   $: searchQuery_id = '';
   $: searchQueryStore = '';
@@ -116,6 +117,23 @@
       console.log(all_stores);
       
   }
+  
+  $: if ((productName !== searchQuery_temp || productId !== searchQuery_temp)){
+    if (productName !== ''){
+      searchQuery_temp = productName;
+    }
+    if (productId !== ''){
+      searchQuery_temp = productId;
+    }
+    fetchProducts();
+  } else{
+    searchQuery_temp = '';
+  }
+  $: if (productName === '' && productId === ''){
+    searchQuery_temp = '';
+    fetchProducts();
+  }
+
   $: if ((searchQueryStore_temp !== searchQueryStore) ){
     console.log(searchQueryStore);
     fetchStore();
@@ -196,7 +214,9 @@
       console.log(expired_dates);
   }
   async function fetchProducts() {
-      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}///${searchQuery}/////0/0`, {
+    console.log('temp', searchQuery_temp);
+    console.log(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////${searchQuery_temp}/////0/0`);
+      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////${searchQuery_temp}/////0/0`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'

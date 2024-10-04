@@ -60,7 +60,7 @@
     warehouse = data.data[0].StoreWarehouses;
   }
   async function fetchProducts() {
-    const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////////0/0`, {
+    const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}/////////0/0`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'

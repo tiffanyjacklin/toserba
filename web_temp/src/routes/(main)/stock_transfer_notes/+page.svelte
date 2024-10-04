@@ -16,7 +16,7 @@
   let endDate = '';
   let showFilter = false;
 
-  
+  let totalRemainingQuantity = 0;
   let tf_notes = [];
   let transfer_notes = [];
   let tf_notes_details = [];
@@ -66,6 +66,7 @@
     console.log(warehouse);
   }
   async function fetchTransferNotes() {
+    console.log(`http://${$uri}:8888/orders/transfer/notes/all/${searchQuery}/${warehouse.StoreWarehouses.store_warehouse_id}//${verify_status}/${send_status}/${startDate}/${endDate}/${limit}/${offset}`);
     const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/all/${searchQuery}/${warehouse.StoreWarehouses.store_warehouse_id}//${verify_status}/${send_status}/${startDate}/${endDate}/${limit}/${offset}`, {
         method: 'GET',
         headers: {
@@ -90,6 +91,7 @@
     console.log(transfer_notes);
   }
   async function fetchTransferNotesDetails(transfer_note_id) {
+    console.log(`http://${$uri}:8888/orders/transfer/notes/detail/${transfer_note_id}`);
     const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/detail/${transfer_note_id}`, {
         method: 'GET',
         headers: {
@@ -114,6 +116,8 @@
     transfer_notes_details = [...tf_notes_details];
     console.log("tf", tf_notes_details);
     console.log("tfd", transfer_notes_details);
+    totalRemainingQuantity = transfer_notes_details.reduce((sum, item) => sum + item.remaining_quantity, 0);
+    
   }
   async function toggleDeliveryOrderByID(delivery_order, id) {
     if (showSuratJalan && idSuratJalan === id) {
@@ -545,7 +549,7 @@
 
             <div class="">
               <div class="text-[#f7d4b2]">Delivery Order</div>
-              {#if delivery_orders.length > 0}
+              {#if delivery_orders.length > 0 }
                 {#each delivery_orders as delivery_order}
                 <div class="flex mx-auto items-center rounded-lg bg-white text-black my-2">
                   <div class="w-10/12 flex mx-auto justify-start ml-4">
@@ -668,7 +672,7 @@
               {/if}
               <div class="flex items-center justify-start">
                 <button type="button" on:click={() => toggleModalView(note.transfer_note_id)} class="mt-2 flex w-2/4 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center"
-                  disabled={note.status_verify == 0}>
+                  disabled={(note.status_verify == 0 || note.status_send == 1)}>
                   <div class="w-2/12 flex justify-center">
                     <i class="fa-solid fa-plus"></i>
                   </div>
@@ -678,11 +682,11 @@
                 </button>
                
               </div>
-              <!-- {#if note.remaining_quantity > 0} -->
+              {#if totalRemainingQuantity > 0}
               <div class="text-white text-lg font-semibold mt-2">
-                WARNING:   product(s) not loaded.
+                WARNING: {totalRemainingQuantity} product(s) not loaded.
               </div>
-                <!-- {/if} -->
+              {/if}
               </div>
            
             <div class="flex items-center justify-center">

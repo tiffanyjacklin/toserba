@@ -697,6 +697,9 @@ class TableStockCardAllProducts2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DataTable(
+       border: TableBorder(
+     horizontalInside: BorderSide(color: Colors.black, width: 0.7),
+  ),
       columns: [
         DataColumn(
           label: Text('No.', style: TableContentTextStyle.textStyle),
