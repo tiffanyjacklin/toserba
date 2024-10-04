@@ -26,6 +26,16 @@
     $: offset = 0;
     $: currentPage = 1; 
     $: totalRows = 0;
+
+    //BUAT FILTER
+    let start_date = '';
+    let end_date = '';
+    let category = '';
+    let unit_type = '';
+    let start_price = 0;
+    let end_price = 999999999;
+
+    let showFilter = false;
     
     //PRODUCTS
     let products = [];
@@ -63,6 +73,9 @@
     function closeModal() {
         showModal = null;
     }
+    function toggleFilter() {
+      showFilter = !showFilter;
+    }
     function toggleTable(id) {
         showTable = !showTable;
         if (showTable){
@@ -73,7 +86,8 @@
     }
 
     async function fetchProduk() {
-        const response = await fetch(`http://${$uri}:8888/products/${limit}/${offset}`, {
+        // const response = await fetch(`http://${$uri}:8888/products/${limit}/${offset}`, {
+        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}/${store_warehouse_id}/${start_price}/${end_price}/${searchQuery_product}/${category}/${unit_type}/''/''/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -169,7 +183,7 @@
     }
     
     async function fetchStockCardHistory() {
-        const response = await fetch(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${store_warehouse_id}/''/''/''/''/''/${searchQuery_stock}/${limit}/${offset}`, {
+        const response = await fetch(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${store_warehouse_id}/${start_date}/${end_date}/${category}/${unit_type}/''/${searchQuery_stock}/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -479,18 +493,28 @@
             return;
         }
         // console.log("verify session :",data);
-      }
+  }
+
+  function clearVariable(){
+        start_date = '';
+        end_date = '';
+        category = '';
+        unit_type = '';
+        start_price = 0;
+        end_price = 999999999;
+    }
+
 
     //HANDLE SEARCH BAR
     //products
-    $: if (searchQuery_product.length > 0) {
-        all_produk = products.filter(item => 
-            item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
-            item.ProductDetails.product_detail_id.toString().includes(searchQuery_product)
-        );
-    } else {
-        all_produk = [...products];
-    }
+    // $: if (searchQuery_product.length > 0) {
+    //     all_produk = products.filter(item => 
+    //         item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
+    //         item.ProductDetails.product_detail_id.toString().includes(searchQuery_product)
+    //     );
+    // } else {
+    //     all_produk = [...products];
+    // }
     //stock history
     $: if ((searchQuery_temp !== searchQuery_stock) ){
         console.log(searchQuery_stock);
@@ -575,13 +599,46 @@
     {#if tampilan != "add_product"}
          <label for="voice-search" class="sr-only">Search</label>
          <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
-          {#if tampilan == "product"}
+          {#if tampilan == "products"}
             <input 
             type="text" 
             id="voice-search" 
             bind:value={searchQuery_product}
             class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
             placeholder="Search..."/>
+            <button on:click={toggleFilter}
+            type="button" 
+            class="absolute inset-y-0 end-0 flex items-center pe-3 ">
+            <i class="fa-solid fa-sliders fa-xl mr-2"></i>
+          </button>
+          {#if showFilter}
+            <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/5 bg-gray-100 p-4 rounded-lg font-roboto">
+              <span class="font-bold text-xl mb-4">Price Range</span>
+              <div class="flex gap-x-4 w-full items-center mt-2">
+                <span class="font-semibold text-lg ">From</span>
+                <MoneyInput bind:value={start_price} shadow={false}/>
+                <span class="font-semibold text-lg ">To</span>
+                <MoneyInput bind:value={end_price} shadow={false}/>
+              </div>
+
+              <span class="font-bold text-xl mb-1">Unit Type</span>
+              <div class="grid grid-cols-4 flex w-full flex-wrap">
+                  <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "unit") ? "unit" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'unit' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Units</button>
+                  <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "gram") ? "gram" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'gram' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Grams</button>
+              </div>
+              <span class="font-bold text-xl mb-1">Product Category</span>
+              <div class="grid grid-cols-4 flex w-full flex-wrap">
+                {#each product_category as cat}
+                  <button on:click={() => {category = (category === '' || category !== cat.product_category_id) ? cat.product_category_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.product_category_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cat.product_category_name}</button>
+                {/each}
+              </div>
+              
+              <div class="flex justify-between font-semibold mt-4">
+                  <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => {clearVariable()}}>Clear</button>
+                  <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async() => {await fetchProduk(); toggleFilter(); clearVariable()}}>Apply</button>
+              </div>
+            </div>
+          {/if}
           {:else if tampilan == "stock_history"}
             <input 
             type="text" 
@@ -589,6 +646,39 @@
             bind:value={searchQuery_stock}
             class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
             placeholder="Search..."/>
+            <button on:click={toggleFilter}
+            type="button" 
+            class="absolute inset-y-0 end-0 flex items-center pe-3 ">
+            <i class="fa-solid fa-sliders fa-xl mr-2"></i>
+          </button>
+          {#if showFilter}
+            <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/5 bg-gray-100 p-4 rounded-lg font-roboto">
+              <span class="font-bold text-xl mb-1">Time Period</span>
+              <div class="flex gap-x-4 w-full items-center">
+                <span class="font-semibold text-lg mb-4">From</span>
+                <input type="date" bind:value={start_date} class="rounded-xl w-32 mb-4 p-2 border" />
+                <span class="font-semibold text-lg mb-4">To</span>
+                <input type="date" bind:value={end_date} class="rounded-xl w-32 mb-4 p-2 border" />
+              </div>
+
+              <span class="font-bold text-xl mb-1">Unit Type</span>
+              <div class="grid grid-cols-4 flex w-full flex-wrap">
+                  <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "unit") ? "unit" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'unit' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Units</button>
+                  <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "gram") ? "gram" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'gram' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Grams</button>
+              </div>
+              <span class="font-bold text-xl mb-1">Product Category</span>
+              <div class="grid grid-cols-4 flex w-full flex-wrap">
+                {#each product_category as cat}
+                  <button on:click={() => {category = (category === '' || category !== cat.product_category_id) ? cat.product_category_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.product_category_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cat.product_category_name}</button>
+                {/each}
+              </div>
+              
+              <div class="flex justify-between font-semibold mt-4">
+                  <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => {clearVariable()}}>Clear</button>
+                  <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async() => {await fetchStockCardHistory(); toggleFilter(); clearVariable()}}>Apply</button>
+              </div>
+            </div>
+          {/if}
           {:else if tampilan == "verify_add_subtract"}
             <input 
               type="text" 
@@ -643,43 +733,50 @@
       {#if tampilan == "products"}
         <div class="w-[96%] my-5 font-roboto">
             <div class="relative overflow-x-auto sm:rounded-lg">
-            {#each all_produk as product}
-                <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3">                        
-                    <div class="m-4 w-1/12 flex">
-                    <img class="rounded-lg " src={img_produk} alt="">
-                    </div>
-                        <div class="py-4 w-8/12">
-                            <div class="font-bold text-[#f2b082] whitespace-nowrap text-lg">
-                            #{product.ProductDetails.product_detail_id}
-                            </div>
-                            <div class="font-semibold text-xl">
-                            {product.ProductDetails.product_name}
-                            </div>
-                        </div>
-                    <div class="px-6 py-4 font-semibold w-3/12 flex flex-col items-center self-center">
-                        <div class="flex justify-center text-xl">
-                            Stock: {product.ProductDetails.product_stock} {product.ProductDetails.product_unit}
-                        </div>
-                        <div  class="flex items-center justify-center py-2 w-full">
-                            <button 
-                            on:click={() => {handleClick(product.ProductDetails.product_detail_id); tampilan_modal = "products_modal"}}
-                            type="button" 
-                            class="h-10 px-4 w-40 inline-flex items-center justify-start font-bold rounded-3xl bg-[#3d4c52] text-[#f2b082] hover:shadow-2xl">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                                <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" />
-                            </svg>
-                            <div class="text-lg text-white font-semibold w-full">View</div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            {/each}
+            {#if all_produk.length > 0 }
+              {#each all_produk as product}
+                  <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3">                        
+                      <div class="m-4 w-1/12 flex">
+                      <img class="rounded-lg " src={img_produk} alt="">
+                      </div>
+                          <div class="py-4 w-8/12">
+                              <div class="font-bold text-[#f2b082] whitespace-nowrap text-lg">
+                              #{product.ProductDetails.product_detail_id}
+                              </div>
+                              <div class="font-semibold text-xl">
+                              {product.ProductDetails.product_name}
+                              </div>
+                          </div>
+                      <div class="px-6 py-4 font-semibold w-3/12 flex flex-col items-center self-center">
+                          <div class="flex justify-center text-xl">
+                              Stock: {product.ProductDetails.product_stock} {product.ProductDetails.product_unit}
+                          </div>
+                          <div  class="flex items-center justify-center py-2 w-full">
+                              <button 
+                              on:click={() => {handleClick(product.ProductDetails.product_detail_id);stock_card_product = []; fetchStockCard(product.ProductDetails.product_detail_id); tampilan_modal = "products_modal"}}
+                              type="button" 
+                              class="h-10 px-4 w-40 inline-flex items-center justify-start font-bold rounded-3xl bg-[#3d4c52] text-[#f2b082] hover:shadow-2xl">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                  <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                                  <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" />
+                              </svg>
+                              <div class="text-lg text-white font-semibold w-full">View</div>
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              {/each}
+            {:else}
+              <div class="flex justify-center w-full">
+                <span>No Product Found</span>
+              </div>
+            {/if}
             </div>
         </div>
       {:else if tampilan == "stock_history"}
         <div class="w-11/12">
           <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            {#if filtered_stock_card_history.length > 0}
             <table class="w-full text-sm text-left rtl:text-right">
               <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                 <tr class="border-b-2 border-black">
@@ -746,6 +843,11 @@
                 {/each}
               </tbody>
             </table>
+            {:else}
+              <div class="flex justify-center items-center w-full">
+                <span class="h-48">No Result Found</span>
+              </div>
+            {/if}
           </div>
         </div>
       {:else if tampilan == "verify_add"}
@@ -1131,7 +1233,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
                 </svg>
-                Print Receipt
+                Print Stock Card
               </button>
             </div>
             <div class="">
