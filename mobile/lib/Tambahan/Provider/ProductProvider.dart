@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_all/Model/AllProduct.dart';
@@ -23,10 +25,10 @@ class ResultFilter {
 }
 
 class ProductProvider extends ChangeNotifier {
-  ProductProvider(int userId, int roleId) {
+  ProductProvider(int userId, int roleId, int swId) {
     fetchAllSorting();
     fetchAllProductCategories();
-    fetchProduct(userId, roleId).then((onValue) => {});
+    fetchProduct(userId, roleId, swId).then((onValue) => {});
   }
 
   List<Data> _listProduct = [];
@@ -124,12 +126,12 @@ class ProductProvider extends ChangeNotifier {
         productOrder: sortBy, sort: asc, unit: unit, type: category);
   }
 
-  void clickFilter(int userId, int roleId ,String name) {
+  void clickFilter(int userId, int roleId, int swId ,String name) {
     isFiltering = !isFiltering;
 
     if (!isFiltering) {
       var resultfilter = getResult();
-      fetchProduct(userId, roleId, searchQuery: name, sorting: resultfilter.sort, sort_type: resultfilter.productOrder, category: resultfilter.type, unit_type: resultfilter.unit, );
+      fetchProduct(userId, roleId , swId, searchQuery: name, sorting: resultfilter.sort, sort_type: resultfilter.productOrder, category: resultfilter.type, unit_type: resultfilter.unit, );
     }
     notifyListeners();
   }
@@ -153,16 +155,16 @@ class ProductProvider extends ChangeNotifier {
         (indexPageNow * itemPerPage), ((indexPageNow + 1) * itemPerPage));
   }
 
-  Future<void> fetchProduct(int userId, int roleId,
+  Future<void> fetchProduct(int userId, int roleId, int swId,
       {
       String searchQuery = '',
       String category = '',
       String unit_type = '',
       String sort_type = '',
       String sorting = ''}) async {
-        // ${$userId}/${$roleId}///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}
+        // products/store_warehouse/:user_id/:role_id/:sw_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset
     final link =
-        'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/$limit/0';
+        'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId/$swId///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/$limit/0';
         print(link);
     isLoading = true;
     notifyListeners();
@@ -228,11 +230,17 @@ class ProductProvider extends ChangeNotifier {
   }
 
   Future<void> fetchAllSorting() async {
+
+    try{
     // http://leap.crossnet.co.id:8888/products/category
     final link = 'http://leap.crossnet.co.id:8888/products/sorting';
 
     // call api (method PUT)
-    final response = await http.get(Uri.parse(link));
+    final response = await http.get(Uri.parse(link)).timeout(const Duration(seconds: 10))
+          .catchError((error, stacktrace) {
+        print("catched error");
+      });
+    
     print('---> response ' + response.statusCode.toString());
 
     // cek status
@@ -253,5 +261,12 @@ class ProductProvider extends ChangeNotifier {
     } else {
       print('fetch failed');
     }
+    } on SocketException catch (e) {
+      print("Caught socketexception: $e");
+    } on TimeoutException catch (e) {
+      print('Caught: $e');
+    } catch (e) {}
+    //print('Done');
+    return null;
   }
 }

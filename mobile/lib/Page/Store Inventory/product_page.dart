@@ -90,7 +90,7 @@ class ProductPages extends StatelessWidget {
     var provider = Provider.of<AuthState>(context);
     return ChangeNotifierProvider(
       create: (context) =>
-          ProductProvider(provider.userData.userId!, provider.userData.roleId!),
+          ProductProvider(provider.userData.userId!, provider.userData.roleId!, provider.userData.storeWarehouseId!),
       child: ProductPage(),
     );
   }
@@ -154,7 +154,7 @@ class _ProductPageState extends State<ProductPage> {
                   ),
                   controller: controllerSearch,
                   onSubmitted: (value) {
-                    providerProduct.fetchProduct(userId, roleId,
+                    providerProduct.fetchProduct(userId, roleId, providerAuth.userData.storeWarehouseId!,
                         searchQuery: controllerSearch.text);
                   },
                   decoration: InputDecoration(
@@ -171,7 +171,7 @@ class _ProductPageState extends State<ProductPage> {
                     suffixIcon: IconButton(
                         onPressed: () {
                           providerProduct.clickFilter(
-                              providerAuth.userData.userId!, providerAuth.userData.roleId!, controllerSearch.text);
+                              providerAuth.userData.userId!, providerAuth.userData.roleId!, providerAuth.userData.storeWarehouseId!, controllerSearch.text);
                         },
                         icon: Icon(Icons.filter_list)),
                   ),
@@ -598,6 +598,11 @@ class _ProductPageState extends State<ProductPage> {
                             Container(
                                 width: MediaQuery.of(context).size.width * 0.70,
                                 child: NumberPaginator(
+                                  config: NumberPaginatorUIConfig(
+                                    buttonUnselectedForegroundColor: Colors.black,
+                                    buttonSelectedBackgroundColor: Colors.black,
+                                    buttonSelectedForegroundColor: Colors.white, 
+                                  ),
                                   // by default, the paginator shows numbers as center content
                                   numberPages: providerProduct.getMaxPage(),
                                   onPageChange: (int index) {},
@@ -762,7 +767,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.9,
+        width: MediaQuery.of(context).size.width * 0.8,
         decoration: BoxDecoration(
           color: ColorPalleteLogin.PrimaryColor,
           borderRadius: BorderRadius.circular(20),

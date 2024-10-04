@@ -437,6 +437,11 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                               Container(
                                 width: MediaQuery.of(context).size.width * 0.7,
                                 child: NumberPaginator(
+                                  config: NumberPaginatorUIConfig(
+                                    buttonUnselectedForegroundColor: Colors.black,
+                                    buttonSelectedBackgroundColor: Colors.black,
+                                    buttonSelectedForegroundColor: Colors.white, 
+                                  ),
                                   controller:
                                       providerInventory.paginatorController,
                                   // by default, the paginator shows numbers as center content
@@ -1057,7 +1062,7 @@ class DiscardPopup extends StatelessWidget {
                   Expanded(
                     flex: 4,
                     child: Text(
-                      'Are you sure you want to discard the changes you\'ve made?',
+                      'Are you sure want to discard the changes you\'ve made?',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 16,

@@ -99,16 +99,14 @@ class _NotificationPageState extends State<NotificationPage> {
                         ? Container()
                         : Container(
                           width: MediaQuery.of(context).size.width * 0.65,
-                          child: SingleChildScrollView(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: providerNotification.listNotification.length,
-                                itemBuilder: (context, index) {
-                                  return NotificationChild(dataNotif: providerNotification.listNotification[index]);
-                                },
-                              ),
-                            ),
-                        )
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: providerNotification.listNotification.length,
+                            itemBuilder: (context, index) {
+                              return NotificationChild(dataNotif: providerNotification.listNotification[index]);
+                            },
+                          ),
+                        ),
               ],
             ),
           ),
@@ -119,7 +117,7 @@ class _NotificationPageState extends State<NotificationPage> {
 }
 
 class NotificationChild extends StatelessWidget {
-  Data dataNotif;
+  final Data dataNotif;
 
   NotificationChild({
     required this.dataNotif,

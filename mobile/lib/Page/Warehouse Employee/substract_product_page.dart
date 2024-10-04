@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
@@ -12,37 +13,47 @@ import 'package:flutter_app_all/Model/StockOpname.dart' as opname;
 import 'package:provider/provider.dart';
 import 'package:flutter_app_all/Model/AllProduct.dart' as product;
 
-Future fetchProduct(int userId, int roleId, String search) async {
+Future<List<product.Data>> fetchProduct(
+    int userId, int roleId, int swId, String search) async {
   // ${$userId}/${$roleId}///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}
-  final link =
-      'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId///$search/////10/0';
 
-  print(link);
+  try {
+    final link =
+        'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId/$swId///$search/////10/0';
 
-  // call api
-  final response = await http.get(Uri.parse(link));
-  print('---> response ' + response.statusCode.toString());
+    print(link);
 
-  // cek status
-  if (response.statusCode == 200) {
-    // misal oke berati masuk
-    // json
-    Map<String, dynamic> temp = json.decode(response.body);
-    // decode?
-    print(response.body);
-    if (temp['status'] == 200) {
-      print(temp);
-      return product.FetchAllProducts.fromJson(temp).data!;
+    // call api
+    final response = await http.get(Uri.parse(link));
+    print('---> response ' + response.statusCode.toString());
+
+    // cek status
+    if (response.statusCode == 200) {
+      // misal oke berati masuk
+      // json
+      Map<String, dynamic> temp = json.decode(response.body);
+      // decode?
+      print(response.body);
+      if (temp['status'] == 200) {
+        print(temp);
+        return product.FetchAllProducts.fromJson(temp).data!;
+      } else {
+        return [];
+      }
     } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      // throw Exception('Login Failed, Try Again');
+      print('fetch failed');
       return [];
     }
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    // throw Exception('Login Failed, Try Again');
-    print('fetch failed');
-    return [];
-  }
+  } on SocketException catch (e) {
+    print("Caught socketexception: $e");
+  } on TimeoutException catch (e) {
+    print('Caught: $e');
+  } catch (e) {}
+  //print('Done');
+  return [];
 }
 
 class SubstractProductPageWithProvider extends StatefulWidget {
@@ -90,13 +101,13 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20.0),
+            borderRadius: BorderRadius.circular(28.0),
             border: Border.all(color: Colors.grey),
           ),
           width: MediaQuery.of(context).size.width,
           child: Padding(
             padding: const EdgeInsets.only(
-                left: 8.0, right: 8.0, top: 16.0, bottom: 8.0),
+                left: 4.0, right: 4.0, top: 16.0, bottom: 8.0),
             child: Column(children: [
               // judul
               TitlePage(name: 'Substract Product'),
@@ -163,100 +174,21 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
                               // >> note : BELUM DI LIMIT
                               child: SizedBox(
-                                // child: TextField(
-                                //     controller: controllerName,
-                                //     keyboardType: TextInputType.name,
-                                //     textAlign: TextAlign.start,
-                                //     style: TextStyle(fontSize: 16),
-                                //     decoration: InputDecoration(
-                                //       contentPadding: EdgeInsets.all(5.0),
-                                //       isDense: true,
-                                //       filled: true,
-                                //       fillColor: Colors.white,
-                                //       border: OutlineInputBorder(
-                                //         borderRadius: const BorderRadius.all(
-                                //           const Radius.circular(10.0),
-                                //         ),
-                                //         borderSide: new BorderSide(
-                                //           color: Colors.black,
-                                //           width: 1.0,
-                                //         ),
-                                //       ),
-                                //     ),
-                                //     onSubmitted: (value) {
-                                //       // lakukan sesuatu
-                                //       providerSubstract.searchItemByName(controllerName.text);
-                                //     },
-                                //   ),
-
-                                //   child: SearchAnchor(builder:
-                                //       (BuildContext context,
-                                //           SearchController controller) {
-                                //     return SearchBar(
-                                //       controller: controllerName,
-                                //       keyboardType: TextInputType.name,
-                                //       hintText: 'Search Name',
-                                //       backgroundColor:
-                                //           WidgetStateProperty.all<Color>(
-                                //               Colors.white),
-                                //       onSubmitted: (value) {
-                                //         // lakukan sesuatu
-                                //         providerSubstract.searchItemByName(
-                                //             controllerName.text);
-                                //       },
-                                //     );
-                                //   }, suggestionsBuilder: (BuildContext context,
-                                //       SearchController controller) {
-                                //     return List<ListTile>.generate(5,
-                                //         (int index) {
-                                //       final String item = 'item $index';
-                                //       return ListTile(
-                                //         title: Text(item),
-                                //         onTap: () {
-                                //           setState(() {
-                                //             controller.closeView(item);
-                                //           });
-                                //         },
-                                //       );
-                                //     });
-                                //   }),
-
-                                // child: Autocomplete<product.Data>(
-                                //     fieldViewBuilder: (context,
-                                //             textEditingController,
-                                //             focusNode,
-                                //             onFieldSubmitted) =>
-                                //         TextField(
-                                //           decoration: InputDecoration(
-                                //               hintText: 'Search Name Product'),
-                                //         ),
-                                // optionsBuilder: (TextEditingValue value) async {
-                                //   if(value.text.isEmpty){
-                                //     return [];
-                                //   }
-                                //   else{
-                                //     final suggestion = await fetchProduct(providerAuth.userData.userId!, providerAuth.userData.roleId!, value.text.toLowerCase());
-                                //     providerSubstract.listAutoComplete = suggestion;
-                                //     return suggestion;
-                                //   }
-                                // } ,
-                                //     displayStringForOption: (option) => option.productDetails!.productName!,
-                                //     onSelected: (value) {
-                                //       providerSubstract.searchItemByName(value.toString());
-                                //     },
-                                //     ),
                                 child: TypeAheadField<product.Data>(
+                                  debounceDuration: Duration(milliseconds: 200),
                                   controller: controllerName,
                                   hideWithKeyboard: false,
                                   itemBuilder: (context, value) {
                                     return ListTile(
-                                      title: Text(value.productDetails!.productName!),
+                                      title: Text(
+                                          value.productDetails!.productName!),
                                     );
                                   },
                                   onSelected: (value) {
-                                    controllerName.text = value.productDetails!.productName!;
-                                    providerSubstract
-                                        .searchItemByName(value.productDetails!.productName!);
+                                    controllerName.text =
+                                        value.productDetails!.productName!;
+                                    providerSubstract.searchItemByName(
+                                        value.productDetails!.productName!);
                                   },
                                   suggestionsCallback: (search) async {
                                     if (search.isEmpty) {
@@ -265,6 +197,8 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                                       final suggestion = await fetchProduct(
                                           providerAuth.userData.userId!,
                                           providerAuth.userData.roleId!,
+                                          providerAuth
+                                              .userData.storeWarehouseId!,
                                           search.toLowerCase());
                                       providerSubstract.listAutoComplete =
                                           suggestion;
@@ -473,35 +407,35 @@ class TableSubstractProduct extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('PRODUCT NAME',
-                        style: TableContentTextStyle.textStyle),
+                        softWrap: true, style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child:
-                        Text('BATCH', style: TableContentTextStyle.textStyle),
+                    child: Text('BATCH',
+                        softWrap: true, style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child:
-                        Text('STOCK', style: TableContentTextStyle.textStyle),
+                    child: Text('STOCK',
+                        softWrap: true, style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('SUBSTRACT AMOUNT',
-                        style: TableContentTextStyle.textStyle),
+                        softWrap: true, style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('UNIT TYPE',
-                        style: TableContentTextStyle.textStyle),
+                        softWrap: true, style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
@@ -514,8 +448,8 @@ class TableSubstractProduct extends StatelessWidget {
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child:
-                        Text('ACTION', style: TableContentTextStyle.textStyle),
+                    child: Text('ACTION',
+                        softWrap: true, style: TableContentTextStyle.textStyle),
                   ),
                 ),
               ],
@@ -731,7 +665,7 @@ class SubmitPopup extends StatelessWidget {
                   Expanded(
                     flex: 4,
                     child: Text(
-                      'Are you sure you want to submit the changes you\'ve made?',
+                      'Are you sure want to submit the changes you\'ve made?',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 16,

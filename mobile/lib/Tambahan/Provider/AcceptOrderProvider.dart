@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_all/Template.dart';
@@ -109,40 +111,48 @@ class AcceptOrderProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    // /to/:sw_to_id/:status_accept/:start_date/:end_date/:limit/:offset
-    final link =
-        'http://leap.crossnet.co.id:8888/orders/delivery/warehouse/to/$search/$storeId/$statusAccept/$startDate/$endDate/$limit/$offset'; // NOTE : diganti nanti kalo udah ada
-    // NOTE : 3 = limit row yang diambil, 0 = start index,
+    try {
+      // /to/:sw_to_id/:status_accept/:start_date/:end_date/:limit/:offset
+      final link =
+          'http://leap.crossnet.co.id:8888/orders/delivery/warehouse/to/$search/$storeId/$statusAccept/$startDate/$endDate/$limit/$offset'; // NOTE : diganti nanti kalo udah ada
+      // NOTE : 3 = limit row yang diambil, 0 = start index,
 
-    // call api
-    final response = await http.get(Uri.parse(link));
-    print('---> response ' + response.statusCode.toString());
+      // call api
+      final response = await http.get(Uri.parse(link));
+      print('---> response ' + response.statusCode.toString());
 
-    // cek status
-    if (response.statusCode == 200) {
-      // misal oke berati masuk
-      // json
-      Map<String, dynamic> temp = json.decode(response.body);
-      // decode?
-      print(response.body);
-      if (temp['status'] == 200) {
-        print(temp);
-        _items = deliveryStore.FetchDeliveryOrderStore.fromJson(temp).data!;
-        totalRow =
-            deliveryStore.FetchDeliveryOrderStore.fromJson(temp).totalRows!;
-        isLoading = false;
-        if (isSearch) {
-          currentPage = 0;
+      // cek status
+      if (response.statusCode == 200) {
+        // misal oke berati masuk
+        // json
+        Map<String, dynamic> temp = json.decode(response.body);
+        // decode?
+        print(response.body);
+        if (temp['status'] == 200) {
+          print(temp);
+          _items = deliveryStore.FetchDeliveryOrderStore.fromJson(temp).data!;
+          totalRow =
+              deliveryStore.FetchDeliveryOrderStore.fromJson(temp).totalRows!;
+          if (isSearch) {
+            currentPage = 0;
+          }
+        } else {
+          _items = [];
         }
-        notifyListeners();
       } else {
+        print('fetch failed');
         _items = [];
-        notifyListeners();
       }
-    } else {
-      print('fetch failed');
-      _items = [];
+      
+      isLoading = false;
       notifyListeners();
-    }
+
+    } on SocketException catch (e) {
+      print("Caught socketexception: $e");
+    } on TimeoutException catch (e) {
+      print('Caught: $e');
+    } catch (e) {}
+    //print('Done');
+    return null;
   }
 }

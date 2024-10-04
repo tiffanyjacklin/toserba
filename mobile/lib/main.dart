@@ -6,6 +6,7 @@ import 'package:flutter_app_all/Page/main_page.dart';
 import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
 import 'package:flutter_app_all/Tambahan/Provider/RouteProvider.dart';
+import 'package:flutter_app_all/Template.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -23,7 +24,13 @@ class MainApp extends StatelessWidget {
       ],
       builder: (context, child) => MaterialApp(
         title: 'Toserba',
-        theme: ThemeData(fontFamily: "Helvetica"),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: ColorPalleteLogin.OrangeDarkColor,
+          secondary: ColorPalleteLogin.OrangeLightColor,
+        ),
+          fontFamily: "Helvetica"
+        ),
         debugShowCheckedModeBanner: false,
         home: Consumer<AuthState>(builder: (context, authState, _) {
           return authState.isAuthorized

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_all/Model/StockDescription.dart' as description;
@@ -10,13 +12,11 @@ import 'package:flutter_app_all/Template.dart';
 import 'package:http/http.dart' as http;
 import 'package:number_paginator/number_paginator.dart';
 
-
 class ResultFilter {
   String description, unit, type, startDate, endDate;
 
   ResultFilter(
-      {
-      required this.description,
+      {required this.description,
       required this.startDate,
       required this.endDate,
       required this.unit,
@@ -44,7 +44,7 @@ class HistoryAllProductProvider extends ChangeNotifier {
   List<String> unitType = ['Units', 'Grams'];
   List<category.Data> productType = [];
   late Map<String, category.Data> _mapCategory;
-  
+
   String _descNow = '';
   List<DateTime> rangeDate = [DateTime(2000), DateTime.now()];
   String _unitNow = '';
@@ -55,7 +55,6 @@ class HistoryAllProductProvider extends ChangeNotifier {
   String get unitNow => _unitNow;
   String get typeNow => _typeNow;
 
-  
   DateTime getIsStartDate(bool isStart) {
     if (isStart) {
       return rangeDate.first;
@@ -72,7 +71,8 @@ class HistoryAllProductProvider extends ChangeNotifier {
   int get currentPage => _paginatorController.currentPage;
   NumberPaginatorController get paginatorController => _paginatorController;
   List<stock.Data> get resultSearched => UnmodifiableListView(_result);
-  List<stock.Data> get listPerPage => UnmodifiableListView(_result.sublist(getStartIndex(), getEndIndex()+1));
+  List<stock.Data> get listPerPage =>
+      UnmodifiableListView(_result.sublist(getStartIndex(), getEndIndex() + 1));
 
   // Setter filter
   void setDesc(String name) {
@@ -111,9 +111,7 @@ class HistoryAllProductProvider extends ChangeNotifier {
     var category = '';
     if (_typeNow != '') {
       // cari dalam index
-      category = _mapCategory[_typeNow]!
-          .productCategoryId
-          .toString();
+      category = _mapCategory[_typeNow]!.productCategoryId.toString();
     }
 
     var unit = '';
@@ -125,10 +123,14 @@ class HistoryAllProductProvider extends ChangeNotifier {
     var endDate = formatOnlyDateSQL(rangeDate.last);
 
     return ResultFilter(
-        startDate: startDate, endDate: endDate, description: _descNow, unit: unit, type: category);
+        startDate: startDate,
+        endDate: endDate,
+        description: _descNow,
+        unit: unit,
+        type: category);
   }
 
-  void clickFilter(String name){
+  void clickFilter(String name) {
     isFiltering = !isFiltering;
 
     if (!isFiltering) {
@@ -145,30 +147,30 @@ class HistoryAllProductProvider extends ChangeNotifier {
   }
 
   // paginator purpose
-  int getStartIndex(){
+  int getStartIndex() {
     return currentPage * limitPerPage;
   }
 
-  int getEndIndex(){
-    if(currentPage == getMaxPage()-1){
-      return _result.length-1;
+  int getEndIndex() {
+    if (currentPage == getMaxPage() - 1) {
+      return _result.length - 1;
     }
-    return (currentPage+1)*limitPerPage - 1;
+    return (currentPage + 1) * limitPerPage - 1;
   }
 
-  int getCurrentMaxPage(){
-    return (_result.length.toDouble()/limitPerPage.toDouble()).floor();
+  int getCurrentMaxPage() {
+    return (_result.length.toDouble() / limitPerPage.toDouble()).floor();
   }
 
-  int getMaxPage(){
-    return (totalRow.toDouble()/limitPerPage.toDouble()).ceil();
+  int getMaxPage() {
+    return (totalRow.toDouble() / limitPerPage.toDouble()).ceil();
   }
 
   // lah rusak lagi ?? lahhhhhh
-  void setCurrentPage(String name ,int number){
+  void setCurrentPage(String name, int number) {
     _paginatorController.currentPage = number;
     // cek butuh fetch setelah page ini?
-    if(number > getCurrentMaxPage()-1 && _result.length != totalRow){
+    if (number > getCurrentMaxPage() - 1 && _result.length != totalRow) {
       searchItemWithFilter(name);
     }
     notifyListeners();
@@ -182,9 +184,9 @@ class HistoryAllProductProvider extends ChangeNotifier {
   //   setCurrentPage(name, currentPage-1);
   // }
 
-
   // Api fetch
-  Future<void> searchItemWithFilter(String name, {
+  Future<void> searchItemWithFilter(
+    String name, {
     String startDate = '',
     String endDate = '',
     String category = '',
@@ -196,111 +198,142 @@ class HistoryAllProductProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    List<stock.Data> result = await _fetchAllStockProductWarehouse(2, startDate, endDate, category, unitType, description, name, isSearch);
+    List<stock.Data> result = await _fetchAllStockProductWarehouse(
+        2, startDate, endDate, category, unitType, description, name, isSearch);
 
-    if(isSearch){
+    if (isSearch) {
       _result = result;
-    }
-    else{
+    } else {
       _result += result;
     }
     isLoading = false;
     notifyListeners();
   }
 
-  Future<List<stock.Data>> _fetchAllStockProductWarehouse(int warehouseId,   String startDate,
-    String endDate,
-    String category,
-    String unitType,
-    String description,
-    String search,
-    bool isSearch ) async {
+  Future<List<stock.Data>> _fetchAllStockProductWarehouse(
+      int warehouseId,
+      String startDate,
+      String endDate,
+      String category,
+      String unitType,
+      String description,
+      String search,
+      bool isSearch) async {
     int startIndex = 0;
     int limitData = 100000;
-    // /products/stock/card/product/store_warehouse/:storewarehouse_id/:start_date/:end_date/:category/:unit_type/:description/:product_name_id_code_batch/:limit/:offset
-    final link =
-        'http://leap.crossnet.co.id:8888/products/stock/card/product/store_warehouse/$warehouseId/$startDate/$endDate/$category/$unitType/$description/$search/$limitData/$startIndex';
 
-    // call api (method PUT)
-    final response = await http.get(Uri.parse(link));
-    print('---> response ' + response.statusCode.toString());
-            print(link);
-    // cek status
-    if (response.statusCode == 200) {
-      // misal oke berati masuk
-      // json
-      Map<String, dynamic> temp = json.decode(response.body);
-      // decode?
-      print(response.body);
-      if (temp['status'] == 200) {
-        print(temp);
-        totalRow = stock.FetchStockCardProductStoreWarehouse.fromJson(temp).totalRows!;
-        if(isSearch){ _paginatorController.currentPage = 0;}
+    try {
+      // /products/stock/card/product/store_warehouse/:storewarehouse_id/:start_date/:end_date/:category/:unit_type/:description/:product_name_id_code_batch/:limit/:offset
+      final link =
+          'http://leap.crossnet.co.id:8888/products/stock/card/product/store_warehouse/$warehouseId/$startDate/$endDate/$category/$unitType/$description/$search/$limitData/$startIndex';
 
-        return stock.FetchStockCardProductStoreWarehouse.fromJson(temp).data!;
+      // call api (method PUT)
+      final response = await http.get(Uri.parse(link));
+      print('---> response ' + response.statusCode.toString());
+      print(link);
+      // cek status
+      if (response.statusCode == 200) {
+        // misal oke berati masuk
+        // json
+        Map<String, dynamic> temp = json.decode(response.body);
+        // decode?
+        print(response.body);
+        if (temp['status'] == 200) {
+          print(temp);
+          totalRow = stock.FetchStockCardProductStoreWarehouse.fromJson(temp)
+              .totalRows!;
+          if (isSearch) {
+            _paginatorController.currentPage = 0;
+          }
+
+          return stock.FetchStockCardProductStoreWarehouse.fromJson(temp).data!;
+        } else {
+          return [];
+        }
       } else {
+        // If the server did not return a 200 OK response,
+        // then throw an exception.
+        // throw Exception('Login Failed, Try Again');
+        print('fetch failed');
         return [];
       }
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      // throw Exception('Login Failed, Try Again');
-      print('fetch failed');
-      return [];
-    }
+    } on SocketException catch (e) {
+      print("Caught socketexception: $e");
+    } on TimeoutException catch (e) {
+      print('Caught: $e');
+    } catch (e) {}
+    //print('Done');
+    return [];
   }
 
   Future<void> _fetchAllDescription() async {
-    // http://leap.crossnet.co.id:8888/products/stock/card/description
-    final link = 'http://leap.crossnet.co.id:8888/products/stock/card/description';
+    try {
+      // http://leap.crossnet.co.id:8888/products/stock/card/description
+      final link =
+          'http://leap.crossnet.co.id:8888/products/stock/card/description';
 
-    // call api (method PUT)
-    final response = await http.get(Uri.parse(link));
-    print('---> response ' + response.statusCode.toString());
+      // call api (method PUT)
+      final response = await http.get(Uri.parse(link));
+      print('---> response ' + response.statusCode.toString());
 
-    // cek status
-    if (response.statusCode == 200) {
-      Map<String, dynamic> temp = json.decode(response.body);
-      print(response.body);
+      // cek status
+      if (response.statusCode == 200) {
+        Map<String, dynamic> temp = json.decode(response.body);
+        print(response.body);
 
-      if (temp['status'] == 200) {
-        print(temp);
-        // insert here ....
-        descStock = description.FetchStockDescription.fromJson(temp).data!;
-        isLoading = false;
-        notifyListeners();
+        if (temp['status'] == 200) {
+          print(temp);
+          // insert here ....
+          descStock = description.FetchStockDescription.fromJson(temp).data!;
+          isLoading = false;
+          notifyListeners();
+        }
+      } else {
+        print('fetch failed');
       }
-    } else {
-      print('fetch failed');
-    }
+    } on SocketException catch (e) {
+      print("Caught socketexception: $e");
+    } on TimeoutException catch (e) {
+      print('Caught: $e');
+    } catch (e) {}
+    //print('Done');
+    return;
   }
 
   // future for intial value
   Future<void> _fetchAllProductCategories() async {
-    // http://leap.crossnet.co.id:8888/products/category
-    final link = 'http://leap.crossnet.co.id:8888/products/category';
+    try {
+      // http://leap.crossnet.co.id:8888/products/category
+      final link = 'http://leap.crossnet.co.id:8888/products/category';
 
-    // call api (method PUT)
-    final response = await http.get(Uri.parse(link));
-    print('---> response ' + response.statusCode.toString());
+      // call api (method PUT)
+      final response = await http.get(Uri.parse(link));
+      print('---> response ' + response.statusCode.toString());
 
-    // cek status
-    if (response.statusCode == 200) {
-      Map<String, dynamic> temp = json.decode(response.body);
-      print(response.body);
+      // cek status
+      if (response.statusCode == 200) {
+        Map<String, dynamic> temp = json.decode(response.body);
+        print(response.body);
 
-      if (temp['status'] == 200) {
-        print(temp);
-        // insert here ....
-        productType = category.AllCategory.fromJson(temp).data!;
-        _mapCategory = {
-          for (int i = 0; i < productType.length; i++)
-            productType[i].productCategoryName!: productType[i]
-        };
-        notifyListeners();
+        if (temp['status'] == 200) {
+          print(temp);
+          // insert here ....
+          productType = category.AllCategory.fromJson(temp).data!;
+          _mapCategory = {
+            for (int i = 0; i < productType.length; i++)
+              productType[i].productCategoryName!: productType[i]
+          };
+          notifyListeners();
+        }
+      } else {
+        print('fetch failed');
       }
-    } else {
-      print('fetch failed');
-    }
+    } on SocketException catch (e) {
+      print("Caught socketexception: $e");
+    } on TimeoutException catch (e) {
+      print('Caught: $e');
+    } catch (e) {}
+    //print('Done');
+    return;
   }
 }
