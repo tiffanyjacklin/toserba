@@ -588,7 +588,7 @@
         </div>
     </div>
 
-    {#if tampilan == "manage"}
+    {#if tampilan != "add_priv"}
         <div class="w-11/12 flex items-center">
             <div class="relative w-9/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
                 <input 
@@ -597,6 +597,7 @@
                     bind:value={searchQuery}
                     class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
                     placeholder="Search..."/>
+                {#if tampilan == "manage"}
                 <button on:click={toggleFilter}
                     type="button" 
                     class="absolute inset-y-0 end-0 flex items-center pe-3 ">
@@ -640,6 +641,7 @@
                     </div>
                     </div>
                 {/if}
+                {/if}
             </div>
             <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
                 {#if tampilan == "manage"}
@@ -682,15 +684,15 @@
              {/if}
           </ul>
         </nav>
-    {:else if tampilan == "edit"}
-      <div class="w-11/12 flex items-center">
+    <!-- {:else if tampilan == "edit"} -->
+      <!-- <div class="w-11/12 flex items-center">
           <input 
               type="text" 
               id="voice-search" 
               bind:value={searchQueryEdit}
               class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
               placeholder="Search..."/>
-      </div>
+      </div> -->
     {/if}
 
       {#if tampilan == "manage"}

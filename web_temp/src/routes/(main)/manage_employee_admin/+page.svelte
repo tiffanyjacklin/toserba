@@ -140,8 +140,10 @@
       filtered_users = [];
 
       for (let i = 0; i < tmp.length; i++) {
-        let tmp_di_user = users.find((user) => user.user_id == tmp[i].user_id && user.role_id == tmp[i].role_id);
-        filtered_users.push(tmp_di_user);
+        let tmp_di_user = users.find((user) => user.user_id == tmp[i].user_id && user.role_id == tmp[i].role_id && user.store_warehouse_id == tmp[i].store_warehouse_id);
+        if (tmp_di_user != null){
+          filtered_users.push(tmp_di_user);
+        }
       }
 
       console.log("filtered", filtered_users)
