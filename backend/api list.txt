@@ -580,7 +580,7 @@ e.GET("/products/supplier/:supplier_id", controller.GetAllProductDetailFromSuppl
 e.GET("/products/store_warehouse/:user_id/:role_id/:product_name_id/:limit/:offset", controller.GetAllProductsInSW) 
 
 // Mengambil data produk berdasarkan lokasi store/warehouse user dan range harga. product id dan product name untuk search
-e.GET("/products/store_warehouse/:user_id/:role_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset", controller.GetAllProductsInSWFilter) 
+e.GET("/products/store_warehouse/:user_id/:role_id/:sw_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset", controller.GetAllProductsInSWFilter
 
 // Menambah produk baru
 e.POST("/products/add", controller.InsertProductDetails)
@@ -779,10 +779,10 @@ e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateSto
 }
 
 ================================================= Owner =================================================
-e.GET("/locations/all", controller.GetAllLocation)
+e.GET("/locations/all/:limit/:offset", controller.GetAllLocation)
 e.GET("/locations/:location_id", controller.GetLocationByID)
-e.GET("/locations/province/all/:province_name", controller.GetAllProvinces)
-e.GET("/locations/cities/all/:province/:city_name", controller.GetAllCities)
+e.GET("/locations/province/all/:province_name/:limit/:offset", controller.GetAllProvinces)
+e.GET("/locations/cities/all/:location_id/:city_name/:limit/:offset", controller.GetAllCities)
 
 // Mengambil semua store/warehouse
 e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)

@@ -167,7 +167,7 @@ func Init() *echo.Echo {
 	e.GET("/products/detail", controller.GetAllProductDetail)
 	e.GET("/products/detail/store_warehouse/:user_id/:role_id/:product_name_id/:limit/:offset", controller.GetAllProductDetailInSW) 
 	e.GET("/products/store_warehouse/:user_id/:role_id/:product_name_id/:limit/:offset", controller.GetAllProductsInSW) 
-	e.GET("/products/store_warehouse/:user_id/:role_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset", controller.GetAllProductsInSWFilter) 
+	e.GET("/products/store_warehouse/:user_id/:role_id/:sw_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset", controller.GetAllProductsInSWFilter) 
 	e.GET("/products/supplier/:supplier_id/:limit/:offset", controller.GetAllProductDetailFromSupplier) 
 	e.POST("/products/add", controller.InsertProductDetails)
 	e.PUT("/products/edit/:product_id", controller.UpdateProductDetails)
@@ -204,10 +204,10 @@ func Init() *echo.Echo {
 	e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateStockInSubtractStock)
 
 	// Owner 
-	e.GET("/locations/all", controller.GetAllLocation)
+	e.GET("/locations/all/:limit/:offset", controller.GetAllLocation)
 	e.GET("/locations/:location_id", controller.GetLocationByID)
-	e.GET("/locations/province/all/:province_name", controller.GetAllProvinces)
-	e.GET("/locations/cities/all/:province/:city_name", controller.GetAllCities)
+	e.GET("/locations/province/all/:province_name/:limit/:offset", controller.GetAllProvinces)
+	e.GET("/locations/cities/all/:location_id/:city_name/:limit/:offset", controller.GetAllCities)
 	e.GET("/store_warehouses/all", controller.GetAllStoreWarehouse)
 	e.GET("/store_warehouses/type/:sw_type/:sw_name_address/:limit/:offset", controller.GetAllStoreWarehouseFilter)
 	e.GET("/store_warehouses/:user_id/:role_id/:sw_name/:limit/:offset", controller.GetStoreWarehouseByUIDRID)
