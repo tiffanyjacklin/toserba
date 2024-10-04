@@ -182,7 +182,7 @@ func Init() *echo.Echo {
 	e.GET("/promos/product/:product_id/:limit/:offset", controller.GetPromoIDByProductID)
 	e.POST("/promos/product/add", controller.InsertPromoProducts) 
 	e.POST("/promos/product/all/:promo_id", controller.UpdatePromoToAllProducts)
-	e.GET("/promos/stores/:sw_id", controller.GetPromoIDBySWID)
+	e.GET("/promos/stores/:sw_id/:start_date/:end_date/:product_name_promo_code/:promo_type/:status/:limit/:offset", controller.GetPromoIDBySWID)
 	e.POST("/promos/stores/add", controller.InsertPromoStores)
 
 	e.GET("/roles/:roles_id", controller.GetRolesByID)

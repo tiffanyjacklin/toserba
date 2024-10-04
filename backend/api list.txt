@@ -580,7 +580,7 @@ e.GET("/products/supplier/:supplier_id", controller.GetAllProductDetailFromSuppl
 e.GET("/products/store_warehouse/:user_id/:role_id/:product_name_id/:limit/:offset", controller.GetAllProductsInSW) 
 
 // Mengambil data produk berdasarkan lokasi store/warehouse user dan range harga. product id dan product name untuk search
-e.GET("/products/store_warehouse/:user_id/:role_id/:sw_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset", controller.GetAllProductsInSWFilter
+e.GET("/products/store_warehouse/:user_id/:role_id/:sw_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset", controller.GetAllProductsInSWFilter)
 
 // Menambah produk baru
 e.POST("/products/add", controller.InsertProductDetails)
@@ -699,7 +699,7 @@ e.POST("promos/product/add", controller.InsertPromoProducts)
 e.POST("/promos/product/all/:promo_id", controller.UpdatePromoToAllProducts)
 
 // Mengambil promo id berdasarkan store id
-e.GET("/promos/stores/:sw_id", controller.GetPromoIDBySWID)
+e.GET("/promos/stores/:sw_id/:start_date/:end_date/:product_name_promo_code/:promo_type/:status/:limit/:offset", controller.GetPromoIDBySWID)
 
 // Menambah promo pada store tertentu
 e.POST("/promos/stores/add", controller.InsertPromoStores)
