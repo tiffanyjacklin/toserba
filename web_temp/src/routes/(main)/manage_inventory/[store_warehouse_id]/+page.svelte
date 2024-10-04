@@ -17,7 +17,7 @@
     let searchQuery_product = '';
     let searchQuery_stock = '';
     let searchQuery_verify = '';
-    let searchQuery_assign = '';
+    let searchQuery_category = '';
     let searchQuery_temp = '';
     let showModal = null; 
     let showTable = false;
@@ -64,6 +64,10 @@
     let sell_price;
     let min_stock;
     let product_unit = "";
+
+    //ADD NEW CATEGORY
+    let new_category_name = '';
+    let filtered_product_category =[];
 
     $: tampilan_modal = "";
     function handleClick(id) {
@@ -156,6 +160,8 @@
         }
  
         product_category = data.data;
+        filtered_product_category = structuredClone(product_category);
+        // console.log("product_category",product_category)
     }
   
     async function fetchSuppliers() {
@@ -349,6 +355,30 @@
         }
         // console.log("post new add product berhasil ",data);
       }
+    
+    async function AddNewCategory() {
+      console.log(JSON.stringify([{
+            product_category_name: new_category_name
+          }]));
+      const response = await fetch(`http://${$uri}:8888/products/category/add`, {
+          method: 'POST',
+          body: JSON.stringify([{
+            product_category_name: new_category_name
+          }])
+      });
+
+      if (!response.ok) {
+          console.error('POST add new category gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid post add new category', data);
+          return;
+      }
+    }
 
     async function editProduct(product_id,atribut) {
       const response = await fetch(`http://${$uri}:8888/products/edit/${product_id}`, {
@@ -507,14 +537,15 @@
 
     //HANDLE SEARCH BAR
     //products
-    // $: if (searchQuery_product.length > 0) {
-    //     all_produk = products.filter(item => 
-    //         item.ProductDetails.product_name.toLowerCase().includes(searchQuery_product.toLowerCase()) ||
-    //         item.ProductDetails.product_detail_id.toString().includes(searchQuery_product)
-    //     );
-    // } else {
-    //     all_produk = [...products];
-    // }
+    $: if ((searchQuery_temp !== searchQuery_product) ){
+        console.log(searchQuery_product);
+        fetchProduk();
+        searchQuery_temp = searchQuery_product;
+      } else{
+        searchQuery_temp = '';
+        fetchProduk();
+      }
+
     //stock history
     $: if ((searchQuery_temp !== searchQuery_stock) ){
         console.log(searchQuery_stock);
@@ -523,6 +554,15 @@
       } else{
         searchQuery_temp = '';
       }
+    
+      //search category
+    $: if (searchQuery_category.length > 0) {
+      filtered_product_category = product_category.filter(item => 
+        item.product_category_name.toLowerCase().includes(searchQuery_category.toLowerCase())
+    );
+    } else {
+      filtered_product_category = [...product_category];
+    }
 
     async function goToPage(page) {
         if (page < 1 || page > Math.ceil(totalRows / limit)) return;
@@ -540,6 +580,9 @@
           await fetchSubtractVerify();
         }else if (tampilan == "assign_product"){
           await fetchAssign();
+        }else if (tampilan == "product_category"){
+          await fetchProductCategory();
+          totalRows = product_category.length;
         }
     }
 
@@ -593,13 +636,18 @@
             {:else}
                 <button on:click={async() => {tampilan = "add_product"; tampilan = tampilan;}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add New Product</button>
             {/if}
+            {#if tampilan == "product_category"}
+                <button on:click={async() => {tampilan = "product_category"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Product Category</button>
+            {:else}
+                <button on:click={async() => {tampilan = "product_category"; tampilan = tampilan; goToPage(1)}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Product Category</button>
+            {/if}
         </div>    
     </div>
 
     {#if tampilan != "add_product"}
          <label for="voice-search" class="sr-only">Search</label>
-         <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
           {#if tampilan == "products"}
+          <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
             <input 
             type="text" 
             id="voice-search" 
@@ -611,35 +659,37 @@
             class="absolute inset-y-0 end-0 flex items-center pe-3 ">
             <i class="fa-solid fa-sliders fa-xl mr-2"></i>
           </button>
-          {#if showFilter}
-            <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/5 bg-gray-100 p-4 rounded-lg font-roboto">
-              <span class="font-bold text-xl mb-4">Price Range</span>
-              <div class="flex gap-x-4 w-full items-center mt-2">
-                <span class="font-semibold text-lg ">From</span>
-                <MoneyInput bind:value={start_price} shadow={false}/>
-                <span class="font-semibold text-lg ">To</span>
-                <MoneyInput bind:value={end_price} shadow={false}/>
-              </div>
+            {#if showFilter}
+              <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/5 bg-gray-100 p-4 rounded-lg font-roboto">
+                <span class="font-bold text-xl mb-4">Price Range</span>
+                <div class="flex gap-x-4 w-full items-center mt-2">
+                  <span class="font-semibold text-lg ">From</span>
+                  <MoneyInput bind:value={start_price} shadow={false}/>
+                  <span class="font-semibold text-lg ">To</span>
+                  <MoneyInput bind:value={end_price} shadow={false}/>
+                </div>
 
-              <span class="font-bold text-xl mb-1">Unit Type</span>
-              <div class="grid grid-cols-4 flex w-full flex-wrap">
-                  <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "unit") ? "unit" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'unit' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Units</button>
-                  <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "gram") ? "gram" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'gram' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Grams</button>
+                <span class="font-bold text-xl mb-1">Unit Type</span>
+                <div class="grid grid-cols-4 flex w-full flex-wrap">
+                    <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "unit") ? "unit" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'unit' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Units</button>
+                    <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "gram") ? "gram" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'gram' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Grams</button>
+                </div>
+                <span class="font-bold text-xl mb-1">Product Category</span>
+                <div class="grid grid-cols-4 flex w-full flex-wrap">
+                  {#each product_category as cat}
+                    <button on:click={() => {category = (category === '' || category !== cat.product_category_id) ? cat.product_category_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.product_category_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cat.product_category_name}</button>
+                  {/each}
+                </div>
+                
+                <div class="flex justify-between font-semibold mt-4">
+                    <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => {clearVariable()}}>Clear</button>
+                    <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async() => {await fetchProduk(); toggleFilter(); clearVariable()}}>Apply</button>
+                </div>
               </div>
-              <span class="font-bold text-xl mb-1">Product Category</span>
-              <div class="grid grid-cols-4 flex w-full flex-wrap">
-                {#each product_category as cat}
-                  <button on:click={() => {category = (category === '' || category !== cat.product_category_id) ? cat.product_category_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.product_category_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cat.product_category_name}</button>
-                {/each}
-              </div>
-              
-              <div class="flex justify-between font-semibold mt-4">
-                  <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => {clearVariable()}}>Clear</button>
-                  <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async() => {await fetchProduk(); toggleFilter(); clearVariable()}}>Apply</button>
-              </div>
-            </div>
-          {/if}
+            {/if}
+          </div>
           {:else if tampilan == "stock_history"}
+          <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
             <input 
             type="text" 
             id="voice-search" 
@@ -651,50 +701,59 @@
             class="absolute inset-y-0 end-0 flex items-center pe-3 ">
             <i class="fa-solid fa-sliders fa-xl mr-2"></i>
           </button>
-          {#if showFilter}
-            <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/5 bg-gray-100 p-4 rounded-lg font-roboto">
-              <span class="font-bold text-xl mb-1">Time Period</span>
-              <div class="flex gap-x-4 w-full items-center">
-                <span class="font-semibold text-lg mb-4">From</span>
-                <input type="date" bind:value={start_date} class="rounded-xl w-32 mb-4 p-2 border" />
-                <span class="font-semibold text-lg mb-4">To</span>
-                <input type="date" bind:value={end_date} class="rounded-xl w-32 mb-4 p-2 border" />
-              </div>
+            {#if showFilter}
+              <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/5 bg-gray-100 p-4 rounded-lg font-roboto">
+                <span class="font-bold text-xl mb-1">Time Period</span>
+                <div class="flex gap-x-4 w-full items-center">
+                  <span class="font-semibold text-lg mb-4">From</span>
+                  <input type="date" bind:value={start_date} class="rounded-xl w-32 mb-4 p-2 border" />
+                  <span class="font-semibold text-lg mb-4">To</span>
+                  <input type="date" bind:value={end_date} class="rounded-xl w-32 mb-4 p-2 border" />
+                </div>
 
-              <span class="font-bold text-xl mb-1">Unit Type</span>
-              <div class="grid grid-cols-4 flex w-full flex-wrap">
-                  <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "unit") ? "unit" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'unit' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Units</button>
-                  <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "gram") ? "gram" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'gram' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Grams</button>
+                <span class="font-bold text-xl mb-1">Unit Type</span>
+                <div class="grid grid-cols-4 flex w-full flex-wrap">
+                    <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "unit") ? "unit" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'unit' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Units</button>
+                    <button on:click={() => {unit_type = (unit_type === '' || unit_type !== "gram") ? "gram" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${unit_type === 'gram' ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Grams</button>
+                </div>
+                <span class="font-bold text-xl mb-1">Product Category</span>
+                <div class="grid grid-cols-4 flex w-full flex-wrap">
+                  {#each product_category as cat}
+                    <button on:click={() => {category = (category === '' || category !== cat.product_category_id) ? cat.product_category_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.product_category_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cat.product_category_name}</button>
+                  {/each}
+                </div>
+                
+                <div class="flex justify-between font-semibold mt-4">
+                    <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => {clearVariable()}}>Clear</button>
+                    <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async() => {await fetchStockCardHistory(); toggleFilter(); clearVariable()}}>Apply</button>
+                </div>
               </div>
-              <span class="font-bold text-xl mb-1">Product Category</span>
-              <div class="grid grid-cols-4 flex w-full flex-wrap">
-                {#each product_category as cat}
-                  <button on:click={() => {category = (category === '' || category !== cat.product_category_id) ? cat.product_category_id : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:bg-white hover:border hover:border-peach2 hover:text-peach2 ${category === cat.product_category_id ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>{cat.product_category_name}</button>
-                {/each}
-              </div>
-              
-              <div class="flex justify-between font-semibold mt-4">
-                  <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => {clearVariable()}}>Clear</button>
-                  <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async() => {await fetchStockCardHistory(); toggleFilter(); clearVariable()}}>Apply</button>
-              </div>
-            </div>
-          {/if}
+            {/if}
+          </div>
           {:else if tampilan == "verify_add_subtract"}
+          <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
             <input 
               type="text" 
               id="voice-search" 
               bind:value={searchQuery_verify}
               class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
               placeholder="Search..."/>
-          <!-- {:else if tampilan == "assign_product"}
-            <input 
-                type="text" 
-                id="voice-search" 
-                bind:value={searchQuery_assign}
-                class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                placeholder="Search..."/> -->
+            </div>
+          {:else if tampilan == "product_category"}
+          <div class="flex w-11/12">
+            <div class="relative w-9/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
+              <input 
+                  type="text" 
+                  id="voice-search" 
+                  bind:value={searchQuery_category}
+                  class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] h-full bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+                  placeholder="Search..."/>
+            </div>
+            <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
+                <button on:click={() => {showModal = "add_category_modal"; showModal = showModal;}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Category</button>
+            </div>
+          </div>
           {/if}
-         </div>
 
          <nav class="my-8">
           <ul class="flex items-center -space-x-px h-8 text-sm">
@@ -1020,6 +1079,27 @@
           <div class="flex justify-center mt-8">
             <!-- <button class="w-48 py-2 bg-darkGray text-peach rounded-2xl text-lg font-semibold mx-4">Back</button> -->
             <button on:click={() => showModal = "confirm_add"} class="w-48 py-2 bg-peach text-darkGray rounded-2xl text-lg font-semibold mx-4">Add</button>
+          </div>
+        </div>
+      {:else if tampilan == "product_category"}
+        <div class="w-[96%] my-5 font-roboto">
+          <div class="relative overflow-x-auto sm:rounded-lg">
+          {#if filtered_product_category.length > 0 }
+            {#each filtered_product_category as category}
+                <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3">                        
+                    <div class="m-4 w-1/12 flex">
+                    <img class="rounded-lg " src={img_produk} alt="">
+                    </div>
+                    <div class="py-4 w-10/12 flex items-center">
+                      <span class="font-semibold text-2xl">{category.product_category_name}</span>
+                    </div>
+                </div>
+            {/each}
+          {:else}
+            <div class="flex justify-center w-full">
+              <span>No Product Found</span>
+            </div>
+          {/if}
           </div>
         </div>
       {/if}
@@ -1446,3 +1526,31 @@
   {/if}
 {/if}
 {/each}
+
+<!-- MODAL ADD CATEGORY -->
+{#if showModal == "add_category_modal"}
+  <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
+    <div class="flex items-center justify-center pt-8">
+      <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Add Product Category</div>
+    </div>
+    <div class="w-full flex justify-center my-8">
+      <div class="flex flex-col my-2 w-10/12">
+        <span class="text-peach font-semibold mb-1">Product Category Name</span>
+        <input type="text" bind:value={new_category_name} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+      </div>
+    </div>
+
+    <div class="flex items-center justify-center my-4">
+      <button on:click={() => {closeModal()}} class="w-1/4 py-2.5 mx-4 bg-darkGray border border-peach text-peach font-semibold rounded-xl">Back</button>
+      <button on:click={async() => {await AddNewCategory(); closeModal();
+        Swal.fire({
+          title: "Berhasil Menambahkan Kategori Baru",
+          icon: "success",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E'
+        }); await fetchProductCategory()}} 
+      class="w-1/4 py-2.5 mx-4 bg-peach border border-peach text-darkGray font-semibold rounded-xl">Save</button>
+    </div>
+</TaskModal> 
+{/if}
