@@ -222,7 +222,7 @@
         console.log(expired_dates);
     }
     async function fetchProducts() {
-        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}///${searchQuery}/////0/0`, {
+        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////${searchQuery}/////0/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -469,6 +469,32 @@
         console.log(isSame);
       return isSame;
     }
+
+    async function insertNotif(descriptionnya,type){
+      console.log(descriptionnya);
+      const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+          method: 'POST',
+          body: JSON.stringify({
+              user_id: Number($userId),
+              roles_id: Number($roleId),
+              description: descriptionnya,
+              notification_type_id: type
+          })
+      });
+
+      if (!response.ok) {
+          console.error('POST new notif gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid post new notif', data);
+          return;
+      }
+    }
+
     onMount(async () => {
       await fetchTransferNote();
       await getTransferNotesDetails();
@@ -489,7 +515,7 @@
           <span class="text-xl">{tf_note.from_warehouse_name}, {tf_note.from_warehouse_address}</span>
         </div>
         <div class="my-2 flex flex-col">
-          <span class="text-xl font-bold mb-1">Origin</span>
+          <span class="text-xl font-bold mb-1">Destination</span>
           <span class="text-xl">{tf_note.to_warehouse_name}, {tf_note.to_warehouse_address}</span>
         </div>
       </div>
@@ -609,7 +635,13 @@
                               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                                 Back
                               </button>
-                              <button type="button" on:click={async() => {await verifyAssignProduk(1); Swal.fire({
+                              <button type="button" on:click={async() => {await verifyAssignProduk(1); 
+                              
+                              let description = "User ID "+$userId+" menerima transfer note dengan ID "+ transfer_note_id;
+                              //7 Verify Transfer Notes
+                              await insertNotif(description,7)
+                              
+                              Swal.fire({
                                 title: "Assign Product Diverify",
                                 icon: "success",
                                 color: "white",
@@ -636,7 +668,13 @@
                               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                                 Back
                               </button>
-                              <button type="button" on:click={async() => {await verifyAssignProduk(2); Swal.fire({
+                              <button type="button" on:click={async() => {await verifyAssignProduk(2); 
+                              
+                              let description = "User ID "+$userId+" menolak transfer note dengan ID "+ transfer_note_id;
+                              //7 Verify Transfer Notes
+                              await insertNotif(description,7)
+
+                              Swal.fire({
                                 title: "Assign Produk Berhasil Direject",
                                 icon: "success",
                                 color: "white",

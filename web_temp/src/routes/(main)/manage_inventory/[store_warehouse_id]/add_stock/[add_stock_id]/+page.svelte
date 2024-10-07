@@ -4,8 +4,8 @@
     import DateConverter from '$lib/DateConverter.svelte';
     import receipt from '$lib/assets/receipt-1.png';
     import { goto } from '$app/navigation';
+    import { uri, userId, roleId, sessionId, privileges} from '$lib/uri.js';
     import { onMount } from 'svelte';
-    import { uri } from '$lib/uri.js';
 
     export let data;
     let store_warehouse_id = data.store_warehouse_id;
@@ -189,6 +189,31 @@
       return isSame;
     }
 
+    async function insertNotif(descriptionnya,type){
+      console.log(descriptionnya);
+      const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+          method: 'POST',
+          body: JSON.stringify({
+              user_id: Number($userId),
+              roles_id: Number($roleId),
+              description: descriptionnya,
+              notification_type_id: type
+          })
+      });
+
+      if (!response.ok) {
+          console.error('POST new notif gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid post new notif', data);
+          return;
+      }
+    }
+
     onMount(async () => {
       await getAddStocktDetails();
     });
@@ -287,7 +312,13 @@
                               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                                 Back
                               </button>
-                              <button type="button" on:click={async() => {await verifyAddStock(add_stock_id,1); Swal.fire({
+                              <button type="button" on:click={async() => {await verifyAddStock(add_stock_id,1); 
+                              
+                              let description = "User ID "+$userId+" menerima add stock dengan ID "+ add_stock_id;
+                              //9 Verify Add Product
+                              await insertNotif(description,9)
+
+                              Swal.fire({
                                 title: "Add Stock Berhasil Diverify",
                                 icon: "success",
                                 color: "white",
@@ -314,7 +345,13 @@
                               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                                 Back
                               </button>
-                              <button type="button" on:click={async() => {await verifyAddStock(add_stock_id,2); Swal.fire({
+                              <button type="button" on:click={async() => {await verifyAddStock(add_stock_id,2); 
+                              
+                              let description = "User ID "+$userId+" menolak add stock dengan ID "+ add_stock_id;
+                              //9 Verify Add Product
+                              await insertNotif(description,9)
+                              
+                              Swal.fire({
                                 title: "Add Stock Berhasil Direject",
                                 icon: "success",
                                 color: "white",

@@ -197,14 +197,14 @@
         });
 
         if (!response.ok) {
-            console.error('get all supplier fetch failed', response);
+            console.error('get all stock card history fetch failed', response);
             return;
         }
 
         const data = await response.json();
 
         if (data.status !== 200) {
-            console.error('Invalid fetch suppliers', data);
+            console.error('Invalid fetch stock card history', data);
             return;
         }
         
@@ -236,7 +236,7 @@
         
         totalRows = data.total_rows;
         verify_add = data.data;
-        console.log("verify_add : ",verify_add)
+        // console.log("verify_add : ",verify_add)
     }
     
     async function fetchSubtractVerify() {
@@ -276,6 +276,7 @@
         }
 
         verify_subtract = tmp;
+        // console.log(verify_subtract)
     }
    
     async function getStoreWarehouse(sw_id) {
@@ -523,6 +524,31 @@
             return;
         }
         // console.log("verify session :",data);
+  }
+
+  async function insertNotif(descriptionnya,type){
+        console.log(descriptionnya);
+        const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: Number($userId),
+                roles_id: Number($roleId),
+                description: descriptionnya,
+                notification_type_id: type
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new notif gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new notif', data);
+            return;
+        }
   }
 
   function clearVariable(){
@@ -1408,7 +1434,14 @@
               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Back
               </button>
-              <button type="button" on:click={() => {AddNewProduct(); Swal.fire({
+              <button type="button" on:click={async() => {AddNewProduct(); 
+              
+              console.log("product_name",product_name)
+              let description = "User ID "+$userId+" menambahkan produk baru dengan nama " + product_name ;
+              //19 Add New Product
+              await insertNotif(description,19)
+
+              Swal.fire({
                 title: "Produk Berhasil Ditambahkan",
                 icon: "success",
                 color: "white",
@@ -1480,6 +1513,11 @@
             <div class="flex items-center justify-center">
               {#if editMode == false}
                 <button on:click={async() => {await verifySubtractStock(sub_req.subtract_stock_id,2); await fetchSubtractVerify();
+
+                  let description = "User ID "+$userId+" menolak subtract produk dengan ID "+ sub_req.subtract_stock_id;
+                  //15 Verify Subtracts Product
+                  await insertNotif(description,15)
+
                   Swal.fire({
                       title: "Subtract Produck Request Berhasil direject",
                       icon: "success",
@@ -1490,6 +1528,11 @@
                   Reject
                 </button>
                 <button on:click={async() => {await verifySubtractStock(sub_req.subtract_stock_id,1); await fetchSubtractVerify();
+                  
+                  let description = "User ID "+$userId+" menerima subtract produk dengan ID "+ sub_req.subtract_stock_id;
+                  //15 Verify Subtracts Product
+                  await insertNotif(description,15)
+                  
                   Swal.fire({
                       title: "Subtract Produck Request Berhasil diverify",
                       icon: "success",

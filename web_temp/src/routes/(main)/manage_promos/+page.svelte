@@ -303,11 +303,21 @@
 
   async function addProductPromo(){
       await addPromo();
+      
       let last_promo_id = await getLastPromoId();
+
+      let description = "User ID "+$userId+" membuat promo baru dengan ID promo "+ last_promo_id;
+      //1 Add Promo
+      await insertNotif(description,1)
+
       await applyPromotoProduct(last_promo_id);
 
       for (let i = 0; i < sw_id_list.length; i++) {
-        await applyPromotoStore(sw_id_list[i],last_promo_id)  
+        await applyPromotoStore(sw_id_list[i],last_promo_id)
+        
+        let description = "User ID "+$userId+" menerapkan promo ID "+ last_promo_id + " pada produk ID " + choosen_product_id + " dan store ID " + sw_id_list[i];
+        //18 Apply Promo
+        await insertNotif(description,18)
       }
 
       
@@ -327,7 +337,7 @@
       sw_id_list = [];
 
       produk_promos = [];
-      await fetchPromos();
+      // await fetchPromos();
 
       Swal.fire({
           title: "Add promo pada produk berhasil",
@@ -372,6 +382,31 @@
       filtered_sw = structuredClone(storeWarehouse)
       console.log(storeWarehouse);
       
+  }
+
+  async function insertNotif(descriptionnya,type){
+        console.log(descriptionnya);
+        const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: Number($userId),
+                roles_id: Number($roleId),
+                description: descriptionnya,
+                notification_type_id: type
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new notif gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new notif', data);
+            return;
+        }
   }
 
   async function goToPage(page) {

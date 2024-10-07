@@ -22,6 +22,9 @@
   $: role_id_reassign = null;
   $: sw_reassign = 0;
 
+  $: limit = 10;
+  $: offset = 0;
+
   //Untuk edit privilege user
   let all_privilege = [];
   let priv_template_role = [];
@@ -331,6 +334,9 @@
       console.log("update role", JSON.stringify(atribut))
       await UpdateRoleUser(user_id, role_id,atribut)
 
+      let description = "User ID "+$userId+" melakukan update role user dengan ID user "+ user_id;
+      //21 Update Role User
+      await insertNotif(description,21)
       
       Swal.fire({
         title: "Update Role User Berhasil",
@@ -445,7 +451,7 @@
     }
 
   async function fetchSWAdmin(){
-      const response = await fetch(`http://${$uri}:8888/store_warehouses/${user_id}/${role_id}`, {
+      const response = await fetch(`http://${$uri}:8888/store_warehouses/${user_id}/${role_id}/''/${limit}/${offset}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -535,7 +541,7 @@
           return;
       }
       console.log("delete role user admin berhasil")
-    }
+  }
   
   async function addUserRole(userRole) {
   console.log(JSON.stringify(userRole))
@@ -556,6 +562,31 @@
         return;
     }
     console.log("add user role admin berhasil")
+  }
+
+  async function insertNotif(descriptionnya,type){
+        console.log(descriptionnya);
+        const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: Number($userId),
+                roles_id: Number($roleId),
+                description: descriptionnya,
+                notification_type_id: type
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new notif gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new notif', data);
+            return;
+        }
   }
 
     $: if (searchQuery.length > 0) {

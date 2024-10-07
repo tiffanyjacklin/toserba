@@ -245,6 +245,10 @@
     console.log(JSON.stringify(atribut))
     await addRoletoUser(atribut);
 
+    let description = "User ID "+$userId+" membuat user baru dengan ID user "+ last_user_id;
+    //20 Create New User
+    await insertNotif(description,20)
+
     Swal.fire({
       title: "Add Employee Berhasil",
       icon: "success",
@@ -253,6 +257,7 @@
       confirmButtonColor: '#F2AA7E'
     });
 
+    users = [];
     await fetchUsers();
     closeModal();
   }
@@ -280,6 +285,31 @@
       role_to_assign = data.data;
 
       console.log("role_to_assign",role_to_assign)
+  }
+
+  async function insertNotif(descriptionnya,type){
+    console.log(descriptionnya);
+    const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+        method: 'POST',
+        body: JSON.stringify({
+            user_id: Number($userId),
+            roles_id: Number($roleId),
+            description: descriptionnya,
+            notification_type_id: type
+        })
+    });
+
+    if (!response.ok) {
+        console.error('POST new notif gagal', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid post new notif', data);
+        return;
+    }
   }
 
   async function goToPage(page) {
@@ -327,7 +357,7 @@
                 {#if showFilter}
                     <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/4 bg-gray-100 p-4 rounded-lg font-roboto">
                     <div class="w-full flex justify-end">
-                      <button on:click={async() => {await fetchUsers(); toggleFilter()}} class="text-peach2 p-1 rounded hover:bg-peach hover:text-darkGray">Reset</button>
+                      <button on:click={async() => {users = []; await fetchUsers(); toggleFilter()}} class="text-peach2 p-1 rounded hover:bg-peach hover:text-darkGray">Reset</button>
                     </div>
                     <span class="font-bold text-xl mb-1">Join Date</span>
                     <div class="flex">
@@ -498,7 +528,7 @@
         </div>
         <div class="flex flex-col my-2 w-1/2 pl-1">
             <span class="text-peach font-semibold mb-1">Employee Password</span>
-            <input type="text" bind:value={user_password} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+            <input type="password" bind:value={user_password} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
         </div>
     </div>
     <div class="flex flex-col my-2">

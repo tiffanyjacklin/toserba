@@ -211,6 +211,9 @@
         console.log("update role", JSON.stringify(atribut))
         await UpdateRoleUser(user_id, role_id,atribut)
 
+        let description = "User ID "+$userId+" melakukan update role user dengan ID user "+ user_id;
+        //21 Update Role User
+        await insertNotif(description,21)
         
         Swal.fire({
           title: "Update Role User Berhasil",
@@ -230,6 +233,31 @@
           background: "#364445",
           confirmButtonColor: '#F2AA7E'
         });
+      }
+    }
+
+    async function insertNotif(descriptionnya,type){
+      console.log(descriptionnya);
+      const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+          method: 'POST',
+          body: JSON.stringify({
+              user_id: Number($userId),
+              roles_id: Number($roleId),
+              description: descriptionnya,
+              notification_type_id: type
+          })
+      });
+
+      if (!response.ok) {
+          console.error('POST new notif gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid post new notif', data);
+          return;
       }
     }
 

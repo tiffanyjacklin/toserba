@@ -21,7 +21,7 @@
     let searchQuery_temp = '';
 
     let users = [];
-    $: filtered_users = [];
+    let filtered_users = [];
     let listAdmin = [];
     let stores = [];
 
@@ -74,47 +74,44 @@
         });
 
         if (!response.ok) {
-            console.error('fetch SW failed', response);
+            console.error('fetch user failed', response);
             return;
         }
 
         const data = await response.json();
 
         if (data.status !== 200) {
-            console.error('Invalid fetch SW', data);
+            console.error('Invalid fetch user', data);
             return;
         }
 
         users = data.data;
-        console.log(users)
+        totalRows = data.total_rows;
+        console.log("users length", users.length)
 
-        // let indexDelete = [];
+        let adminNotShow = 0;
 
         for (let i = 0; i < users.length; i++) {
           users[i].show = true
           if (users[i].role_id == 5){
             if (listAdmin.find((user_id) => user_id == users[i].user_id) != null){
-              // users.splice(i,1);
               users[i].show = false
+              adminNotShow += 1;
             } else {
               listAdmin.push(users[i].user_id)
               users[i].total_sw = await getAdminTotalSW(users[i].user_id,users[i].role_id);
+              // filtered_users.push(users[i])
               console.log("listAdmin",listAdmin)
-              totalRows += 1;
             }
           } else {
-            totalRows += 1;
             users[i].sw_name = await getStoreWarehouse(users[i].store_warehouse_id)
+            // filtered_users.push(users[i])
           }
         }
 
-        // for (let i = 0; i < indexDelete.length; i++){
-        //   users.splice(indexDelete[i],1)
-        // }
-
-
         filtered_users = structuredClone(users);
-        console.log(filtered_users)
+        totalRows = totalRows - adminNotShow;
+        console.log("users",users)
         console.log("totalRows",totalRows);
     }
   
@@ -139,14 +136,18 @@
       }
 
       let tmp = data.data;
-      console.log(tmp);
+      totalRows = data.total_rows;
+      // console.log(tmp);
 
       filtered_users = [];
+      filtered_users = structuredClone(tmp);
+      filtered_users = filtered_users;
 
-      for (let i = 0; i < tmp.length; i++) {
-        let tmp_di_user = users.find((user) => user.user_id == tmp[i].user_id && user.role_id == tmp[i].role_id);
-        filtered_users.push(tmp_di_user);
-      }
+      // for (let i = 0; i < tmp.length; i++) {
+      //   let tmp_di_user = users.find((user) => user.user_id == tmp[i].user_id && user.role_id == tmp[i].role_id);
+      //   filtered_users.push(tmp_di_user);
+      // }
+
 
       console.log("filtered", filtered_users)
   }
@@ -200,7 +201,7 @@
   }
 
   async function getAdminTotalSW(user_id,role_id){
-        const response = await fetch(`http://${$uri}:8888/store_warehouses/${user_id}/${role_id}`, {
+        const response = await fetch(`http://${$uri}:8888/store_warehouses/${user_id}/${role_id}/''/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -319,6 +320,10 @@
 
     console.log(JSON.stringify(atribut))
     await addRoletoUser(atribut);
+
+    let description = "User ID "+$userId+" membuat user baru dengan ID user "+ last_user_id;
+    //20 Create New User
+    await insertNotif(description,20)
 
     Swal.fire({
       title: "Add Employee Berhasil",
@@ -529,7 +534,33 @@
 
         currentPage = page;
         offset = (currentPage - 1) * limit;
+        listAdmin = [];
         await fetchUsers();
+    }
+
+    async function insertNotif(descriptionnya,type){
+        console.log(descriptionnya);
+        const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: Number($userId),
+                roles_id: Number($roleId),
+                description: descriptionnya,
+                notification_type_id: type
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new notif gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new notif', data);
+            return;
+        }
     }
 
     onMount(async () => {
@@ -626,6 +657,7 @@
                         <button on:click={() => {filter_role_id = 2;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 2 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Inventory Store Employee</button>
                         <button on:click={() => {filter_role_id = 3;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 3 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Warehouse Employee</button>
                         <button on:click={() => {filter_role_id = 4;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 4 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Warehouse Operational Staff</button>
+                        <button on:click={() => {filter_role_id = 5;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 5 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Admin</button>
                         <button on:click={() => {filter_role_id = 0;  console.log(filter_role_id)}} class={`w-fit mx-1 my-1 bg-white rounded-2xl p-2 border hover:border-peach2 hover:text-peach2 ${filter_role_id === 0 ? "border-peach2 text-peach2" : "text-darkGray"}`}>Custom</button>
                     </div>
                     
@@ -696,33 +728,36 @@
     {/if}
 
       {#if tampilan == "manage"}
-        {#each filtered_users as user}
-        {#if user.role_id != 6 && user.show == true}
-          <button on:click={() => {goto(`/manage_employee_owner/manage/${user.user_id}/${user.role_id}/${user.store_warehouse_id}`)}} class="w-[96%] font-roboto">
-            <div class="relative overflow-x-auto sm:rounded-lg">
-                <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3">                        
-                    <div class="m-4 w-1/12 flex">
-                        <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
-                    </div>
-                    <div class="flex w-full pr-6 items-center justify-between font-semibold text-lg">
-                      <div class="flex flex-col items-start">
-                        <span class="text-xl">{user.user_fullname}</span>
-                        <span class="">{user.roles_name}</span>
+        {#if filtered_users.length > 0}
+          {#each filtered_users as user}
+          {#if user.role_id != 6 && user.show == true}
+          <!-- {#if user.role_id != 6} -->
+            <button on:click={() => {goto(`/manage_employee_owner/manage/${user.user_id}/${user.role_id}/${user.store_warehouse_id}`)}} class="w-[96%] font-roboto">
+              <div class="relative overflow-x-auto sm:rounded-lg">
+                  <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3">                        
+                      <div class="m-4 w-1/12 flex">
+                          <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
                       </div>
-                      <div class="flex flex-col items-start">
-                        {#if user.role_id == 5}
-                          <span class="">Total Store/Warehouse: {user.total_sw}</span>
-                        {:else}
-                          <span class="">{user.sw_name}</span>
-                        {/if}
-                        <span class="">Join Date: {new Date(user.user_created_at).toJSON().slice(0, 10)}</span>
+                      <div class="flex w-full pr-6 items-center justify-between font-semibold text-lg">
+                        <div class="flex flex-col items-start">
+                          <span class="text-xl">{user.user_fullname}</span>
+                          <span class="">{user.roles_name}</span>
+                        </div>
+                        <div class="flex flex-col items-start">
+                          {#if user.role_id == 5}
+                            <span class="">Total Store/Warehouse: {user.total_sw}</span>
+                          {:else}
+                            <span class="">{user.sw_name}</span>
+                          {/if}
+                          <span class="">Join Date: {new Date(user.user_created_at).toJSON().slice(0, 10)}</span>
+                        </div>
                       </div>
-                    </div>
-                </div>
-            </div>
-          </button>
+                  </div>
+              </div>
+            </button>
+          {/if}
+          { /each}
         {/if}
-      {/each}
      {:else if tampilan == "edit"}
      <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
