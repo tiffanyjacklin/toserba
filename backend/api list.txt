@@ -967,11 +967,13 @@ e.GET("/profit/sum/all/store/:start_date/:end_date/:sw_name_address/:limit/:offs
 
 e.GET("/loss/sum/all/:year/:month/:day", controller.GetSumLoss)
 
+e.GET("/notifications/type/:limit/:offset", controller.GetAllNotificationType)
+
 // Mengambil semua data notifikasi
 e.GET("/notifications/:limit/:offset", controller.GetAllNotification)
 
 // Mengambil notifikasi berdasarkan role
-e.GET("/notifications/:role_id", controller.GetNotificationByRoleId)
+e.GET("/notifications/:role_id/:user_id/:notification_type_id/:start_date/:end_date/:limit/:offset", controller.GetNotificationByRoleId)
 
 // Menambah notifikasi baru
 e.POST("/notifications/add", controller.InsertNotification)

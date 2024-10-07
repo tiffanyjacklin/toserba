@@ -266,8 +266,9 @@ func Init() *echo.Echo {
 
 	e.GET("/loss/sum/all/:year/:month/:day", controller.GetSumLoss)
 
+	e.GET("/notifications/type/:limit/:offset", controller.GetAllNotificationType)
 	e.GET("/notifications/:limit/:offset", controller.GetAllNotification)
-	e.GET("/notifications/:role_id", controller.GetNotificationByRoleId)
+	e.GET("/notifications/:role_id/:user_id/:notification_type_id/:start_date/:end_date/:limit/:offset", controller.GetNotificationByRoleId)
 	e.POST("/notifications/add", controller.InsertNotification)
 
 	return e
