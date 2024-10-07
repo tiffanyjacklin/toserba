@@ -22,7 +22,7 @@
 
     let users = [];
     let filtered_users = [];
-    let listAdmin = [];
+    // let listAdmin = [];
     let stores = [];
 
     //FILTER
@@ -66,7 +66,7 @@
    }
   
   async function fetchUsers(){
-        const response = await fetch(`http://${$uri}:8888/user/${searchQuery}/${limit}/${offset}`, {
+        const response = await fetch(`http://${$uri}:8888/user/${filter_start_date}/${filter_end_date}/${searchQuery}/${filter_role_id}/${filter_gender}/${limit}/${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -87,70 +87,75 @@
 
         users = data.data;
         totalRows = data.total_rows;
-        console.log("users length", users.length)
+        console.log("data total", data)
+        // console.log("users length", users.length)
 
-        let adminNotShow = 0;
+        // let adminNotShow = 0;
 
+        // for (let i = 0; i < users.length; i++) {
+        //   users[i].show = true
+        //   if (users[i].role_id == 5){
+        //     if (listAdmin.find((user_id) => user_id == users[i].user_id) != null){
+        //       users[i].show = false
+        //       adminNotShow += 1;
+        //     } else {
+        //       listAdmin.push(users[i].user_id)
+        //       users[i].total_sw = await getAdminTotalSW(users[i].user_id,users[i].role_id);
+        //       // filtered_users.push(users[i])
+        //       console.log("listAdmin",listAdmin)
+        //     }
+        //   } else {
+        //     users[i].sw_name = await getStoreWarehouse(users[i].store_warehouse_id)
+        //     // filtered_users.push(users[i])
+        //   }
+        // }
+        
         for (let i = 0; i < users.length; i++) {
           users[i].show = true
           if (users[i].role_id == 5){
-            if (listAdmin.find((user_id) => user_id == users[i].user_id) != null){
-              users[i].show = false
-              adminNotShow += 1;
-            } else {
-              listAdmin.push(users[i].user_id)
               users[i].total_sw = await getAdminTotalSW(users[i].user_id,users[i].role_id);
-              // filtered_users.push(users[i])
-              console.log("listAdmin",listAdmin)
-            }
           } else {
             users[i].sw_name = await getStoreWarehouse(users[i].store_warehouse_id)
-            // filtered_users.push(users[i])
           }
         }
-
+        
         filtered_users = structuredClone(users);
-        totalRows = totalRows - adminNotShow;
         console.log("users",users)
         console.log("totalRows",totalRows);
     }
   
-  async function fetchUserFiltered(start_date,end_date,role_id,gender){
-      const response = await fetch(`http://${$uri}:8888/user/${start_date}/${end_date}/''/${role_id}/${gender}/100/0`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
+  // async function fetchUserFiltered(start_date,end_date,role_id,gender){
+  //     const response = await fetch(`http://${$uri}:8888/user/${start_date}/${end_date}/''/${role_id}/${gender}/100/0`, {
+  //         method: 'GET',
+  //         headers: {
+  //             'Content-Type': 'application/json'
+  //         }
+  //     });
 
-      if (!response.ok) {
-          console.error('fetch user failed', response);
-          return;
-      }
+  //     if (!response.ok) {
+  //         console.error('fetch user failed', response);
+  //         return;
+  //     }
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (data.status !== 200) {
-          console.error('Invalid fetch user', data);
-          return;
-      }
+  //     if (data.status !== 200) {
+  //         console.error('Invalid fetch user', data);
+  //         return;
+  //     }
 
-      let tmp = data.data;
-      totalRows = data.total_rows;
-      // console.log(tmp);
+  //     totalRows = data.total_rows;
+  //     filtered_users = data.data;
+  //     filtered_users = filtered_users;
 
-      filtered_users = [];
-      filtered_users = structuredClone(tmp);
-      filtered_users = filtered_users;
-
-      // for (let i = 0; i < tmp.length; i++) {
-      //   let tmp_di_user = users.find((user) => user.user_id == tmp[i].user_id && user.role_id == tmp[i].role_id);
-      //   filtered_users.push(tmp_di_user);
-      // }
+  //     // for (let i = 0; i < tmp.length; i++) {
+  //     //   let tmp_di_user = users.find((user) => user.user_id == tmp[i].user_id && user.role_id == tmp[i].role_id);
+  //     //   filtered_users.push(tmp_di_user);
+  //     // }
 
 
-      console.log("filtered", filtered_users)
-  }
+  //     console.log("filtered", filtered_users)
+  // }
 
   async function getLastUserId(){
         const response = await fetch(`http://${$uri}:8888/user/last`, {
@@ -220,8 +225,8 @@
             return;
         }
 
-        // console.log(data.data);
-        return data.data.length
+        // console.log("user id ", user_id, "total sw : ", data.total_rows);
+        return data.total_rows;
     }
 
   async function fetchSW(){
@@ -357,6 +362,7 @@
           return;
       }
 
+      totalRows = data.total_rows;
       role_to_assign = data.data;
       filtered_role_to_assign = structuredClone(role_to_assign);
 
@@ -529,13 +535,25 @@
       }
   }
 
+  function clearVariable(){
+    filter_start_date = ''; 
+    filter_end_date = ''; 
+    filter_gender = ''; 
+    filter_role_id = ''; 
+  }
+
   async function goToPage(page) {
         if (page < 1 || page > Math.ceil(totalRows / limit)) return;
 
         currentPage = page;
         offset = (currentPage - 1) * limit;
-        listAdmin = [];
-        await fetchUsers();
+        // listAdmin = [];
+        if (tampilan == "manage"){
+          await fetchUsers();
+        } else if (tampilan == "edit"){
+          await fetchRoletoAssign();
+        }
+        
     }
 
     async function insertNotif(descriptionnya,type){
@@ -565,6 +583,7 @@
 
     onMount(async () => {
       await fetchUsers();
+      goToPage(1);
       await fetchRoletoAssign();
       await fetchAllPrivilege();
     });
@@ -604,12 +623,12 @@
             {#if tampilan == "manage"}
                 <button on:click={() => {tampilan = "manage"; tampilan = tampilan;}} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
             {:else}
-                <button on:click={() => {tampilan = "manage"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
+                <button on:click={() => {tampilan = "manage"; tampilan = tampilan; goToPage(1)}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Manage Employee</button>
             {/if}
             {#if tampilan == "edit"}
                 <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
             {:else}
-                <button on:click={() => {tampilan = "edit"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
+                <button on:click={() => {tampilan = "edit"; tampilan = tampilan; goToPage(1)}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit Role & Privilege</button>
             {/if}
             {#if tampilan == "add_priv"}
                 <button on:click={() => {tampilan = "add_priv"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add Privilege</button>
@@ -637,7 +656,7 @@
                 {#if showFilter}
                     <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/4 bg-gray-100 p-4 rounded-lg font-roboto">
                     <div class="w-full flex justify-end">
-                      <button on:click={async() => {await fetchUsers(); toggleFilter()}} class="text-peach2 p-1 rounded hover:bg-peach hover:text-darkGray">Reset</button>
+                      <button on:click={() => {clearVariable(); fetchUsers(); toggleFilter(); goToPage(1)}} class="text-peach2 p-1 rounded hover:bg-peach hover:text-darkGray">Reset</button>
                     </div>
                     <span class="font-bold text-xl mb-1">Join Date</span>
                     <div class="flex">
@@ -668,8 +687,8 @@
                     </div>
                     
                     <div class="flex justify-between font-semibold mt-4">
-                        <button on:click={() => { filter_start_date = ''; filter_end_date = ''; filter_gender = ""; filter_role_id = null }} class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" >Clear</button>
-                        <button on:click={() => {fetchUserFiltered(filter_start_date,filter_end_date,filter_role_id,filter_gender); toggleFilter()}} class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded">Apply</button>
+                        <button on:click={() => {clearVariable()}} class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" >Clear</button>
+                        <button on:click={() => {fetchUsers(); toggleFilter()}} class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded">Apply</button>
                     </div>
                     </div>
                 {/if}

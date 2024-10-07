@@ -210,7 +210,14 @@
             return;
         }
 
-        storeWarehouse = data.data;
+        // storeWarehouse = data.data;
+        let tmp = data.data
+
+        for(let i = 0; i < tmp.length; i++){
+          if (tmp[i].store_warehouse_type == "STORE"){
+            storeWarehouse.push(tmp[i]);
+          }
+        }
     }
     
     async function getLastPromoId(){
@@ -331,8 +338,8 @@
         } else {
             sw_id_list = [];
             for (let i = 0; i < storeWarehouse.length; i++) {
-              if (storeWarehouse[i].StoreWarehouses.store_warehouse_type == "STORE"){
-                sw_id_list.push(storeWarehouse[i].StoreWarehouses.store_warehouse_id);
+              if (storeWarehouse[i].store_warehouse_type == "STORE"){
+                sw_id_list.push(storeWarehouse[i].store_warehouse_id);
                 console.log("sw_id",sw_id_list);
               }
             }
@@ -347,6 +354,7 @@
             sw_id_list.push(sw);
             console.log("sw_id",sw_id_list);
           }
+          sw_id_list = sw_id_list;
       }
     }
 
@@ -441,10 +449,19 @@
     async function addProductPromo(){
       await addPromo();
       let last_promo_id = await getLastPromoId();
+
+      let description = "User ID "+$userId+" membuat promo baru dengan ID promo "+ last_promo_id;
+      //1 Add Promo
+      await insertNotif(description,1)
+
       await applyPromotoProduct(last_promo_id);
 
       for (let i = 0; i < sw_id_list.length; i++) {
-        await applyPromotoStore(sw_id_list[i],last_promo_id)  
+        await applyPromotoStore(sw_id_list[i],last_promo_id) 
+        
+        let description = "User ID "+$userId+" menerapkan promo ID "+ last_promo_id + " pada produk ID " + choosen_product_id + " dan store ID " + sw_id_list[i];
+        //18 Apply Promo
+        await insertNotif(description,18)
       }
 
       
@@ -554,6 +571,32 @@
       all_discount = [...data.data];
       console.log("hha",all_discount);
     }
+
+    async function insertNotif(descriptionnya,type){
+      console.log(descriptionnya);
+      const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+          method: 'POST',
+          body: JSON.stringify({
+              user_id: Number($userId),
+              roles_id: Number($roleId),
+              description: descriptionnya,
+              notification_type_id: type
+          })
+      });
+
+      if (!response.ok) {
+          console.error('POST new notif gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid post new notif', data);
+          return;
+      }
+    }
+
     onMount(async () => {
       await fetchPromos();
       await fetchProduk();
@@ -1161,28 +1204,36 @@
 
 
         <!-- CHOOSE STORE (STORE LIST) -->
-        <div class="flex flex-col my-1">
-          <div class="flex items-center mb-1">
-            <span class="text-peach font-semibold mr-2">Store List</span>
-            <input on:change={() => {addStoreToList("all"); toggleSwListAll();}} class="border border-peach bg-darkGray" type="checkbox">
-          </div>
-          
-          {#each storeWarehouse as store}
-          {#if store.store_warehouse_type == "STORE"}
-            <ul class="font-semibold text-white ml-2">
-              <li class="mb-1">
-                <div class="flex items-center">
-                  {#if swListAll == false}
-                    <input on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
-                  {:else}
-                    <input checked disabled class="border border-white bg-darkGray  mr-2" type="checkbox">
-                  {/if}
-                    <span class="">{store.store_warehouse_name}</span>
-                </div>
-              </li>
-            </ul>
+      <div class="flex flex-col my-1">
+        <div class="flex items-center mb-1">
+          <span class="text-peach font-semibold mr-2">Store List</span>
+          {#if sw_id_list.length != storeWarehouse.length}
+            <input on:change={() => {addStoreToList("all"); swListAll = true; console.log(swListAll); console.log("sw_id_list",sw_id_list)}} class="border border-peach bg-darkGray" type="checkbox">
+          {:else if sw_id_list.length == storeWarehouse.length}
+            <input checked on:change={() => {addStoreToList("all"); swListAll = false; console.log(swListAll); console.log("sw_id_list",sw_id_list)}} class="border border-peach bg-darkGray" type="checkbox">
+          <!-- {:else} -->
+            <!-- <input checked disabled class="border border-peach bg-darkGray disabled:opacity-75" type="checkbox"> -->
           {/if}
-          {/each}
+        </div>
+        
+        {#each storeWarehouse as store}
+        <!-- {#if store.StoreWarehouses.store_warehouse_type == "STORE"} -->
+          <ul class="font-semibold text-white ml-2">
+            <li class="mb-1">
+              <div class="flex items-center">
+                {#if swListAll == false && (sw_id_list.find((id) => id == store.store_warehouse_id) == null)}
+                  <input on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
+                {:else if swListAll == false && (sw_id_list.find((id) => id == store.store_warehouse_id) != null)}
+                  <input checked on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
+                {:else if swListAll == true}
+                  <input checked disabled class="border border-white bg-darkGray disabled:opacity-75 mr-2" type="checkbox">
+                {/if}
+                  <span class="">{store.store_warehouse_name} {store.store_warehouse_id}</span>
+              </div>
+            </li>
+          </ul>
+        <!-- {/if} -->
+        {/each}
         </div>
 
         <!-- TIME START END -->
