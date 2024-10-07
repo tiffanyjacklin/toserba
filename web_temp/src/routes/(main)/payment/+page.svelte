@@ -141,7 +141,36 @@
             console.error('Invalid post new member', data);
             return;
         }
+        
+        let newMember = await fetchPhoneNumber();
+        let description = "User ID "+$userId+" membuat member baru dengan ID Member"+newMember.member_id;
+        await insertNotif(description);
         closeModal();
+    }
+
+    async function insertNotif(descriptionnya){
+        console.log(descriptionnya);
+        const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: Number($userId),
+                roles_id: Number($roleId),
+                description: descriptionnya,
+                notification_type_id: 17
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new notif gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new notif', data);
+            return;
+        }
     }
 
     async function getPromoProductId(product_detail_id){

@@ -251,6 +251,11 @@
       await fetchStoreWarehouse();
     }
     async function editSW(store_warehouse_specific){
+      console.log(`http://${$uri}:8888/store_warehouses/edit/${store_warehouse_specific.store_warehouse_id}`);
+      console.log(store_warehouse_specific.store_warehouse_name);
+      console.log(store_warehouse_specific.store_warehouse_address);
+      console.log(store_warehouse_specific.store_warehouse_phone_number);
+      console.log(location_idnya);
       const response = await fetch(`http://${$uri}:8888/store_warehouses/edit/${store_warehouse_specific.store_warehouse_id}`, {
         method: 'PUT',
         body: JSON.stringify({
@@ -517,7 +522,7 @@
   </div>
   <div class="flex flex-col justify-center p-8 font-roboto">
     {#if tampilan === 'View'}
-    <button class="w-32 py-2 mb-4 px-4 bg-peach2 hover:bg-peach  text-darkGray border border-black rounded-xl font-semibold flex shadow-xl justify-center gap-x-2" on:click={async () => {tampilan = 'Edit'; await fetchProvince(); province_name_temp = location.province; province_id = location.location_id; province_name = location.province; city_name_temp = location.city; city_name = location.city;}}>
+    <button class="w-32 py-2 mb-4 px-4 bg-peach2 hover:bg-peach  text-darkGray border border-black rounded-xl font-semibold flex shadow-xl justify-center gap-x-2" on:click={async () => {tampilan = 'Edit'; await fetchProvince(); province_name_temp = location.province; province_id = location.location_id; province_name = location.province; city_name_temp = location.city; city_name = location.city; location_idnya = location.location_id;}}>
       <div>Edit </div> 
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
         <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
