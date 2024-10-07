@@ -66,6 +66,9 @@
     console.log(warehouse);
   }
   async function fetchTransferNotes() {
+    // http://leap.crossnet.co.id:8888/orders/transfer/notes/all//2//////5/0 
+    // e.GET("/orders/transfer/notes/all/:transfernote_id/:sw_from/:sw_to/:status_verif/:status_send/:start_date/:end_date/:limit/:offset", controller.GetAllTransferNotes)
+
     console.log(`http://${$uri}:8888/orders/transfer/notes/all/${searchQuery}/${warehouse.StoreWarehouses.store_warehouse_id}//${verify_status}/${send_status}/${startDate}/${endDate}/${limit}/${offset}`);
     const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/all/${searchQuery}/${warehouse.StoreWarehouses.store_warehouse_id}//${verify_status}/${send_status}/${startDate}/${endDate}/${limit}/${offset}`, {
         method: 'GET',
@@ -263,6 +266,8 @@
     closeModal();
     // goto(`/products`);
   }
+    
+
   function filterBeforeLoadToDeliveryOrder(products){
     return products.map(product => ({
         product_detail_id: product.product_detail_id,

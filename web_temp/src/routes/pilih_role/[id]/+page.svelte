@@ -4,6 +4,7 @@
     import { browser } from '$app/environment';
     import { uri, userId, roleId } from '$lib/uri.js';
     import { get } from 'svelte/store';
+    import { getFormattedDate } from '$lib/DateNow.js';
 
     export let data;
     let json;
@@ -56,10 +57,12 @@
         fetchRoles();
     });
 
-    function ChooseRole(role_id) {
+    function ChooseRole(role_id, role_name) {
         selectedRole = role_id;
         roleId.set(String(role_id));
-        roleId.subscribe(value => {
+        roleId.subscribe(async value => {
+            let description = "User ID "+$userId+" login sebagai "+role_name+" pada "+getFormattedDate();
+            await insertNotif(description);
             if (value === String(1)){
                 goto(`/session`);
             }
@@ -74,6 +77,31 @@
             }
         });
     }
+
+    async function insertNotif(descriptionnya){
+        console.log(descriptionnya);
+        const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: Number($userId),
+                roles_id: Number($roleId),
+                description: descriptionnya,
+                notification_type_id: 13
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new notif gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new notif', data);
+            return;
+        }
+    }
 </script>
 <svelte:head>
     <title>Toserba | Pilih Role</title>
@@ -86,7 +114,7 @@
 <div class="flex justify-center">
     <div class="flex flex-wrap justify-center align-items-center gap-4 w-8/12">
         {#each roles as role, index}
-            <a on:click={() => ChooseRole(role.role_id)} href="#" value={role.role_id} class="w-72 h-48 flex flex-col text-center items-center justify-center block max-w-sm p-6 bg-peach border border-peach2 rounded-lg shadow hover:bg-peach2 ">
+            <a on:click={() => ChooseRole(role.role_id, role.roles_name)} href="#" value={role.role_id} class="w-72 h-48 flex flex-col text-center items-center justify-center block max-w-sm p-6 bg-peach border border-peach2 rounded-lg shadow hover:bg-peach2 ">
                 {#if role.role_id == 1}
                     <i class="fa-solid fa-cash-register fa-5x" style="color: #364445;"></i>
                 {:else if role.role_id == 2}

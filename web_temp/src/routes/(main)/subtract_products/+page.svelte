@@ -295,6 +295,9 @@
       return;
     }
     console.log("insert subtract product detail",data);
+    let description = "User ID "+$userId+" mengurangi produk dengan ID Subtract Product "+data.data[0].subtract_stock_id;
+    await insertNotif(description);
+
     products_to_subtract = [];
     resetVariables();
     closeModal();
@@ -316,6 +319,32 @@
     filterProductsBasedOnSubtraction();
     autoFillIfOnlyOneStock();
   }
+  
+  async function insertNotif(descriptionnya){
+        console.log(descriptionnya);
+        const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: Number($userId),
+                roles_id: Number($roleId),
+                description: descriptionnya,
+                notification_type_id: 10
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new notif gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new notif', data);
+            return;
+        }
+    }
+
   </script>
   <div class="select-none font-roboto text-[#364445] mx-8 mt-[90px] mb-10 flex flex-col items-center justify-center bg-white shadow-[0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <div class="flex flex-col w-full pb-10 justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">

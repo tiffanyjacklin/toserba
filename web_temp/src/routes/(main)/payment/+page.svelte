@@ -153,8 +153,8 @@
         const response = await fetch(`http://${$uri}:8888/notifications/add`, {
             method: 'POST',
             body: JSON.stringify({
-                user_id: Number(userId),
-                roles_id: Number(roleId),
+                user_id: Number($userId),
+                roles_id: Number($roleId),
                 description: descriptionnya,
                 notification_type_id: 17
             })

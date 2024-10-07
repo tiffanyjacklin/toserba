@@ -4,6 +4,7 @@
     import { goto } from '$app/navigation';
     import { get } from 'svelte/store';
 	import { page } from '$app/stores';
+    import { getFormattedDate } from '$lib/DateNow.js';
 
     import { uri, userId, roleId, sessionId, privileges, user, totalAmount, prev_path, storeId, sw_name } from '$lib/uri.js';
 
@@ -71,7 +72,9 @@
         fetchUser();
    });
 
-   function handleLogout() {
+   async function handleLogout() {
+        let description = "User ID "+$userId+" logout pada "+getFormattedDate();
+        await insertNotif(description);
         userId.set('');
         user.set('');
         roleId.set('');
@@ -81,6 +84,30 @@
 
         goto('/login');
 
+    }
+    async function insertNotif(descriptionnya){
+        console.log(descriptionnya);
+        const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: Number($userId),
+                roles_id: Number($roleId),
+                description: descriptionnya,
+                notification_type_id: 14
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new notif gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new notif', data);
+            return;
+        }
     }
 </script>
 

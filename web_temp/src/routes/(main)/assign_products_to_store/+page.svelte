@@ -383,9 +383,39 @@
       console.log("ab",data2.data);
 
       console.log('Transfer Note updated successfully', data2);
+      let description = "User ID "+$userId+" membuat transfer note baru dengan ID Transfer Note "+data.data[0].transfer_note_id;
+      await insertNotif(description);
+
+
       prev_path.set('assign_products_to_store');
       goto('/stock_transfer_notes');
   }
+  
+  async function insertNotif(descriptionnya){
+        console.log(descriptionnya);
+        const response = await fetch(`http://${$uri}:8888/notifications/add`, {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: Number($userId),
+                roles_id: Number($roleId),
+                description: descriptionnya,
+                notification_type_id: 16
+            })
+        });
+
+        if (!response.ok) {
+            console.error('POST new notif gagal', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid post new notif', data);
+            return;
+        }
+    }
+
 </script>
 
 <!-- <LoadingBar {loading} /> -->
