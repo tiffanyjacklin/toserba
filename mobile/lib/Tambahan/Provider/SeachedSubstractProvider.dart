@@ -6,12 +6,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Model/AllProduct.dart';
 import 'package:flutter_app_all/Model/StockOpname.dart' as opname;
+import 'package:flutter_app_all/Model/SubstractProductResponse.dart' as subsResponse;
 import 'package:flutter_app_all/Template.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_app_all/Model/UserData.dart' as user;
 
 class SubstractProductProvider extends ChangeNotifier {
-  /// Internal, private state of the cart
-  int _storeId = 2;
+  SubstractProductProvider(user.Data user){
+    _userData = user;
+  }
+
+  late user.Data _userData;
   // bool _onSearch = false;
 
   // search product need
@@ -116,7 +121,7 @@ class SubstractProductProvider extends ChangeNotifier {
     try{
     // NOTE : kalo mau satu kosong bisa di "-" , batch misal -
     final link =
-        'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/${this._storeId}/$name/$batch///////0/0';
+        'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/${_userData.storeWarehouseId!}/$name/$batch///////0/0';
 
     // call api
     final response = await http.get(Uri.parse(link)).timeout(const Duration(seconds: 10))
@@ -150,11 +155,38 @@ class SubstractProductProvider extends ChangeNotifier {
     return [];
   }
 
+  // User ID 1 mengurangi produk dengan ID Subtract Product 23
+  // fetch notif
+  Future<bool> notificationSubstract(int substractId) async {
+    // link api
+    final link = 'http://leap.crossnet.co.id:8888/notifications/add';
+
+    Map<String, dynamic> jsonBody = {
+        "user_id": _userData.userId,
+        "roles_id": _userData.roleId,
+        "description":
+            "User ID ${_userData.userId} mengurangi produk dengan ID Substract Product ${substractId}",
+        "notification_type_id": 10 // id for substract
+      };
+
+    // call api (method POST)
+    final response =
+        await http.post(Uri.parse(link), body: json.encode(jsonBody));
+
+    print(response.body);
+    // cek status
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // submit bro
-  Future<void> submitSubstract(int userId, int roleId) async {
+  Future<void> submitSubstract() async {
       // NOTE : kalo mau satu kosong bisa di "-" , batch misal -
     final link =
-        'http://leap.crossnet.co.id:8888/products/stock/subtract/$userId/$roleId';
+        'http://leap.crossnet.co.id:8888/products/stock/subtract/${_userData.userId!}/${_userData.roleId!}';
 
     // buat isi nya dulu
     List<Map<String, dynamic>> bodyContent = List.generate(
@@ -177,6 +209,9 @@ class SubstractProductProvider extends ChangeNotifier {
     Map<String, dynamic> temp = json.decode(response.body);
     if (temp['status'] == 200) {
       print(temp);
+
+    var hasilData = subsResponse.SubmitSubstractProduct.fromJson(temp);
+      var result = await notificationSubstract(hasilData.data!.first.subtractStockId!);
       resetAll(); // COBA RESET SEMUA
     } 
   }

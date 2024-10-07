@@ -68,8 +68,9 @@ class _SubstractProductPageWithProviderState
     extends State<SubstractProductPageWithProvider> {
   @override
   Widget build(BuildContext context) {
+    final providerAuth = Provider.of<AuthState>(context);
     return ChangeNotifierProvider(
-      create: (context) => SubstractProductProvider(),
+      create: (context) => SubstractProductProvider(providerAuth.userData),
       child: SubstractProductPage(),
     );
   }
@@ -602,7 +603,7 @@ class TableSubstractProduct extends StatelessWidget {
 }
 
 class SubmitPopup extends StatelessWidget {
-  final provider;
+  final SubstractProductProvider provider;
 
   SubmitPopup({
     required this.provider,
@@ -753,7 +754,7 @@ class SubmitPopup extends StatelessWidget {
                         ),
                         onPressed: () {
                           // Note: GANTI
-                          provider.submitSubstract(3, 3).then((onValue) {
+                          provider.submitSubstract().then((onValue) {
                             Navigator.pop(context);
                           });
                         },
