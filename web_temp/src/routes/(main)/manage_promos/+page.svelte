@@ -47,7 +47,7 @@
   let y_amount = 0;
 
   //ADD PROMO TO STORE
-  let sw_id_list = [];
+  $: sw_id_list = [];
 
   function closeModal() {
      showModal = false;
@@ -83,28 +83,34 @@
       
   }
   
-  async function fetchSW(){
-      const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/''/0/0`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
+  // async function fetchSW(){
+  //     const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/''/0/0`, {
+  //         method: 'GET',
+  //         headers: {
+  //             'Content-Type': 'application/json'
+  //         }
+  //     });
 
-      if (!response.ok) {
-          console.error('fetch all promo failed', response);
-          return;
-      }
+  //     if (!response.ok) {
+  //         console.error('fetch all promo failed', response);
+  //         return;
+  //     }
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (data.status !== 200) {
-          console.error('Invalid fetch all promo', data);
-          return;
-      }
+  //     if (data.status !== 200) {
+  //         console.error('Invalid fetch all promo', data);
+  //         return;
+  //     }
 
-      storeWarehouse = data.data;
-  }
+  //     let tmp_sw = data.data;
+
+  //     for(let i = 0; i < tmp_sw.length; i++){
+
+  //     }
+
+  //     storeWarehouse = data.data;
+  // }
 
   async function getLastPromoId(){
       const response = await fetch(`http://${$uri}:8888/promos/last`, {
@@ -179,7 +185,8 @@
     }
 
     if (isOK == true){
-      await fetchSW();
+      // await fetchSW();
+      // await getAllStoreWarehouse()
       showModal = "add_promo"
       showModal = showModal;
     } else {
@@ -217,6 +224,7 @@
           sw_id_list.push(sw);
           console.log("sw_id",sw_id_list);
         }
+        sw_id_list = sw_id_list;
     }
   }
 
@@ -378,7 +386,15 @@
       }
 
       totalRows = data.data.length;
-      storeWarehouse = data.data;
+
+      let tmp = data.data
+
+      for(let i = 0; i < tmp.length; i++){
+        if (tmp[i].StoreWarehouses.store_warehouse_type == "STORE"){
+          storeWarehouse.push(tmp[i]);
+        }
+      }
+
       filtered_sw = structuredClone(storeWarehouse)
       console.log(storeWarehouse);
       
@@ -465,7 +481,7 @@
 
     <!-- </form> -->
        {#each filtered_sw as store}
-          {#if store.StoreWarehouses.store_warehouse_type != "WAREHOUSE"}
+          <!-- {#if store.StoreWarehouses.store_warehouse_type != "WAREHOUSE"} -->
               <button on:click={() => navigateToStorePage(store.StoreWarehouses.store_warehouse_id)} class="my-4 p-4 border-2 border-black rounded-xl w-11/12 hover:bg-gray-200">
                   <div class="flex">
                       <img class="w-32 rounded-xl mr-8 " src={img_toko} alt="">
@@ -475,7 +491,7 @@
                       </div>
                   </div>
               </button>
-          {/if}
+          <!-- {/if} -->
       {/each}
 
 
@@ -651,24 +667,32 @@
       <div class="flex flex-col my-1">
         <div class="flex items-center mb-1">
           <span class="text-peach font-semibold mr-2">Store List</span>
-          <input on:change={() => {addStoreToList("all"); toggleSwListAll();}} class="border border-peach bg-darkGray" type="checkbox">
+          {#if sw_id_list.length != storeWarehouse.length}
+            <input on:change={() => {addStoreToList("all"); swListAll = true; console.log(swListAll); console.log("sw_id_list",sw_id_list)}} class="border border-peach bg-darkGray" type="checkbox">
+          {:else if sw_id_list.length == storeWarehouse.length}
+            <input checked on:change={() => {addStoreToList("all"); swListAll = false; console.log(swListAll); console.log("sw_id_list",sw_id_list)}} class="border border-peach bg-darkGray" type="checkbox">
+          <!-- {:else} -->
+            <!-- <input checked disabled class="border border-peach bg-darkGray disabled:opacity-75" type="checkbox"> -->
+          {/if}
         </div>
         
         {#each storeWarehouse as store}
-        {#if store.StoreWarehouses.store_warehouse_type == "STORE"}
+        <!-- {#if store.StoreWarehouses.store_warehouse_type == "STORE"} -->
           <ul class="font-semibold text-white ml-2">
             <li class="mb-1">
               <div class="flex items-center">
-                {#if swListAll == false}
+                {#if swListAll == false && (sw_id_list.find((id) => id == store.StoreWarehouses.store_warehouse_id) == null)}
                   <input on:change={() => {addStoreToList(store.StoreWarehouses.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
-                {:else}
-                  <input checked disabled class="border border-white bg-darkGray  mr-2" type="checkbox">
+                {:else if swListAll == false && (sw_id_list.find((id) => id == store.StoreWarehouses.store_warehouse_id) != null)}
+                  <input checked on:change={() => {addStoreToList(store.StoreWarehouses.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
+                {:else if swListAll == true}
+                  <input checked disabled class="border border-white bg-darkGray disabled:opacity-75 mr-2" type="checkbox">
                 {/if}
                   <span class="">{store.StoreWarehouses.store_warehouse_name}</span>
               </div>
             </li>
           </ul>
-        {/if}
+        <!-- {/if} -->
         {/each}
       </div>
 
