@@ -419,7 +419,7 @@
                      </div>
                   </div>
                </button>
-            {:else if ((item.end_time === "0000-00-00 00:00:00" || item.end_time === "0001-01-01T00:00:00Z") && item.user_id === Number($userId))}
+            {:else if ((item.end_time === "0000-00-00 00:00:00" || item.end_time === "0001-01-01T00:00:00Z") && Number($userId) === 1 && item.user_id === Number($userId))}
                <button 
                   on:click={() => backToTransaction(item.session_id)} 
                   class="border-8 bg-peach2 border-peach2 mx-6 my-2 rounded-lg w-full">
