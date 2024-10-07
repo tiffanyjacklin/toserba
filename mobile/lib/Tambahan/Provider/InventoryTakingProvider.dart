@@ -493,5 +493,4 @@ class InventoryTakingProvider extends ChangeNotifier {
     // paginator controller
     _paginatorController.dispose();
   }
-  // /products/stock/opname/add
 }

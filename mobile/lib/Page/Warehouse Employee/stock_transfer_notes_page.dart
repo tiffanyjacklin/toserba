@@ -532,77 +532,7 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                           
                           ],
                         ),
-
-              // Container(
-              //   width: MediaQuery.of(context).size.width * 0.70,
-              //   child: NumberPaginator(
-              //     // by default, the paginator shows numbers as center content
-              //     numberPages: 5,
-              //     onPageChange: (int index) {
-              //       setState(() {
-              //         _currentPage =
-              //             index; // _currentPage is a variable within State of StatefulWidget
-              //       });
-              //     },
-              //     // show/hide the prev/next buttons
-              //     showPrevButton: true,
-              //     showNextButton: true, // defaults to true
-              //     // custom content of the prev/next buttons, maintains their behavior
-              //     nextButtonBuilder: (context) => TextButton(
-              //       onPressed: _controller.currentPage > 0
-              //           ? () => _controller.prev()
-              //           : null, // _controller must be passed to NumberPaginator
-              //       child: const Row(
-              //         children: [
-              //           Text("Next"),
-              //           Icon(Icons.chevron_right),
-              //         ],
-              //       ),
-              //     ),
-              //     // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
-              //     prevButtonBuilder: (context) => TextButton(
-              //       onPressed: _controller.currentPage > 0
-              //           ? () => _controller.prev()
-              //           : null, // _controller must be passed to NumberPaginator
-              //       child: const Row(
-              //         children: [
-              //           Icon(Icons.chevron_left),
-              //           Text("Previous"),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
-
-
-              // Container(
-              //   // height: 400,
-              //   child: FutureBuilder<List<transfer.Data>>(
-              //       future: fetchTransferNotes(),
-              //       builder: (context, snapshot) {
-              //         if (snapshot.connectionState == ConnectionState.done) {
-              //           // get error
-              //           if (snapshot.hasError) {
-              //             return Center(
-              //               child: Text('error fetch'),
-              //             );
-              //           } else {
-              //             return ListView.builder(
-              //               shrinkWrap: true,
-              //               itemCount: 3,
-              //               itemBuilder: (BuildContext context, int index) {
-              //                 return StockTransferNotesChild(
-              //                   dataStockTransfer: snapshot.data![index + ((_currentPage-1)*3)],
-              //                 );
-              //               },
-              //             );
-              //           }
-              //         } else {
-              //           return CircularProgressIndicator();
-              //         }
-              //       }),
-              // ),
-
+                        
               SizedBox(
                 height: 20,
               ),

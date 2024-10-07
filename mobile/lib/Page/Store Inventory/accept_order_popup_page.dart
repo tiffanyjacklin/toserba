@@ -267,65 +267,6 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                     ),
                   ),
 
-                  // // misal sudah accepted maka ga perlu buat lagi
-                  // widget.dataDelivery.statusAccept == 0
-                  //     ? Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children: [
-                  //           // Table Accept Stock form
-                  //           DeliveryOrderDetailsChild(
-                  //             judul: 'Accept Stock Form',
-                  //           ),
-                  //           // cek button misal udah buka
-                  //           isFormNotCreated
-                  //               ? Container(
-                  //                   // height: 50,
-                  //                   width: MediaQuery.of(context).size.width *
-                  //                       0.55 *
-                  //                       0.45,
-                  //                   child: ElevatedButton(
-                  //                     style: ElevatedButton.styleFrom(
-                  //                       backgroundColor:
-                  //                           ColorPalleteLogin.OrangeLightColor,
-                  //                       shape: RoundedRectangleBorder(
-                  //                         borderRadius:
-                  //                             BorderRadius.circular(10.0),
-                  //                       ),
-                  //                     ),
-                  //                     child: Align(
-                  //                       alignment: Alignment.centerLeft,
-                  //                       child: Wrap(
-                  //                         spacing: 6,
-                  //                         children: [
-                  //                           Text(
-                  //                             '+ Created Accept Stock Form',
-                  //                             style: TextStyle(
-                  //                               color: ColorPalleteLogin
-                  //                                   .PrimaryColor,
-                  //                               fontSize: 14,
-                  //                               fontWeight: FontWeight.bold,
-                  //                             ),
-                  //                           ),
-                  //                         ],
-                  //                       ),
-                  //                     ),
-                  //                     onPressed: () {
-                  //                       setState(() {
-                  //                         isFormNotCreated = false;
-                  //                       });
-                  //                     },
-                  //                   ),
-                  //                 )
-                  //               : ChangeNotifierProvider(
-                  //                   create: (context) => AcceptFormCart(
-                  //                       widget.dataDelivery.deliveryOrderId!,
-                  //                       deliveryList.items),
-                  //                   child: TableAcceptStockForm(),
-                  //                 ),
-                  //         ],
-                  //       )
-                  //     : Column(),
-
                   SizedBox(
                     height: 20,
                   ),

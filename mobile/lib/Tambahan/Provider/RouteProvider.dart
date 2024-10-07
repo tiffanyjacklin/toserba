@@ -32,17 +32,6 @@ class RouteProvider extends ChangeNotifier {
 
   int get selectedMenuIndex => _indexSidebar;
 
-
-  // List<String> get sidebarMenu {
-  //   List<String> result = [];
-  //   for (int i = 0; i < _priviledge.length; i++) {
-  //     if (_priviledge[i].navbar == 1) {
-  //       result.add(_priviledge[i].privilegesName!);
-  //     }
-  //   }
-  //   return result;
-  // }
-
   List<DataPrivileges> get sidebarMenu {
     return _menuPrividges;
   }

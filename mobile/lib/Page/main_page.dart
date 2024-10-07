@@ -285,57 +285,6 @@ class _MenuPageState extends State<MenuPage> {
   }
 }
 
-// class ChildMenu extends StatefulWidget {
-//   ChildMenu({
-//     super.key,
-//     required this.privileges,
-//   });
-
-//   final DataPrivileges privileges;
-
-//   @override
-//   State<ChildMenu> createState() => _ChildMenuState();
-// }
-
-// class _ChildMenuState extends State<ChildMenu> {
-//   bool isHover = false;
-
-//   @override
-//   Widget build(BuildContext context) {
-
-//     return MouseRegion(
-//       onEnter: (event) {
-//         setState(() {
-//           isHover = true;
-//         });
-//       },
-//       onExit: (event) => {
-//         setState(() {
-//           isHover = false;
-//         })
-//       },
-//       child: Padding(
-//         padding: const EdgeInsets.only(bottom: 4.0),
-//         child: AnimatedContainer(
-//           duration: Duration(milliseconds: 200),
-//           color: isHover
-//               ? Color.fromARGB(93, 242, 171, 126)
-//               : ColorPalleteLogin.PrimaryColor,
-//           child: Center(
-//             child: Text(
-//               '${widget.privileges.privilegesName.toString().toCapitalized()}',
-//               style: TextStyle(
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.white,
-//                   fontSize: 16),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 // Extension
 extension StringCasingExtension on String {
   String toCapitalized() =>

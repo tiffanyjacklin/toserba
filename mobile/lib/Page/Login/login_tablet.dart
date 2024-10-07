@@ -353,17 +353,6 @@ class _LoginTabletState extends State<LoginTablet> {
           });
     }
   }
-
-  // // push bro
-  // Future<List> result(var hasil) async {
-  //   // ambil nama user?
-  //   // pindah halaman terus pass userId , btw simpan juga di sharedpreference?
-  //   final result =
-  //       await Navigator.of(context).pushReplacement(MaterialPageRoute(
-  //     builder: (BuildContext context) => ChooseRolePage(hasil),
-  //   ));
-  //   return result;
-  // }
 }
 
 class DiagonalBackgroundPainter extends CustomPainter {

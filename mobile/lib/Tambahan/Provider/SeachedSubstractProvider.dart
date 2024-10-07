@@ -150,55 +150,6 @@ class SubstractProductProvider extends ChangeNotifier {
     return [];
   }
 
-
-  // Future<void> fetchProduct(int userId, int roleId, int swId, String search) async {
-  //       // ${$userId}/${$roleId}///${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}
-  //   final link =
-  //       'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId/$swId///$search/////10/0';
-    
-  //   print(link);
-
-  //   // call api
-  //   final response = await http.get(Uri.parse(link));
-  //   print('---> response ' + response.statusCode.toString());
-
-  //   // cek status
-  //   if (response.statusCode == 200) {
-  //     // misal oke berati masuk
-  //     // json
-  //     Map<String, dynamic> temp = json.decode(response.body);
-  //     // decode?
-  //     print(response.body);
-  //     if (temp['status'] == 200) {
-  //       print(temp);
-  //       listAutoComplete = FetchAllProducts.fromJson(temp).data!;
-  //       notifyListeners();
-  //     } else {
-  //       listAutoComplete = [];
-  //     }
-  //   } else {
-  //     // If the server did not return a 200 OK response,
-  //     // then throw an exception.
-  //     // throw Exception('Login Failed, Try Again');
-  //     print('fetch failed');
-  //     listAutoComplete = [];
-  //   }
-  // }
-
-//   // Menambah subtract product baru
-// e.POST("/products/stock/subtract/:user_id/:role_id", controller.InsertSubtractStock)
-// [
-//     {
-//         "product_detail_id": 4,
-//         "batch": "1",
-//         "subtract_quantity": 1,
-//         "expired_date": "2025-08-25"
-//         "notes": "Dimakan tikus pak bos"
-//     }
-// ]
-
-
-
   // submit bro
   Future<void> submitSubstract(int userId, int roleId) async {
       // NOTE : kalo mau satu kosong bisa di "-" , batch misal -
