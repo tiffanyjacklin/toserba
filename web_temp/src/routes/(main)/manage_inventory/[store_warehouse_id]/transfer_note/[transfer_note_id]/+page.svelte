@@ -222,7 +222,7 @@
         console.log(expired_dates);
     }
     async function fetchProducts() {
-        const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////${searchQuery}/////0/0`, {
+      const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}/${sw_id_from}///${searchQuery}/////0/0`, {            
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
