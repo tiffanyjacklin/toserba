@@ -602,7 +602,7 @@
           await fetchStockCardHistory()
         } else if (tampilan == "verify_add"){
           await fetchAddVerify();
-        }else if (tampilan == "verigy_subtract"){
+        }else if (tampilan == "verify_subtract"){
           await fetchSubtractVerify();
         }else if (tampilan == "assign_product"){
           await fetchAssign();
@@ -614,12 +614,12 @@
 
     onMount(async () => {
       fetchProduk();
-      fetchAddVerify();
-      fetchSubtractVerify();
-      fetchStockCardHistory();
+      // fetchAddVerify();
+      // fetchSubtractVerify();
+      // fetchStockCardHistory();
       fetchProductCategory();
       fetchSuppliers();
-      fetchAssign();
+      // fetchAssign();
   });
 
   </script>

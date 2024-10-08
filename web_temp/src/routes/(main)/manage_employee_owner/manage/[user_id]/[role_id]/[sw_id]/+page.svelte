@@ -760,7 +760,17 @@
       <span class="text-peach font-semibold">Assigned Location</span>
       <select bind:value={sw_reassign} class="w-full p-2 rounded-xl">
         {#each stores as store}
-          <option value={store.store_warehouse_id}>{store.store_warehouse_name}</option>
+          {#if role_id_reassign == 1 || role_id_reassign == 2}
+            {#if store.store_warehouse_type == "STORE"}
+              <option value={store.store_warehouse_id}>{store.store_warehouse_name}</option>
+            {/if}
+          {:else if role_id_reassign == 3 || role_id_reassign == 4}
+            {#if store.store_warehouse_type == "WAREHOUSE"}
+              <option value={store.store_warehouse_id}>{store.store_warehouse_name}</option>
+            {/if}
+          {:else}
+            <option value={store.store_warehouse_id}>{store.store_warehouse_name}</option>
+          {/if}
         {/each}
       </select>
     </div>

@@ -103,6 +103,7 @@
         }
 
         admin_handled_store = data.data;
+        // filtered_admin_handled_store = structuredClone(admin_handled_store);
 
         console.log("admin_handled_store",admin_handled_store)
     }
@@ -412,7 +413,17 @@
         <span class="text-peach font-semibold">Assigned Location</span>
         <select bind:value={sw_reassign} class="w-full p-2 rounded-xl">
           {#each admin_handled_store as store}
-            <option value={store.StoreWarehouses.store_warehouse_id}>{store.StoreWarehouses.store_warehouse_name}</option>
+            {#if role_id_reassign == 1 || role_id_reassign == 2}
+              {#if store.StoreWarehouses.store_warehouse_type == "STORE"}
+                <option value={store.StoreWarehouses.store_warehouse_id}>{store.StoreWarehouses.store_warehouse_name}</option>
+              {/if}
+            {:else if role_id_reassign == 3 || role_id_reassign == 4}
+              {#if store.StoreWarehouses.store_warehouse_type == "WAREHOUSE"}
+                <option value={store.StoreWarehouses.store_warehouse_id}>{store.StoreWarehouses.store_warehouse_name}</option>
+              {/if}
+            {:else}
+              <option value={store.StoreWarehouses.store_warehouse_id}>{store.StoreWarehouses.store_warehouse_name}</option>
+            {/if}
           {/each}
         </select>
       </div>
