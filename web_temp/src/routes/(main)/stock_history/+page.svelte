@@ -13,7 +13,7 @@
     
     $: limit = 10; 
     $: offset = 0; 
-    let totalNotes = 10; 
+    $: totalNotes = 10; 
     $: currentPage = 1; 
 
     $: endDate = '';

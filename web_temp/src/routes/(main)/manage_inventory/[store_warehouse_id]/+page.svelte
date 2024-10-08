@@ -43,6 +43,7 @@
     let product_category = [];
     let suppliers = [];
     let stock_card_product = [];
+    $: current_stock = [];
 
     // STOCK HISTORY
     let stock_card_history = [];
@@ -64,6 +65,7 @@
     let sell_price;
     let min_stock;
     let product_unit = "";
+    let showTable1 = false;
 
     //ADD NEW CATEGORY
     let new_category_name = '';
@@ -80,15 +82,47 @@
     function toggleFilter() {
       showFilter = !showFilter;
     }
-    function toggleTable(id) {
+    async function toggleTable(id) {
         showTable = !showTable;
         if (showTable){
-        fetchStockCard(id);
+        await fetchStockCard(id);
         } else {
         stock_card_product = [];
         }
     }
+    
+    async function toggleTable1(id, sw_id) {
+      showTable1 = !showTable1;
+      if (showTable1){
+        await fetchCurrentStock(id, store_warehouse_id);
+      } else {
+      stock_card_product = [];
+      }
+    }
+    async function fetchCurrentStock(product_id, sw_id) {
+      console.log(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${product_id}/${sw_id}/0/0`);
+      const response = await fetch(`http://${$uri}:8888/products/stock/opname/data/store_warehouse/${product_id}/${sw_id}/0/0`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
 
+      if (!response.ok) {
+          console.error('get all current stock fetch failed', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid fetch current stock', data);
+          return;
+      }
+
+      current_stock = [...data.data];  
+      console.log(current_stock);
+    }
     async function fetchProduk() {
         // const response = await fetch(`http://${$uri}:8888/products/${limit}/${offset}`, {
         const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}/${store_warehouse_id}/${start_price}/${end_price}/${searchQuery_product}/${category}/${unit_type}/''/''/${limit}/${offset}`, {
@@ -117,7 +151,8 @@
     }
 
   async function fetchStockCard(product_id) {
-      const response = await fetch(`http://${$uri}:8888/products/stock/card/product/${product_id}/100/0`, {
+    console.log(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${product_id}/${store_warehouse_id}/0/0`);
+      const response = await fetch(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${product_id}/${store_warehouse_id}/0/0`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -1240,7 +1275,7 @@
                 {/if}
                 
             </div>
-            <div class="">
+            <!-- <div class="">
                 <div class="text-[#f7d4b2] mr-1">Expiration Date</div>
                   <div class="text-white">
                       {#if product.ProductDetails.expiry_date.length > 1}
@@ -1249,11 +1284,59 @@
                       -
                       {/if}
                   </div>              
-            </div>
+            </div> -->
             <div class="">
-              <div class="text-[#f7d4b2]">Current Stock</div>
-              <div class="text-white">{product.ProductDetails.product_stock} {product.ProductDetails.product_unit}</div>
+              <div class="text-[#f7d4b2]">Current Stock
+                <button on:click={() => toggleTable1(product.ProductDetails.product_detail_id)} class="ml-2">
+                  {#if showTable1}
+                    <i class="fa-solid fa-caret-up"></i>
+                  {:else}
+                    <i class="fa-solid fa-caret-down"></i>
+                  {/if}
+                </button>
+              </div>
+            {#if showTable1 && current_stock.length > 0}
+              <div class="relative overflow-x-auto shadow-md w-fit rounded-lg">
+                <table class="w-fit rounded-lg text-sm text-left rtl:text-right">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                    <tr class="border-b-2 border-black">
+                      <th scope="col" class="px-3 py-2 text-sm font-bold uppercase text-center">
+                        Batch
+                      </th>
+                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                        Expiry Date
+                      </th>
+                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                        Stock
+                      </th>
+                      <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                        Unit Type
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each current_stock as stock, i}
+                      <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
+                        <th scope="row" class="px-3 py-2  text-center font-medium text-gray-900 whitespace-nowrap">
+                          {stock.batch}
+                        </th>
+                        <td class="px-1 py-2 text-center">
+                          <DateConverter value={stock.expired_date} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
+                        </td>
+                        <td class="px-1 py-2 text-center">
+                          {stock.expected_stock}
+                        </td>
+                        <td class="px-1 py-2 text-center">
+                          {stock.unit_type}
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            {/if}
             </div>
+            
             <div class="">
               <div class="text-[#f7d4b2]">Last Inventory Taking</div>
               <div class="text-white">{product.ProductDetails.product_name}</div>

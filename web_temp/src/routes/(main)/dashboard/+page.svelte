@@ -63,20 +63,46 @@
       await fetchAllSWProfit(start_date, end_date);
       data_for_donut = [ ...updateVariablesSW(all_sw_profits) ];
       total_pendapatan = calculateTotalPendapatan(all_sw_profits);
-      total_beban = 0;
+      console.log(all_sw_profits);
+      console.log(total_pendapatan);
+      total_beban = await fetchAllPromoCost(start_date, end_date);
+      console.log(total_beban);
       laba_kotor = total_pendapatan - total_beban;
       console.log("data_for_donut1",data_for_donut);
       await fetchAllSwProfitFilter(startDate, endDate);
    }
    function calculateTotalPendapatan(profitsArray) {
-    let totalPendapatan = 0;
+      let totalPendapatan = 0;
 
-    profitsArray.forEach(item => {
-        totalPendapatan += item.profit;
-    });
+      profitsArray.forEach(item => {
+         totalPendapatan += item.profit;
+      });
 
-    return totalPendapatan;
-}
+      return totalPendapatan;
+   }
+   async function fetchAllPromoCost(startDate, endDate){
+      console.log(`http://${$uri}:8888/promos/cost/all/${startDate}/${endDate}`);
+      const response = await fetch(`http://${$uri}:8888/promos/cost/all/${startDate}/${endDate}`, {
+         method: 'GET',
+         headers: {
+               'Content-Type': 'application/json'
+         }
+      });
+
+      if (!response.ok) {
+         console.error('get all current stock fetch failed', response);
+         return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+         console.error('Invalid fetch current stock', data);
+         return;
+      }
+
+      return data.data.promo_discount;
+   }
 
    async function updatePercentage(startDate, endDate){
       this_month_profit = await fetchProfit(startDate, endDate);
@@ -179,6 +205,7 @@
       all_profits = [...data.data];  
    }
    async function fetchAllSWProfit(start_date, end_date) {
+      console.log(`http://${$uri}:8888/profit/sum/all/store/${start_date}/${end_date}/0/0`);
       const response = await fetch(`http://${$uri}:8888/profit/sum/all/store/${start_date}/${end_date}/0/0`, {
             method: 'GET',
             headers: {
@@ -562,11 +589,15 @@
                   <hr class="my-4">
                   <div class="flex justify-between font-bold">
                       <div class="text-start">Total dari Beban Pokok</div>
-                      <div class="text-end"><MoneyConverter bind:value={total_beban} currency={true} decimal={true}/></div>
+                      <div class="text-end flex indent-4">(<MoneyConverter bind:value={total_beban} currency={true} decimal={true}/>)</div>
                   </div>
                   <div class="flex justify-between font-bold">
                       <div class="text-start">Laba Kotor</div>
+                      {#if laba_kotor < 0}
+                      <div class="text-end flex indent-4">(<MoneyConverter value={Math.abs(laba_kotor)} currency={true} decimal={true}/>)</div>
+                      {:else}
                       <div class="text-end"><MoneyConverter bind:value={laba_kotor} currency={true} decimal={true}/></div>
+                      {/if}
                   </div>
               </div>
               

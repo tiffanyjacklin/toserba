@@ -202,6 +202,7 @@
       let uri_temp = isLeft
       ? `products/moving/transaction/range/${sw_id}/${startDate}/${endDate}/${searchQuery}/${category}/${unit_type}/${fast_slow}/${limit}/${offset}`
       : `products/moving/transaction/${sw_id}/${selectedYear}/${selectedMonth}/${selectedDay}/${searchQuery}/${category}/${unit_type}/${fast_slow}/${limit}/${offset}`;
+      // e.GET("/products/moving/transaction/:sw_id/:year/:month/:day/:product_id_name_code/:category/:unit_type/:asc/:limit/:offset", controller.GetSlowFastMovingFromTransactionBySWID)
       console.log(uri_temp);
         const response = await fetch(`http://${$uri}:8888/${uri_temp}`, {
             method: 'GET',
@@ -418,8 +419,8 @@
             
             <span class="font-bold text-xl mb-1">Product Order</span>
             <div class="grid grid-cols-4 flex w-full flex-wrap">
-                <button on:click={() => {fast_slow = (fast_slow === '' || fast_slow !== "0") ? "0" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${fast_slow === "0" ? 'bg-white text-peach2 border-[#f2b082] border-[#f2b082]' : 'bg-gray-100'}`}>Fast-Moving</button>
-                <button on:click={() => {fast_slow = (fast_slow === '' || fast_slow !== "1") ? "1" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${fast_slow === "1" ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Slow-Moving</button>
+                <button on:click={() => {fast_slow = (fast_slow === '' || fast_slow !== "desc") ? "desc" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${fast_slow === "desc" ? 'bg-white text-peach2 border-[#f2b082] border-[#f2b082]' : 'bg-gray-100'}`}>Fast-Moving</button>
+                <button on:click={() => {fast_slow = (fast_slow === '' || fast_slow !== "asc") ? "asc" : '';}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${fast_slow === "asc" ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Slow-Moving</button>
             </div>
             <span class="font-bold text-xl mb-1">Unit Type</span>
             <div class="grid grid-cols-4 flex w-full flex-wrap">

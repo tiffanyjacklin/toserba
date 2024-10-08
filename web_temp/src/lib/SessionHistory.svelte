@@ -403,7 +403,7 @@
             
          </div>
          <div class="w-1/5 min-w-1/5 bg-darkGray flex items-center">
-            {#if item.end_time && isWithinThirtyMinutes(item.end_time)}
+            {#if (item.end_time && isWithinThirtyMinutes(item.end_time) && Number($userId) === 1 && item.user_id === Number($userId))}
                <button 
                   on:click={async () => { 
                      handleClick(item.session_id); 

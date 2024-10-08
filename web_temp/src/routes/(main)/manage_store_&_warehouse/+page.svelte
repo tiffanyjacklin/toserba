@@ -10,7 +10,7 @@
     import supermarket from "$lib/assets/supermarket.jpg";
     $: limit = 10; 
     $: offset = 0; 
-    let totalNotes = 10; 
+    $: totalNotes = 10; 
     $: currentPage = 1; 
 
     $: searchQuery = '';
@@ -60,6 +60,8 @@
     async function selectProvince(province){
       province_name = province.province;
       province_id = province.location_id;
+      city_name = '';
+      location_idnya = '';      
       await fetchCity();
       showProvince = false;
     }
@@ -214,6 +216,7 @@
 
       store_warehouses = [...data.data];  
       all_store_warehouses = [...store_warehouses];
+      totalNotes = data.total_rows;
       console.log(all_store_warehouses);
       
     }
@@ -245,6 +248,7 @@
       }
       console.log("insert store_warehouses detail",data);
       closeModal();
+      sw_type = '';
       sw_name = '';
       phone_number = '';
       address = '';
@@ -505,7 +509,7 @@
     </div>
     <div class="flex flex-col my-2">
       <span class="text-peach font-semibold mb-1">Location Phone Number</span>
-      <input type="text" bind:value={phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+      <input type="text" bind:value={phone_number} maxlength="13" class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2" on:input="{(e) => phone_number = e.target.value.replace(/\D/g, '')}">
     </div>
     <div class="flex mt-8 items-center justify-center text-lg">
       <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Discard</button>
