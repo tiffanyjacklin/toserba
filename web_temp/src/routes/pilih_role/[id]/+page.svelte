@@ -38,18 +38,19 @@
             return;
         }
         
-        roles = data.data;
+        let tmp = data.data;
 
-        for (let i = 0; i < roles.length; i++) {
-            if (roles[i].role_id == 5){
+        for (let i = 0; i < tmp.length; i++) {
+            if (tmp[i].role_id == 5){
                 if (isAdminAlreadyAppeared == false){
                     isAdminAlreadyAppeared = true;
-                } else {
-                    roles.splice(i,1);
+                    roles.push(tmp[i])
                 }
+            } else {
+                roles.push(tmp[i])
             }
         }
-
+        roles = roles;
         console.log(roles);
     }
 

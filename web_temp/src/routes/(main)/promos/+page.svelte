@@ -1228,7 +1228,7 @@
                 {:else if swListAll == true}
                   <input checked disabled class="border border-white bg-darkGray disabled:opacity-75 mr-2" type="checkbox">
                 {/if}
-                  <span class="">{store.store_warehouse_name} {store.store_warehouse_id}</span>
+                  <span class="">{store.store_warehouse_name}</span>
               </div>
             </li>
           </ul>

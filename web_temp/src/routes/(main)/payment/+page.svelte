@@ -55,6 +55,7 @@
     let member_join_date = getFormattedDate();
     $: member_points = 0;
     let member = [];
+    let member_id = 0;
     let use = false;
     function handleClick(id) {
         showModal = id;
@@ -68,6 +69,7 @@
     function toggleUse() {
         if (member.member_points > 0){
             use = !use;
+            // console.log("member.member_points",member.member_points)
         }else{
             use = false;
         }
@@ -94,6 +96,7 @@
         }
 
         member = data.data;
+        console.log("member", member)
         return member;
     }
     async function checkPhoneNumber() {
@@ -201,6 +204,7 @@
 
     function usePoints(){
         member_points = member.member_points;
+        member_id = member.member_id
         closeModal();
     }
     $: total_bayar = get(totalAmount)-member_points;
@@ -283,17 +287,19 @@
         
         //update table transaction
         let last_transaction_id = await getLastTransactionId();
-        let member_id = 0;
-        let member_points = 0;
+        // let member_id = 0;
+        let member_point_in = (get(totalAmount)*0.01);
+        let member_point_out = member_points;
+        console.log("member_point_out", member_point_out)
 
         if (member.length > 0){
-            member_id = member.member_id
-            if(member.member_points <= get(totalAmount)){
-                member_points = -(member.member_points);
-                console.log(member_points);
-            } else if (member.member_points > get(totalAmount)){
-                member_points = -(get(totalAmount));
-                console.log(member_points);
+            // member_id = member.member_id
+            if(member_point_out <= get(totalAmount)){
+                member_point_out = -(member_point_out);
+                console.log("member point out",member_point_out);
+            } else if (member_point_out > get(totalAmount)){
+                member_point_out = -(get(totalAmount));
+                console.log("member points out",member_point_out);
             }
         }
 
@@ -315,7 +321,8 @@
             transaction_payment_method_id,
             transaction_payment,
             transaction_change,
-            member_points
+            member_point_in,
+            member_point_out
         }
         console.log("isi transaction item",JSON.stringify(transaction_item));
 
@@ -350,6 +357,7 @@
       }
 
       async function updateLastTransaction(last_transaction_id,session_id,member_id,transaction) {
+        console.log(`http://${$uri}:8888/transaction/update/${last_transaction_id}/${session_id}/${member_id}`)
         const response = await fetch(`http://${$uri}:8888/transaction/update/${last_transaction_id}/${session_id}/${member_id}`, {
             method: 'PUT',
             headers: {
@@ -398,7 +406,7 @@
 
     async function getStoreWarehouse() {
         let response;
-        response = await fetch(`http://${$uri}:8888/store_warehouses/${cashier_id}/1`, {
+        response = await fetch(`http://${$uri}:8888/store_warehouses/${cashier_id}/1/''/0/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
