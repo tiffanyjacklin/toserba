@@ -181,6 +181,7 @@ func Init() *echo.Echo {
 	e.POST("/promos/add", controller.InsertPromos) 
 	e.GET("/promos/product/:product_id/:limit/:offset", controller.GetPromoIDByProductID)
 	e.POST("/promos/product/add", controller.InsertPromoProducts) 
+	e.DELETE("/promos/product/del/:promo_id/:product_id", controller.DelPromoProducts)
 	e.POST("/promos/product/all/:promo_id", controller.UpdatePromoToAllProducts)
 	e.GET("/promos/stores/:sw_id/:start_date/:end_date/:product_name_promo_code/:promo_type/:status/:limit/:offset", controller.GetPromoIDBySWID)
 	e.POST("/promos/stores/add", controller.InsertPromoStores)

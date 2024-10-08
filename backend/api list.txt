@@ -695,6 +695,8 @@ e.POST("promos/product/add", controller.InsertPromoProducts)
     }
 ]
 
+e.DELETE("/promos/product/del/:promo_id/:product_id", controller.DelPromoProducts)
+
 // Menerapkan promo untuk semua produk
 e.POST("/promos/product/all/:promo_id", controller.UpdatePromoToAllProducts)
 
