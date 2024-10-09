@@ -857,7 +857,7 @@
             <input type="text" bind:value={productId} on:click={toggleIDList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
 
             {#if filteredStock.length > 0 && showIDList}
-              <ul class="absolute w-1/4 bg-white shadow-md z-10">
+              <ul class={`${filteredStock.length > 5 ? 'h-40' : 'h-fit'} mt-2 overflow-y-auto absolute w-1/4 bg-white shadow-md z-10`}>
                 {#each filteredStock as stock}
                   <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_detail_id} - {stock.ProductDetails.product_name}</li>
                 {/each}
@@ -869,7 +869,7 @@
             <div class="font-semibold">Product Name</div>
             <input type="text" bind:value={productName} on:click={toggleNameList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
             {#if filteredStock.length > 0 && showNameList}
-            <ul class="absolute w-1/4  bg-white shadow-md z-10">
+            <ul class={`${filteredStock.length > 5 ? 'h-40' : 'h-fit'} mt-2 overflow-y-auto absolute w-1/4 bg-white shadow-md z-10`}>
               {#each filteredStock as stock}
                 <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_name} - {stock.ProductDetails.product_detail_id}</li>
               {/each}
