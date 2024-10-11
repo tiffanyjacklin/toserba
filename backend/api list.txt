@@ -880,7 +880,16 @@ e.POST("suppliers/add", controller.InsertSupplier)
 {
     "supplier_name": "Rumah Tani",
     "supplier_phone_number": "081237485623",
-    "supplier_address": "Jl. Semangka II No. 3, Surabaya"
+    "supplier_address": "Jl. Semangka II No. 3, Surabaya",
+    "location_id": 256
+}
+
+e.PUT("/suppliers/edit/:supplier_id", controller.UpdateSupplier) 
+{
+    "supplier_name": "Rumah Tani",
+    "supplier_phone_number": "081237485623",
+    "supplier_address": "Jl. Semangka II No. 3, Surabaya",
+    "location_id": 256
 }
 
 // Mengambil data jenis pembayaran yang tersedia
@@ -919,7 +928,7 @@ e.GET("/promos/verify/:status/:pd_name_code/:promo_code/:limit/:offset", control
 e.PUT("/promos/verify/:promo_id/:product_id/:status", controller.VerifyPromoProduct)
 
 // Mengambil semua total promo cost 
-e.GET("/promos/cost/all", controller.GetTotalPromoCost)
+e.GET("/promos/cost/all/:start_date/:end_date", controller.GetTotalPromoCost)
 
 // Mengambil total promo cost per transaksi semua store
 // ex. transaksi 1 : 10000; transaksi 2 : 15000

@@ -227,6 +227,7 @@ func Init() *echo.Echo {
 	e.GET("/suppliers/:supplier_id", controller.GetSupplierByID)
 	e.GET("/suppliers/all/:supplier_name/:limit/:offset", controller.GetAllSupplier)
 	e.POST("/suppliers/add", controller.InsertSupplier)
+	e.PUT("/suppliers/edit/:supplier_id", controller.UpdateSupplier)
 	e.GET("/payment/method/:payment_id", controller.GetPaymentMethodByID)
 	e.GET("/payment/method", controller.GetAllPaymentMethod)
 	e.POST("/payment/method/add", controller.InsertPaymentMethod)
@@ -238,7 +239,7 @@ func Init() *echo.Echo {
 
 	e.GET("/promos/verify/:status/:pd_name_code/:promo_code/:limit/:offset", controller.GetVerifiedPromoProducts)
 	e.PUT("/promos/verify/:promo_id/:product_id/:status", controller.VerifyPromoProduct)
-	e.GET("/promos/cost/all", controller.GetTotalPromoCost)
+	e.GET("/promos/cost/all/:start_date/:end_date", controller.GetTotalPromoCost)
 	e.GET("/promos/cost/transaction/all", controller.GetTotalPromoCostPerTransaction)
 	e.GET("/promos/cost/transaction/:transaction_id", controller.GetTotalPromoCostByTransactionID)
 	e.GET("/promos/cost/store/all", controller.GetTotalPromoCostPerStore)
