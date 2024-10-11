@@ -1,24 +1,32 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_all/Model/NotificationsByRoles.dart';
+import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
 import 'package:flutter_app_all/Tambahan/Provider/Notification.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_app_all/Model/UserData.dart' as users;
 
 class NotificationPage2 extends StatelessWidget {
   const NotificationPage2({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthState>(context);
     return ChangeNotifierProvider(
       create: (context) => NotificationProvider(),
-      child: NotificationPage(),
+      child: NotificationPage(user: authProvider.userData,),
     );
   }
 }
 
 class NotificationPage extends StatefulWidget {
-  const NotificationPage({super.key});
+  final users.Data user;
+  
+  const NotificationPage({
+    super.key,
+    required this.user,
+    });
 
   @override
   State<NotificationPage> createState() => _NotificationPageState();
@@ -31,7 +39,7 @@ class _NotificationPageState extends State<NotificationPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // context.read<NotificationProvider>().fetchNotificationsProvider(context.read<AuthState>().userData.roleId!);
-      context.read<NotificationProvider>().fetchNotificationsProvider(1);
+      context.read<NotificationProvider>().fetchNotificationsProvider(widget.user.roleId!,widget.user.userId!);
     });
 
   }

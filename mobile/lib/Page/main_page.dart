@@ -28,12 +28,13 @@ class MainPage extends StatelessWidget {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          scrolledUnderElevation: 0,
           bottomOpacity: 0.3,
           backgroundColor: ColorPalleteLogin.OrangeLightColor,
           actions: [
             Container(
               decoration: BoxDecoration(
-                color: ColorPalleteLogin.OrangeLightColor,
+                // color: ColorPalleteLogin.OrangeLightColor,
                 // border: Border(
                 //   bottom: BorderSide(width: 1, color: Colors.black),
                 // ),
@@ -64,7 +65,11 @@ class MainPage extends StatelessWidget {
                             width: 20,
                           ),
                           GestureDetector(
-                              child: Icon(Icons.notifications_outlined)),
+                              child: Icon(Icons.notifications_outlined),
+                              onTap: () {
+                                routeProvider.changeNotif();
+                              },
+                          ),
                           SizedBox(
                             width: 20,
                           ),
@@ -114,6 +119,7 @@ class MainPage extends StatelessWidget {
                                             Expanded(
                                               child: Container(
                                                 decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(5),
                                                     color: ColorPalleteLogin
                                                         .OrangeLightColor),
                                               ),
@@ -121,6 +127,7 @@ class MainPage extends StatelessWidget {
                                             Expanded(
                                               child: Container(
                                                 decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(5),
                                                     color: ColorPalleteLogin
                                                         .OrangeDarkColor),
                                               ),
@@ -129,14 +136,25 @@ class MainPage extends StatelessWidget {
                                         ),
                                       ),
                                       Divider(
-                                        thickness: 2,
+                                        thickness: 5,
                                         color:
                                             ColorPalleteLogin.PrimaryColor,
                                       ),
+                                      Align(
+                                        alignment: Alignment.topCenter,
+                                        child: Container(
+                                          width: MediaQuery.of(context).size.width *0.1 * 0.5,
+                                          height: MediaQuery.of(context).size.height * 0.1 * 0.5,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(5),
+                                                    color: const Color.fromARGB(210, 248, 190, 127)),
+                                        ),
+                                      ),
                                       CircleAvatar(
-                                        radius: 24.0,
+                                        backgroundColor: Colors.white,
+                                        radius: MediaQuery.of(context).size.height *0.1 * 0.45,
                                         backgroundImage: NetworkImage(
-                                            'https://picsum.photos/id/237/300/300'),
+                                            'https://cdn-icons-png.freepik.com/256/1077/1077114.png?semt=ais_hybrid'),
                                       ),
                                     ],
                                   ),
@@ -148,6 +166,7 @@ class MainPage extends StatelessWidget {
                                     '${authProvider.userData.userFullname}',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
+                                        fontSize: fontSizeBody,
                                         color: Colors.white),
                                   )),
                               Expanded(
@@ -156,6 +175,7 @@ class MainPage extends StatelessWidget {
                                     '${authProvider.userData.rolesName}',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
+                                        fontSize: fontSizeBody,
                                         color: Colors.white54),
                                   ))
                             ],
@@ -270,7 +290,6 @@ class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     RouteProvider providerRoute = Provider.of<RouteProvider>(context);
-    AuthState providerAuth = Provider.of<AuthState>(context);
     return Expanded(
       flex: 8,
       child: Container(

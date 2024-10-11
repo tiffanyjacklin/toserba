@@ -20,6 +20,8 @@ import 'package:http/http.dart' as http;
 class RouteProvider extends ChangeNotifier {
   List<DataPrivileges> _priviledge = [];
   List<DataPrivileges> _menuPrividges = [];
+
+  bool notif = false;
   int _indexSidebar = 0;
 
   bool isLoading = true;
@@ -27,6 +29,7 @@ class RouteProvider extends ChangeNotifier {
 
   set selectMenu(int i) {
     _indexSidebar = i;
+    notif = false;
     notifyListeners();
   }
 
@@ -80,10 +83,17 @@ class RouteProvider extends ChangeNotifier {
     return null;
   }
 
-  Widget getPage({String search = ''}) {
-    var routeName = search;
+  void changeNotif(){
+    notif = true;
+  }
 
-    if(search.isEmpty){
+  Widget getPage() {
+    var routeName;
+    if(notif){ 
+      routeName = 'notifications';
+    }
+
+    else{
       routeName = sidebarMenu[_indexSidebar].privilegesName!.toLowerCase();
     }
 

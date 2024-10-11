@@ -74,6 +74,7 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
                   controller: _searchController,
                   onSubmitted: (value) {
                     provider.filter(_searchController.text);
+                    _controller.currentPage = 0;
                   },
                   decoration: InputDecoration(
                     fillColor: Colors.white,
@@ -89,6 +90,7 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
                     suffixIcon: IconButton(
                         onPressed: () {
                           provider.filter(_searchController.text);
+                          _controller.currentPage = 0;
                         },
                         icon: Icon(Icons.filter_list)),
                   ),
@@ -372,6 +374,47 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
                                           ],
                                         ),
                                       ),
+                                      SizedBox(height: 10,),
+
+                                       Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Container(
+                                            height: 50,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.55 *
+                                                0.3,
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: ColorPalleteLogin
+                                                    .OrangeLightColor,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20.0),
+                                                ),
+                                              ),
+                                              child: Wrap(
+                                                spacing: 12,
+                                                children: [
+                                                  Text(
+                                                    'Apply',
+                                                    style: TextStyle(
+                                                      color: ColorPalleteLogin
+                                                          .PrimaryColor,
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              onPressed: () {
+                                                provider.filter(_searchController.text);
+                                                _controller.currentPage = 0;
+                                              },
+                                            ),
+                                          ),
+                                        ),
 
                                       SizedBox(
                                         height: 20,
@@ -483,6 +526,7 @@ class DeliveryOrderChild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var provider = Provider.of<AcceptOrderProvider>(context);
     return Column(
       children: [
         Container(
@@ -564,7 +608,25 @@ class DeliveryOrderChild extends StatelessWidget {
                     showDialog(
                         barrierDismissible: false,
                         context: context,
-                        builder: (context) => MultiProvider(
+                        builder: (context) => PopScope(
+                          onPopInvokedWithResult: (didPop, result) {
+                            if(didPop){
+                              if(result.toString().isNotEmpty){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                          backgroundColor: Colors.green[400],
+                                          content: Text(
+                                            '${result.toString()}',
+                                            style: TableContentTextStyle
+                                                .textStyleBody,
+                                          ),
+                                        ),
+                              );
+                              provider.refresh();
+                              }
+                            }
+                          },
+                          child: MultiProvider(
                               providers: [
                                 ChangeNotifierProvider(
                                   create: (context) =>
@@ -577,7 +639,8 @@ class DeliveryOrderChild extends StatelessWidget {
                               ],
                               child:
                                   DeliveryOrderDetailPopUp(dataDelivery: data),
-                            ));
+                            ))
+                        );
                   },
                   child: Container(
                     height: double.maxFinite,

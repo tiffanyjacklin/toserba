@@ -301,11 +301,11 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                               if(!deliveryList.isAccepted){
                               // sementara masih close popup
                               fetchAcceptOrder(widget.dataDelivery.deliveryOrderId!).then((onValue) => {
-                                Navigator.of(context).pop(),
+                                Navigator.pop(context, 'Success Accepting Delivery Order'),
                               });
                               }
                               else{
-                                Navigator.of(context).pop();
+                                Navigator.pop(context, '');
                               }
                             },
                           ),

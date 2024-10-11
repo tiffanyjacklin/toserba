@@ -140,7 +140,7 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                         ),
                         onTap: () {
                           setState(() {
-                            isInput = true;
+                            isInput = !isInput;
                           });
                         },
                       ),
@@ -387,7 +387,7 @@ class TableSubstractProduct extends StatelessWidget {
             4: FlexColumnWidth(3),
             5: FlexColumnWidth(2),
             6: FlexColumnWidth(4),
-            7: FlexColumnWidth(2),
+            7: FlexColumnWidth(3),
             // 8: FlexColumnWidth(),
           },
           children: [
@@ -428,7 +428,7 @@ class TableSubstractProduct extends StatelessWidget {
                 TableCell(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('SUBSTRACT AMOUNT',
+                    child: Text('QTY',
                         softWrap: true, style: TableContentTextStyle.textStyle),
                   ),
                 ),
@@ -505,6 +505,20 @@ class TableSubstractProduct extends StatelessWidget {
                           child: SizedBox(
                             child: TextField(
                               controller: controllerInputList[index],
+                              onChanged: (value) {
+                                if (value.isNotEmpty) {
+                                  if (int.parse(value) >
+                                      contentTable[index].expectedStock!) {
+                                    controllerInputList[index].text =
+                                        contentTable[index]
+                                            .expectedStock!
+                                            .toString();
+                                  }
+                                }
+                                else{
+                                  controllerInputList[index].text = '0';
+                                }
+                              },
                               keyboardType: TextInputType.number,
                               textAlign: TextAlign.end,
                               style: TableContentTextStyle.textStyleBody,
@@ -542,7 +556,7 @@ class TableSubstractProduct extends StatelessWidget {
                           // >> note : BELUM DI LIMIT
                           child: TextField(
                             controller: controllerNotes[index],
-                            keyboardType: TextInputType.text,
+                            keyboardType: TextInputType.multiline,
                             textAlign: TextAlign.start,
                             style: TableContentTextStyle.textStyleBody,
                             decoration: InputDecoration(

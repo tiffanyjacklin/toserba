@@ -20,24 +20,20 @@ import 'package:stroke_text/stroke_text.dart';
 import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
     as stock;
 
-
-
-
 class TransferNotesPage extends StatelessWidget {
   const TransferNotesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-  return ChangeNotifierProvider(
-      create: (context) => TransferNotesProvider(context.read<AuthState>().userData.storeWarehouseId!),
+    return ChangeNotifierProvider(
+      create: (context) => TransferNotesProvider(
+          context.read<AuthState>().userData.storeWarehouseId!),
       child: StockTransferNotesPage(),
     );
   }
 }
 
-
 class StockTransferNotesPage extends StatefulWidget {
-  
   StockTransferNotesPage({super.key});
 
   @override
@@ -49,7 +45,7 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
 
   @override
   Widget build(BuildContext context) {
-  TransferNotesProvider provider =
+    TransferNotesProvider provider =
         Provider.of<TransferNotesProvider>(context);
     return Padding(
       padding: EdgeInsets.all(20.0),
@@ -76,7 +72,6 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                 height: 20,
               ),
 
-
               // search bar
               Container(
                 width: MediaQuery.of(context).size.width * 0.8,
@@ -86,7 +81,10 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                   ),
                   controller: controllerSearch,
                   onSubmitted: (value) {
-                    provider.fetchTransferNotes(context.read<AuthState>().userData.storeWarehouseId!, search: controllerSearch.text, isSearch: true);
+                    provider.fetchTransferNotes(
+                        context.read<AuthState>().userData.storeWarehouseId!,
+                        search: controllerSearch.text,
+                        isSearch: true);
                   },
                   decoration: InputDecoration(
                     fillColor: Colors.white,
@@ -102,7 +100,11 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                     suffixIcon: IconButton(
                         onPressed: () {
                           provider.clickFilter(
-                              context.read<AuthState>().userData.storeWarehouseId!, controllerSearch.text);
+                              context
+                                  .read<AuthState>()
+                                  .userData
+                                  .storeWarehouseId!,
+                              controllerSearch.text);
                         },
                         icon: Icon(Icons.filter_list)),
                   ),
@@ -173,19 +175,22 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                                       ),
                                       Wrap(
                                         children: List.generate(
-                                            provider.listStatusVerify.length, (index) {
+                                            provider.listStatusVerify.length,
+                                            (index) {
                                           return Container(
                                             margin: EdgeInsets.symmetric(
                                                 horizontal: 2),
-                                            child: provider.listStatusVerify[index]
-                                                        ==
+                                            child: provider.listStatusVerify[
+                                                        index] ==
                                                     provider.statusVerify
                                                 ? OutlinedButton(
                                                     onPressed: () {
-                                                      provider.statusVerify = '';
+                                                      provider.statusVerify =
+                                                          '';
                                                     },
                                                     child: Text(
-                                                      provider.listStatusVerify[index],
+                                                      provider.listStatusVerify[
+                                                          index],
                                                       style: TextStyle(
                                                           fontSize:
                                                               fontSizeBody,
@@ -205,10 +210,14 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                                                   )
                                                 : OutlinedButton(
                                                     onPressed: () {
-                                                      provider.statusVerify = provider.listStatusVerify[index];
+                                                      provider
+                                                          .statusVerify = provider
+                                                              .listStatusVerify[
+                                                          index];
                                                     },
                                                     child: Text(
-                                                      provider.listStatusVerify[index],
+                                                      provider.listStatusVerify[
+                                                          index],
                                                       style: TextStyle(
                                                           fontSize:
                                                               fontSizeBody,
@@ -246,18 +255,21 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                                       ),
                                       Wrap(
                                         children: List.generate(
-                                            provider.listStatusSend.length, (index) {
+                                            provider.listStatusSend.length,
+                                            (index) {
                                           return Container(
                                             margin: EdgeInsets.symmetric(
                                                 horizontal: 2),
-                                            child: provider.listStatusSend[index] ==
+                                            child: provider.listStatusSend[
+                                                        index] ==
                                                     provider.statusSend
                                                 ? OutlinedButton(
                                                     onPressed: () {
                                                       provider.statusSend = '';
                                                     },
                                                     child: Text(
-                                                      provider.listStatusSend[index],
+                                                      provider.listStatusSend[
+                                                          index],
                                                       style: TextStyle(
                                                           fontSize:
                                                               fontSizeBody,
@@ -277,10 +289,14 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                                                   )
                                                 : OutlinedButton(
                                                     onPressed: () {
-                                                      provider.statusSend = provider.listStatusSend[index];
+                                                      provider
+                                                          .statusSend = provider
+                                                              .listStatusSend[
+                                                          index];
                                                     },
                                                     child: Text(
-                                                      provider.listStatusSend[index],
+                                                      provider.listStatusSend[
+                                                          index],
                                                       style: TextStyle(
                                                           fontSize:
                                                               fontSizeBody,
@@ -336,7 +352,8 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                                                 final DateTime? dateTime =
                                                     await showDatePicker(
                                                   context: context,
-                                                  initialDate: provider.rangeDate.first,
+                                                  initialDate:
+                                                      provider.rangeDate.first,
                                                   firstDate: DateTime(2000),
                                                   lastDate: DateTime.now(),
                                                 );
@@ -396,9 +413,10 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                                                 final DateTime? dateTime =
                                                     await showDatePicker(
                                                   context: context,
-                                                  initialDate: provider.rangeDate.last,
-                                                  firstDate: provider
-                                                      .rangeDate.last,
+                                                  initialDate:
+                                                      provider.rangeDate.last,
+                                                  firstDate:
+                                                      provider.rangeDate.first,
                                                   lastDate: DateTime.now(),
                                                 );
 
@@ -457,7 +475,7 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                                   ),
                                 ),
                               ),
-                            ),       
+                            ),
                             SizedBox(
                               height: 5,
                             ),
@@ -465,74 +483,82 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                         ),
                       ),
                     )
-                  : provider.getItemPerPage().isEmpty 
+                  : provider.getItemPerPage().isEmpty
                       ? Center(
-                        child: Text('Data Tidak Ditemukan', style: TextStyle(fontSize: fontSizeBody),),
-                      )
+                          child: Text(
+                            'Data Tidak Ditemukan',
+                            style: TextStyle(fontSize: fontSizeBody),
+                          ),
+                        )
                       : Column(
                           children: [
                             // paginator
                             Container(
-                                width: MediaQuery.of(context).size.width * 0.70,
-                                child: NumberPaginator(
-                                  config: NumberPaginatorUIConfig(
-                                    buttonUnselectedForegroundColor: Colors.black,
-                                    buttonSelectedBackgroundColor: Colors.black,
-                                    buttonSelectedForegroundColor: Colors.white, 
-                                  ),
-                                  // by default, the paginator shows numbers as center content
-                                  numberPages: provider.getMaxPage(),
-                                  onPageChange: (int index) {},
-                                  controller: provider.paginatorController,
+                              width: MediaQuery.of(context).size.width * 0.70,
+                              child: NumberPaginator(
+                                config: NumberPaginatorUIConfig(
+                                  buttonUnselectedForegroundColor: Colors.black,
+                                  buttonSelectedBackgroundColor: Colors.black,
+                                  buttonSelectedForegroundColor: Colors.white,
+                                ),
+                                // by default, the paginator shows numbers as center content
+                                numberPages: provider.getMaxPage(),
+                                onPageChange: (int index) {},
+                                controller: provider.paginatorController,
 
-                                  // show/hide the prev/next buttons
-                                  showPrevButton: true,
-                                  showNextButton: true, // defaults to true
-                                  // custom content of the prev/next buttons, maintains their behavior
-                                  nextButtonBuilder: (context) => TextButton(
-                                    onPressed: provider.paginatorController.currentPage <
-                                            provider.getMaxPage() - 1
-                                        ? () => {provider.paginatorController.next()}
-                                        : null, // _controller must be passed to NumberPaginator
-                                    child: const Row(
-                                      children: [
-                                        Text("Next"),
-                                        Icon(Icons.chevron_right),
-                                      ],
-                                    ),
+                                // show/hide the prev/next buttons
+                                showPrevButton: true,
+                                showNextButton: true, // defaults to true
+                                // custom content of the prev/next buttons, maintains their behavior
+                                nextButtonBuilder: (context) => TextButton(
+                                  onPressed: provider
+                                              .paginatorController.currentPage <
+                                          provider.getMaxPage() - 1
+                                      ? () =>
+                                          {provider.paginatorController.next()}
+                                      : null, // _controller must be passed to NumberPaginator
+                                  child: const Row(
+                                    children: [
+                                      Text("Next"),
+                                      Icon(Icons.chevron_right),
+                                    ],
                                   ),
-                                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
-                                  prevButtonBuilder: (context) => TextButton(
-                                    onPressed: provider.paginatorController.currentPage > 0
-                                        ? () => provider.paginatorController.prev()
-                                        : null, // _controller must be passed to NumberPaginator
-                                    child: const Row(
-                                      children: [
-                                        Icon(Icons.chevron_left),
-                                        Text("Previous"),
-                                      ],
-                                    ),
+                                ),
+                                // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                                prevButtonBuilder: (context) => TextButton(
+                                  onPressed: provider
+                                              .paginatorController.currentPage >
+                                          0
+                                      ? () =>
+                                          provider.paginatorController.prev()
+                                      : null, // _controller must be passed to NumberPaginator
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.chevron_left),
+                                      Text("Previous"),
+                                    ],
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                height: 10,
-                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
 
                             // data
                             ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: provider.getItemPerPage().length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return StockTransferNotesChild(
-                                dataStockTransfer: provider.getItemPerPage()[index],
-                              );
-                            },
-                          ),
-                          
+                              shrinkWrap: true,
+                              itemCount: provider.getItemPerPage().length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return StockTransferNotesChild(
+                                  dataStockTransfer:
+                                      provider.getItemPerPage()[index],
+                                );
+                              },
+                            ),
                           ],
                         ),
-                        
+
               SizedBox(
                 height: 20,
               ),
@@ -679,6 +705,7 @@ class StockTransferNotesChild extends StatelessWidget {
                       barrierDismissible: false,
                       context: context,
                       builder: (context) => StockTransferNotePopup(
+                        userData: context.read<AuthState>().userData,
                         dataTransferNote: dataStockTransfer,
                       ),
                     );
@@ -916,19 +943,27 @@ class _CreateDeliveryOrderPopupState extends State<CreateDeliveryOrderPopup> {
                                   onPressed: () {
                                     // Note: GANTI (UDAH)
                                     // cek misal semua udah di isi maka next
-                                    if (!productTruckCartProvider.isThereEmptyField()) {
+                                    if (!productTruckCartProvider
+                                        .isThereEmptyField()) {
                                       // jalankan cart submit
                                       productTruckCartProvider
-                                          .submit(widget.controllerAdditional.text)
+                                          .submit(
+                                              widget.controllerAdditional.text)
                                           .then((onValue) {
                                         Navigator.pop(context);
                                       });
-                                    }
-                                    else{
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         SnackBar(
                                           backgroundColor: Colors.red[400],
-                                        content: Text('Terdapat Input Barang yang belum terisi', style: TableContentTextStyle.textStyleBody,)));
+                                          content: Text(
+                                            'Terdapat Input Barang yang belum terisi',
+                                            style: TableContentTextStyle
+                                                .textStyleBody,
+                                          ),
+                                        ),
+                                      );
                                     }
                                   },
                                 ),
@@ -1130,8 +1165,7 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text(
-                            getOnlyDate(listItem[index].expiredDate!),
+                        child: Text(getOnlyDate(listItem[index].expiredDate!),
                             style: TableContentTextStyle.textStyleBody),
                       ),
                     ),
@@ -1163,9 +1197,11 @@ class _TableInputProductLoadedState extends State<TableInputProductLoaded> {
 
 class StockTransferNotePopup extends StatefulWidget {
   final transfer.Data dataTransferNote;
+  final userData;
 
   StockTransferNotePopup({
     required this.dataTransferNote,
+    required this.userData,
     super.key,
   });
 
@@ -1229,8 +1265,8 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
                   ),
                   SubTitleText(
                     judul: 'Created at',
-                    data:
-                        getTimeWithDate(widget.dataTransferNote.createdAt!), // '07:31 PM, 01 July 2024',
+                    data: getTimeWithDate(widget.dataTransferNote
+                        .createdAt!), // '07:31 PM, 01 July 2024',
                   ),
 
                   SizedBox(
@@ -1241,98 +1277,113 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
 
                   // NOTE : perlu check misal dia ada delivery order yg sudah dikirim
                   // delivery order
-                  SubTitleText(
-                    judul: 'Delivery Order',
-                    isColumn: false,
-                  ),
+                  widget.dataTransferNote.statusVerify != 0
+                      ? SubTitleText(
+                          judul: 'Delivery Order',
+                          isColumn: false,
+                        )
+                      : Container(),
 
                   // NOTE : pisah
                   // Misal sudah ada delivery order sebelumnya
                   // buat format 1
                   // DeliveryOrderView(dataDelivery: dataDelivery),
-                  FutureBuilder<List<deliveryTrasnfer.Data>>(
-                      future: fetchDeliveryTransferNotes(
-                          widget.dataTransferNote.transferNoteId!),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          // get error
-                          if (snapshot.hasError) {
-                            return Center(
-                              child: Text('error fetch'),
-                            );
-                          } else {
-                            return Column(
-                              children: List.generate(
-                                  snapshot.data!.length,
-                                  (index) => DeliveryOrderView(
-                                      dataDelivery: snapshot.data![index])),
-                            );
-                          }
-                        } else {
-                          return CircularProgressIndicator();
-                        }
-                      }),
+                  widget.dataTransferNote.statusVerify != 0
+                      ? FutureBuilder<List<deliveryTrasnfer.Data>>(
+                          future: fetchDeliveryTransferNotes(
+                              widget.dataTransferNote.transferNoteId!),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              // get error
+                              if (snapshot.hasError) {
+                                return Center(
+                                  child: Text('error fetch'),
+                                );
+                              } else {
+                                return Column(
+                                  children: List.generate(
+                                      snapshot.data!.length,
+                                      (index) => DeliveryOrderView(
+                                            dataDelivery: snapshot.data![index],
+                                            total: widget.dataTransferNote
+                                                .quantityTotal!,
+                                          )),
+                                );
+                              }
+                            } else {
+                              return CircularProgressIndicator();
+                            }
+                          })
+                      : Container(),
 
                   // product loaded on truck
-                  Column(
-                    children: [
-                      widget.dataTransferNote.statusSend == 0
-                          ? Container(
-                              // height: 50,
-                              width: MediaQuery.of(context).size.width *
-                                  0.55 *
-                                  0.45,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      ColorPalleteLogin.OrangeLightColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                ),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Wrap(
-                                    spacing: 6,
-                                    children: [
-                                      Text(
-                                        '+ Create Delivery Order',
-                                        style: TextStyle(
-                                          color: ColorPalleteLogin.PrimaryColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
+                  widget.dataTransferNote.statusVerify != 0
+                      ? Column(
+                          children: [
+                            widget.dataTransferNote.statusSend == 0
+                                ? Container(
+                                    // height: 50,
+                                    width: MediaQuery.of(context).size.width *
+                                        0.55 *
+                                        0.45,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            ColorPalleteLogin.OrangeLightColor,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                onPressed: () {
-                                  // new popup
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        ChangeNotifierProvider(
-                                      create: (context) =>
-                                          ProductTruckCartProvider(widget
-                                              .dataTransferNote
-                                              .transferNoteId!),
-                                      child: Scaffold(
-                                        backgroundColor: Colors.transparent,
-                                        body: CreateDeliveryOrderPopup(
-                                            noteId: widget.dataTransferNote!
-                                                .transferNoteId!),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Wrap(
+                                          spacing: 6,
+                                          children: [
+                                            Text(
+                                              '+ Create Delivery Order',
+                                              style: TextStyle(
+                                                color: ColorPalleteLogin
+                                                    .PrimaryColor,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
+                                      onPressed: () {
+                                        // new popup
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              ChangeNotifierProvider(
+                                            create: (context) =>
+                                                ProductTruckCartProvider(
+                                                    widget.dataTransferNote
+                                                        .transferNoteId!,
+                                                    widget.userData),
+                                            child: Scaffold(
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              body: CreateDeliveryOrderPopup(
+                                                  noteId: widget
+                                                      .dataTransferNote!
+                                                      .transferNoteId!),
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
-                              ),
-                            )
-                          : Container(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                    ],
-                  ),
+                                  )
+                                : Container(),
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        )
+                      : Column(),
 
                   // Action Button
                   Row(
@@ -1387,8 +1438,10 @@ class _StockTransferNotePopupState extends State<StockTransferNotePopup> {
 
 class DeliveryOrderView extends StatefulWidget {
   final deliveryTrasnfer.Data dataDelivery;
+  final int total;
   DeliveryOrderView({
     required this.dataDelivery,
+    required this.total,
     super.key,
   });
 
@@ -1420,7 +1473,8 @@ class _DeliveryOrderViewState extends State<DeliveryOrderView> {
                 BodyPage(name: '${widget.dataDelivery.deliveryOrderId}'),
                 BodyPage(name: '${widget.dataDelivery.orderTimestamp}'),
                 BodyPage(
-                    name: '${widget.dataDelivery.quantityTotal}/1010 loaded'),
+                    name:
+                        '${widget.dataDelivery.quantityTotal}/${widget.total} loaded'),
                 Container(
                     decoration: BoxDecoration(
                       color: ColorPalleteLogin.OrangeLightColor,
@@ -1466,7 +1520,9 @@ class _DeliveryOrderViewState extends State<DeliveryOrderView> {
                               );
                             } else {
                               return NoteDeliveryOrder(
-                                  listItemDelivery: snapshot.data!, additionalNote: widget.dataDelivery.notes!,);
+                                listItemDelivery: snapshot.data!,
+                                additionalNote: widget.dataDelivery.notes!,
+                              );
                             }
                           } else {
                             return CircularProgressIndicator();
