@@ -15,9 +15,10 @@ class NotificationProvider extends ChangeNotifier{
   UnmodifiableListView<Data> get listNotification =>
       UnmodifiableListView(_listNotification);
 
-  Future<void> fetchNotificationsProvider(int roleId) async {
+  Future<void> fetchNotificationsProvider(int roleId , int userId) async {
+    // /notifications/:role_id/:user_id/:notification_type_id/:start_date/:end_date/:limit/:offset
     final link =
-        'http://leap.crossnet.co.id:8888/notifications/$roleId'; // NOTE : diganti nanti kalo udah ada
+        'http://leap.crossnet.co.id:8888/notifications/$roleId/$userId////0/0'; // NOTE : diganti nanti kalo udah ada
 
     _isLoading = true;
     notifyListeners();

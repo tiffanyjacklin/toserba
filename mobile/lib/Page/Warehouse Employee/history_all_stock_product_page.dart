@@ -534,6 +534,48 @@ class _HistoryAllStockProductPageState
                                         }),
                                       ),
                                       SizedBox(
+                                        height: 10,
+                                      ),
+
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Container(
+                                            height: 50,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.55 *
+                                                0.3,
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: ColorPalleteLogin
+                                                    .OrangeLightColor,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20.0),
+                                                ),
+                                              ),
+                                              child: Wrap(
+                                                spacing: 12,
+                                                children: [
+                                                  Text(
+                                                    'Apply',
+                                                    style: TextStyle(
+                                                      color: ColorPalleteLogin
+                                                          .PrimaryColor,
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              onPressed: () {
+                                                provider.clickFilter(_searchController.text);
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      SizedBox(
                                         height: 20,
                                       ),
                                     ],

@@ -64,7 +64,7 @@ class HistoryAllProductProvider extends ChangeNotifier {
   }
 
   // >> for paginator
-  int limitPerPage = 4;
+  int limitPerPage = 5;
   // int currentPage = 0;
   final NumberPaginatorController _paginatorController =
       NumberPaginatorController();

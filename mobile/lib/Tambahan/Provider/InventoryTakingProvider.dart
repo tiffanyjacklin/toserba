@@ -36,7 +36,8 @@ class ResultFilter {
 
 class InventoryTakingProvider extends ChangeNotifier {
   // constructor
-  InventoryTakingProvider() {
+  InventoryTakingProvider(int storeId) {
+    this._storeId = storeId;
     _resultController = List<TextEditingController>.generate(
       _lengthPerPage,
       (index) => TextEditingController(),
@@ -309,7 +310,7 @@ class InventoryTakingProvider extends ChangeNotifier {
       controller.text = '';
     }
     _mapListItemSubmit = {};
-    searchItemWithFilter('');
+    searchItemWithFilter('', search: true);
   }
 
   // API
@@ -317,6 +318,7 @@ class InventoryTakingProvider extends ChangeNotifier {
     final link = 'http://leap.crossnet.co.id:8888/products/stock/opname/add';
 
     List<itemSubmit> listItemSubmited = listItemSubmit;
+    
     // buat isi nya dulu
     List<Map<String, dynamic>> bodyContent = List.generate(
         listItemSubmited.length,
@@ -325,22 +327,24 @@ class InventoryTakingProvider extends ChangeNotifier {
                   listItemSubmited[i].stockData.productDetailId,
               "batch": listItemSubmited[i].stockData.batch,
               "expired_date":
-                  '${getOnlyDateSQL(listItemSubmited[i].stockData.expiredDate!)}',
+                  '${listItemSubmited[i].stockData.expiredDate!}',
               "actual_stock": listItemSubmited[i].quantity,
               "unit_type": listItemSubmited[i].stockData.unitType,
               "store_warehouse_id": _storeId
             });
 
-    print('FUTURE - ${listItemSubmited.length}');
+    print('FUTURE - ${listItemSubmited.length}  ---> ${jsonEncode(bodyContent)}');
     // call api
     final response =
         await http.post(Uri.parse(link), body: json.encode(bodyContent));
+    
 
     // cek status
     if (response.statusCode == 200) {
       Map<String, dynamic> temp = json.decode(response.body);
       if (temp['status'] == 200) {
         print(temp);
+
         resetAll(); // COBA RESET SEMUA
       }
     } else {

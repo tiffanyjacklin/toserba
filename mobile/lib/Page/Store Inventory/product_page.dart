@@ -570,6 +570,47 @@ class _ProductPageState extends State<ProductPage> {
                                               );
                                             }),
                                           ),
+                                          SizedBox(height: 10,),
+
+                                            Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Container(
+                                            height: 50,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.55 *
+                                                0.3,
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: ColorPalleteLogin
+                                                    .OrangeLightColor,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20.0),
+                                                ),
+                                              ),
+                                              child: Wrap(
+                                                spacing: 12,
+                                                children: [
+                                                  Text(
+                                                    'Apply',
+                                                    style: TextStyle(
+                                                      color: ColorPalleteLogin
+                                                          .PrimaryColor,
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              onPressed: () {
+                                                providerProduct.clickFilter(providerAuth.userData.userId!, providerAuth.userData.roleId!, providerAuth.userData.storeWarehouseId!, controllerSearch.text);
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                          
                                         ],
                                       ),
                                     ),
@@ -653,7 +694,7 @@ class _ProductPageState extends State<ProductPage> {
 }
 
 class ProductTile extends StatelessWidget {
-  Data dataProduct;
+  final Data dataProduct;
   ProductTile({
     required this.dataProduct,
     super.key,
@@ -746,8 +787,8 @@ class ProductTile extends StatelessWidget {
 
 // product detail popup
 class ProductDetailsPopup extends StatefulWidget {
-  Data productData;
-  int storeId;
+  final Data productData;
+  final int storeId;
   ProductDetailsPopup({super.key, required this.storeId, required this.productData});
 
   @override
@@ -834,7 +875,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                   SubTitleText(
                     judul: 'Date Added',
                     data:
-                        '${widget.productData.productDetails!.productTimestamp}', // harusnya pakai dd/mm/yyyy
+                        '${getOnlyDate(widget.productData.productDetails!.productTimestamp!)}', // harusnya pakai dd/mm/yyyy
                   ),
                   SubTitleText(
                     judul: 'Expiration Date',
@@ -843,7 +884,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
 
                   SubTitleText(
                     judul: 'Last Inventory Taking',
-                    data: '01/07/2024',
+                    data: '${widget.productData.stockOpname!.timestamp!}',
                   ),
 
                   SubTitleText(
@@ -1297,8 +1338,8 @@ class TableCurrentStockCardProducts extends StatelessWidget {
 }
 
 class ProductDetailsChild extends StatelessWidget {
-  String judul;
-  String data;
+  final String judul;
+  final String data;
 
   ProductDetailsChild({
     this.judul = '',

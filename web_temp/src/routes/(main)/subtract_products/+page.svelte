@@ -344,7 +344,6 @@
             return;
         }
     }
-
   </script>
   <div class="select-none font-roboto text-[#364445] mx-8 mt-[90px] mb-10 flex flex-col items-center justify-center bg-white shadow-[0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <div class="flex flex-col w-full pb-10 justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
@@ -405,7 +404,44 @@
                   {product.expected_stock}
                 </td>
                 <td class="px-1 py-2 text-center">
-                  <input type="number" max={product.expected_stock} min={0} step="0.5" bind:value={product.subtract_quantity} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
+                  <input 
+                  type="text" 
+                  max={product.expected_stock} 
+                  min={0} 
+                  bind:value={product.subtract_quantity} 
+                  class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"
+                  on:input="{(e) => {
+                      const input = e.target;
+
+                      // Store the current cursor position
+                      const cursorPos = input.selectionStart;
+
+                      // Remove all characters except digits and decimal points
+                      input.value = input.value.replace(/[^0-9.]/g, '');
+
+                      // If there's more than one decimal point, keep only the first
+                      const parts = input.value.split('.');
+                      if (parts.length > 2) {
+                          input.value = parts[0] + '.' + parts.slice(1).join('');
+                      }
+
+                      // Update the product quantity
+                      product.subtract_quantity = input.value;
+
+                      // Ensure the value doesn't exceed expected_stock or go below 0
+                      const numericValue = parseFloat(input.value);
+                      if (numericValue > product.expected_stock) {
+                          product.subtract_quantity = product.expected_stock; // Set to max
+                      } else if (numericValue < 0) {
+                          product.subtract_quantity = 0; // Set to min
+                      } else {
+                          product.subtract_quantity = numericValue; // Set to valid value
+                      }
+
+                      // Restore cursor position
+                      input.setSelectionRange(cursorPos, cursorPos);
+                  }}"/>
+
                 </td>
                 <td class="px-1 py-2 text-center">
                   {product.unit_type}
@@ -455,7 +491,7 @@
             <div class="font-semibold">Product ID</div>
             <input type="text" bind:value={productId} on:click={toggleIDList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
             {#if showIDList && all_products.length > 0}
-              <ul class="absolute w-1/4 bg-white shadow-md z-10">
+              <ul class={`${all_products.length > 5 ? 'h-40' : 'h-fit'} mt-2 overflow-y-auto absolute w-1/4 bg-white shadow-md z-10`}>
                 {#each all_products as stock}
                   <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_detail_id} - {stock.ProductDetails.product_name}</li>
                 {/each}
@@ -467,7 +503,7 @@
             <div class="font-semibold">Product Name</div>
             <input type="text" bind:value={productName} on:click={toggleNameList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
             {#if showNameList && all_products.length > 0}
-            <ul class="absolute w-1/4  bg-white shadow-md z-10">
+            <ul class={`${all_products.length > 5 ? 'h-40' : 'h-fit'} mt-2 overflow-y-auto absolute w-1/4 bg-white shadow-md z-10`}>
               {#each all_products as stock}
                 <li on:click={() => selectProduct(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.ProductDetails.product_name} - {stock.ProductDetails.product_detail_id}</li>
               {/each}
@@ -478,7 +514,7 @@
             <div class="font-semibold">Product Batch</div>
             <input type="text" on:input={clearBatch} bind:value={batch} on:click={toggleBatchList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
             {#if showBatchList && batchOfSelectedProduct.length > 0}
-            <ul class="absolute w-1/4  bg-white shadow-md z-10">
+            <ul class={`${batchOfSelectedProduct.length > 5 ? 'h-40' : 'h-fit'} mt-2 overflow-y-auto absolute w-1/4 bg-white shadow-md z-10`}>
               {#each batchOfSelectedProduct as stock}
                 <li on:click={() => selectProductBatch(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.batch}</li>
               {/each}
@@ -490,7 +526,7 @@
             <div class="font-semibold">Expired date</div>
             <input type="text" on:input={clearExpiredDate} bind:value={expired_date} on:click={toggleExpiredDateList} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
             {#if showExpiredDateList && expiredDateOfSelectedProduct.length > 0}
-            <ul class="absolute w-1/4  bg-white shadow-md z-10">
+            <ul class={`${expiredDateOfSelectedProduct.length > 5 ? 'h-40' : 'h-fit'} mt-2 overflow-y-auto absolute w-1/4 bg-white shadow-md z-10`}>
               {#each expiredDateOfSelectedProduct as stock}
                 <li on:click={() => selectProductExp(stock)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{stock.expired_date}</li>
               {/each}

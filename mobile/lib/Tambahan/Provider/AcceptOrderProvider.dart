@@ -60,6 +60,10 @@ class AcceptOrderProvider extends ChangeNotifier {
     return (totalRow.toDouble() / limitPerPage.toDouble()).ceil();
   }
 
+  void refresh(){
+    _fetchDeliveryOrderStore(storeIdProvider);
+    notifyListeners();
+  }
   // filter
   void setRangeDate(DateTime dateTime, bool isStart) {
     if (isStart) {
@@ -108,6 +112,10 @@ class AcceptOrderProvider extends ChangeNotifier {
     int limit = 100000; // set default 10,000
     int offset = 0;
 
+    if(isSearch){
+      currentPage = 0;
+    }
+
     isLoading = true;
     notifyListeners();
 
@@ -133,9 +141,6 @@ class AcceptOrderProvider extends ChangeNotifier {
           _items = deliveryStore.FetchDeliveryOrderStore.fromJson(temp).data!;
           totalRow =
               deliveryStore.FetchDeliveryOrderStore.fromJson(temp).totalRows!;
-          if (isSearch) {
-            currentPage = 0;
-          }
         } else {
           _items = [];
         }

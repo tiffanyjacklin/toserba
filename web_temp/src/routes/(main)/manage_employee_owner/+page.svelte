@@ -18,6 +18,7 @@
     $: offset = 0;
     $: currentPage = 1; 
     $: totalRows = 0;
+    $: totalPages = Math.ceil(totalRows/limit);
     let searchQuery_temp = '';
 
     let users = [];
@@ -61,9 +62,20 @@
     function toggleFilter() {
         showFilter = !showFilter;
     }
-   function closeModal() {
+   
+    function toggleShowNavbar(){
+        if (show_on_navbar == 0){
+            show_on_navbar = 1; 
+            show_on_navbar = show_on_navbar;
+        } else if (show_on_navbar == 1){
+            show_on_navbar = 0; 
+            show_on_navbar = show_on_navbar
+        }
+    }
+
+    function closeModal() {
         showModal = null;
-   }
+    }
   
   async function fetchUsers(){
         const response = await fetch(`http://${$uri}:8888/user/${filter_start_date}/${filter_end_date}/${searchQuery}/${filter_role_id}/${filter_gender}/${limit}/${offset}`, {
@@ -87,6 +99,7 @@
 
         users = data.data;
         totalRows = data.total_rows;
+        totalPages = Math.ceil(totalRows/limit);
         console.log("data total", data)
         // console.log("users length", users.length)
 
@@ -363,6 +376,7 @@
       }
 
       totalRows = data.total_rows;
+      totalPages = Math.ceil(totalRows/limit);
       role_to_assign = data.data;
       filtered_role_to_assign = structuredClone(role_to_assign);
 
@@ -703,38 +717,111 @@
             </div>
         </div>
 
-        <nav class="my-8">
+        
+        <nav class="my-8 flex justify-center">
           <ul class="flex items-center -space-x-px h-8 text-sm">
-            {#if totalRows !== 0}
-            <li>
-              <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+          {#if totalRows !== 0}
+          <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="{currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-black'} mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-                </svg>
-                Previous
+              </svg>
+              Previous
               </a>
-            </li>
-            {/if}
-        
-            <!-- Pagination Links -->
-            {#each Array(Math.ceil(totalRows / limit)) as _, i}
+          </li>
+          {/if}
+      
+          {#if totalPages <= 5}
+              {#each Array(totalPages) as _, i}
               <li>
-                <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
+                  <a 
+                      href="#" 
+                      on:click|preventDefault={() => goToPage(i + 1)} 
+                      class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg 
+                          {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">
+                      {i + 1}
+                  </a>
               </li>
-            {/each}
-        
-            {#if totalRows !== 0}
-            <li>
-              <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
-                Next
-                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              {/each}
+          {:else}
+              {#if currentPage > 3}
+              <li>
+                  <a 
+                      href="#" 
+                      on:click|preventDefault={() => goToPage(1)} 
+                      class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                      1
+                  </a>
+              </li>
+              <li class="mx-1 flex items-center justify-center px-3 h-8">...</li>
+              {/if}
+
+              {#each Array(5) as _, index}
+                  {#if currentPage <= 3}
+                      {#if index < 5 && index < totalPages}
+                      <li>
+                          <a 
+                              href="#" 
+                              on:click|preventDefault={() => goToPage(index + 1)} 
+                              class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg 
+                                  {currentPage === index + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">
+                              {index + 1}
+                          </a>
+                      </li>
+                      {/if}
+                  {:else if currentPage >= totalPages - 2}
+                      {#if index + totalPages - 5 >= 0}
+                      <li>
+                          <a 
+                              href="#" 
+                              on:click|preventDefault={() => goToPage(index + totalPages - 5 + 1)} 
+                              class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg 
+                                  {currentPage === index + totalPages - 5 + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">
+                              {index + totalPages - 5 + 1}
+                          </a>
+                      </li>
+                      {/if}
+                  {:else}
+                      {#if index + currentPage - 2 >= 0 && index + currentPage - 2 < totalPages}
+                      <li>
+                          <a 
+                              href="#" 
+                              on:click|preventDefault={() => goToPage(index + currentPage - 2)} 
+                              class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg 
+                                  {currentPage === index + currentPage - 2 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">
+                              {index + currentPage - 2}
+                          </a>
+                      </li>
+                      {/if}
+                  {/if}
+              {/each}
+
+              {#if currentPage < totalPages - 2}
+              <li class="mx-1 flex items-center justify-center px-3 h-8">...</li>
+              <li>
+                  <a 
+                      href="#" 
+                      on:click|preventDefault={() => goToPage(totalPages)} 
+                      class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                      {totalPages}
+                  </a>
+              </li>
+              {/if}
+          {/if}
+
+          {#if totalRows !== 0}
+          <li>
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="{currentPage === (Math.ceil(totalRows / limit)) ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-black'} flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              Next
+              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                </svg>
+              </svg>
               </a>
-            </li>
-             {/if}
+          </li>
+          {/if}
           </ul>
-        </nav>
+      </nav>
+     
     <!-- {:else if tampilan == "edit"} -->
       <!-- <div class="w-11/12 flex items-center">
           <input 
@@ -809,7 +896,7 @@
             <input type="text" bind:value={privilege_name} class="p-3 rounded-xl focus:ring-peach2 w-96">
             <div class="flex items-center my-2">
               <span class="text-darkGray text-lg font-semibold mr-2">Show in Navbar</span>
-              <input class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white  mr-2" type="checkbox">
+              <input on:change={() => {toggleShowNavbar(); console.log(show_on_navbar)}} class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white  mr-2" type="checkbox">
             </div>
           </div>
           <div class="mt-10 mb-5 flex justify-center">
@@ -820,38 +907,111 @@
      {/if}
       
       {#if tampilan == "manage"}
-      <nav class="my-8">
-        <ul class="flex items-center -space-x-px h-8 text-sm">
+      
+      <nav class="my-8 flex justify-center">
+          <ul class="flex items-center -space-x-px h-8 text-sm">
           {#if totalRows !== 0}
           <li>
-            <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage - 1)} class="{currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-black'} mx-1 flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
               <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
               </svg>
               Previous
-            </a>
+              </a>
           </li>
           {/if}
       
-          <!-- Pagination Links -->
-          {#each Array(Math.ceil(totalRows / limit)) as _, i}
-            <li>
-              <a href="#" on:click|preventDefault={() => goToPage(i + 1)} class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">{i + 1}</a>
-            </li>
-          {/each}
-      
+          {#if totalPages <= 5}
+              {#each Array(totalPages) as _, i}
+              <li>
+                  <a 
+                      href="#" 
+                      on:click|preventDefault={() => goToPage(i + 1)} 
+                      class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg 
+                          {currentPage === i + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">
+                      {i + 1}
+                  </a>
+              </li>
+              {/each}
+          {:else}
+              {#if currentPage > 3}
+              <li>
+                  <a 
+                      href="#" 
+                      on:click|preventDefault={() => goToPage(1)} 
+                      class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                      1
+                  </a>
+              </li>
+              <li class="mx-1 flex items-center justify-center px-3 h-8">...</li>
+              {/if}
+
+              {#each Array(5) as _, index}
+                  {#if currentPage <= 3}
+                      {#if index < 5 && index < totalPages}
+                      <li>
+                          <a 
+                              href="#" 
+                              on:click|preventDefault={() => goToPage(index + 1)} 
+                              class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg 
+                                  {currentPage === index + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">
+                              {index + 1}
+                          </a>
+                      </li>
+                      {/if}
+                  {:else if currentPage >= totalPages - 2}
+                      {#if index + totalPages - 5 >= 0}
+                      <li>
+                          <a 
+                              href="#" 
+                              on:click|preventDefault={() => goToPage(index + totalPages - 5 + 1)} 
+                              class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg 
+                                  {currentPage === index + totalPages - 5 + 1 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">
+                              {index + totalPages - 5 + 1}
+                          </a>
+                      </li>
+                      {/if}
+                  {:else}
+                      {#if index + currentPage - 2 >= 0 && index + currentPage - 2 < totalPages}
+                      <li>
+                          <a 
+                              href="#" 
+                              on:click|preventDefault={() => goToPage(index + currentPage - 2)} 
+                              class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg 
+                                  {currentPage === index + currentPage - 2 ? 'bg-black text-white' : 'hover:text-white hover:bg-black'}">
+                              {index + currentPage - 2}
+                          </a>
+                      </li>
+                      {/if}
+                  {/if}
+              {/each}
+
+              {#if currentPage < totalPages - 2}
+              <li class="mx-1 flex items-center justify-center px-3 h-8">...</li>
+              <li>
+                  <a 
+                      href="#" 
+                      on:click|preventDefault={() => goToPage(totalPages)} 
+                      class="mx-1 flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+                      {totalPages}
+                  </a>
+              </li>
+              {/if}
+          {/if}
+
           {#if totalRows !== 0}
           <li>
-            <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
+              <a href="#" on:click|preventDefault={() => goToPage(currentPage + 1)} class="{currentPage === (Math.ceil(totalRows / limit)) ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-black'} flex items-center justify-center px-3 h-8 leading-tight text-gray-500 rounded-lg hover:text-white hover:bg-black">
               Next
               <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
               </svg>
-            </a>
+              </a>
           </li>
-           {/if}
-        </ul>
+          {/if}
+          </ul>
       </nav>
+   
       {/if}
    </div>
 
@@ -975,11 +1135,13 @@
 {#if showModal == "confirm_req_priv" }
 <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
   <div class="flex items-center justify-center pt-8 font-roboto">
+    <i class="mx-4 fa-solid fa-triangle-exclamation fa-2x" style="color: #dc2626;"></i>
     <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Request New Privilege</div>
+    <i class="mx-4 fa-solid fa-triangle-exclamation fa-2x" style="color: #dc2626;"></i>
   </div>
   <form class="my-4 p-4 md:p-5 font-roboto text-xl">
-        <div class="text-[#f7d4b2] font-medium text-center mb-8">
-          Are you sure you want to submit the changes you've made?
+        <div class="text-red-600 font-semibold text-xl text-center mb-8">
+          Are you sure you want to request the new privilege for the developers to make?
         </div>
         <div class="flex items-center justify-center gap-4">
             <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">

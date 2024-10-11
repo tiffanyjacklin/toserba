@@ -436,7 +436,7 @@
                 bind:value={supplier_name} on:click={toggleSupplier} on:focus={toggleSupplier} on:keydown={focusDOInput} bind:this={sn_bind}
                 class="focus:ring-2 h-8  focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full px-6 py-2 text-md leading-6 text-slate-900 rounded-3xl" >
                 {#if suppliers.length > 0 && showSupplier && !suppliers.some(supplier => supplier.supplier_name.toLowerCase() === supplier_name.toLowerCase())}
-                <ul class="absolute w-1/4  bg-white shadow-md z-10" >
+                <ul class={`${suppliers.length > 5 ? 'h-40' : 'h-fit'} absolute mt-2 w-full overflow-y-auto bg-white shadow-md z-10`}>
                   {#each suppliers as supplier}
                     <li on:click={() => selectSupplier(supplier)} class="p-2 cursor-pointer w-fit-content hover:bg-gray-200">{supplier.supplier_name}</li>
                   {/each}
