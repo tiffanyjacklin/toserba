@@ -105,6 +105,7 @@
     }
   
     async function fetchSessionNotVerified() {
+        console.log(`http://${$uri}:8888/sessions/not_verified/${store_warehouse_id}/${start_date}/${end_date}/${cashier_name}/${searchQuery}/${limit}/${offset}`)
       const response = await fetch(`http://${$uri}:8888/sessions/not_verified/${store_warehouse_id}/${start_date}/${end_date}/${cashier_name}/${searchQuery}/${limit}/${offset}`, {
          method: 'GET',
          headers: {
@@ -131,6 +132,7 @@
    }
     
    async function fetchAllSWSession() {
+    console.log(`http://${$uri}:8888/sessions/store_warehouse/${store_warehouse_id}/${start_date}/${end_date}/${cashier_name}/${searchQueryAll}/${limit}/${offset}`)
       const response = await fetch(`http://${$uri}:8888/sessions/store_warehouse/${store_warehouse_id}/${start_date}/${end_date}/${cashier_name}/${searchQueryAll}/${limit}/${offset}`, {
          method: 'GET',
          headers: {

@@ -268,28 +268,28 @@
         }
     }
 
-    function checkPromoApplied(){
-        for (let i = 0; i < checkout.length; i++) {
-            if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id) != null){
-                // jika ada, ambil index di array all promo
-                let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id);
+    // function checkPromoApplied(){
+    //     for (let i = 0; i < checkout.length; i++) {
+    //         if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id) != null){
+    //             // jika ada, ambil index di array all promo
+    //             let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id);
 
-                if (checkout[i].jumlah >= promos[index]["Promo"].x_amount){
-                    checkout[i].promo_applied = true;
-                    checkout[i].promo_applied = checkout[i].promo_applied;
+    //             if (checkout[i].jumlah >= promos[index]["Promo"].x_amount){
+    //                 checkout[i].promo_applied = true;
+    //                 checkout[i].promo_applied = checkout[i].promo_applied;
 
-                    promos[index].promo_applied = true;
-                    promos[index].promo_applied = promos[index].promo_applied;
-                } else {
-                    checkout[i].promo_applied = false;
-                    checkout[i].promo_applied = checkout[i].promo_applied;
+    //                 promos[index].promo_applied = true;
+    //                 promos[index].promo_applied = promos[index].promo_applied;
+    //             } else {
+    //                 checkout[i].promo_applied = false;
+    //                 checkout[i].promo_applied = checkout[i].promo_applied;
 
-                    promos[index].promo_applied = false;
-                    promos[index].promo_applied = promos[index].promo_applied;
-                }
-            }
-        }
-    }
+    //                 promos[index].promo_applied = false;
+    //                 promos[index].promo_applied = promos[index].promo_applied;
+    //             }
+    //         }
+    //     }
+    // }
 
     function sumTotal(){
         total = checkout.reduce((sum, item) => {
@@ -858,14 +858,22 @@
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
                                 </svg>
                             </button>
-                            <input on:change={() =>{ sumTotal(); checkPromoAppliedType1_4();countPromoApplied()}} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
+                            <input on:change={() =>{ sumTotal(); checkPromoAppliedType1_4();countPromoApplied();}} 
+                            on:keyup={()=> {
+                            if (produk_checkout.jumlah >= produk_checkout.ProductDetails.product_stock){
+                                    produk_checkout.jumlah = produk_checkout.ProductDetails.product_stock;
+                                    produk_checkout.jumlah = produk_checkout.jumlah;
+                                };
+                            }} id={produk_checkout.product_name} bind:value={produk_checkout.jumlah} type="number" class="h-8 bg-gray-50 border-x-0 border-gray-300 text-center text-gray-900 text-sm w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required />
                             <button on:click={() => {
                                 let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
-                                checkout[index].jumlah+=1;
-                                sumTotal(); 
-                                checkPromoAppliedType1_4();
-                                countPromoApplied();
-                                console.log(checkout)
+                                if(checkout[index].jumlah < checkout[index].ProductDetails.product_stock){
+                                    checkout[index].jumlah+=1;
+                                    sumTotal(); 
+                                    checkPromoAppliedType1_4();
+                                    countPromoApplied();
+                                    console.log(checkout)
+                                }
                             }} 
                             type="button" class="bg-peach rounded-e-xl h-8 p-2">
                                 <svg class="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">

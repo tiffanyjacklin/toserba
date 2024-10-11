@@ -62,9 +62,20 @@
     function toggleFilter() {
         showFilter = !showFilter;
     }
-   function closeModal() {
+   
+    function toggleShowNavbar(){
+        if (show_on_navbar == 0){
+            show_on_navbar = 1; 
+            show_on_navbar = show_on_navbar;
+        } else if (show_on_navbar == 1){
+            show_on_navbar = 0; 
+            show_on_navbar = show_on_navbar
+        }
+    }
+
+    function closeModal() {
         showModal = null;
-   }
+    }
   
   async function fetchUsers(){
         const response = await fetch(`http://${$uri}:8888/user/${filter_start_date}/${filter_end_date}/${searchQuery}/${filter_role_id}/${filter_gender}/${limit}/${offset}`, {
@@ -885,7 +896,7 @@
             <input type="text" bind:value={privilege_name} class="p-3 rounded-xl focus:ring-peach2 w-96">
             <div class="flex items-center my-2">
               <span class="text-darkGray text-lg font-semibold mr-2">Show in Navbar</span>
-              <input class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white  mr-2" type="checkbox">
+              <input on:change={() => {toggleShowNavbar(); console.log(show_on_navbar)}} class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white  mr-2" type="checkbox">
             </div>
           </div>
           <div class="mt-10 mb-5 flex justify-center">
@@ -1124,11 +1135,13 @@
 {#if showModal == "confirm_req_priv" }
 <TaskModal open={showModal} onClose={closeModal} color={"#3d4c52"}>
   <div class="flex items-center justify-center pt-8 font-roboto">
+    <i class="mx-4 fa-solid fa-triangle-exclamation fa-2x" style="color: #dc2626;"></i>
     <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Request New Privilege</div>
+    <i class="mx-4 fa-solid fa-triangle-exclamation fa-2x" style="color: #dc2626;"></i>
   </div>
   <form class="my-4 p-4 md:p-5 font-roboto text-xl">
-        <div class="text-[#f7d4b2] font-medium text-center mb-8">
-          Are you sure you want to submit the changes you've made?
+        <div class="text-red-600 font-semibold text-xl text-center mb-8">
+          Are you sure you want to request the new privilege for the developers to make?
         </div>
         <div class="flex items-center justify-center gap-4">
             <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">

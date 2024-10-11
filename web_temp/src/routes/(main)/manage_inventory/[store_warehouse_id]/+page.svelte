@@ -820,6 +820,7 @@
                 <button on:click={() => {showModal = "add_category_modal"; showModal = showModal;}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Category</button>
             </div>
           </div>
+          
           {/if}
 
           <nav class="my-8 flex justify-center">
@@ -1829,3 +1830,4 @@
     </div>
 </TaskModal> 
 {/if}
+
