@@ -28,6 +28,7 @@
   //Untuk edit privilege user
   let all_privilege = [];
   let priv_template_role = [];
+  let priv_template_id = [];
   let prev_user_priv = [];
   let custom_user_priv = [];
   $: isUserCustom = false;
@@ -72,6 +73,12 @@
       user = data.data;
       user.sw_name = await getStoreWarehouse(user.store_warehouse_id);
       console.log(user);
+
+      if (user.custom == 1){
+        isUserCustom = true;
+        isUserCustom = isUserCustom;
+      }
+      console.log("isUserCustom",isUserCustom)
   }
   
   async function fetchRoleUser(){
@@ -173,11 +180,12 @@
       // console.log("prev_user_priv",prev_user_priv)
 
       for (let i = 0; i < prev_user_priv.length; i++) {
-        if (priv_template_role.find((priv) => priv.Privileges.privileges_id == prev_user_priv[i].privilege_id) == null){
-            custom_user_priv.push({privilege_id: prev_user_priv[i].privilege_id})
-            isUserCustom = true;
-            console.log("isUserCustom",isUserCustom)
-        }
+        // if (priv_template_role.find((priv) => priv.Privileges.privileges_id == prev_user_priv[i].privilege_id) == null){
+        //     custom_user_priv.push({privilege_id: prev_user_priv[i].privilege_id})
+        //     isUserCustom = true;
+        //     console.log("isUserCustom",isUserCustom)
+        // }
+        custom_user_priv.push({privilege_id:prev_user_priv[i].privilege_id})
       }
       console.log("custom_user_priv",custom_user_priv)
   }
@@ -203,6 +211,11 @@
       }
 
       priv_template_role = data.data;
+
+      for(let i = 0; i < priv_template_role.length; i++){
+        priv_template_id.push({privilege_id: priv_template_role[i].Privileges.privileges_id})
+      }
+
       console.log("priv_template_role", priv_template_role);
   }
 
@@ -360,14 +373,30 @@
   }
 
   async function savePrivilege() {
-    if (isUserCustom == true){
+    // if (isUserCustom == true){
       await deleteCustomPrivUser();
-    }
+    // }
 
-    if (custom_user_priv.length > 0){
+    console.log("custom_user_priv",JSON.stringify(custom_user_priv))
+    console.log("priv_template_id",JSON.stringify(priv_template_id))
+
+    if (JSON.stringify(custom_user_priv) != JSON.stringify(priv_template_id) && (custom_user_priv.length > 0)){
     // for (let i = 0; i < custom_user_priv.length; i++) {
         await addPrivilegeNew(custom_user_priv);
     // }
+      custom_user_priv = [];
+      await fetchUser();
+      await fetchUserPrivilege();
+      closeModal();
+
+      Swal.fire({
+        title: "Privilege user berhasil diupdate",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E'
+      });
+    } else if (JSON.stringify(custom_user_priv) == JSON.stringify(priv_template_id) && (custom_user_priv.length > 0)){
       custom_user_priv = [];
       await fetchUser();
       await fetchUserPrivilege();
@@ -802,18 +831,32 @@
         <span class="text-white">{user.roles_name}</span>
     </div>
     
+    
     <div class="flex flex-col my-2">
         <span class="text-peach">Permissions</span>
           <div class="mt-4 flex flex-col">
             <span class="text-peach2">Default : </span>
               <ul class="font-semibold text-white ml-2">
-                {#each priv_template_role as priv_def}
+                <!-- {#each priv_template_role as priv_def}
                 <li class="mb-1">
                   <div class="flex items-center">
                     <input disabled checked class="border border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white  mr-2" type="checkbox">
                     <span class="">{priv_def.Privileges.privileges_name}</span>
                   </div>
                 </li>
+                {/each} -->
+                {#each priv_template_role as privilege}
+                    <li class="mb-1">
+                      <div class="flex items-center">
+                          {#if (prev_user_priv.find((priv) => priv.privilege_id == privilege.Privileges.privileges_id) != null)}
+                            <!-- <input on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox"> -->
+                            <input on:change={() => {addPrivilegetoList(privilege.Privileges.privileges_id)}} checked class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white  mr-2" type="checkbox">
+                          {:else}
+                            <input on:change={() => {addPrivilegetoList(privilege.Privileges.privileges_id)}} class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white mr-2" type="checkbox">
+                          {/if}
+                            <span class="">{privilege.Privileges.privileges_name}</span>
+                        </div>
+                    </li>
                 {/each}
               </ul>
           </div>
@@ -825,7 +868,7 @@
                   {#if (priv_template_role.find((priv) => priv.Privileges.privileges_id == privilege.privileges_id) == null)}
                     <li class="mb-1">
                       <div class="flex items-center">
-                          {#if (custom_user_priv.find((priv) => priv.privilege_id == privilege.privileges_id) != null)}
+                          {#if (prev_user_priv.find((priv) => priv.privilege_id == privilege.privileges_id) != null)}
                             <!-- <input on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox"> -->
                             <input on:change={() => {addPrivilegetoList(privilege.privileges_id)}} checked class="border-2 border-darkGray bg-white focus:bg-darkGray focus:text-white checked:bg-darkGray checked:text-white checked:border-white  mr-2" type="checkbox">
                           {:else}
