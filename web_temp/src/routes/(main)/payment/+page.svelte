@@ -75,6 +75,13 @@
         }
     }
 
+    function backToMain(){
+        sessionStorage.setItem('checkout', JSON.stringify(checkout));
+        sessionStorage.setItem('promos', JSON.stringify(promos));
+        // totalAmount.set(String(total));
+        goto(`/session_main`);
+    }
+
     async function fetchPhoneNumber() {
         const response = await fetch(`http://${$uri}:8888/cashier/members/phone_number/${member_phone_number}`, {
             method: 'GET',
@@ -563,7 +570,7 @@
 <div class="flex h-screen">
     <div class="w-1/2 h-full flex flex-col">
         <div class="flex my-2 mx-8">
-            <button on:click={() => goto(`/session_main`)} class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Back</button>
+            <button on:click={() => backToMain()} class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Back</button>
             <button class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-user mr-2"></i>{cashier_name}</button>
         </div>
 

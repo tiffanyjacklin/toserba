@@ -13,6 +13,7 @@
     import { goto } from '$app/navigation';
 	import { json } from "@sveltejs/kit";
     import { uri, userId, roleId, sessionId, totalAmount } from '$lib/uri.js';
+    import { get } from 'svelte/store';
 
     // export let data;
     // let sessionId = data.sessionId;
@@ -357,6 +358,17 @@
         goto(`/payment`);
     }
 
+    function checkCheckout(){
+        if (typeof window !== 'undefined') {
+            const storedCheckout = sessionStorage.getItem('checkout');
+            checkout = storedCheckout ? JSON.parse(storedCheckout) : [];
+
+            const storedPromos = sessionStorage.getItem('promos');
+            promos = storedPromos ? JSON.parse(storedPromos) : [];
+        }
+        sumTotal(); checkPromo(); checkPromoAppliedType1_4(); countPromoApplied();
+    }
+
     async function fetchTransactionBySession(sessionIdnya) {
         const response = await fetch(`http://${$uri}:8888/cashier/session/transaction/${sessionIdnya}///////0/0`, {
             method: 'GET',
@@ -438,6 +450,7 @@
     }
 
     onMount(async () => {
+        checkCheckout()
         await fetchProduk();
         await thisSession();
         await fetchAllPromo();
@@ -816,7 +829,7 @@
                                 <p class="font-semibold ml-8">{"Discount " + promo_produk["Promo"].promo_percentage + "% off"}</p>
                                 <p class="font-semibold ml-8 text-peach2">Promo Applied.</p>
                             {:else if (promo_produk["Promo"].promo_type_id == 3)}
-                                <p class="font-semibold ml-8">{"Discount Rp" + all_promo[index]["Promo"].promo_discount + " off"}</p>
+                                <p class="font-semibold ml-8">{"Discount Rp " + promo_produk["Promo"].promo_discount + " off"}</p>
                                 <p class="font-semibold ml-8 text-peach2">Promo Applied.</p>
                             {:else if (promo_produk["Promo"].promo_type_id == 4)}
                                 {#if (produk_checkout.jumlah >= promo_produk["Promo"].x_amount)}
