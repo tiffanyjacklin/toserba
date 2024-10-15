@@ -25,7 +25,7 @@
     let showModal = null; 
     let session = [];
     
-    $: limit = 10; 
+    $: limit = 9; 
     $: offset = 0; 
     $: totalNotes = 10; 
     $: currentPage = 1; 
@@ -128,6 +128,10 @@
             closeModal();
             sessionId.set('');
             totalAmount.set(''); 
+            checkout = [];
+            promos = [];
+            sessionStorage.setItem('checkout', JSON.stringify(checkout));
+            sessionStorage.setItem('promos', JSON.stringify(promos));
             goto(`/session_history`);
 
         } catch (error) {
@@ -485,7 +489,7 @@
     <div class="w-7/12 bg-gray-100 flex flex-col">
         <div class="h-auto text-darkGray text-lg font-semibold my-2 mx-6">
             <button class="mx-3 hover:bg-gray-300 p-2 rounded-lg"
-            on:click={() => handleClick(1)}>
+            on:click={() => {handleClick(1)}}>
             <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Close Session</button>
             <button on:click={() => window = "session_history"} class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-regular fa-clock mr-1"></i>Session History</button>
         </div>

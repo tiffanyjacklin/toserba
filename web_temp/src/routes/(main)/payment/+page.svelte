@@ -75,11 +75,20 @@
         }
     }
 
-    function backToMain(){
-        sessionStorage.setItem('checkout', JSON.stringify(checkout));
-        sessionStorage.setItem('promos', JSON.stringify(promos));
-        // totalAmount.set(String(total));
-        goto(`/session_main`);
+    function backToMain(condition){
+        if(condition == "finish"){
+            checkout = [];
+            promos = [];
+            sessionStorage.setItem('checkout', JSON.stringify(checkout));
+            sessionStorage.setItem('promos', JSON.stringify(promos));
+            // totalAmount.set(String(total));
+            goto(`/session_main`);
+        } else {
+            sessionStorage.setItem('checkout', JSON.stringify(checkout));
+            sessionStorage.setItem('promos', JSON.stringify(promos));
+            // totalAmount.set(String(total));
+            goto(`/session_main`);
+        }
     }
 
     async function fetchPhoneNumber() {
@@ -590,7 +599,7 @@
 <div class="flex h-screen">
     <div class="w-1/2 h-full flex flex-col">
         <div class="flex my-2 mx-8">
-            <button on:click={() => backToMain()} class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Back</button>
+            <button on:click={() => backToMain("not_finish")} class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Back</button>
             <button class="font-semibold text-lg mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-solid fa-user mr-2"></i>{cashier_name}</button>
         </div>
 
@@ -850,7 +859,7 @@
                             <i class="fa-regular fa-circle-check fa-5x" style="color: #ffffff;"></i>       
                         </button>
                     {:else if tampilan == "validasi"}
-                        <button on:click={() => {goto(`/session_main`);}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">        
+                        <button on:click={() => {backToMain("finish");}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">        
                             <span class="text-white text-8xl font-bold">NEXT ORDER</span>
                         </button>
                     {/if}

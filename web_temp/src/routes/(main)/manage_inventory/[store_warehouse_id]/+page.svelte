@@ -1374,11 +1374,7 @@
             </div>
             <div class="">
                 <div class="text-[#f7d4b2] mr-1">Product Name</div>
-                {#if editMode == true}
-                  <input name="product_name" id="product_name" type="text" bind:value={product.ProductDetails.product_name} class="bg-white text-darkGray border-0 p-1 rounded">
-                {:else}
-                  <div class="text-white">{product.ProductDetails.product_name}</div>
-                {/if}
+                <div class="text-white">{product.ProductDetails.product_name}</div>
             </div>
             <div class="">
                 <div class="text-[#f7d4b2] mr-1">Product Brand</div>
