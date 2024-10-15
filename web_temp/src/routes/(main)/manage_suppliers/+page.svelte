@@ -430,12 +430,8 @@
       <div class="w-[96%] my-5 font-roboto">
         <div class="relative overflow-x-auto sm:rounded-lg">
           {#each all_suppliers as supplier}
-          <button class="w-full h-full flex border-2 rounded-xl ml-auto border-gray-700 my-3 hover:bg-gray-200" type="button"
-            on:click={() => {fetchSpecificSW(supplier.supplier_id); handleClick(supplier.supplier_id); tampilan = 'View';}}>                        
-            <div class="m-4 w-1/12 flex items-center">
-              <img class="rounded-lg aspect-square" src={supermarket} alt="">
-            </div>
-            <div class="py-4 w-11/12">
+          <div class="w-full h-full flex border-2 rounded-xl ml-auto items-center border-gray-700 my-3 hover:bg-gray-200" type="button">         
+            <div class="py-4 w-11/12 mx-8">
               <div class="font-bold justify-start whitespace-nowrap flex divide-x-2 divide-black">
                   <div class="capitalize pr-2 font-extrabold">{supplier.supplier_name}</div>
                   <div class="pl-2 text-peach2">{supplier.supplier_phone_number}</div>
@@ -444,7 +440,18 @@
                   {supplier.supplier_address}
                 </div>
             </div>
-          </button>
+            <div  class="flex items-center justify-end px-4 py-4 w-full">
+              <button 
+              on:click={() => {fetchSpecificSW(supplier.supplier_id); handleClick(supplier.supplier_id); tampilan = 'View';}} type="button" 
+              class="h-24 px-4 w-40 flex flex-col items-center justify-center font-bold rounded-xl bg-[#3d4c52] text-[#f2b082] hover:shadow-2xl">
+              <div class="text-lg text-white font-semibold w-full">Edit</div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-8">
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                    <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
           {/each}
           {#if all_suppliers.length === 0}
           <div class="justify-center w-full h-full flex border-2 rounded-xl py-4 border-gray-400 my-3 ">
