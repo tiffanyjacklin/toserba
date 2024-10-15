@@ -83,7 +83,7 @@
     }
 
     async function fetchPhoneNumber() {
-        const response = await fetch(`http://${$uri}:8888/cashier/members/phone_number/${member_phone_number}`, {
+        const response = await fetch(`http://${$uri}:8888/cashier/members/phone_number/0${member_phone_number}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -135,7 +135,7 @@
             method: 'POST',
             body: JSON.stringify({
                 member_name,
-                member_phone_number,
+                member_phone_number: '0' + String(member_phone_number),
                 member_join_date,
             })
         });
@@ -563,6 +563,26 @@
         await getUserName();
     });
 
+    function handleInput(e) {
+        const input = e.target;
+
+        // Store the current cursor position
+        const cursorPos = input.selectionStart;
+
+        // Remove all characters except digits
+        input.value = input.value.replace(/[^0-9]/g, '');
+
+        // Limit the length to 12 digits
+        if (input.value.length > 12) {
+            input.value = input.value.slice(0, 12);
+        }
+
+        // Update the bound value
+        member_phone_number = input.value;
+
+        // Restore the cursor position
+        input.setSelectionRange(cursorPos, cursorPos);
+    }
     
 </script>
 
@@ -873,8 +893,10 @@
         <div class="my-5">
             <div class="w-full">
                 <div class="text-[#f7d4b2] font-semibold font-lg">Phone number</div>
-                <div class="relative">
-                    <input type="text" placeholder="" class="shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full  py-2 text-sm leading-6 text-slate-900 rounded-md" bind:value={member_phone_number} required>
+                <div class="relative flex items-center">
+                    <span class="absolute left-2 text-sm mx-1 text-slate-900">+62</span>
+                    <div class="absolute left-10 h-full border-l mx-2 border-black"></div>
+                    <input type="number" on:input={handleInput}  placeholder="" class="pl-14 shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full py-2 text-sm leading-6 text-slate-900 rounded-md" bind:value={member_phone_number} required>
                 </div>
             </div>
         </div>
@@ -885,7 +907,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stroke-[2px] absolute h-5 w-5 top-2.5 left-3 text-[#3d4c52] ">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                     </svg>
-                    <input type="text" placeholder="" class="shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full px-10 py-2 text-sm leading-6 text-slate-900 rounded-md " bind:value={member_join_date} readonly>
+                    <input type="text" placeholder="" class="shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full px-10 py-2 text-sm leading-6 text-slate-900 rounded-md bg-gray-200" bind:value={member_join_date} readonly>
                 </div>
             </div>
         </div>
@@ -927,7 +949,11 @@
                     <div class="text-[#f7d4b2] font-semibold font-lg">Phone number</div>
     
                     <div class="relative">
-                        <input type="text" placeholder="" class="shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full  py-2 text-sm leading-6 text-slate-900 rounded-md" bind:value={member_phone_number} required>
+                        <div class="relative flex items-center">
+                            <span class="absolute left-2 text-sm mx-1 text-slate-900">+62</span>
+                            <div class="absolute left-10 h-full border-l mx-2 border-black"></div>
+                            <input type="number" on:input={handleInput}  placeholder="" class="pl-14 shadow-lg focus:ring-2 focus:ring-orange-300 focus:outline-none focus:border-0 appearance-none block w-full py-2 text-sm leading-6 text-slate-900 rounded-md" bind:value={member_phone_number} required>
+                        </div>
                     </div>
                 </div>
             </div>
