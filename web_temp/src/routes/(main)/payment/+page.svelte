@@ -804,7 +804,7 @@
                     </div>
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">
                         <span class="">Received (Rp)</span>
-                        <MoneyInput bind:value={received}  />
+                        <MoneyInput bind:value={received} />
                         <!-- <input type="text" name="" id="" class="w-4/12 rounded-lg focus:ring-darkGray" bind:value={received} on:input={() => handleChange()}> -->
                     </div>
                     <div class="w-full flex justify-between text-darkGray font-semibold text-lg my-2">

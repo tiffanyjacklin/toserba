@@ -176,6 +176,7 @@
   });
 
   async function fetchProduk() {
+    console.log(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}`);
       const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}`, {
           method: 'GET',
           headers: {
@@ -226,7 +227,7 @@
       bind:value={searchQuery} 
       type="text" id="voice-search" 
       class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-      placeholder="Search product..."/>
+      placeholder="Search product by id, name, or product code..."/>
       <button on:click={toggleFilter}
         type="button" 
         class="absolute inset-y-0 end-0 flex items-center pe-3 ">
@@ -379,8 +380,9 @@
                   <img class="rounded-lg " src={img_produk} alt="">
                   </div>
                       <div class="py-4 w-8/12">
-                          <div class="font-bold text-[#f2b082] whitespace-nowrap text-lg">
-                          #{product.ProductDetails.product_detail_id}
+                          <div class="font-bold text-[#f2b082] whitespace-nowrap text-lg flex divide-x-2 divide-[#f2b082]">
+                            <div class="pr-2">ID: #{product.ProductDetails.product_detail_id}</div>
+                            <div class="pl-2">Code: {product.ProductDetails.product_code}</div>
                           </div>
                           <div class="font-semibold text-xl">
                           {product.ProductDetails.product_name}
@@ -530,6 +532,10 @@
             <div class="">
                 <div class="text-[#f7d4b2]">Product ID</div>
                 <div class="text-white">{product.ProductDetails.product_detail_id}</div>
+            </div>
+            <div class="">
+              <div class="text-[#f7d4b2]">Product Code</div>
+              <div class="text-white">{product.ProductDetails.product_code}</div>
             </div>
             <div class="">
               <div class="text-[#f7d4b2]">Product Name</div>

@@ -3,7 +3,7 @@
     import MoneyInput from '$lib/MoneyInput.svelte';
     import MoneyConverter from '$lib/MoneyConverter.svelte';
     import DateConverter from '$lib/DateConverter.svelte';
-    import { getFormattedDate, isInTimeRange } from '$lib/DateNow.js';
+    import { getFormattedDate, isInTimeRange, formatDate } from '$lib/DateNow.js';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import { uri, userId, roleId, sessionId } from '$lib/uri.js';
@@ -342,7 +342,7 @@
                     id="voice-search" 
                     bind:value={searchQuery}
                     class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                    placeholder="Search..."/>
+                    placeholder="Search for a store or warehouse by store or warehouse name or address..."/>
                 <button on:click={toggleFilter}
                     type="button" 
                     class="absolute inset-y-0 end-0 flex items-center pe-3 ">
@@ -731,13 +731,7 @@
       <span class="text-peach font-semibold mb-1  capitalize flex">
         <div>Location Type</div>
       </span>
-      
-      <div class="flex gap-x-2">
-        <button class={`w-48 py-2 rounded-2xl font-semibold border border-transparent p-2 hover:border-peach2 hover:text-peach2 ${sw_type === 'STORE' || sw_specific.store_warehouse_type === 'Store' ? 'bg-white text-peach2' : 'bg-gray-300'} `}
-        on:click={() => {sw_type = "STORE"}} >Store</button>
-        <button class={`w-48 py-2 rounded-2xl font-semibold p-2  border border-transparent hover:border-peach2 hover:text-peach2 ${sw_type === 'WAREHOUSE' || sw_specific.store_warehouse_type === 'Warehouse' ? 'bg-white text-peach2' : 'bg-gray-300'} `}
-        on:click={() => {sw_type = "WAREHOUSE"}} >Warehouse</button>
-      </div>
+      <div class="text-white font-semibold">{sw_specific.store_warehouse_type}</div>
     </div>
     <div class="flex flex-col my-2">
       <span class="text-peach font-semibold mb-1">Province</span>

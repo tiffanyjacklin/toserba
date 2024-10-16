@@ -7,12 +7,12 @@
 	import { goto } from '$app/navigation';
    import { onMount } from 'svelte';
    import { uri, userId, roleId, sessionId, totalAmount } from '$lib/uri.js';
-   $: limit = 10; 
+   $: limit = 5; 
    $: offset = 0; 
    $: totalNotes = 10; 
    $: currentPage = 1; 
    $: totalPages = Math.ceil(totalNotes/limit);
-
+   export let session_main_or_not = false;
    $: endDate = '';
    $: startDate = '';
    $: searchQuery = '';
@@ -297,7 +297,7 @@
    }
  </script>
  
- <div class="mx-8 mt-[90px] mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg">
+ <div class={`mx-8 ${session_main_or_not ? '' : 'mt-[90px]'} mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg`}>
     <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Session History</span>
 
     <!-- <form class="flex items-center max-w-lg mx-auto">    -->
@@ -475,7 +475,8 @@
             
          </div>
          <div class="w-1/5 min-w-1/5 bg-darkGray flex items-center">
-            {#if (item.end_time && isWithinThirtyMinutes(item.end_time) && Number($userId) === 1 && item.user_id === Number($userId))}
+   
+            {#if (item.end_time && isWithinThirtyMinutes(item.end_time) && Number($roleId) === 1 && item.user_id === Number($userId))}
                <button 
                   on:click={async () => { 
                      handleClick(item.session_id); 
@@ -629,12 +630,15 @@
       {/if}
       </ul>
    </nav>
+   
+   
    {#each session as item}
       {#if (showModal === item.session_id)}
          <TaskModal open={showModal === item.session_id} onClose={closeModal} color={"#3d4c52"}>
             <div class="flex items-center justify-center pt-8">
                <div class="text-shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] text-white font-roboto text-4xl font-medium">Session #{item.session_id}</div>
             </div>
+            
             {#if (item.end_time && isWithinThirtyMinutes(item.end_time))}
                <form on:submit|preventDefault={VerifOTP(item.session_id)}>
                   <div class="px-4 pb-4 flex flex-col">

@@ -268,7 +268,7 @@
   function filterProductForSubtract(products){
     return products.map(product => ({
       product_detail_id: product.product_detail_id,
-      subtract_quantity: product.subtract_quantity,
+      subtract_quantity: Number(product.subtract_quantity),
       notes: product.notes,
       expired_date: product.expired_date,
       batch: product.batch

@@ -501,7 +501,7 @@
             <!-- <TransactionHistoryDetails></TransactionHistoryDetails> -->
             {:else if window == "session_history"}
                 <!-- <SessionHistory ></SessionHistory>             -->
-                <SessionHistory></SessionHistory>
+                <SessionHistory session_main_or_not={true}></SessionHistory>
                 <!-- <SessionHistory session={this_session} userId={userId} roleId={roleId}></SessionHistory>             -->
             {:else if window == "payment"}
                 <div class="mx-8 flex flex-col items-center my-10 h-fit">

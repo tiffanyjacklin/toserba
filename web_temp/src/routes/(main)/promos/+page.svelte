@@ -719,7 +719,7 @@
                     id="voice-search" 
                     bind:value={searchQuery}
                     class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                    placeholder="Search..."/>
+                    placeholder="Search promo by promo's name..."/>
                     <button on:click={toggleFilter}
                     type="button" 
                     class="absolute inset-y-0 end-0 flex items-center pe-3 ">
@@ -769,7 +769,7 @@
                   id="voice-search" 
                   bind:value={searchQuery}
                   class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                  placeholder="Search..."/>
+                  placeholder="Search promo by promo's name..."/>
                   <button on:click={toggleFilter}
                   type="button" 
                   class="absolute inset-y-0 end-0 flex items-center pe-3 ">
@@ -923,7 +923,7 @@
               {#if promo.PromoProducts.status_verify != 0}
                 <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
                   <div class="w-10/12 flex flex-col font-semibold text-lg">
-                    <span class="my-1">{promo["ProductDetail"].product_name}</span>
+                    <span class="my-1 mx-1">{promo["ProductDetail"].product_name}</span>
                     <div class="flex justify-between my-1">
                       <span class="mx-1 text-peach2">Applied to {promo.total_store} Stores</span>
                       <span class="mx-1">
@@ -940,7 +940,7 @@
                       <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span>
                     </div>
                     <div class="flex">
-                      <span>Requested by {promo.username},
+                      <span class="mx-1">Requested by {promo.username},
                         {#if promo.PromoProducts.status_verify == 0}
                           <span class="">UNVERIFIED</span>
                         {:else if promo.PromoProducts.status_verify == 1}
@@ -968,7 +968,7 @@
             {#each filtered_produk_promos as promo}
             <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
               <div class="w-9/12 flex flex-col font-semibold text-lg">
-                <span class="my-1">{promo["ProductDetail"].product_name}</span>
+                <span class="my-1 mx-1">{promo["ProductDetail"].product_name}</span>
                 <div class="flex justify-between my-1">
                   <span class="mx-1 text-peach2">Applied to {promo.total_store} Stores</span>
                   <span class="mx-1">
@@ -986,7 +986,7 @@
                 </div>
                 <div class="flex justify-between my-1 font-semibold">
                     <div class="flex">
-                        <span>Requested by {promo.username},
+                        <span class="mx-1">Requested by {promo.username},
                           {#if promo.PromoProducts.status_verify == 0}
                             <span class="">UNVERIFIED</span>
                           {:else if promo.PromoProducts.status_verify == 1}

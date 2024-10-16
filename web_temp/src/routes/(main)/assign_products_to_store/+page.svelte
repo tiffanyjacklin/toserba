@@ -433,7 +433,7 @@
             bind:value={searchQueryStore} 
             type="text" id="voice-search" 
             class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-            placeholder="Search store..."/>
+            placeholder="Search store by store name or address..."/>
             <!-- <button 
                   type="button" class="absolute inset-y-0 end-0 flex items-center pe-3 mr-1">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -792,9 +792,48 @@
                 <td class="px-1 py-2 text-center">
                   {product.ProductDetails.product_stock}
                 </td>
+                
                 <td class="px-1 py-2 text-center">
-                  <input type="number" min={1} max={product.ProductDetails.product_stock} step="10" bind:value={product.quantity} class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"/>
+                  <input 
+                    type="text"
+                    max={product.ProductDetails.product_stock} 
+                    min={1} 
+                    bind:value={product.quantity}
+                    class="rounded-lg w-full h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"
+                    on:input={(e) => {
+                      const input = e.target;
+                
+                      // Store the current cursor position
+                      const cursorPos = input.selectionStart;
+                
+                      // Remove all characters except digits and decimal points
+                      let cleanedValue = input.value.replace(/[^0-9.]/g, '');
+                
+                      // If there's more than one decimal point, keep only the first
+                      const parts = cleanedValue.split('.');
+                      if (parts.length > 2) {
+                        cleanedValue = parts[0] + '.' + parts.slice(1).join('');
+                      }
+                
+                      // Update the product quantity with the cleaned value
+                      product.quantity = cleanedValue;
+                
+                      // Ensure the value doesn't exceed expected_stock or go below 0
+                      const numericValue = parseFloat(cleanedValue);
+                      if (numericValue > product.ProductDetails.product_stock) {
+                        product.quantity = product.ProductDetails.product_stock.toString(); // Set to max
+                      } else if (numericValue < 1) {
+                        product.quantity = '1'; // Set to min
+                      } else {
+                        product.quantity = numericValue ? numericValue.toString() : ''; // Set to valid value or empty if NaN
+                      }
+                
+                      // Restore cursor position
+                      input.setSelectionRange(cursorPos, cursorPos);
+                    }}
+                  />
                 </td>
+
                 <td class="px-1 py-2 text-center">
                   {product.ProductDetails.product_unit}
                 </td>

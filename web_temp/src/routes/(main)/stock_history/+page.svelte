@@ -160,7 +160,7 @@
        bind:value={searchQuery} 
        type="text" id="voice-search" 
        class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-         placeholder="Search stock history..."/>
+         placeholder="Search stock history by product id, name, product code, or batch..."/>
         <button on:click={toggleFilter}
             type="button" 
             class="absolute inset-y-0 end-0 flex items-center pe-3 ">
@@ -320,6 +320,12 @@
                       No
                   </th>
                   <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                      Product ID
+                  </th>
+                  <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
+                      Product Code
+                  </th>
+                  <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
                       Product Name
                   </th>
                   <th scope="col" class="px-1 py-2 text-center text-sm font-bold uppercase text-center">
@@ -349,8 +355,14 @@
                 {#each stock_history as stock, i}
                   <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
                     <th scope="row" class="px-3 py-2  text-center font-medium text-gray-900 whitespace-nowrap">
-                          {i+1+offset}
+                      {i+1+offset}
                     </th>
+                    <td class="px-1 py-2 text-center">
+                      {stock.product_detail_id}
+                    </td>
+                    <td class="px-1 py-2 text-center">
+                      {stock.product_code}
+                    </td>
                     <td class="px-1 py-2 text-center">
                       {stock.product_name}
                     </td>

@@ -8,6 +8,7 @@
   import { uri, userId, roleId, sessionId, privileges} from '$lib/uri.js';
   import user_pp from "$lib/assets/user.png";
   import { json } from '@sveltejs/kit';
+  import { formatDate } from '$lib/DateNow.js';
 
   export let data;
   let user_id = data.user_id;
@@ -71,6 +72,7 @@
       }
 
       user = data.data;
+      user.user_created_at = formatDate(user.user_created_at);
       user.sw_name = await getStoreWarehouse(user.store_warehouse_id);
       console.log(user);
 

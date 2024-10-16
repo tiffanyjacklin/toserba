@@ -303,11 +303,6 @@
     // console.log("2--", delivery_orders.quantity_total);
   }
   
-  
-  
-  
-  
-  
   function deleteProductFromList(product_detail_id, batche, expired_datee) {
     transfer_notes_details = transfer_notes_details.filter(note => !((note.product_detail_id === product_detail_id)
       && (note.batch === batche) && (note.expired_date === expired_datee))
@@ -360,7 +355,7 @@
           bind:value={searchQuery} 
           type="text" id="voice-search" 
           class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-          placeholder="Search detail transfer notes..."/>
+          placeholder="Search detail transfer notes by transfer note's id ..."/>
           <button on:click={toggleFilter}
         type="button" 
         class="absolute inset-y-0 end-0 flex items-center pe-3 ">

@@ -167,6 +167,7 @@
     supplier_id = supplier.supplier_id;
     supplier_name = supplier.supplier_name;
     back = false;
+    products_to_be_added = [];
     await fetchAllProductsFromSupplier();
   }
   function selectProduct(stock) {
@@ -443,6 +444,9 @@
                 </ul>
                 {/if}
             </div>
+            {#if supplier_id !== '' && supplier_name !== '' && stocks.length === 0}
+            <div class="text-red-500 absolute">This supplier has no products. Please select another supplier or contact admin first.</div>
+            {/if}
           </div>
         </div>
         <div class="flex justify-between gap-8 mx-4">
@@ -532,7 +536,7 @@
       </table>
       <div class=" relative flex items-end justify-end text-black mt-8 w-full">
         <button on:click={() => handleClick(1, true)} type="button" 
-          class="z-10 flex items-center justify-center text-black bg-[#f7d4b2] hover:bg-[#F2AA7E] outline outline-[1px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-base rounded-2xl px-3 py-1 text-center"
+          class={` ${stocks.length === 0 ? 'bg-gray-300' : 'bg-[#f7d4b2] hover:bg-[#F2AA7E] '} z-10 flex items-center justify-center text-black  outline outline-[1px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-base rounded-2xl px-3 py-1 text-center`}
           disabled={stocks.length === 0}
           >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="size-3 mr-2">

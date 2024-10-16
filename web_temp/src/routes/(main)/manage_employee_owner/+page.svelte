@@ -655,13 +655,14 @@
     {#if tampilan != "add_priv"}
         <div class="w-11/12 flex items-center">
             <div class="relative w-9/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
+                
+                {#if tampilan == "manage"}
                 <input 
                     type="text" 
                     id="voice-search" 
                     bind:value={searchQuery}
                     class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                    placeholder="Search..."/>
-                {#if tampilan == "manage"}
+                    placeholder="Search employee by name..."/>
                 <button on:click={toggleFilter}
                     type="button" 
                     class="absolute inset-y-0 end-0 flex items-center pe-3 ">
@@ -670,7 +671,7 @@
                 {#if showFilter}
                     <div class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] absolute right-0 z-10 mt-2 w-3/4 bg-gray-100 p-4 rounded-lg font-roboto">
                     <div class="w-full flex justify-end">
-                      <button on:click={() => {clearVariable(); fetchUsers(); toggleFilter(); goToPage(1)}} class="text-peach2 p-1 rounded hover:bg-peach hover:text-darkGray">Reset</button>
+                    <button on:click={() => {clearVariable(); fetchUsers(); toggleFilter(); goToPage(1)}} class="text-peach2 p-1 rounded hover:bg-peach hover:text-darkGray">Reset</button>
                     </div>
                     <span class="font-bold text-xl mb-1">Join Date</span>
                     <div class="flex">
@@ -706,6 +707,13 @@
                     </div>
                     </div>
                 {/if}
+                {:else if tampilan === "edit"}
+                <input 
+                    type="text" 
+                    id="voice-search" 
+                    bind:value={searchQuery}
+                    class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
+                    placeholder="Search role by role name..."/>
                 {/if}
             </div>
             <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">

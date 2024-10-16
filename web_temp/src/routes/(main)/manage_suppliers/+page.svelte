@@ -315,7 +315,7 @@
                     id="voice-search" 
                     bind:value={searchQuery}
                     class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                    placeholder="Search..."/>
+                    placeholder="Search supplier by supplier's name..."/>
                 
             </div>
             <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
@@ -433,12 +433,12 @@
           <div class="w-full h-full flex border-2 rounded-xl ml-auto items-center border-gray-700 my-3 hover:bg-gray-200" type="button">         
             <div class="py-4 w-11/12 mx-8">
               <div class="font-bold justify-start whitespace-nowrap flex divide-x-2 divide-black">
-                  <div class="capitalize pr-2 font-extrabold">{supplier.supplier_name}</div>
-                  <div class="pl-2 text-peach2">{supplier.supplier_phone_number}</div>
-                </div>
-                <div class="font-semibold flex justify-start">
-                  {supplier.supplier_address}
-                </div>
+                <div class="capitalize pr-2 font-extrabold">{supplier.supplier_name}</div>
+                <div class="pl-2 text-peach2">{supplier.supplier_phone_number}</div>
+              </div>
+              <div class="font-semibold flex justify-start">
+                {supplier.supplier_address}
+              </div>
             </div>
             <div  class="flex items-center justify-end px-4 py-4 w-full">
               <button 
