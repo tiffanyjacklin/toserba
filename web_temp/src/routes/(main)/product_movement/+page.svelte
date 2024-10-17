@@ -488,7 +488,7 @@
             
             <div class="flex justify-between font-semibold mt-4">
                 <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { sort_type = ''; sorting = '0'; unit_type = ''; category = ''; store_name = ''; sw_id = 0; startDate = ''; endDate = ''; selectedDay= 0; selectedMonth = 0; selectedYear = 0; }}>Clear</button>
-                <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchProducts(); toggleFilter(); }}>Apply</button>
+                <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchProducts(); toggleFilter();  currentPage = 1;}}>Apply</button>
             </div>
           </div>
         {/if}

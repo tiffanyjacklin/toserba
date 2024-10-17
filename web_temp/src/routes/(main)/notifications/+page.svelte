@@ -247,7 +247,7 @@
         
                         <div class="flex justify-between font-semibold mt-4">
                             <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={async () => { notif_type_id = ""; notif_type_namenya = ""; start_date = ""; end_date = ""; search_user_id = ""; search_user_name = ""; await fetchNotifications(); showFilter = false;}}>Clear</button>
-                            <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async () => {await fetchNotifications(); showFilter = false;}}>Apply</button>
+                            <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async () => {await fetchNotifications(); showFilter = false;  currentPage = 1;}}>Apply</button>
                         </div>
                     </div>
                 {/if}

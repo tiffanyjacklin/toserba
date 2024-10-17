@@ -260,7 +260,7 @@
           
           <div class="flex justify-between font-semibold mt-4">
               <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { sort_type = ''; sorting = 'asc'; unit_type = ''; category = ''; }}>Clear</button>
-              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchProduk(); toggleFilter()}}>Apply</button>
+              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchProduk(); toggleFilter();  currentPage = 1;}}>Apply</button>
           </div>
         </div>
       {/if}

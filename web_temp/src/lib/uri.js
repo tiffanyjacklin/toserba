@@ -10,7 +10,7 @@ export const user = writable(loadFromLocalStorage('user', ''));
 export const roleId = writable(loadFromLocalStorage('roleId', ''));
 export const privileges = writable(loadFromLocalStorage('privileges', ''));
 export const sessionId = writable(loadFromLocalStorage('sessionId', ''));
-// export const transactionId = writable(loadFromLocalStorage('transactionId', ''));
+export const transactionId = writable(loadFromLocalStorage('transactionId', ''));
 export const totalAmount = writable(loadFromLocalStorage('totalAmount', ''));
 
 // warehouse operational employee
@@ -26,7 +26,7 @@ if (browser) {
     roleId.subscribe(value => saveToLocalStorage('roleId', value));
     sessionId.subscribe(value => saveToLocalStorage('sessionId', value));
     privileges.subscribe(value => saveToLocalStorage('privileges', value));
-    // transactionId.subscribe(value => saveToLocalStorage('transactionId', value));
+    transactionId.subscribe(value => saveToLocalStorage('transactionId', value));
     totalAmount.subscribe(value => saveToLocalStorage('totalAmount', value));
 
     // warehouse operational employee

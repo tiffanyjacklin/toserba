@@ -12,7 +12,7 @@
     import img_produk from "$lib/assets/produk.png";
     import { goto } from '$app/navigation';
 	import { json } from "@sveltejs/kit";
-    import { uri, userId, roleId, sessionId, totalAmount } from '$lib/uri.js';
+    import { uri, userId, roleId, sessionId, totalAmount, prev_path, transactionId } from '$lib/uri.js';
     import { get } from 'svelte/store';
 
     // export let data;
@@ -146,7 +146,7 @@
     }
 
     // VIEW ALL PROMO
-    let all_promo = [];
+    $: all_promo = [];
     async function fetchAllPromo(){
         const response = await fetch(`http://${$uri}:8888/promos/active/0/0`, {
             method: 'GET',
@@ -173,14 +173,23 @@
 
     // GATAU ALEX
 
-    let all_produk = [];
-    let products = [];
+    $: all_produk = [];
+    $: products = [];
     $: checkout = [];
-    let promos = [];
+    $: promos = [];
     $: total = 0;
     $: count_promo_app = 0;
-    let transactionByID = [];
-    let window = "payment";
+    $: transactionByID = [];
+    $: window = "payment";
+    $: if ($transactionId !== '') {
+        console.log("test ", $transactionId);
+        window = "transaction_list_details";
+    }
+
+    $: if ($prev_path !== ''){
+        window = $prev_path;
+        prev_path.set('');
+    }
 
 
     function checkPromo(){
@@ -485,26 +494,28 @@
     }
 </style>
 
-<div class="flex h-screen">
-    <div class="w-7/12 bg-gray-100 flex flex-col">
-        <div class="h-auto text-darkGray text-lg font-semibold my-2 mx-6">
+<div class="flex h-fit no-scrollbar overflow-hidden" >
+    <div class="w-7/12 h-screen  bg-gray-100 flex flex-col ">
+        <div class="h-fit text-darkGray text-lg font-semibold my-2 mx-6">
             <button class="mx-3 hover:bg-gray-300 p-2 rounded-lg"
             on:click={() => {handleClick(1)}}>
             <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Close Session</button>
             <button on:click={() => window = "session_history"} class="mx-3 hover:bg-gray-300 p-2 rounded-lg"><i class="fa-regular fa-clock mr-1"></i>Session History</button>
         </div>
-        <div class="h-auto overflow-auto no-scrollbar">
+        <div class={`${window !== "session_history" ? 'h-svh' : 'h-11/12'}  overflow-auto no-scrollbar `}>
             {#if window == "transaction_list"}
-              <TransactionHistory></TransactionHistory>
+              <TransactionHistory session_main_or_not={true}></TransactionHistory>
 
             <!-- <TransactionHistory></TransactionHistory> -->
             <!-- <TransactionHistoryDetails></TransactionHistoryDetails> -->
+            {:else if window == "transaction_list_details"}
+                <TransactionHistoryDetails></TransactionHistoryDetails>
             {:else if window == "session_history"}
                 <!-- <SessionHistory ></SessionHistory>             -->
                 <SessionHistory session_main_or_not={true}></SessionHistory>
                 <!-- <SessionHistory session={this_session} userId={userId} roleId={roleId}></SessionHistory>             -->
             {:else if window == "payment"}
-                <div class="mx-8 flex flex-col items-center my-10 h-fit">
+                <div class="mx-8 flex flex-col items-center my-10 ">
                     <label for="voice-search" class="sr-only">Search</label>
                     <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
                        <input 
@@ -549,7 +560,7 @@
           
                           <div class="flex justify-between font-semibold mt-4">
                               <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => {startPrice = 0; endPrice = 999999999; sort_type = ''; sorting = 'asc'; unit_type = ''; category = ''; }}>Clear</button>
-                              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchProduk(); showFilter = false;}}>Apply</button>
+                              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async () => {await fetchProduk(); showFilter = false;  currentPage = 1;}}>Apply</button>
                           </div>
                         </div>
                     {/if}
@@ -790,9 +801,8 @@
         
         </div>
         
-        
     </div>
-    <div class="w-5/12 flex flex-col bg-darkGray h-full border-l-8 border-l-peach">
+    <div class="w-5/12 flex flex-col bg-darkGray h-screen border-l-8 border-l-peach">
         <div class="flex justify-around text-white font-semibold mt-4 mb-2">
             <button on:click={() =>  window = "payment"} class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-dollar-sign mr-2" style="color: #F2AA7E;"></i></span>Payment</button>
             <button on:click={() =>  window = "transaction_list"} class="mx-2 p-2 rounded-lg hover:bg-peach hover:text-darkGray"><span><i class="fa-solid fa-list mr-2" style="color: #F2AA7E;"></i></span>View Transaction List</button>
@@ -905,9 +915,8 @@
 
         </div>
 
-        <div class="text-end"> 
-            <span class="text-peach font-semibold"><MoneyConverter bind:value={total} currency={true} decimal={true}></MoneyConverter></span>
-
+        <div class="text-end mr-4"> 
+            <span class="text-peach font-semibold "><MoneyConverter bind:value={total} currency={true} decimal={true}></MoneyConverter></span>
         </div>
         <button on:click={() => handleClick(3)} class="w-auto bg-peach2 text-darkGray p-2 px-auto rounded-2xl mx-3 my-2 font-semibold">{promos.length} item(s) with promo, {count_promo_app} promo(s) applied</button>
         

@@ -6,7 +6,7 @@
 	import { page } from '$app/stores';
     import { getFormattedDate } from '$lib/DateNow.js';
 
-    import { uri, userId, roleId, sessionId, privileges, user, totalAmount, prev_path, storeId, sw_name } from '$lib/uri.js';
+    import { uri, userId, roleId, sessionId, privileges, user, totalAmount, prev_path, storeId, sw_name, transactionId } from '$lib/uri.js';
 
     export let pathname = "";
     let full_name = "Loading...";
@@ -79,9 +79,12 @@
         user.set('');
         roleId.set('');
         privileges.set('');
+        transactionId.set('');
         sessionId.set('');
         totalAmount.set('');
-
+        storeId.set('');
+        sw_name.set('');
+        prev_path.set('');
         goto('/login');
 
     }

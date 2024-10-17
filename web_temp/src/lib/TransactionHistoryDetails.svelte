@@ -5,9 +5,7 @@
     import receipt from '$lib/assets/receipt-1.png';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
-    import { uri } from '$lib/uri.js';
-
-    export let transactionId = 1;
+    import { uri, sessionId, transactionId, prev_path } from '$lib/uri.js';
 
     let showModal = false;
     function closeModal() {
@@ -17,8 +15,14 @@
       showModal = true;
     }
     function backToTransactionHistory(){
+      transactionId.set('');
       console.log("Navigating to transaction history..."); // For debugging
-      goto(`/transaction_history`);
+      if (sessionId !== '') {
+        prev_path.set("transaction_list");
+        goto(`/session_main`);
+      } else {
+        goto(`/transaction_history`);
+      }
     }
 
     let transaction_detail = [];

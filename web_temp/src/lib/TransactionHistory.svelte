@@ -6,8 +6,9 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { getFormattedDate} from '$lib/DateNow.js';
-  import { uri, userId, roleId, sessionId } from '$lib/uri.js';
+  import { uri, userId, roleId, sessionId, transactionId } from '$lib/uri.js';
 
+  export let session_main_or_not = false;
   $: limit = 10; 
   $: offset = 0; 
   $: totalNotes = 10; 
@@ -41,9 +42,14 @@
      showModal = true;
   }
 
-  function navigateToTransaction(transactionId) {
-      const url = `/transaction_history/${transactionId}`;
-      goto(url);
+  function navigateToTransaction(transactionIdnya) {
+    transactionId.set(transactionIdnya);
+    if (session_main_or_not) {
+        goto(`session_main`);
+    } else {
+        const url = `/transaction_history/${transactionIdnya}`;
+        goto(url);    
+    }
   }
   async function goToPage(page) {
     if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
@@ -201,7 +207,7 @@
 
                   <div class="flex justify-between font-semibold mt-4">
                       <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ""; endDate = ""; cashier_name = ""; startPrice = 0; endPrice = 999999999;}}>Clear</button>
-                      <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchTransactions(); showFilter = false;}}>Apply</button>
+                      <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchTransactions(); showFilter = false; currentPage = 1;}}>Apply</button>
                   </div>
                 </div>
             {/if}

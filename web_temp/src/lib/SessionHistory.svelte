@@ -7,7 +7,7 @@
 	import { goto } from '$app/navigation';
    import { onMount } from 'svelte';
    import { uri, userId, roleId, sessionId, totalAmount } from '$lib/uri.js';
-   $: limit = 5; 
+   $: limit = 10; 
    $: offset = 0; 
    $: totalNotes = 10; 
    $: currentPage = 1; 
@@ -297,8 +297,8 @@
    }
  </script>
  
- <div class={`mx-8 ${session_main_or_not ? '' : 'mt-[90px]'} mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg`}>
-    <span class="text-4xl font-bold font-roboto text-[#364445] my-10">Session History</span>
+ <div class={`mx-8 ${session_main_or_not ? 'h-lvh  ' : ' h-fit mt-[90px] pb-10 '} mb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_0_5px_rgba(0,0,0,0.6)] rounded-lg`}>
+    <span class="text-4xl font-bold font-roboto text-[#364445] my-4">Session History</span>
 
     <!-- <form class="flex items-center max-w-lg mx-auto">    -->
        <label for="voice-search" class="sr-only">Search</label>
@@ -335,7 +335,7 @@
 
                 <div class="flex justify-between font-semibold mt-4">
                     <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ""; endDate = ""; cashier_name = ""; }}>Clear</button>
-                    <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchSession(); showFilter = false;}}>Apply</button>
+                    <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchSession(); showFilter = false; currentPage = 1;}}>Apply</button>
                 </div>
               </div>
           {/if}
@@ -445,10 +445,10 @@
       {/if}
       </ul>
    </nav>
-    
-   {#each filteredSessions as item}
-   <div class="bg-darkGray border-8 border-darkGray rounded-lg w-[96%] my-5">
-      <div class=" flex">
+   <div class={`${session_main_or_not ? ' h-2/5 ' : ' h-fit ' } overflow-y-auto w-[96%] justify-center `}>
+   {#each filteredSessions as item, i}
+   <div class={`my-5 border-8 border-darkGray bg-darkGray rounded-lg    w-full`}>
+      <div class="w-full flex">
          <div class="w-4/5 p-3 text-darkGray bg-white rounded-tl-lg rounded-bl-lg shadow-[inset_0_0_5px_rgba(0,0,0,0.6)]">
             <p class="text-2xl font-bold mb-3">Session #{item.session_id}</p>
             <p class="font-semibold">Session start: 
@@ -526,6 +526,7 @@
       No session found.
     </div>
    {/if}
+   </div>
    
    <nav class="my-8 flex justify-center">
       <ul class="flex items-center -space-x-px h-8 text-sm">

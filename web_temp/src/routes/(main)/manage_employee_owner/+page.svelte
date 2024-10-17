@@ -703,7 +703,7 @@
                     
                     <div class="flex justify-between font-semibold mt-4">
                         <button on:click={() => {clearVariable()}} class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" >Clear</button>
-                        <button on:click={() => {fetchUsers(); toggleFilter()}} class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded">Apply</button>
+                        <button on:click={() => {fetchUsers(); toggleFilter();  currentPage = 1;}} class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded">Apply</button>
                     </div>
                     </div>
                 {/if}
