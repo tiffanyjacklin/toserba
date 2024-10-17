@@ -94,7 +94,7 @@
               id="voice-search" 
               bind:value={searchQuery}
               class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-              placeholder="Search..."/>
+              placeholder="Search store by name..."/>
          </div>
       <!-- </form> -->
          {#each filtered_sw as store}

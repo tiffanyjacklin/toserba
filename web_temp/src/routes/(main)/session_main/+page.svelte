@@ -509,7 +509,7 @@
                     <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
                        <input 
                         bind:value={searchQuery}
-                        type="text" id="voice-search" class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " placeholder="Search..."/>
+                        type="text" id="voice-search" class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " placeholder="Search product by id, name, or product code..."/>
                         <button on:click={toggleFilter}
                         type="button" 
                         class="absolute inset-y-0 end-0 flex items-center pe-3 ">

@@ -12,15 +12,17 @@
     let store_warehouse_id = data.store_warehouse_id;
 
     $: tampilan = "session"
-    let searchQuery = '';
-    let searchQueryAll = '';
-    let searchQueryTrans = '';
-    let searchQuery_temp = '';
-    let start_date = '';
-    let end_date = '';
-    let start_price = 0;
-    let end_price = 999999999;
-    let showFilter = false;
+    $: searchQuery = '';
+    $: searchQueryAll = '';
+    $: searchQueryTrans = '';
+    $: searchQuery_temp = '';
+    $: searchQueryAll_temp = '';
+    $: searchQueryTrans_temp = '';
+    $: start_date = '';
+    $: end_date = '';
+    $: start_price = 0;
+    $: end_price = 999999999;
+    $: showFilter = false;
 
     $: limit = 10; 
     $: offset = 0;
@@ -28,14 +30,14 @@
     $: totalRows = 0;
     $: totalPages = Math.ceil(totalRows/limit);
     
-    let sessionNotVerified = [];
-    let filteredSessionsNot = [];
-    let all_session = [];
-    let filteredSessions = [];
-    let transactions = [];
-    let filteredTransactions = [];
-    let cashiers = [];
-    let cashier_name = '';
+    $: sessionNotVerified = [];
+    $: filteredSessionsNot = [];
+    $: all_session = [];
+    $: filteredSessions = [];
+    $: transactions = [];
+    $: filteredTransactions = [];
+    $: cashiers = [];
+    $: cashier_name = '';
     
     let showModal = null; 
     let showModal12 = null; 
@@ -160,6 +162,7 @@
    }
     
    async function fetchTransactions() {
+    console.log(`http://${$uri}:8888/transaction/store_warehouse/${store_warehouse_id}/${start_date}/${end_date}/${start_price}/${end_price}/''/${searchQueryTrans}/${limit}/${offset}`);
       const response = await fetch(`http://${$uri}:8888/transaction/store_warehouse/${store_warehouse_id}/${start_date}/${end_date}/${start_price}/${end_price}/''/${searchQueryTrans}/${limit}/${offset}`, {
          method: 'GET',
          headers: {
@@ -261,8 +264,8 @@
         }
     }
 
-    $: if (searchQuery.length > 0) {
-        filteredSessionsNot = sessionNotVerified.filter(item => 
+    $: if ((searchQuery.length > 0) && searchQuery !== searchQuery_temp) {
+      filteredSessionsNot = sessionNotVerified.filter(item => 
             item.Session.session_id.toString().includes(searchQuery) || 
             item.Session.user_fullname.toLowerCase().includes(searchQuery.toLowerCase())
         );
@@ -270,21 +273,20 @@
         filteredSessionsNot = [...sessionNotVerified];
     }
     
-    $: if ((searchQuery_temp !== searchQueryAll) ){
-      console.log(searchQueryAll);
+    $: if ((searchQueryAll_temp !== searchQueryAll) ){
+    //   console.log(searchQueryAll);
       fetchAllSWSession();
-      searchQuery_temp = searchQueryAll;
+      searchQueryAll_temp = searchQueryAll;
     } else{
-      searchQuery_temp = '';
+        searchQueryAll_temp = '';
       fetchAllSWSession();
     }
    
-    $: if ((searchQuery_temp !== searchQueryTrans) ){
-      console.log(searchQueryTrans);
+    $: if ((searchQueryTrans_temp !== searchQueryTrans) ){
       fetchTransactions();
-      searchQuery_temp = searchQueryTrans;
+      searchQueryTrans_temp = searchQueryTrans;
     } else{
-      searchQuery_temp = '';
+      searchQueryTrans_temp = '';
     }
 
     onMount(async () => {
@@ -328,13 +330,13 @@
               id="voice-search" 
               bind:value={searchQuery}
               class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-              placeholder="Search..."/>
+              placeholder="Search by Session ID or Cashier's name..."/>
         {:else if tampilan == "session_all"}
             <input 
             type="text" 
             id="voice-search" 
             class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-            placeholder="Search by Session ID..."
+            placeholder="Search by Session ID or Cashier's name..."
             bind:value={searchQueryAll} />          
             <button on:click={toggleFilter}
                 type="button" 
@@ -369,9 +371,9 @@
             <input 
             type="text" 
             id="voice-search" 
-            bind:value={searchQuery}
+            bind:value={searchQueryTrans}
             class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-            placeholder="Search..."/>
+            placeholder="Search by Transaction ID or Cashier's name..."/>
             <button on:click={toggleFilter}
                 type="button" 
                 class="absolute inset-y-0 end-0 flex items-center pe-3 ">

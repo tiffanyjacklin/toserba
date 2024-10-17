@@ -396,7 +396,7 @@
         }
       }
 
-      filtered_sw = structuredClone(storeWarehouse)
+      filtered_sw = structuredClone(storeWarehouse);
       console.log(storeWarehouse);
       
   }
@@ -473,7 +473,7 @@
                 id="voice-search" 
                 bind:value={searchQuery}
                 class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                placeholder="Search..."/>
+                placeholder="Search by store name..."/>
         </div>
         <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
             <button on:click={async() => {await fetchProduk(); showModal = "choose_product"}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Promo</button>

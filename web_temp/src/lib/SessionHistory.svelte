@@ -307,7 +307,7 @@
          type="text" 
          id="voice-search" 
          class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-         placeholder="Search by Session ID..."
+         placeholder="Search by Session ID or Cashier's name..."
          bind:value={searchQuery} />          
          <button on:click={toggleFilter}
               type="button" 

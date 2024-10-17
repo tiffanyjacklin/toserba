@@ -720,7 +720,7 @@
             id="voice-search" 
             bind:value={searchQuery_product}
             class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-            placeholder="Search..."/>
+            placeholder="Search product by product id, name, or product code..."/>
             <button on:click={toggleFilter}
             type="button" 
             class="absolute inset-y-0 end-0 flex items-center pe-3 ">
@@ -762,7 +762,7 @@
             id="voice-search" 
             bind:value={searchQuery_stock}
             class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-            placeholder="Search..."/>
+            placeholder="Search product by product id, name, product code, or batch..."/>
             <button on:click={toggleFilter}
             type="button" 
             class="absolute inset-y-0 end-0 flex items-center pe-3 ">
@@ -797,7 +797,7 @@
               </div>
             {/if}
           </div>
-          {:else if tampilan == "verify_add_subtract"}
+          <!-- {:else if tampilan == "verify_add_subtract"}
           <div class="relative w-11/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg">
             <input 
               type="text" 
@@ -805,7 +805,7 @@
               bind:value={searchQuery_verify}
               class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
               placeholder="Search..."/>
-            </div>
+            </div> -->
           {:else if tampilan == "product_category"}
           <div class="flex w-11/12">
             <div class="relative w-9/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
@@ -814,7 +814,7 @@
                   id="voice-search" 
                   bind:value={searchQuery_category}
                   class="py-5 border-0 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)] h-full bg-gray-50 text-gray-900 text-sm rounded-lg focus:shadow-[inset_0_0_5px_#FACFAD] focus:ring-peach focus:border-peach block w-full " 
-                  placeholder="Search..."/>
+                  placeholder="Search category by name..."/>
             </div>
             <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
                 <button on:click={() => {showModal = "add_category_modal"; showModal = showModal;}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Category</button>
