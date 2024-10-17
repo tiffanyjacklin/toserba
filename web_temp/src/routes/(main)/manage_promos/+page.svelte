@@ -388,6 +388,7 @@
 
       totalRows = data.data.length;
       totalPages = Math.ceil(totalRows/limit);
+      storeWarehouse = [];
       let tmp = data.data
 
       for(let i = 0; i < tmp.length; i++){
