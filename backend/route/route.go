@@ -20,6 +20,7 @@ func Init() *echo.Echo {
 
 	e.POST("/file/upload", controller.UploadFile)
 	e.GET("/file", controller.GetFile)
+	e.GET("/file/:photo_path", controller.GetFilePath)
 
 	// User
 	e.PUT("/user/login", controller.GetUser) // body form-data username & password
@@ -47,6 +48,7 @@ func Init() *echo.Echo {
 	e.POST("/user/privileges/add/exist/:user_id/:role_id", controller.InsertExistUserPrivilege)
 	e.PUT("/user/privileges/update/:user_id/:role_id/:privilege_id", controller.UpdateUserPrivilege)
 	e.GET("/user/privileges/:user_id/:role_id", controller.GetUserPriv)
+	e.GET("/user/privileges/custom/:user_id/:role_id", controller.GetUserPrivCustom)
 	e.DELETE("/user/privileges/delete/:user_id/:role_id/:privilege_id", controller.DelUserPrivilege)
 	e.DELETE("/user/privileges/delete/:user_id/:role_id/:sw_id", controller.DelAllUserPrivilege)
 
