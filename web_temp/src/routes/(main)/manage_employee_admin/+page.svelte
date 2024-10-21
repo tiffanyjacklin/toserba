@@ -31,6 +31,8 @@
     $: filter_gender = '';
 
     //ADD NEW EMPLOYEE
+	let files;
+	let imageUrl = '';
     let username = "";
     let user_password = "";
     let user_fullname = "";
@@ -45,6 +47,18 @@
 
     let role_to_assign = [];
 
+    $: if (files && (files.length > 0 || files !== '') ) {
+		// Get the first file (for the avatar input)
+		const file = files[0];
+
+		// Check if the file is an image (optional)
+		if (file && (file.type.startsWith('image/'))) {
+			// Create an object URL for the image file
+			imageUrl = URL.createObjectURL(file);
+		} else {
+			imageUrl = ''; // Clear the image URL if the file is not an image
+		}
+	}
     function toggleFilter() {
         showFilter = !showFilter;
     }
@@ -186,7 +200,7 @@
             user_gender,
             user_birthdate,
             user_email,
-            user_phone_number
+            user_phone_number: '0' + String(user_phone_number),
           })
       });
 
@@ -224,8 +238,36 @@
     console.log("role to user berhasil")
   }
 
+  async function addProfilePictureUser(user_id, files) {
+    const formData = new FormData();
+    formData.append('folder', 'users');
+    formData.append('file', files[0]); // Assuming you're sending the first file from the FileList
+    formData.append('id', user_id);
+    formData.append('kolom_id', 'user');
+    formData.append('kolom_name', 'user_photo_profile');
+
+    const response = await fetch(`http://${$uri}:8888/file/upload`, {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!response.ok) {
+        console.error('POST add pp new employee gagal', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid POST pp new employee', data);
+        return;
+    }
+    console.log("Add pp new employee berhasil");
+  }
   async function addEmployee() {
     await addUser();
+    let last_user_id = await getLastUserId();
+    await addProfilePictureUser(last_user_id, files);
     username = "";
     user_password = "";
     user_fullname = "";
@@ -234,8 +276,8 @@
     user_birthdate = "";
     user_email = "";
     user_phone_number = "";
+    files = '';
 
-    let last_user_id = await getLastUserId();
 
     let atribut = {
       user_id: last_user_id,
@@ -338,6 +380,26 @@
       filtered_users = [...users];
     }
   
+    function handleInput(e) {
+        const input = e.target;
+
+        // Store the current cursor position
+        const cursorPos = input.selectionStart;
+
+        // Remove all characters except digits
+        input.value = input.value.replace(/[^0-9]/g, '');
+
+        // Limit the length to 12 digits
+        if (input.value.length > 12) {
+            input.value = input.value.slice(0, 12);
+        }
+
+        // Update the bound value
+        user_phone_number = input.value;
+
+        // Restore the cursor position
+        input.setSelectionRange(cursorPos, cursorPos);
+    }
   </script>
   
    <div class="mx-8  mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
@@ -641,7 +703,12 @@
   <div class="flex flex-col justify-center p-8">
     <div class="flex flex-col my-2">
       <span class="text-peach font-semibold mb-1">Employee Profile Picture</span>
-      <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" aria-describedby="file_input_help" type="file">
+      <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" aria-describedby="file_input_help" accept="image/png, image/jpeg" bind:files id="avatar" name="avatar" type="file" />
+      {#if files}
+            {#if imageUrl}
+                <img src={imageUrl} alt="Selected image" class="max-w-40 max-h-40 mt-4" />
+            {/if}
+        {/if}
     </div>
     <div class="flex flex-col my-2">
       <span class="text-peach font-semibold mb-1">Employee Full Name</span>
@@ -664,7 +731,12 @@
         </div>
         <div class="flex flex-col my-2 w-1/2 pl-1">
             <span class="text-peach font-semibold mb-1">Employee Phone</span>
-            <input type="text" bind:value={user_phone_number} class="rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+
+            <div class="relative w-full flex items-center">
+                <span class="absolute left-2 text-sm mx-1 text-slate-900">+62</span>
+                <div class="absolute left-10 h-full border-l mx-2 border-black"></div>
+                <input type="text" on:input={handleInput}  bind:value={user_phone_number} class="pl-14 rounded-xl focus:ring-peach2 focus:border focus:border-peach2">
+            </div>
         </div>
     </div>
     <div class="flex my-2">

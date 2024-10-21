@@ -14,7 +14,10 @@
   let user_id = data.user_id;
   let role_id = data.role_id;
   let sw_id = data.sw_id;
-  
+  let user_pp_fetched = '';
+	let files;
+	let imageUrl = '';
+
   let user = [];
   let role_user = [];
   let stores = [];
@@ -80,8 +83,29 @@
         isUserCustom = true;
         isUserCustom = isUserCustom;
       }
-      console.log("isUserCustom",isUserCustom)
+      console.log("isUserCustom",isUserCustom);
   }
+  
+  async function fetchUserPP(){
+      const response = await fetch(`http://${$uri}:8888/file/${user.user_photo_profile.String}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch user pp failed', response);
+          return;
+      }
+
+    // Instead of expecting a JSON response, we handle the image as a blob
+    const blob = await response.blob();
+
+    // Convert the blob to an object URL so it can be used as the image source
+    user_pp_fetched = URL.createObjectURL(blob);
+  }
+
   
   async function fetchRoleUser(){
       const response = await fetch(`http://${$uri}:8888/user/roles/${user_id}`, {
@@ -240,6 +264,40 @@
       }
       console.log("update data user berhasil")
     }
+    
+    
+  function handleFileSelect(event) {
+    files = event.target.files;
+    if (files && files.length > 0) {
+      imageUrl = URL.createObjectURL(files[0]);
+    }
+  }
+  async function editProfilePictureUser(user_id, files) {
+    const formData = new FormData();
+    formData.append('folder', 'users');
+    formData.append('file', files[0]); // Assuming you're sending the first file from the FileList
+    formData.append('id', user_id);
+    formData.append('kolom_id', 'user');
+    formData.append('kolom_name', 'user_photo_profile');
+
+    const response = await fetch(`http://${$uri}:8888/file/upload`, {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!response.ok) {
+        console.error('POST add pp new employee gagal', response);
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 200) {
+        console.error('Invalid POST pp new employee', data);
+        return;
+    }
+    console.log("Add pp new employee berhasil");
+  }
   
   async function UpdateRoleUser(user_id,role_id_lama,atribut) {
     const response = await fetch(`http://${$uri}:8888/user/roles/update/${user_id}/${role_id_lama}`, {
@@ -631,6 +689,7 @@
   $: editMode = false;
   onMount(async () => {
     await fetchUser();
+    await fetchUserPP();
     await fetchSWAdmin();
     await fetchSW();
     await fetchRoleUser();
@@ -738,7 +797,39 @@
           </div>
       </div>
       <div class="flex flex-col w-1/3">
-          <img src={user_pp} class="w-60 rounded-xl border border-darkGray">
+        <div class="flex flex-col my-2">
+          <span class="text-peach font-semibold mb-1">Employee Profile Picture</span>
+          {#if editMode == false}
+            {#if user_pp_fetched !== ''}
+              <img src={user_pp_fetched} class="w-40 rounded-xl border border-darkGray" alt="Profile Picture">
+            {:else}
+              <img src={user_pp} class="w-40 rounded-xl border border-darkGray" alt="Default Picture">
+            {/if}
+          {:else}
+            <input 
+              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" 
+              aria-describedby="file_input_help" 
+              accept="image/png, image/jpeg" 
+              bind:files 
+              id="avatar" 
+              name="avatar" 
+              type="file" 
+              on:change={handleFileSelect} 
+            />
+            
+            {#if files}
+              {#if imageUrl}
+                <img src={imageUrl} alt="Selected image" class="mt-4  w-40 rounded-xl border border-darkGray" />
+              {/if}
+            {:else}
+              {#if user_pp_fetched !== ''}
+                <img src={user_pp_fetched} class="mt-4 w-40 rounded-xl border border-darkGray" alt="Profile Picture">
+              {:else}
+                <img src={user_pp} class="mt-4 w-40 rounded-xl border border-darkGray" alt="Default Picture">
+              {/if}
+            {/if}
+          {/if}
+        </div>
       </div>
   </div>
 
@@ -755,7 +846,9 @@
             user_updated_at: user.user_updated_at
             }; console.log(JSON.stringify(atribut)); 
             await UpdateDataUser(user.user_id,atribut);
+            await editProfilePictureUser(user.user_id, files);
             await fetchUser();
+            await fetchUserPP();
             Swal.fire({
               title: "Update Data User Berhasil",
               icon: "success",

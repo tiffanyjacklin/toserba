@@ -58,6 +58,9 @@
     let assign_product = [];
 
     // ADD NEW PRODUK
+    let product_photo_fetched = '';
+    let files;
+    let imageUrl = '';
     let product_name = "";
     let product_code = "";
     let product_category_id = "";
@@ -73,6 +76,20 @@
     let filtered_product_category =[];
 
     $: tampilan_modal = "";
+    
+    $: if (files && (files.length > 0 || files !== '') ) {
+      // Get the first file (for the avatar input)
+      const file = files[0];
+
+      // Check if the file is an image (optional)
+      if (file && (file.type.startsWith('image/'))) {
+        // Create an object URL for the image file
+        imageUrl = URL.createObjectURL(file);
+      } else {
+        imageUrl = ''; // Clear the image URL if the file is not an image
+      }
+    }
+
     function handleClick(id) {
       showModal = id;
       console.log(id)
@@ -125,7 +142,6 @@
       console.log(current_stock);
     }
     async function fetchProduk() {
-        // const response = await fetch(`http://${$uri}:8888/products/${limit}/${offset}`, {
         const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}/${store_warehouse_id}/${start_price}/${end_price}/${searchQuery_product}/${category}/${unit_type}/''/''/${limit}/${offset}`, {
             method: 'GET',
             headers: {
@@ -304,7 +320,7 @@
         let tmp = data.data;
 
         for (let i = 0; i < tmp.length; i++) {
-          let ProductDetails = await getProductDetail(tmp[i].product_detail_id)
+          let ProductDetails = await getProductDetail(tmp[i].product_detail_id);
           // console.log(ProductDetails);
 
             tmp[i].product_name = ProductDetails.product_name;
@@ -394,9 +410,39 @@
             console.error('Invalid post add new product', data);
             return;
         }
-        // console.log("post new add product berhasil ",data);
+        console.log("post new add product berhasil ",data);
+        if (files && (files.length > 0 || files !== '')){
+          await addProductPhoto(data.data[0].product_detail_id, files);
+        }
       }
     
+    async function addProductPhoto(product_id, files) {
+      const formData = new FormData();
+      formData.append('folder', 'product_details');
+      formData.append('file', files[0]); 
+      formData.append('id', product_id);
+      formData.append('kolom_id', 'product_detail');
+      formData.append('kolom_name', 'product_photo');
+
+      const response = await fetch(`http://${$uri}:8888/file/upload`, {
+          method: 'POST',
+          body: formData
+      });
+
+      if (!response.ok) {
+          console.error('POST add pp new product gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid POST pp new product', data);
+          return;
+      }
+      console.log("Add pp new product berhasil");
+      files = '';
+    }
     async function AddNewCategory() {
       console.log(JSON.stringify([{
             product_category_name: new_category_name
@@ -442,6 +488,9 @@
           return;
       }
       console.log("product details :",data);
+      if (files && (files.length > 0 || files !== '')){
+        await addProductPhoto(product_id, files);
+      }
     }
     
     async function editSubtractReq(subtract_stock_id,atribut) {
@@ -514,7 +563,25 @@
         // }
         return data.data[0].ProductDetails
   }
-  
+  async function fetchProductPhoto(product_id){
+      const response = await fetch(`http://${$uri}:8888/file/${product_id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch user pp failed', response);
+          return;
+      }
+
+    // Instead of expecting a JSON response, we handle the image as a blob
+    const blob = await response.blob();
+
+    // Convert the blob to an object URL so it can be used as the image source
+    product_photo_fetched = URL.createObjectURL(blob);
+  }
   async function fetchAssign() {
         const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/verify/0/${store_warehouse_id}/''/${limit}/${offset}`, {
             method: 'GET',
@@ -653,6 +720,12 @@
         }
     }
 
+    function handleFileSelect(event) {
+      files = event.target.files;
+      if (files && files.length > 0) {
+        imageUrl = URL.createObjectURL(files[0]);
+      }
+    }
     onMount(async () => {
       fetchProduk();
       // fetchAddVerify();
@@ -951,7 +1024,15 @@
                           </div>
                           <div  class="flex items-center justify-center py-2 w-full">
                               <button 
-                              on:click={() => {handleClick(product.ProductDetails.product_detail_id);stock_card_product = []; fetchStockCard(product.ProductDetails.product_detail_id); tampilan_modal = "products_modal"}}
+                              on:click={async () => {handleClick(product.ProductDetails.product_detail_id);
+                                stock_card_product = []; 
+                                fetchStockCard(product.ProductDetails.product_detail_id); 
+                                tampilan_modal = "products_modal"; 
+                                product_photo_fetched = ''; 
+                                if (product.ProductDetails.product_photo !== '-') {
+                                  await fetchProductPhoto(product.ProductDetails.product_photo);
+                                }
+                              }}
                               type="button" 
                               class="h-10 px-4 w-40 inline-flex items-center justify-start font-bold rounded-3xl bg-[#3d4c52] text-[#f2b082] hover:shadow-2xl">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -1168,8 +1249,14 @@
       {:else if tampilan == "add_product"}
         <div class="w-11/12">
           <div class="flex flex-col mx-4">
-              
-              <span class="text-xl text-darkGray font-semibold">Product Code</span>
+              <span class="text-xl text-darkGray font-semibold">Product Photo</span>
+              <input class="block w-full text-sm text-gray-900 border border-black rounded-3xl cursor-pointer bg-gray-50 focus:outline-none" aria-describedby="file_input_help" accept="image/png, image/jpeg" bind:files id="avatar" name="avatar" type="file" />
+              {#if files}
+                {#if imageUrl}
+                    <img src={imageUrl} alt="Selected image" class="max-w-40 max-h-40 mt-4" />
+                {/if}
+              {/if}
+              <span class=" mt-6 text-xl text-darkGray font-semibold">Product Code</span>
               <input bind:value={product_code} type="text" class="my-1 mb-6 rounded-3xl focus:border-peach focus:ring-peach2" placeholder="Input Product Code">
               
               <span class="text-xl text-darkGray font-semibold">Product Name</span>
@@ -1368,6 +1455,39 @@
       {/if}
       <form class=" mt-4 p-4 md:p-5">
           <div class="grid gap-3 font-roboto font-semibold">
+            <div class="">
+              <div class="text-[#f7d4b2] mr-1">Product Photo</div>
+              {#if editMode == false}
+                {#if product_photo_fetched !== ''}
+                  <img src={product_photo_fetched} class="w-40 rounded-xl border border-darkGray" alt="Profile Picture">
+                {:else}
+                  <img src={img_produk} class="w-40 rounded-xl border border-darkGray" alt="Default Picture">
+                {/if}
+              {:else}
+                <input 
+                  class="block w-full text-sm text-gray-900 border  rounded-lg cursor-pointer bg-gray-50 focus:outline-none" 
+                  aria-describedby="file_input_help" 
+                  accept="image/png, image/jpeg" 
+                  bind:files 
+                  id="avatar" 
+                  name="avatar" 
+                  type="file" 
+                  on:change={handleFileSelect} 
+                />
+                
+                {#if files}
+                  {#if imageUrl}
+                    <img src={imageUrl} alt="Selected image" class="mt-4  w-40 rounded-xl border border-darkGray" />
+                  {/if}
+                {:else}
+                  {#if product_photo_fetched !== ''}
+                    <img src={product_photo_fetched} class="mt-4 w-40 rounded-xl border border-darkGray" alt="Profile Picture">
+                  {:else}
+                    <img src={img_produk} class="mt-4 w-40 rounded-xl border border-darkGray" alt="Default Picture">
+                  {/if}
+                {/if}
+              {/if}
+            </div>
             <div class="">
                 <div class="text-[#f7d4b2] mr-1">Product ID</div>
                 <div class="text-white">{product.ProductDetails.product_detail_id}</div>
@@ -1663,8 +1783,7 @@
               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Back
               </button>
-              <button type="button" on:click={async() => {AddNewProduct(); 
-              
+              <button type="button" on:click={async() => {AddNewProduct();   
               console.log("product_name",product_name)
               let description = "User ID "+$userId+" menambahkan produk baru dengan nama " + product_name ;
               //19 Add New Product
