@@ -45,6 +45,8 @@ class Data {
   String? userOtp;
   String? otpExp;
   int? storeWarehouseId;
+  int? statusActive;
+  int? custom;
 
   Data(
       {this.userId,
@@ -65,7 +67,9 @@ class Data {
       this.rolesName,
       this.userOtp,
       this.otpExp,
-      this.storeWarehouseId});
+      this.storeWarehouseId,
+      this.statusActive,
+      this.custom});
 
   Data.fromJson(Map<String, dynamic> json) {
     userId = json['user_id'];
@@ -91,6 +95,8 @@ class Data {
     userOtp = json['user_otp'];
     otpExp = json['otp_exp'];
     storeWarehouseId = json['store_warehouse_id'];
+    statusActive = json['status_active'];
+    custom = json['custom'];
   }
 
   Map<String, dynamic> toJson() {
@@ -118,6 +124,8 @@ class Data {
     data['user_otp'] = this.userOtp;
     data['otp_exp'] = this.otpExp;
     data['store_warehouse_id'] = this.storeWarehouseId;
+    data['status_active'] = this.statusActive;
+    data['custom'] = this.custom;
     return data;
   }
 }

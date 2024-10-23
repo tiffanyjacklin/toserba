@@ -136,6 +136,14 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clickFilter2(int userId, int roleId, int swId ,String name){
+    if (!isFiltering) {
+      var resultfilter = getResult();
+      fetchProduct(userId, roleId , swId, searchQuery: name, sorting: resultfilter.sort, sort_type: resultfilter.productOrder, category: resultfilter.type, unit_type: resultfilter.unit, );
+    }
+    notifyListeners();
+  }
+
   int getMaxPage() {
     if (_listProduct.isEmpty) {
       return 0;

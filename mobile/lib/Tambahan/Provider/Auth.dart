@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_all/Model/UserData.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -7,11 +9,13 @@ import 'package:http/http.dart' as http;
 class AuthState extends ChangeNotifier {
   final keyUserId = 'userId';
   final keyRole = 'roleId';
+  final keyLoginDate = 'dateLogin';
+
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   // this for data?
   // late String _username, _password;
-  late String _userId, _roleId;
+  late String _userId, _roleId, _dateLogin;
   Data? _user;
   String errorMessage = '';
   bool showError = false;
@@ -21,10 +25,13 @@ class AuthState extends ChangeNotifier {
   Future<void> saveToStorage(String userId2, String roleId2, Data? user) async {
     userId = userId2;
     roleId = roleId2;
+
     _user = user;
+    _dateLogin = DateTime.now().toLocal().toString();
 
     await secureStorage.write(key: keyUserId, value: _userId);
     await secureStorage.write(key: keyRole, value: _roleId);
+    await secureStorage.write(key: keyLoginDate, value: _dateLogin);
   }
 
   set userId(String userId) {
@@ -63,10 +70,15 @@ class AuthState extends ChangeNotifier {
     // cek misal pernah ga dia login?
     _userId = await secureStorage.read(key: keyUserId) ?? '';
     _roleId = await secureStorage.read(key: keyRole) ?? '';
+    _dateLogin = await secureStorage.read(key: keyLoginDate) ?? '';
 
     if (_userId.isEmpty) {
       return false;
     }
+
+    // GET INFO DEVICE GA ISAAAAA
+    // var result2 = await getId();
+    // print(result2);
 
     // fetch user
     var result = await _roleValidate();
@@ -90,17 +102,31 @@ class AuthState extends ChangeNotifier {
         _user = null;
         _userId = '';
         _roleId = '';
+        _dateLogin = '';
 
         saveToStorage(_userId, _roleId, _user).then((onValue) => {
               displayLoginPage = true,
               notifyListeners(),
             });
-      }
-      else{
+      } else {
         print('Try Again');
       }
     });
   }
+
+
+  // Future<String> getId() async {
+  //   var deviceInfo = DeviceInfoPlugin();
+  //   if (Platform.isIOS) { // import 'dart:io'
+  //     var iosDeviceInfo = await deviceInfo.iosInfo;
+  //     return iosDeviceInfo.identifierForVendor.toString(); // unique ID on iOS
+  //   } else if(Platform.isAndroid) {
+  //     var androidDeviceInfo = await deviceInfo.androidInfo;
+  //     print(androidDeviceInfo.brand + androidDeviceInfo.device);
+  //     return androidDeviceInfo.brand + '--' + androidDeviceInfo.device; // unique ID on Android
+  //   }
+  //   return 'false';
+  // }
 
   // API Function
   Future<List> _roleValidate() async {

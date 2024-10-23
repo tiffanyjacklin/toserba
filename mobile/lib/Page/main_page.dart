@@ -34,11 +34,11 @@ class MainPage extends StatelessWidget {
           actions: [
             Container(
               decoration: BoxDecoration(
-                // color: ColorPalleteLogin.OrangeLightColor,
-                // border: Border(
-                //   bottom: BorderSide(width: 1, color: Colors.black),
-                // ),
-              ),
+                  // color: ColorPalleteLogin.OrangeLightColor,
+                  // border: Border(
+                  //   bottom: BorderSide(width: 1, color: Colors.black),
+                  // ),
+                  ),
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20),
                 child: Row(
@@ -65,10 +65,10 @@ class MainPage extends StatelessWidget {
                             width: 20,
                           ),
                           GestureDetector(
-                              child: Icon(Icons.notifications_outlined),
-                              onTap: () {
-                                routeProvider.changeNotif();
-                              },
+                            child: Icon(Icons.notifications_outlined),
+                            onTap: () {
+                              routeProvider.changeNotif();
+                            },
                           ),
                           SizedBox(
                             width: 20,
@@ -119,7 +119,9 @@ class MainPage extends StatelessWidget {
                                             Expanded(
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(5),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
                                                     color: ColorPalleteLogin
                                                         .OrangeLightColor),
                                               ),
@@ -127,7 +129,9 @@ class MainPage extends StatelessWidget {
                                             Expanded(
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(5),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
                                                     color: ColorPalleteLogin
                                                         .OrangeDarkColor),
                                               ),
@@ -137,24 +141,37 @@ class MainPage extends StatelessWidget {
                                       ),
                                       Divider(
                                         thickness: 5,
-                                        color:
-                                            ColorPalleteLogin.PrimaryColor,
+                                        color: ColorPalleteLogin.PrimaryColor,
                                       ),
                                       Align(
                                         alignment: Alignment.topCenter,
                                         child: Container(
-                                          width: MediaQuery.of(context).size.width *0.1 * 0.5,
-                                          height: MediaQuery.of(context).size.height * 0.1 * 0.5,
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(5),
-                                                    color: const Color.fromARGB(210, 248, 190, 127)),
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.1 *
+                                              0.5,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.1 *
+                                              0.5,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                              color: const Color.fromARGB(
+                                                  210, 248, 190, 127)),
                                         ),
                                       ),
                                       CircleAvatar(
                                         backgroundColor: Colors.white,
-                                        radius: MediaQuery.of(context).size.height *0.1 * 0.45,
+                                        radius:
+                                            MediaQuery.of(context).size.height *
+                                                0.1 *
+                                                0.45,
                                         backgroundImage: NetworkImage(
-                                            'https://cdn-icons-png.freepik.com/256/1077/1077114.png?semt=ais_hybrid'),
+                                                authProvider.userData.userPhotoProfile!.string!.isEmpty ? 'https://cdn-icons-png.freepik.com/256/1077/1077114.png?semt=ais_hybrid' : 'http://leap.crossnet.co.id:8888/file/${authProvider.userData.userPhotoProfile!.string}',
+                                              ),
                                       ),
                                     ],
                                   ),
@@ -195,11 +212,10 @@ class MainPage extends StatelessWidget {
                             )
                           : Column(
                               children: List.generate(
-                                  routeProvider.sidebarMenu.length,
-                                  (index) {
+                                  routeProvider.sidebarMenu.length, (index) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
                                   child: GestureDetector(
                                     onTap: () {
                                       Provider.of<RouteProvider>(context,
@@ -208,8 +224,7 @@ class MainPage extends StatelessWidget {
                                       Navigator.of(context).pop();
                                     },
                                     child: Container(
-                                      color: routeProvider
-                                                  .selectedMenuIndex ==
+                                      color: routeProvider.selectedMenuIndex ==
                                               index
                                           ? Colors.white
                                           : ColorPalleteLogin.PrimaryColor,
@@ -221,8 +236,7 @@ class MainPage extends StatelessWidget {
                                             color: routeProvider
                                                         .selectedMenuIndex ==
                                                     index
-                                                ? ColorPalleteLogin
-                                                    .PrimaryColor
+                                                ? ColorPalleteLogin.PrimaryColor
                                                 : Colors.white,
                                             fontSize: fontSizeBody,
                                           ),
@@ -272,8 +286,8 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  // SIDEBAR
-  Widget headerSideBar(BuildContext context) => Container();
+  // // SIDEBAR
+  // Widget headerSideBar(BuildContext context) => Container();
 }
 
 // SIDE MENU

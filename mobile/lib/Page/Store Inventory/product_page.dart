@@ -148,8 +148,7 @@ class _ProductPageState extends State<ProductPage> {
                   ),
                   controller: controllerSearch,
                   onSubmitted: (value) {
-                    providerProduct.fetchProduct(userId, roleId, providerAuth.userData.storeWarehouseId!,
-                        searchQuery: controllerSearch.text);
+                    providerProduct.clickFilter2(providerAuth.userData.userId!, providerAuth.userData.roleId!, providerAuth.userData.storeWarehouseId!, controllerSearch.text);
                   },
                   decoration: InputDecoration(
                     fillColor: Colors.white,
