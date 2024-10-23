@@ -7,6 +7,7 @@
   import { onMount } from 'svelte';
   import { getFormattedDate} from '$lib/DateNow.js';
   import { uri, userId, roleId, sessionId, transactionId } from '$lib/uri.js';
+  console.log("sessionId", $sessionId);
 
   export let session_main_or_not = false;
   $: limit = 10; 
@@ -352,7 +353,7 @@
                           </td>
                           <td class="px-6 py-4">{transaction.transaction_user}</td>
                           <td class="py-2">
-                              <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full" on:click={() => navigateToTransaction(transaction.transaction_id)}>View</button>
+                              <button class="py-2.5 border border-darkGray bg-peach rounded-lg font-bold text-darkGray w-full" on:click={() => {console.log(transaction.transaction_id); navigateToTransaction(transaction.transaction_id);} }>View</button>
                           </td>  
                       </tr>
                       {/each}

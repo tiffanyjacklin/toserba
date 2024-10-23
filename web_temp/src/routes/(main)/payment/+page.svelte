@@ -10,6 +10,7 @@
 	import { json } from '@sveltejs/kit';
     import { uri, userId, roleId, sessionId, totalAmount } from '$lib/uri.js';
     import { get } from 'svelte/store';
+    import exportPDF from '$lib/exportPDF.js';
 
     // export let data
     // let sessionId = data.sessionId;
@@ -634,14 +635,14 @@
             </div>
             {/if}
             <div class="text-wrap">
-              ==================================================
+                =====================================================
             </div>
             <div class="flex justify-between">
               <div>BON {transaction_struk.transaction_id}</div>
               <div>Kasir: {user.user_fullname}</div>
             </div>
             <div class="text-wrap">
-                ==================================================
+                =====================================================
             </div>
             {#each transaction_detail as detail}
                 <div class="flex">
@@ -708,7 +709,7 @@
                 {/if} -->
             {/each}
             <div class="text-wrap">
-                ==================================================
+                =====================================================
             </div>
             <div class="flex justify-between my-2">
 
@@ -769,7 +770,7 @@
             </div>
             {/if}
             <div class="text-wrap">
-                ==================================================
+                =====================================================
             </div>
             <div class="flex justify-center my-2">
               Tgl. <DateConverter value={transaction_struk.transaction_timestamp} date={true} hour={true} second={true} ampm={false} monthNumber={true} dash={true} dateFirst={true}/>
@@ -846,7 +847,7 @@
                 </div>
             </div>
             {:else if tampilan == "validasi"}
-            <button class="w-full h-3/6 bg-gray-100 mt-16 flex flex-col items-center justify-center">
+            <button on:click={() => exportPDF(window.location.origin+`/printreceipt/${$uri}/${transaction_struk.transaction_id}`, `Transaction_#`+transaction_struk.transaction_id, 190)} class="w-full h-3/6 bg-gray-100 mt-16 flex flex-col items-center justify-center">
                 <span class="text-8xl text-darkGray font-bold mb-2">PRINT</span>
             </button>
             {/if}

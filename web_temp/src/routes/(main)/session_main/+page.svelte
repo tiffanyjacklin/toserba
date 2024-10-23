@@ -15,6 +15,7 @@
     import { uri, userId, roleId, sessionId, totalAmount, prev_path, transactionId } from '$lib/uri.js';
     import { get } from 'svelte/store';
 
+    console.log("sessionId", $sessionId);
     // export let data;
     // let sessionId = data.sessionId;
     // let roleId = data.roleId;
