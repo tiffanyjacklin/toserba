@@ -6,6 +6,7 @@
   import { uri, userId, roleId } from '$lib/uri.js';
   import img_produk from "$lib/assets/produk.png";
   import exportPDF from '$lib/exportPDF.js';
+  import { getFormattedDateForPrint } from '$lib/DateNow.js';
   $: limit = 10; 
   $: offset = 0;
   $: totalNotes = 100; 
@@ -704,7 +705,7 @@
               </div>
               <div class="flex items-center justify-start">
                 <button type="button" 
-                on:click={() => exportPDF(window.location.origin+`/print_stock_card/${$uri}/${product.ProductDetails.product_detail_id}/${sw_id}`, `StockCard_${product.ProductDetails.product_detail_id}_${warehouse.StoreWarehouses.store_warehouse_name}`, 190)}
+                on:click={() => exportPDF(window.location.origin+`/print_stock_card/${$uri}/${product.ProductDetails.product_detail_id}/${sw_id}`, `StockCard_${product.ProductDetails.product_detail_id}_${warehouse.StoreWarehouses.store_warehouse_name}_PrintedOn${getFormattedDateForPrint()}`, 190)}
                 class="mt-2 flex w-40 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
                   <div class="w-2/12 flex justify-center ml-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">

@@ -8,6 +8,7 @@
     import { uri, sessionId, transactionId, prev_path } from '$lib/uri.js';
 	  // import { printPDF, exportPDF, viewPDF } from '$lib/download.js';
     import exportPDF from '$lib/exportPDF.js';
+    import { getFormattedDateForPrint } from '$lib/DateNow.js';
   
     console.log("sessionId", $sessionId);
 
@@ -494,7 +495,7 @@
     </div>
     <div class="flex items-center justify-center font-roboto">
       <button 
-      on:click={() => exportPDF(window.location.origin+`/printreceipt/${$uri}/${$transactionId}`, `Transaction_#`+$transactionId, 400)}
+      on:click={() => exportPDF(window.location.origin+`/printreceipt/${$uri}/${$transactionId}`, `Transaction_#`+$transactionId+`_PrintedOn${getFormattedDateForPrint()}`, 400)}
        
         type="button" class="mt-6 mb-3 flex items-center justify-center text-[#3d4c52] bg-[#F2AA7E] shadow-[0_2px_3px_rgba(0,0,0,0.3)] hover:bg-[#f2b082] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg  px-12 py-1.5 text-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

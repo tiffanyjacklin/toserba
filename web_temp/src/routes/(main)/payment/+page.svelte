@@ -11,6 +11,7 @@
     import { uri, userId, roleId, sessionId, totalAmount } from '$lib/uri.js';
     import { get } from 'svelte/store';
     import exportPDF from '$lib/exportPDF.js';
+    import { getFormattedDateForPrint } from '$lib/DateNow.js';
 
     // export let data
     // let sessionId = data.sessionId;
@@ -847,7 +848,7 @@
                 </div>
             </div>
             {:else if tampilan == "validasi"}
-            <button on:click={() => exportPDF(window.location.origin+`/printreceipt/${$uri}/${transaction_struk.transaction_id}`, `Transaction_#`+transaction_struk.transaction_id, 190)} class="w-full h-3/6 bg-gray-100 mt-16 flex flex-col items-center justify-center">
+            <button on:click={() => exportPDF(window.location.origin+`/printreceipt/${$uri}/${transaction_struk.transaction_id}`, `Transaction_#`+transaction_struk.transaction_id+`_PrintedOn${getFormattedDateForPrint()}`, 190)} class="w-full h-3/6 bg-gray-100 mt-16 flex flex-col items-center justify-center">
                 <span class="text-8xl text-darkGray font-bold mb-2">PRINT</span>
             </button>
             {/if}

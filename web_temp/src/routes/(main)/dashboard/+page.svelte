@@ -6,7 +6,7 @@
    import { onMount } from 'svelte';
    import { uri, userId, roleId } from '$lib/uri.js';
    // import Chart from 'svelte-frappe-charts';
-	import { getFormattedDateNow, getThirtyDaysBefore, getDateCount } from '$lib/DateNow';
+	import { getFormattedDateNow, getThirtyDaysBefore, getDateCount, getFormattedDateForPrint } from '$lib/DateNow';
    import supermarket from "$lib/assets/supermarket.jpg";
    import money from "$lib/assets/money.svg";
 	import { goto } from '$app/navigation';
@@ -595,7 +595,7 @@
             </div>
             <div class="flex items-center justify-start my-2">
                <button type="button" 
-               on:click={() => exportPDF(window.location.origin+`/print_product_sales/${$uri}/${startDate}/${endDate}`, `ProductSales_${startDate}_${endDate}`, 190)}
+               on:click={() => exportPDF(window.location.origin+`/print_product_sales/${$uri}/${startDate}/${endDate}`, `ProductSales_${startDate}_${endDate}_PrintedOn${getFormattedDateForPrint()}`, 190)}
                class="border border-black mt-2 flex w-40 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
                  <div class="w-2/12 flex justify-center ml-6">
                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
