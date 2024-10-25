@@ -887,6 +887,7 @@
     <div class="flex flex-col my-1">
       <span class="text-peach font-semibold">Assigned Location</span>
       <select bind:value={sw_reassign} class="w-full p-2 rounded-xl">
+        <option selected="true" style='display: none'></option>
         {#each stores as store}
           {#if role_id_reassign == 1 || role_id_reassign == 2}
             {#if store.store_warehouse_type == "STORE"}

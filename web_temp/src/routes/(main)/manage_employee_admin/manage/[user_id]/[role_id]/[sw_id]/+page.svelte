@@ -260,6 +260,9 @@
       }
       
       if (occupied_already == false) {
+        // if (sw_reassign == 0 && admin_handled_store.length == 1){
+        //   sw_reassign == 
+        // }
         let atribut = {
           role_id: role_id_reassign,
           store_warehouse_id: sw_reassign,
@@ -503,11 +506,12 @@
       <div class="flex flex-col my-1">
         <span class="text-peach font-semibold">Assigned Location</span>
         <select bind:value={sw_reassign} on:change={() => {console.log("sw_reassign",sw_reassign)}} class="w-full p-2 rounded-xl">
+          <option selected="true" style='display: none'></option>
           {#each admin_handled_store as store}
             {#if role_id_reassign == 1 || role_id_reassign == 2}
               {#if store.StoreWarehouses.store_warehouse_type == "STORE"}
                 <option value={store.StoreWarehouses.store_warehouse_id}>{store.StoreWarehouses.store_warehouse_name}</option>
-                {/if}
+              {/if}
             {:else if role_id_reassign == 3 || role_id_reassign == 4}
               {#if store.StoreWarehouses.store_warehouse_type == "WAREHOUSE"}
                 <option value={store.StoreWarehouses.store_warehouse_id}>{store.StoreWarehouses.store_warehouse_name}</option>

@@ -745,7 +745,7 @@
                       
                       <span class="font-bold text-xl mb-1">Status</span>
                       <div class="grid grid-cols-4 flex w-full flex-wrap">
-                          <button on:click={() => {status = (status === 0 || status !== 0) ? 0 : 0;}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${status === 0 ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Unverified</button>
+                          <!-- <button on:click={() => {status = (status === 0 || status !== 0) ? 0 : 0;}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${status === 0 ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Unverified</button> -->
                           <button on:click={() => {status = (status === 0 || status !== 1) ? 1 : 0;}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${status === 1 ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Accepted</button>
                           <button on:click={() => {status = (status === 0 || status !== 2) ? 2 : 0;}} class={`border-gray-400 border w-32 mx-1 my-1 rounded-2xl p-2 hover:border hover:bg-white hover:border-peach2 hover:text-peach2 ${status === 2 ? 'bg-white text-peach2 border-[#f2b082]' : 'bg-gray-100'}`}>Rejected</button>
                       </div>

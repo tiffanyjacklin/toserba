@@ -96,7 +96,12 @@
           let tmp_sw_id = handled_store[i].StoreWarehouses.store_warehouse_id;
           for (let i = 0; i < tmp_user.length; i++) {
             tmp_user[i].sw_id = tmp_sw_id
-              users.push(tmp_user[i])
+            if (tmp_user[i].user_photo_profile.String == "-"){
+                tmp_user[i].user_pp_fetched = "-"
+            } else {
+                tmp_user[i].user_pp_fetched = await fetchUserPP(tmp_user[i].user_photo_profile.String)
+            }
+            users.push(tmp_user[i])
           }
       }
       filtered_users = structuredClone(users);
@@ -356,6 +361,26 @@
     }
   }
 
+  async function fetchUserPP(user_pp_fetched){
+      const response = await fetch(`http://${$uri}:8888/file/${user_pp_fetched}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch user pp failed', response);
+          return;
+      }
+
+        // Instead of expecting a JSON response, we handle the image as a blob
+        const blob = await response.blob();
+
+        // Convert the blob to an object URL so it can be used as the image source
+        return URL.createObjectURL(blob);
+    }
+
   async function goToPage(page) {
         if (page < 1 || page > Math.ceil(totalRows / limit)) return;
 
@@ -573,7 +598,11 @@
             <div class="relative overflow-x-auto sm:rounded-lg">
                 <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3">                        
                     <div class="m-4 w-1/12 flex">
-                        <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
+                        {#if user.user_pp_fetched != '-'}
+                            <img class="rounded-lg border border-darkGray" src={user.user_pp_fetched} alt="">
+                        {:else}
+                            <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
+                        {/if}
                     </div>
                     <div class="flex flex-col items-start font-semibold text-lg">
                         <span class="">{user.user_fullname}</span>

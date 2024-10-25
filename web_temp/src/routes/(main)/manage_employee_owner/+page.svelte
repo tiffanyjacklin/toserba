@@ -146,6 +146,11 @@
           } else {
             users[i].sw_name = await getStoreWarehouse(users[i].store_warehouse_id)
           }
+          if (users[i].user_photo_profile.String == "-"){
+            users[i].user_pp_fetched = "-"
+          } else {
+            users[i].user_pp_fetched = await fetchUserPP(users[i].user_photo_profile.String)
+          }
         }
         
         filtered_users = structuredClone(users);
@@ -638,6 +643,26 @@
         }
     }
 
+    async function fetchUserPP(user_pp_fetched){
+      const response = await fetch(`http://${$uri}:8888/file/${user_pp_fetched}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch user pp failed', response);
+          return;
+      }
+
+        // Instead of expecting a JSON response, we handle the image as a blob
+        const blob = await response.blob();
+
+        // Convert the blob to an object URL so it can be used as the image source
+        return URL.createObjectURL(blob);
+    }
+
     onMount(async () => {
       await fetchUsers();
       goToPage(1);
@@ -913,7 +938,11 @@
               <div class="relative overflow-x-auto sm:rounded-lg">
                   <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3">                        
                       <div class="m-4 w-1/12 flex">
-                          <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
+                        {#if user.user_pp_fetched != '-'}
+                          <img class="rounded-lg border border-darkGray" src={user.user_pp_fetched} alt="">
+                        {:else}
+                            <img class="rounded-lg border border-darkGray" src={user_pp} alt="">
+                        {/if}
                       </div>
                       <div class="flex w-full pr-6 items-center justify-between font-semibold text-lg">
                         <div class="flex flex-col items-start">
