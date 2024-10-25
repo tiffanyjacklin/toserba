@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/FetchApi/TransferNote+Delivery.dart';
 import 'package:flutter_app_all/TableTemplate/TableSuratJalan.dart';
-import 'package:flutter_app_all/Tambahan/Provider/AcceptFormCart.dart';
 // import 'package:flutter_app_all/Tambahan/Provider/AcceptFormCart.dart';
 import 'package:flutter_app_all/Tambahan/Provider/AcceptOrderDelivery.dart';
 import 'package:flutter_app_all/Template.dart';
@@ -20,7 +18,7 @@ import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
 import 'package:http/http.dart' as http;
 
 class DeliveryOrderDetailPopUp extends StatefulWidget {
-  deliveryStore.Data dataDelivery;
+  final deliveryStore.Data dataDelivery;
 
   DeliveryOrderDetailPopUp({
     required this.dataDelivery,

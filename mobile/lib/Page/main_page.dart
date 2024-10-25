@@ -164,11 +164,27 @@ class MainPage extends StatelessWidget {
                                         ),
                                       ),
                                       CircleAvatar(
-                                        backgroundColor: Colors.white,
+                                        backgroundColor: ColorPalleteLogin.PrimaryColor,
                                         radius:
                                             MediaQuery.of(context).size.height *
                                                 0.1 *
                                                 0.45,
+                                      
+                                      ),
+                                      CircleAvatar(
+                                        backgroundColor: Colors.black,
+                                        radius:
+                                            MediaQuery.of(context).size.height *
+                                                0.1 *
+                                                0.40,
+                            
+                                      ),
+                                      CircleAvatar(
+                                        backgroundColor: Colors.white,
+                                        radius:
+                                            MediaQuery.of(context).size.height *
+                                                0.1 *
+                                                0.35,
                                         backgroundImage: NetworkImage(
                                                 authProvider.userData.userPhotoProfile!.string!.isEmpty ? 'https://cdn-icons-png.freepik.com/256/1077/1077114.png?semt=ais_hybrid' : 'http://leap.crossnet.co.id:8888/file/${authProvider.userData.userPhotoProfile!.string}',
                                               ),
