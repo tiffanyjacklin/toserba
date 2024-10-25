@@ -689,7 +689,9 @@
   $: editMode = false;
   onMount(async () => {
     await fetchUser();
-    await fetchUserPP();
+    if (user.user_photo_profile.String !== '-'){
+      await fetchUserPP();
+    }
     await fetchSWAdmin();
     await fetchSW();
     await fetchRoleUser();
@@ -848,7 +850,9 @@
             await UpdateDataUser(user.user_id,atribut);
             await editProfilePictureUser(user.user_id, files);
             await fetchUser();
-            await fetchUserPP();
+            if (user.user_photo_profile.String !== '-'){
+              await fetchUserPP();
+            }
             Swal.fire({
               title: "Update Data User Berhasil",
               icon: "success",
