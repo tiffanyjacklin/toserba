@@ -90,6 +90,7 @@ class ProductDetails {
   int? productStock;
   String? productUnit;
   String? productTimestamp;
+  String? productPhoto;
   int? storeWarehouseId;
   String? warehousePlacement;
 
@@ -108,6 +109,7 @@ class ProductDetails {
       this.productStock,
       this.productUnit,
       this.productTimestamp,
+      this.productPhoto,
       this.storeWarehouseId,
       this.warehousePlacement});
 
@@ -126,6 +128,7 @@ class ProductDetails {
     productStock = json['product_stock'];
     productUnit = json['product_unit'];
     productTimestamp = json['product_timestamp'];
+    productPhoto = json['product_photo'];
     storeWarehouseId = json['store_warehouse_id'];
     warehousePlacement = json['warehouse_placement'];
   }
@@ -146,6 +149,7 @@ class ProductDetails {
     data['product_stock'] = this.productStock;
     data['product_unit'] = this.productUnit;
     data['product_timestamp'] = this.productTimestamp;
+    data['product_photo'] = this.productPhoto;
     data['store_warehouse_id'] = this.storeWarehouseId;
     data['warehouse_placement'] = this.warehousePlacement;
     return data;
@@ -176,18 +180,21 @@ class Suppliers {
   String? supplierName;
   String? supplierPhoneNumber;
   String? supplierAddress;
+  int? locationId;
 
   Suppliers(
       {this.supplierId,
       this.supplierName,
       this.supplierPhoneNumber,
-      this.supplierAddress});
+      this.supplierAddress,
+      this.locationId});
 
   Suppliers.fromJson(Map<String, dynamic> json) {
     supplierId = json['supplier_id'];
     supplierName = json['supplier_name'];
     supplierPhoneNumber = json['supplier_phone_number'];
     supplierAddress = json['supplier_address'];
+    locationId = json['location_id'];
   }
 
   Map<String, dynamic> toJson() {
@@ -196,6 +203,7 @@ class Suppliers {
     data['supplier_name'] = this.supplierName;
     data['supplier_phone_number'] = this.supplierPhoneNumber;
     data['supplier_address'] = this.supplierAddress;
+    data['location_id'] = this.locationId;
     return data;
   }
 }
