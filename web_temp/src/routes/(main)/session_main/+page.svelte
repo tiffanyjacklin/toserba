@@ -337,6 +337,15 @@
         }
 
         products = data.data;
+
+        for(let i = 0; i < products.length; i++){
+          if(products[i].ProductDetails.product_photo != "-"){
+            products[i].photo = await fetchProductPhotos(products[i].ProductDetails.product_photo)
+          } else {
+            products[i].photo = "-";
+          }
+        }
+
         totalNotes = data.total_rows;
         totalPages = Math.ceil(totalNotes/limit);
         all_produk = products;
@@ -461,6 +470,26 @@
 
       product_sorts = [...data.data];  
       console.log(product_sorts);
+    }
+
+    async function fetchProductPhotos(product_photo_fetched){
+        const response = await fetch(`http://${$uri}:8888/file/${product_photo_fetched}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('fetch user pp failed', response);
+            return;
+        }
+
+        // Instead of expecting a JSON response, we handle the image as a blob
+        const blob = await response.blob();
+
+        // Convert the blob to an object URL so it can be used as the image source
+        return URL.createObjectURL(blob);
     }
 
     onMount(async () => {
@@ -678,7 +707,11 @@
                             {#if produk["ProductDetails"].product_stock >= 1}
                             <button on:click={() => { console.log(tmp_produk); addtoCheckout(tmp_produk); sumTotal(); checkPromo(); checkPromoAppliedType1_4(); countPromoApplied();}} class="w-full border-2 border-black rounded-lg bg-white">
                                 <div class="p-3 w-full flex flex-col items-center">
-                                    <img class="rounded-lg w-10/12 h-10/12" src={img_produk} alt="">
+                                    {#if (produk.photo != "-")}
+                                        <img class="rounded-lg w-10/12 h-10/12" src={produk.photo} alt="">
+                                    {:else}
+                                        <img class="rounded-lg w-10/12 h-10/12" src={img_produk} alt="">
+                                    {/if}
                                     <p class="w-full truncate text-black font-semibold my-1 text-center">{produk["ProductDetails"].product_name}</p>
                                     <p class="truncate text-peach2 font-semibold mb-1"><MoneyConverter value={produk["ProductDetails"].sell_price} currency={true} decimal={true}></MoneyConverter></p>
                                     <p class="truncate text-black font-semibold mb-1">{produk["ProductDetails"].product_stock} {produk["ProductDetails"].product_unit}</p>

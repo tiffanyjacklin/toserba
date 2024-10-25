@@ -165,9 +165,19 @@
 
         totalRows = data.total_rows;
         totalPages = Math.ceil(totalRows/limit);
+
         products = [...data.data];  
+
+        for(let i = 0; i < products.length; i++){
+          if(products[i].ProductDetails.product_photo != "-"){
+            products[i].photo = await fetchProductPhotos(products[i].ProductDetails.product_photo)
+          } else {
+            products[i].photo = "-";
+          }
+        }
+
         all_produk = [...products];
-        // console.log(all_produk);
+        console.log(all_produk);
     }
 
   async function fetchStockCard(product_id) {
@@ -661,6 +671,26 @@
         }
   }
 
+  async function fetchProductPhotos(product_photo_fetched){
+    const response = await fetch(`http://${$uri}:8888/file/${product_photo_fetched}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('fetch user pp failed', response);
+        return;
+    }
+
+      // Instead of expecting a JSON response, we handle the image as a blob
+      const blob = await response.blob();
+
+      // Convert the blob to an object URL so it can be used as the image source
+      return URL.createObjectURL(blob);
+  }
+
   function clearVariable(){
         start_date = '';
         end_date = '';
@@ -1011,7 +1041,11 @@
               {#each all_produk as product}
                   <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3">                        
                       <div class="m-4 w-1/12 flex">
-                      <img class="rounded-lg " src={img_produk} alt="">
+                      {#if product.photo != "-"}
+                        <img class="rounded-lg " src={product.photo} alt="">
+                      {:else}
+                        <img class="rounded-lg " src={img_produk} alt="">
+                      {/if}
                       </div>
                           <div class="py-4 w-8/12">
                               <div class="font-bold text-[#f2b082] whitespace-nowrap text-lg">

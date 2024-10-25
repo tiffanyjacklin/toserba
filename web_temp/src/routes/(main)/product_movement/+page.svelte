@@ -193,6 +193,26 @@
         categories = [...data.data];  
         console.log(categories);
     }
+
+    async function fetchProductPhotos(product_photo_fetched){
+      const response = await fetch(`http://${$uri}:8888/file/${product_photo_fetched}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          console.error('fetch user pp failed', response);
+          return;
+      }
+
+        // Instead of expecting a JSON response, we handle the image as a blob
+        const blob = await response.blob();
+
+        // Convert the blob to an object URL so it can be used as the image source
+        return URL.createObjectURL(blob);
+    }
     
   
     onMount(async () => {
@@ -227,7 +247,15 @@
         }
         totalNotes = data.total_rows;
         totalPages = Math.ceil(totalNotes/limit);
-        products = [...data.data];  
+        products = [...data.data];
+        console.log("products",products)
+        // for(let i = 0; i < products.length; i++){
+        //   if(products[i].ProductDetails.product_photo != "-"){
+        //     products[i].photo = await fetchProductPhotos(products[i].ProductDetails.product_photo)
+        //   } else {
+        //     products[i].photo = "-";
+        //   }
+        // }
         
     }
     
