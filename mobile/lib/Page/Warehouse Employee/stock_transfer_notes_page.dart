@@ -636,59 +636,37 @@ class StockTransferNotesChild extends StatelessWidget {
                             style: TextStyle(
                               color: ColorPalleteLogin.PrimaryColor,
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: fontSizeBody,
                             ),
                           )
                         : Row(
                             children: [
-                              StrokeText(
-                                text: 'Verified, ',
-                                textStyle: true == true
-                                    ? TextStyle(
-                                        color:
-                                            ColorPalleteLogin.OrangeLightColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      )
-                                    : TextStyle(
-                                        color: ColorPalleteLogin.PrimaryColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                              ),
+                              Text(
+                            'Verified, ',
+                            style: TextStyle(
+                              color: ColorPalleteLogin.OrangeDarkColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSizeBody,
+                            ),
+                          ),
+                          
                               dataStockTransfer.statusSend == 0
-                                  ? StrokeText(
-                                      text: 'Not Send.',
-                                      textStyle: true == false
-                                          ? TextStyle(
-                                              color: ColorPalleteLogin
-                                                  .OrangeLightColor,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            )
-                                          : TextStyle(
-                                              color: ColorPalleteLogin
-                                                  .PrimaryColor,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            ),
-                                    )
-                                  : StrokeText(
-                                      text: 'Send.',
-                                      textStyle: true == true
-                                          ? TextStyle(
-                                              color: ColorPalleteLogin
-                                                  .OrangeLightColor,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            )
-                                          : TextStyle(
-                                              color: ColorPalleteLogin
-                                                  .PrimaryColor,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            ),
-                                    ),
+                                  ?  Text(
+                            'Not Sent. ',
+                            style: TextStyle(
+                              color: ColorPalleteLogin.PrimaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSizeBody,
+                            ),
+                          )
+                                  :  Text(
+                            'Sent. ',
+                            style: TextStyle(
+                              color: ColorPalleteLogin.OrangeDarkColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSizeBody,
+                            ),
+                          )
                             ],
                           ),
                   ],
@@ -1474,7 +1452,7 @@ class _DeliveryOrderViewState extends State<DeliveryOrderView> {
                 BodyPage(name: '${widget.dataDelivery.orderTimestamp}'),
                 BodyPage(
                     name:
-                        '${widget.dataDelivery.quantityTotal}/${widget.total} loaded'),
+                        '${widget.dataDelivery.quantityTotal} loaded'),
                 Container(
                     decoration: BoxDecoration(
                       color: ColorPalleteLogin.OrangeLightColor,

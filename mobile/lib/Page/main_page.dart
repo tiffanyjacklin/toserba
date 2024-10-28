@@ -158,7 +158,7 @@ class MainPage extends StatelessWidget {
                                               0.5,
                                           decoration: BoxDecoration(
                                               borderRadius:
-                                                  BorderRadius.circular(5),
+                                                  BorderRadius.circular(4),
                                               color: const Color.fromARGB(
                                                   210, 248, 190, 127)),
                                         ),
@@ -343,6 +343,3 @@ extension StringCasingExtension on String {
       .map((str) => str.toCapitalized())
       .join(' ');
 }
-
-// Function logout
-void _logout() {}

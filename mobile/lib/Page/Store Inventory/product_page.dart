@@ -14,8 +14,10 @@ import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
 import 'package:http/http.dart' as http;
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
+import 'package:screenshot/screenshot.dart';
 
-Future <List<opname.Data>> _fetchProductStockOpname(int productId, int storeWarehouseId) async {
+Future<List<opname.Data>> _fetchProductStockOpname(
+    int productId, int storeWarehouseId) async {
   // link api http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/:product_id/:sw_id
   // link localhost -> http://localhost:8888/user/
 
@@ -55,7 +57,7 @@ Future _fetchProductStockCard(int productId, int storeWarehouseId) async {
 
   final link =
       'http://leap.crossnet.co.id:8888/products/stock/card/product/store_warehouse/$productId/$storeWarehouseId/0/0';
-    
+
   // call api
   final response = await http.get(Uri.parse(link));
   print('---> response ' + response.statusCode.toString());
@@ -89,8 +91,8 @@ class ProductPages extends StatelessWidget {
   Widget build(BuildContext context) {
     var provider = Provider.of<AuthState>(context);
     return ChangeNotifierProvider(
-      create: (context) =>
-          ProductProvider(provider.userData.userId!, provider.userData.roleId!, provider.userData.storeWarehouseId!),
+      create: (context) => ProductProvider(provider.userData.userId!,
+          provider.userData.roleId!, provider.userData.storeWarehouseId!),
       child: ProductPage(),
     );
   }
@@ -108,8 +110,6 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    int userId = int.parse(context.read<AuthState>().userId);
-    int roleId = int.parse(context.read<AuthState>().roleId);
     var providerProduct = Provider.of<ProductProvider>(context);
     var providerAuth = Provider.of<AuthState>(context);
 
@@ -148,7 +148,11 @@ class _ProductPageState extends State<ProductPage> {
                   ),
                   controller: controllerSearch,
                   onSubmitted: (value) {
-                    providerProduct.clickFilter2(providerAuth.userData.userId!, providerAuth.userData.roleId!, providerAuth.userData.storeWarehouseId!, controllerSearch.text);
+                    providerProduct.clickFilter2(
+                        providerAuth.userData.userId!,
+                        providerAuth.userData.roleId!,
+                        providerAuth.userData.storeWarehouseId!,
+                        controllerSearch.text);
                   },
                   decoration: InputDecoration(
                     fillColor: Colors.white,
@@ -164,7 +168,10 @@ class _ProductPageState extends State<ProductPage> {
                     suffixIcon: IconButton(
                         onPressed: () {
                           providerProduct.clickFilter(
-                              providerAuth.userData.userId!, providerAuth.userData.roleId!, providerAuth.userData.storeWarehouseId!, controllerSearch.text);
+                              providerAuth.userData.userId!,
+                              providerAuth.userData.roleId!,
+                              providerAuth.userData.storeWarehouseId!,
+                              controllerSearch.text);
                         },
                         icon: Icon(Icons.filter_list)),
                   ),
@@ -569,47 +576,58 @@ class _ProductPageState extends State<ProductPage> {
                                               );
                                             }),
                                           ),
-                                          SizedBox(height: 10,),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
 
-                                            Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Container(
-                                            height: 50,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.55 *
-                                                0.3,
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: ColorPalleteLogin
-                                                    .OrangeLightColor,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(20.0),
-                                                ),
-                                              ),
-                                              child: Wrap(
-                                                spacing: 12,
-                                                children: [
-                                                  Text(
-                                                    'Apply',
-                                                    style: TextStyle(
-                                                      color: ColorPalleteLogin
-                                                          .PrimaryColor,
-                                                      fontSize: 20,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Container(
+                                              height: 50,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.55 *
+                                                  0.3,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      ColorPalleteLogin
+                                                          .OrangeLightColor,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20.0),
                                                   ),
-                                                ],
+                                                ),
+                                                child: Wrap(
+                                                  spacing: 12,
+                                                  children: [
+                                                    Text(
+                                                      'Apply',
+                                                      style: TextStyle(
+                                                        color: ColorPalleteLogin
+                                                            .PrimaryColor,
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                onPressed: () {
+                                                  providerProduct.clickFilter(
+                                                      providerAuth
+                                                          .userData.userId!,
+                                                      providerAuth
+                                                          .userData.roleId!,
+                                                      providerAuth.userData
+                                                          .storeWarehouseId!,
+                                                      controllerSearch.text);
+                                                },
                                               ),
-                                              onPressed: () {
-                                                providerProduct.clickFilter(providerAuth.userData.userId!, providerAuth.userData.roleId!, providerAuth.userData.storeWarehouseId!, controllerSearch.text);
-                                              },
                                             ),
                                           ),
-                                        ),
-                                          
                                         ],
                                       ),
                                     ),
@@ -622,68 +640,87 @@ class _ProductPageState extends State<ProductPage> {
                             ),
                           ),
                         )
-                      : providerProduct.getItemPerPage().isEmpty 
-                      ? Center(
-                        child: Text('Data Tidak Ditemukan', style: TextStyle(fontSize: fontSizeBody),),
-                      )
-                      : Column(
-                          children: [
-                            // paginator
-                            Container(
-                                width: MediaQuery.of(context).size.width * 0.70,
-                                child: NumberPaginator(
-                                  config: NumberPaginatorUIConfig(
-                                    buttonUnselectedForegroundColor: Colors.black,
-                                    buttonSelectedBackgroundColor: Colors.black,
-                                    buttonSelectedForegroundColor: Colors.white, 
-                                  ),
-                                  // by default, the paginator shows numbers as center content
-                                  numberPages: providerProduct.getMaxPage(),
-                                  onPageChange: (int index) {},
-                                  controller: providerProduct.paginatorController,
-
-                                  // show/hide the prev/next buttons
-                                  showPrevButton: true,
-                                  showNextButton: true, // defaults to true
-                                  // custom content of the prev/next buttons, maintains their behavior
-                                  nextButtonBuilder: (context) => TextButton(
-                                    onPressed: providerProduct.paginatorController.currentPage <
-                                            providerProduct.getMaxPage() - 1
-                                        ? () => {providerProduct.paginatorController.next()}
-                                        : null, // _controller must be passed to NumberPaginator
-                                    child: const Row(
-                                      children: [
-                                        Text("Next"),
-                                        Icon(Icons.chevron_right),
-                                      ],
+                      : providerProduct.getItemPerPage().isEmpty
+                          ? Center(
+                              child: Text(
+                                'Data Tidak Ditemukan',
+                                style: TextStyle(fontSize: fontSizeBody),
+                              ),
+                            )
+                          : Column(
+                              children: [
+                                // paginator
+                                Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.70,
+                                  child: NumberPaginator(
+                                    config: NumberPaginatorUIConfig(
+                                      buttonUnselectedForegroundColor:
+                                          Colors.black,
+                                      buttonSelectedBackgroundColor:
+                                          Colors.black,
+                                      buttonSelectedForegroundColor:
+                                          Colors.white,
                                     ),
-                                  ),
-                                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
-                                  prevButtonBuilder: (context) => TextButton(
-                                    onPressed: providerProduct.paginatorController.currentPage > 0
-                                        ? () => providerProduct.paginatorController.prev()
-                                        : null, // _controller must be passed to NumberPaginator
-                                    child: const Row(
-                                      children: [
-                                        Icon(Icons.chevron_left),
-                                        Text("Previous"),
-                                      ],
+                                    // by default, the paginator shows numbers as center content
+                                    numberPages: providerProduct.getMaxPage(),
+                                    onPageChange: (int index) {},
+                                    controller:
+                                        providerProduct.paginatorController,
+
+                                    // show/hide the prev/next buttons
+                                    showPrevButton: true,
+                                    showNextButton: true, // defaults to true
+                                    // custom content of the prev/next buttons, maintains their behavior
+                                    nextButtonBuilder: (context) => TextButton(
+                                      onPressed: providerProduct
+                                                  .paginatorController
+                                                  .currentPage <
+                                              providerProduct.getMaxPage() - 1
+                                          ? () => {
+                                                providerProduct
+                                                    .paginatorController
+                                                    .next()
+                                              }
+                                          : null, // _controller must be passed to NumberPaginator
+                                      child: const Row(
+                                        children: [
+                                          Text("Next"),
+                                          Icon(Icons.chevron_right),
+                                        ],
+                                      ),
+                                    ),
+                                    // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                                    prevButtonBuilder: (context) => TextButton(
+                                      onPressed: providerProduct
+                                                  .paginatorController
+                                                  .currentPage >
+                                              0
+                                          ? () => providerProduct
+                                              .paginatorController
+                                              .prev()
+                                          : null, // _controller must be passed to NumberPaginator
+                                      child: const Row(
+                                        children: [
+                                          Icon(Icons.chevron_left),
+                                          Text("Previous"),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
+                                SizedBox(
+                                  height: 10,
+                                ),
 
-                            // this data 
-                            ...List.generate(
-                              (searchedList.length),
-                              (index) =>
-                                  ProductTile(dataProduct: searchedList[index]),
+                                // this data
+                                ...List.generate(
+                                  (searchedList.length),
+                                  (index) => ProductTile(
+                                      dataProduct: searchedList[index]),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
             ],
           ),
         ),
@@ -693,6 +730,7 @@ class _ProductPageState extends State<ProductPage> {
 }
 
 class ProductTile extends StatelessWidget {
+  final ScreenshotController controllerPrintOrder = ScreenshotController();
   final Data dataProduct;
   ProductTile({
     required this.dataProduct,
@@ -710,8 +748,9 @@ class ProductTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(16.0),
         ),
         leading: CachedNetworkImage(
-          imageUrl:
-              dataProduct.productDetails!.productPhoto == '-' ? 'https://user-images.githubusercontent.com/24848110/33519396-7e56363c-d79d-11e7-969b-09782f5ccbab.png' : 'http://leap.crossnet.co.id:8888/file/${dataProduct.productDetails!.productPhoto!}',
+          imageUrl: dataProduct.productDetails!.productPhoto == '-'
+              ? 'https://user-images.githubusercontent.com/24848110/33519396-7e56363c-d79d-11e7-969b-09782f5ccbab.png'
+              : 'http://leap.crossnet.co.id:8888/file/${dataProduct.productDetails!.productPhoto!}',
           width: 50,
           height: 50,
           placeholder: (context, url) => CircularProgressIndicator(),
@@ -770,7 +809,9 @@ class ProductTile extends StatelessWidget {
                     barrierDismissible: false,
                     context: context,
                     builder: (context) => ProductDetailsPopup(
-                      storeId: Provider.of<AuthState>(context).userData.storeWarehouseId!,
+                      storeId: Provider.of<AuthState>(context)
+                          .userData
+                          .storeWarehouseId!,
                       productData: dataProduct,
                     ),
                   );
@@ -788,7 +829,8 @@ class ProductTile extends StatelessWidget {
 class ProductDetailsPopup extends StatefulWidget {
   final Data productData;
   final int storeId;
-  ProductDetailsPopup({super.key, required this.storeId, required this.productData});
+  ProductDetailsPopup(
+      {super.key, required this.storeId, required this.productData});
 
   @override
   State<ProductDetailsPopup> createState() => _ProductDetailsPopupState();
@@ -796,7 +838,7 @@ class ProductDetailsPopup extends StatefulWidget {
 
 class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
   var _customTileExpanded = false;
-
+  final ScreenshotController controllerPrintOrder = ScreenshotController();
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -924,8 +966,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                             future: _fetchProductStockOpname(
                                 widget.productData.productDetails!
                                     .productDetailId!,
-                                  widget.storeId
-                                ),
+                                widget.storeId),
                             builder: (context, snapshot) {
                               // do something
                               if (snapshot.hasData) {
@@ -976,27 +1017,79 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                             fontWeight: FontWeight.bold),
                       ),
                       children: [
-                        FutureBuilder(
-                            future: _fetchProductStockCard(
-                                widget.productData.productDetails!
-                                    .productDetailId!,
-                                widget.storeId),
-                            builder: (context, snapshot) {
-                              // do something
-                              if (snapshot.hasData) {
-                                // TableStockCardProducts(listStockCard: stock.FetchStockCardProductStoreWarehouse.fromJson(jsonSpinachStockCard).data!);
+                        Screenshot(
+                          controller: controllerPrintOrder,
+                          child: FutureBuilder(
+                              future: _fetchProductStockCard(
+                                  widget.productData.productDetails!
+                                      .productDetailId!,
+                                  widget.storeId),
+                              builder: (context, snapshot) {
+                                // do something
+                                if (snapshot.hasData) {
+                                  // TableStockCardProducts(listStockCard: stock.FetchStockCardProductStoreWarehouse.fromJson(jsonSpinachStockCard).data!);
 
-                                // jika sudah ada data
-                                return TableStockCardProducts(
-                                    listStockCard: snapshot.data);
-                              } else {
-                                // loading
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
-                            }),
+                                  // jika sudah ada data
+                                  return TableStockCardProducts(
+                                      listStockCard: snapshot.data);
+                                } else {
+                                  // loading
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                }
+                              }),
+                        ),
                         SizedBox(
                           height: 10,
+                        ),
+
+                        // button print table
+                        Container(
+                          // height: 50,
+                          width:
+                              MediaQuery.of(context).size.width * 0.55 * 0.45,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  ColorPalleteLogin.OrangeLightColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Wrap(
+                                spacing: 6,
+                                children: [
+                                  Icon(
+                                    Icons.print_outlined,
+                                    color: ColorPalleteLogin.PrimaryColor,
+                                  ),
+                                  Text(
+                                    'Print delivery order',
+                                    style: TextStyle(
+                                      color: ColorPalleteLogin.PrimaryColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onPressed: () async {
+                              await controllerPrintOrder
+                                  .capture()
+                                  .then((bytes) {
+                                if (bytes != null) {
+                                  // panggil woe
+                                  saveImage(bytes, 'DeliveryOrder');
+                                  // saveAndShare(bytes, 'DeliveryOrder');
+                                }
+                              }).catchError((onError) {
+                                debugPrint(onError);
+                              });
+                            },
+                          ),
                         ),
                       ],
                       onExpansionChanged: (value) {
