@@ -205,8 +205,8 @@ String formatOnlyDateSQL(DateTime date){
 }
 
 Future<void> saveImage(Uint8List bytes, String name1) async {
-  final time = DateTime.now().toIso8601String().replaceAll('.', '-');
-  final name = 'Screentshot_$name1$time';
+  final time = getOnlyDate(DateTime.now().toString());
+  final name = 'Screentshot_$name1-$time';
   await Permission.storage.request();
   final result = await ImageGallerySaver.saveImage(bytes, name: name);
   debugPrint('result : $result');
@@ -217,8 +217,4 @@ Future<void> saveAndShare(Uint8List bytes, String name1) async {
   final dir = Platform.isAndroid
       ? await getExternalStorageDirectory()
       : await getApplicationDocumentsDirectory();
-
-  // final image = File('${dir!.path}/$name1$time.png');
-  // image.writeAsBytes(bytes);
-  // await Share.shareXFiles([XFile(image.path)]);
 }

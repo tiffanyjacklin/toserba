@@ -862,7 +862,6 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Align(
                     child: GestureDetector(
@@ -1002,7 +1001,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                   Theme(
                     data: Theme.of(context)
                         .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
+                    child: ExpansionTile(    
                       trailing: Icon(
                         _customTileExpanded
                             ? Icons.arrow_drop_down_circle
@@ -1028,7 +1027,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                                 // do something
                                 if (snapshot.hasData) {
                                   // TableStockCardProducts(listStockCard: stock.FetchStockCardProductStoreWarehouse.fromJson(jsonSpinachStockCard).data!);
-
+                  
                                   // jika sudah ada data
                                   return TableStockCardProducts(
                                       listStockCard: snapshot.data);
@@ -1042,7 +1041,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                         SizedBox(
                           height: 10,
                         ),
-
+                  
                         // button print table
                         Container(
                           // height: 50,
@@ -1066,7 +1065,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                                     color: ColorPalleteLogin.PrimaryColor,
                                   ),
                                   Text(
-                                    'Print delivery order',
+                                    'Print Stock Card',
                                     style: TextStyle(
                                       color: ColorPalleteLogin.PrimaryColor,
                                       fontSize: 14,
@@ -1082,7 +1081,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                                   .then((bytes) {
                                 if (bytes != null) {
                                   // panggil woe
-                                  saveImage(bytes, 'DeliveryOrder');
+                                  saveImage(bytes, 'StockCard-${widget.productData.productDetails!.productName}');
                                   // saveAndShare(bytes, 'DeliveryOrder');
                                 }
                               }).catchError((onError) {
