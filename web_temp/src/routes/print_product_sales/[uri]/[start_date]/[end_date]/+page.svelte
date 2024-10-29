@@ -7,7 +7,7 @@
 
 </script>
 
-<div class="w-[56rem] items-center border border-black rounded-xl py-2 px-4 my-4" id="printTarget">
+<div class="w-[56rem] font-roboto items-center border border-black rounded-xl py-2 px-4 my-4" id="printTarget">
     <div class="printable-section w-full h-full">
        
        <div class="w-4/5 mx-auto justify-center items-center m-8">

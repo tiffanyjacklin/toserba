@@ -11,7 +11,7 @@ export async function load({ params, fetch }) {
     const transaction_detail = async () =>
 		await fetch(`http://${uri}:8888/transaction/detail/${transactionId}/0/0`).then((res) => res.json());
 
-	console.log(await transaction_detail());
+	// console.log(await transaction_detail());
 	return {
 		transaction: (await transaction()).data.Transaction,
 		payment_method: (await transaction()).data.PaymentMethod,

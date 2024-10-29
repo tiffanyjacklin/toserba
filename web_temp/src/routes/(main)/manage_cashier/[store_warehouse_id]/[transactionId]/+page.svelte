@@ -277,7 +277,7 @@
         </defs>
       </svg>
     </div>
-    <div class="select-none	mx-8 bg-white p-3 font-roboto text-lg">
+    <div class=" select-none	mx-8 bg-white p-3 font-roboto text-lg">
       <div class="flex justify-center my-2 uppercase">
         {store_warehouse.store_warehouse_name}
       </div>
@@ -285,14 +285,14 @@
         {store_warehouse.store_warehouse_address}
       </div>
       <div>
-        ==================================================
+        ============================================================
       </div>
       <div class="flex justify-between">
         <div>BON {transaction.transaction_id}</div>
         <div>Kasir: {user.user_fullname}</div>
       </div>
       <div>
-        ==================================================
+        ============================================================
       </div>
       {#each transaction_detail as detail}
         <div class="flex">
@@ -359,7 +359,7 @@
         {/if} -->
       {/each}
       <div>
-        ==================================================
+        ============================================================
       </div>
       <div class="flex justify-between my-2">
 
@@ -420,7 +420,7 @@
       </div>
       {/if}
       <div>
-        ==================================================
+        ============================================================
       </div>
       <div class="flex justify-center my-2">
         Tgl. <DateConverter value={transaction.transaction_timestamp} date={true} hour={true} second={true} ampm={false} monthNumber={true} dash={true} dateFirst={true}/>

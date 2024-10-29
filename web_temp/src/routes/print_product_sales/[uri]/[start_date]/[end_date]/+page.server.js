@@ -17,9 +17,9 @@ export async function load({ params, fetch }) {
     const labaKotor = totalPendapatan - totalBeban;
     const allStoreProfit = all_store_profit.data;
 
-	console.log(totalPendapatan);
-	console.log(totalBeban);
-	console.log(labaKotor);
+	// console.log(totalPendapatan);
+	// console.log(totalBeban);
+	// console.log(labaKotor);
 	return {
 		all_store_profit: allStoreProfit,
 		startDate: start_date,

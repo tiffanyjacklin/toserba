@@ -6,7 +6,7 @@
   export let data;
   const { transaction, payment_method, cashier_id, store_warehouse, transaction_detail, user } = data;
 
-  console.log("test", transaction_detail);
+  // console.log("test", transaction_detail);
   $: total_free = 0;
   $: total_discount = 0;
   $: countFreeItem();
@@ -19,7 +19,7 @@
       }
   }
 </script>
-<div class="w-[36rem]  mx-8 bg-white p-3 font-roboto text-lg" id="printTarget">
+<div class="w-[40rem]  mx-8 bg-white p-3 font-roboto text-lg" id="printTarget">
     <div class="flex justify-center my-2 uppercase text-center">
       {store_warehouse.StoreWarehouses.store_warehouse_name}
     </div>
@@ -27,14 +27,14 @@
       {store_warehouse.StoreWarehouses.store_warehouse_address}
     </div>
     <div>
-      ================================================================
+      ========================================================================
     </div>
     <div class="flex justify-between">
       <div>BON {transaction.transaction_id}</div>
       <div>Kasir: {user.user_fullname}</div>
     </div>
     <div>
-      ================================================================
+      ========================================================================
     </div>
     {#each transaction_detail as detail}
       <div class="flex">
@@ -89,7 +89,7 @@
       {/if}
     {/each}
     <div>
-      ================================================================
+      ========================================================================
     </div>
     <div class="flex justify-between my-2">
 
@@ -150,7 +150,7 @@
     </div>
     {/if}
     <div>
-      ================================================================
+      ========================================================================
     </div>
     <div class="flex justify-center my-2">
       Tgl. <DateConverter value={transaction.transaction_timestamp} date={true} hour={true} second={true} ampm={false} monthNumber={true} dash={true} dateFirst={true}/>

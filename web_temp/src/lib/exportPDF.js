@@ -10,7 +10,7 @@ export default function exportToPDF(url, filename, width) {
      document.body.appendChild(iframe);
 
      iframe.onload = () => {
-       console.log(iframe.contentDocument.body.innerHTML);
+    //    console.log(iframe.contentDocument.body.innerHTML);
          const contentToCapture = iframe.contentDocument.querySelector('#printTarget'); 
 
          if (!contentToCapture) {

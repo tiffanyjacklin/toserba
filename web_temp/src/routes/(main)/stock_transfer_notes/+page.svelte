@@ -801,7 +801,7 @@
                   </div>
                   <div class="flex items-center justify-start">
                     <button type="button" 
-                    on:click={() => exportPDF(window.location.origin+`/print_delivery_order/${$uri}/${delivery_order.delivery_order_id}/${from.store_warehouse_id}/${to.store_warehouse_id}`, `DeliveryOrder_${delivery_order.delivery_order_id}_${formatDate(delivery_order.order_timestamp)}_PrintedOn${getFormattedDateForPrint()}`, 190)}
+                    on:click={() => exportPDF(window.location.origin+`/print_delivery_order/${$uri}/${delivery_order.delivery_order_id}/${from.store_warehouse_id}/${to.store_warehouse_id}`, `DeliveryOrder_${delivery_order.delivery_order_id}_${formatDate(delivery_order.order_timestamp)}_PrintedOn${getFormattedDateForPrint()}`, 190)}   
                     class="mt-2 flex w-40 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
                       <div class="w-2/12 flex justify-center ml-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">

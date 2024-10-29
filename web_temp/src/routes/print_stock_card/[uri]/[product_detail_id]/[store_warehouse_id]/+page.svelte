@@ -6,7 +6,7 @@
    const { stock_card } = data; 
 
 </script>
-<div class="w-[56rem]  relative overflow-x-auto shadow-md sm:rounded-lg " id="printTarget">
+<div class="w-[56rem] relative overflow-x-auto shadow-md sm:rounded-lg " id="printTarget">
     <table class="w-full text-sm text-left rtl:text-right printable-table">
       <thead class="text-xs text-gray-700 uppercase bg-gray-100">
         <tr class="border-b-2 border-black">
@@ -38,7 +38,7 @@
       </thead>
       <tbody>
         {#each stock_card as stock, i}
-          <tr class={i % 2 === 0 ? 'bg-gray-100' : 'bg-white'}>                        
+          <tr class={i % 2 === 0 ? 'bg-yellow-100' : 'bg-white'}>                        
             <th scope="row" class="px-3 py-2  text-center font-medium text-gray-900 whitespace-nowrap">
                   {i+1}
             </th>
