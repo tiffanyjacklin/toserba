@@ -781,6 +781,30 @@ e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateSto
     "notes": "APA"
 }
 
+e.POST("/products/stock/bundle/:sw_id", controller.InsertStockBundle)
+{
+    "new_product_batch": "Bundle20241031134455", 
+    "stock_bundle": 5,
+    "buy_price": 25000,
+    "sell_price": 100000,
+    "product_bundle_detail_id": 60,
+    "product_details": [
+        {
+            "product_detail_id": 1
+            "expiry_date" : "2025-09-11",
+            "product_batch": "Batch01",
+            "qty_subtracts": 10
+        },
+        {
+            "product_detail_id": 2
+            "expiry_date" : "2025-09-10",
+            "product_batch": "Batch03",
+            "qty_subtracts": 15
+        }
+    ]
+}
+
+
 ================================================= Owner =================================================
 e.GET("/locations/all/:limit/:offset", controller.GetAllLocation)
 e.GET("/locations/:location_id", controller.GetLocationByID)

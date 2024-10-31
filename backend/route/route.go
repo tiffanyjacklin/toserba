@@ -206,6 +206,8 @@ func Init() *echo.Echo {
 	e.PUT("/products/stock/subtract/verify/:subtract_id/:status", controller.VerifySubtractStock)
 	e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateStockInSubtractStock)
 
+	e.POST("/products/stock/bundle/:sw_id", controller.InsertStockBundle)
+
 	// Owner 
 	e.GET("/locations/all/:limit/:offset", controller.GetAllLocation)
 	e.GET("/locations/:location_id", controller.GetLocationByID)
