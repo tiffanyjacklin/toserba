@@ -176,7 +176,7 @@
             storeWarehouse.push(tmp[i].StoreWarehouses);
           }
         }
-        // console.log("storeWarehouse",storeWarehouse)
+        console.log("storeWarehouse",storeWarehouse)
     }
     
     async function getLastPromoId(){
@@ -271,6 +271,7 @@
         if (sw_id_list.length == storeWarehouse.length){
           sw_id_list = [];
           console.log("sw_id",sw_id_list);
+          sw_id_list = sw_id_list;
         } else {
             sw_id_list = [];
             for (let i = 0; i < storeWarehouse.length; i++) {
@@ -279,6 +280,7 @@
                 console.log("sw_id",sw_id_list);
               }
             }
+            sw_id_list = sw_id_list;
         }
       } else {
           let store = sw_id_list.find((id) => id == sw)
@@ -286,9 +288,11 @@
             let index = sw_id_list.findIndex((id) => id == sw)
             sw_id_list.splice(index,1);
             console.log("sw_id",sw_id_list);
+            sw_id_list = sw_id_list;
           } else {
             sw_id_list.push(sw);
             console.log("sw_id",sw_id_list);
+            sw_id_list = sw_id_list;
           }
       }
     }

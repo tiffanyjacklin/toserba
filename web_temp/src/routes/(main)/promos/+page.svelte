@@ -338,6 +338,7 @@
         if (sw_id_list.length == storeWarehouse.length){
           sw_id_list = [];
           console.log("sw_id",sw_id_list);
+          sw_id_list = sw_id_list;
         } else {
             sw_id_list = [];
             for (let i = 0; i < storeWarehouse.length; i++) {
@@ -346,6 +347,7 @@
                 console.log("sw_id",sw_id_list);
               }
             }
+            sw_id_list = sw_id_list;
         }
       } else {
           let store = sw_id_list.find((id) => id == sw)
