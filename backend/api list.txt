@@ -642,6 +642,7 @@ e.POST("/promos/add", controller.InsertPromos)
         "promo_start_date": "2024-08-16",
         "promo_end_date": "2024-09-16",
         "promo_percentage": 15,
+        "min_price": 30000
         "promo_term_and_cond": "Min Buy: Rp 30,000",
         "user_id": 1
     },
