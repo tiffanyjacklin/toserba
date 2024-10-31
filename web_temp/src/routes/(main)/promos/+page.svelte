@@ -467,6 +467,7 @@
         await insertNotif(description,18)
       }
 
+      await verifyPromo(last_promo_id,parseInt(choosen_product_id),1);
       
       choosen_product_id = "";
       choosen_product_name = "";
@@ -698,11 +699,11 @@
                 {:else}
                     <button on:click={() => {tampilan = "all_promos"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">All Promos</button>
                 {/if}
-                {#if tampilan == "promo_req"}
+                <!-- {#if tampilan == "promo_req"}
                     <button on:click={() => {tampilan = "promo_req"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Promo Request</button>
                 {:else}
                     <button on:click={() => {tampilan = "promo_req"; tampilan = tampilan;}} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Promo Request</button>
-                {/if}
+                {/if} -->
                 {#if tampilan == "promo_cost"}
                     <button on:click={() => {tampilan = "promo_cost"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Promo Cost</button>
                 {:else}
@@ -761,7 +762,7 @@
                 <button on:click={async() => {await fetchProduk(); showModal = "choose_product"}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Promo</button>
             </div>
         </div>
-        {:else if tampilan == "promo_req"}
+        <!-- {:else if tampilan == "promo_req"}
         <div class="w-11/12 flex items-center">
           <div class="relative w-full shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-lg mr-4">
               <input 
@@ -807,8 +808,8 @@
                   </div>
                 {/if}
             </div>
-        </div>
-        {/if}
+        </div>-->
+        {/if} 
     {#if tampilan != "promo_cost"}
     
     <nav class="my-8 flex justify-center">
@@ -939,7 +940,7 @@
                       </span>
                       <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span>
                     </div>
-                    <div class="flex">
+                    <!-- <div class="flex">
                       <span class="mx-1">Requested by {promo.username},
                         {#if promo.PromoProducts.status_verify == 0}
                           <span class="">UNVERIFIED</span>
@@ -949,7 +950,7 @@
                           <span class="text-red-600">REJECTED</span>
                         {/if}
                       </span>
-                    </div>
+                    </div> -->
                   </div>
               
                   <div class="w-2/12 flex justify-end items-center">
@@ -963,7 +964,7 @@
               {/if}
             {/each}
         </div>
-        {:else if tampilan == "promo_req"}
+        <!-- {:else if tampilan == "promo_req"}
         <div class="relative overflow-x-auto sm:rounded-lg">
             {#each filtered_produk_promos as promo}
             <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3 py-2 px-4">    
@@ -1034,7 +1035,7 @@
               </div>
             </div>
             {/each}
-        </div>
+        </div> -->
         {:else if tampilan == "promo_cost"}
             <div class="flex mb-8 ">
                 <div class="w-96 p-6 mx-4 border-2 border-darkGray text-darkGray rounded-2xl drop-shadow-xl">

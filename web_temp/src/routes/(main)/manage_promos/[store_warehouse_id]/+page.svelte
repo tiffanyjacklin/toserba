@@ -380,6 +380,8 @@
         //18 Apply Promo
         await insertNotif(description,18)
       }
+
+      await verifyPromo(last_promo_id,parseInt(choosen_product_id),1);
       
       choosen_product_id = "";
       choosen_product_name = "";
@@ -406,6 +408,25 @@
           background: "#364445",
           confirmButtonColor: '#F2AA7E'
         });
+    }
+
+    async function verifyPromo(promo_id,product_id,status) {
+      const response = await fetch(`http://${$uri}:8888/promos/verify/${promo_id}/${product_id}/${status}`, {
+          method: 'PUT',
+      });
+
+      if (!response.ok) {
+          console.error('PUT verify promo gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid put verify promo', data);
+          return;
+      }
+      console.log("verify promo berhasil")
     }
 
     async function fetchPromoCategory() {
@@ -688,7 +709,7 @@
                     </span>
                     <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span>
                   </div>
-                  <div class="flex">
+                  <!-- <div class="flex">
                       {#if promo.PromoProducts.status_verify == 0}
                         <span class="">UNVERIFIED</span>
                       {:else if promo.PromoProducts.status_verify == 1}
@@ -696,7 +717,7 @@
                       {:else}
                         <span class="text-red-600">REJECTED</span>
                       {/if}
-                  </div>
+                  </div> -->
                 </div>
                 
                 <div class="w-2/12 flex justify-end items-center">
