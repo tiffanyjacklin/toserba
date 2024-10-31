@@ -202,7 +202,8 @@
                 if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_promo["ProductDetail"].product_detail_id) != null){
                     // console.log("produk promo udh ada di promos")
                 } else {
-                    produk_promo.promo_applied = checkout[i]["ProductDetails"].promo_applied;
+                    console.log("checkout[i].promo_applied", checkout[i].promo_applied)
+                    produk_promo.promo_applied = checkout[i].promo_applied;
                   
                     promos.push(produk_promo);
                     promos = promos;
@@ -218,18 +219,23 @@
         if (all_promo.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id) != null){
             // jika ada, ambil index di array all promo
             let index = all_promo.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
-
+            // console.log("id promo : ", all_promo[index]["Promo"].promo_type_id)
+            
             // type 2 discount
             if (all_promo[index]["Promo"].promo_type_id == 2){
                 produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price - (produk_checkout["ProductDetails"].sell_price*(all_promo[index]["Promo"].promo_percentage)/100)
                 produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price
                 produk_checkout.promo_applied = true;
+                produk_checkout.promo_applied = produk_checkout.promo_applied;
             } else if (all_promo[index]["Promo"].promo_type_id == 3){
                 produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price - (all_promo[index]["Promo"].promo_discount)
                 produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price
                 produk_checkout.promo_applied = true;
+                produk_checkout.promo_applied = produk_checkout.promo_applied;
             } else {
                 produk_checkout.promo_applied = false;
+                produk_checkout.promo_applied = produk_checkout.promo_applied;
+                // console.log("produk_checkout.promo_applied", produk_checkout.promo_applied)
             }
         }
         return produk_checkout;
@@ -247,64 +253,70 @@
     }
 
     function checkPromoAppliedType1_4(){
+        // WARNING SEMUA PROMO TERKENA CEK, PROMO TYPE 2,3 SUDAH TRUE DARI AWAL
         for (let i = 0; i < checkout.length; i++) {
             if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id) != null){
                 // jika ada, ambil index di array all promo
                 let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id);
+                // CEK KALO BUKAN PROMO TYPE 2 ATAU 3
+                // if (promos[index].Promo.promo_type_id != 2 || promos[index].Promo.promo_type_id != 3){
+                    //jika promo type = 1 atau 4 dimana BUY X ...
+                    // if (checkout[i].jumlah >= promos[index]["Promo"].x_amount && (promos[index].Promo.promo_type_id == 4 || promos[index].Promo.promo_type_id == 1)){
+                    if (checkout[i].jumlah >= promos[index]["Promo"].x_amount){
+                        if (promos[index].Promo.promo_type_id == 4 && checkout[i].promo_applied == false){
+                            checkout[i].ProductDetails.sell_price = checkout[i].ProductDetails.sell_price - (checkout[i].ProductDetails.sell_price*(promos[index].Promo.promo_percentage)/100)
 
-                if (checkout[i].jumlah >= promos[index]["Promo"].x_amount){
-                    if (promos[index].Promo.promo_type_id == 4 && checkout[i].promo_applied == false){
-                        checkout[i].ProductDetails.sell_price = checkout[i].ProductDetails.sell_price - (checkout[i].ProductDetails.sell_price*(promos[index].Promo.promo_percentage)/100)
+                            console.log("promo type 4")
+                        }
+                        
+                        checkout[i].promo_applied = true;
+                        checkout[i].promo_applied = checkout[i].promo_applied;
 
-                        console.log("promo type 4")
+                        promos[index].promo_applied = true;
+                        promos[index].promo_applied = promos[index].promo_applied;
+                        
+                    } 
+                    // // jika promo type = 5
+                    // else if (promos[index].Promo.promo_type_id == 5 && checkout[i].promo_applied == false && (total >= promos[index]["Promo"].min_price)){
+                    //     checkout[i].ProductDetails.sell_price = checkout[i].ProductDetails.sell_price - (checkout[i].ProductDetails.sell_price*(promos[index].Promo.promo_percentage)/100)                        
+
+                    //     checkout[i].promo_applied = true;
+                    //     checkout[i].promo_applied = checkout[i].promo_applied;
+
+                    //     promos[index].promo_applied = true;
+                    //     promos[index].promo_applied = promos[index].promo_applied;
+                        
+                    //     console.log("promo type 5");
+                    // }
+                    // else if (promos[index].Promo.promo_type_id == 2 || promos[index].Promo.promo_type_id == 3){
+                    //     checkout[i].promo_applied = true;
+                    //     checkout[i].promo_applied = checkout[i].promo_applied;
+
+                    //     promos[index].promo_applied = true;
+                    //     promos[index].promo_applied = promos[index].promo_applied;
+                    // } 
+                    else {
+                        checkout[i].promo_applied = false;
+                        checkout[i].promo_applied = checkout[i].promo_applied;
+
+                        promos[index].promo_applied = false;
+                        promos[index].promo_applied = promos[index].promo_applied;
+
+                        // if (promos[index].Promo.promo_type_id == 4 || promos[index].Promo.promo_type_id == 5){
+                        if (promos[index].Promo.promo_type_id == 4){
+                            let index_all_pro = all_produk.findIndex(produk => produk.ProductDetails.product_detail_id == checkout[i].ProductDetails.product_detail_id);
+
+                            checkout[i].ProductDetails.sell_price = all_produk[index_all_pro].ProductDetails.sell_price
+                            console.log("reset harga promo type 4/5")
+                        }
                     }
-                    
-                    checkout[i].promo_applied = true;
-                    checkout[i].promo_applied = checkout[i].promo_applied;
-
-                    promos[index].promo_applied = true;
-                    promos[index].promo_applied = promos[index].promo_applied;
-
-                } else {
-                    checkout[i].promo_applied = false;
-                    checkout[i].promo_applied = checkout[i].promo_applied;
-
-                    promos[index].promo_applied = false;
-                    promos[index].promo_applied = promos[index].promo_applied;
-
-                    if (promos[index].Promo.promo_type_id == 4){
-                        let index_all_pro = all_produk.findIndex(produk => produk.ProductDetails.product_detail_id == checkout[i].ProductDetails.product_detail_id);
-
-                        checkout[i].ProductDetails.sell_price = all_produk[index_all_pro].ProductDetails.sell_price
-                        console.log("promo type 4 reset")
-                    }
-                }
+                // } else{
+                //     console.log("promo type 2/3")
+                // }
+        
             }
         }
     }
-
-    // function checkPromoApplied(){
-    //     for (let i = 0; i < checkout.length; i++) {
-    //         if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id) != null){
-    //             // jika ada, ambil index di array all promo
-    //             let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id);
-
-    //             if (checkout[i].jumlah >= promos[index]["Promo"].x_amount){
-    //                 checkout[i].promo_applied = true;
-    //                 checkout[i].promo_applied = checkout[i].promo_applied;
-
-    //                 promos[index].promo_applied = true;
-    //                 promos[index].promo_applied = promos[index].promo_applied;
-    //             } else {
-    //                 checkout[i].promo_applied = false;
-    //                 checkout[i].promo_applied = checkout[i].promo_applied;
-
-    //                 promos[index].promo_applied = false;
-    //                 promos[index].promo_applied = promos[index].promo_applied;
-    //             }
-    //         }
-    //     }
-    // }
 
     function sumTotal(){
         total = checkout.reduce((sum, item) => {
@@ -349,7 +361,7 @@
         totalNotes = data.total_rows;
         totalPages = Math.ceil(totalNotes/limit);
         all_produk = products;
-        console.log(all_produk)
+        console.log("all_produk", all_produk)
     }
 
     async function goToPage(page) {
@@ -445,7 +457,7 @@
       }
 
       categories = [...data.data];  
-      console.log(categories);
+    //   console.log(categories);
     }
 
   async function fetchProductSort() {
@@ -469,7 +481,7 @@
       }
 
       product_sorts = [...data.data];  
-      console.log(product_sorts);
+    //   console.log(product_sorts);
     }
 
     async function fetchProductPhotos(product_photo_fetched){
@@ -705,7 +717,7 @@
                         {#each all_produk as produk}
                         {@const tmp_produk = structuredClone(produk)}
                             {#if produk["ProductDetails"].product_stock >= 1}
-                            <button on:click={() => { console.log(tmp_produk); addtoCheckout(tmp_produk); sumTotal(); checkPromo(); checkPromoAppliedType1_4(); countPromoApplied();}} class="w-full border-2 border-black rounded-lg bg-white">
+                            <button on:click={async() => { console.log(tmp_produk); addtoCheckout(tmp_produk); sumTotal(); checkPromo(); checkPromoAppliedType1_4(); countPromoApplied();}} class="w-full border-2 border-black rounded-lg bg-white">
                                 <div class="p-3 w-full flex flex-col items-center">
                                     {#if (produk.photo != "-")}
                                         <img class="rounded-lg w-10/12 h-10/12" src={produk.photo} alt="">
@@ -886,6 +898,13 @@
                                 {:else}
                                     <p class="font-semibold ml-8 text-peach2">This item has a promo! Promo not yet applied.</p>
                                 {/if}
+                            <!-- {:else if (promo_produk["Promo"].promo_type_id == 5)}
+                                {#if (total >= promo_produk["Promo"].min_price)}
+                                <p class="font-semibold ml-8">{"Discount " + promo_produk["Promo"].promo_percentage + "% off"}</p>                                    
+                                <p class="font-semibold ml-8 text-peach2">Promo Applied.</p>
+                                {:else}
+                                    <p class="font-semibold ml-8 text-peach2">This item has a promo! Promo not yet applied.</p>
+                                {/if} -->
                             {/if}
                        {/if}
                         
@@ -1183,7 +1202,7 @@
                         {#if (promo.promo_applied == true)}
                             {#if (promo["Promo"].promo_type_id == 1)}
                                 Promo applied {(parseInt(checkout_produk.jumlah/promo["Promo"].x_amount))} time(s)
-                                <p class="indent-16 text-white font-bold">{(parseInt(checkout_produk.jumlah/promo["Promo"].x_amount)*promo["Promo"].y_amount)} Free {checkout_produk["ProductDetail"].product_unit}</p>
+                                <p class="indent-16 text-white font-bold">{(parseInt(checkout_produk.jumlah/promo["Promo"].x_amount)*promo["Promo"].y_amount)} Free {checkout_produk["ProductDetails"].product_unit}</p>
                             
                             {:else}
                                 Promo applied 

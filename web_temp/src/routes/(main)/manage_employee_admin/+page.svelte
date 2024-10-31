@@ -101,7 +101,9 @@
             } else {
                 tmp_user[i].user_pp_fetched = await fetchUserPP(tmp_user[i].user_photo_profile.String)
             }
-            users.push(tmp_user[i])
+            if (tmp_user[i].role_id != 5 && tmp_user[i].role_id != 6){
+                users.push(tmp_user[i])
+            }
           }
       }
       filtered_users = structuredClone(users);
@@ -593,7 +595,7 @@
      
 
         {#each filtered_users as user}
-        {#if user.role_id != 5 && user.role_id != 6}
+        <!-- {#if user.role_id != 5 && user.role_id != 6} -->
           <button on:click={() => {goto(`/manage_employee_admin/manage/${user.user_id}/${user.role_id}/${user.sw_id}`)}} class="w-[96%] font-roboto">
             <div class="relative overflow-x-auto sm:rounded-lg">
                 <div class="flex items-center border-2 rounded-xl ml-auto border-gray-700 m-3">                        
@@ -612,7 +614,7 @@
                 </div>
             </div>
           </button>
-        {/if}
+        <!-- {/if} -->
       {/each}
       
   

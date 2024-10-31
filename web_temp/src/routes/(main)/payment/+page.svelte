@@ -636,14 +636,14 @@
             </div>
             {/if}
             <div class="text-wrap">
-                =====================================================
+                ===================================================
             </div>
             <div class="flex justify-between">
               <div>BON {transaction_struk.transaction_id}</div>
               <div>Kasir: {user.user_fullname}</div>
             </div>
             <div class="text-wrap">
-                =====================================================
+                ===================================================
             </div>
             {#each transaction_detail as detail}
                 <div class="flex">
@@ -710,7 +710,7 @@
                 {/if} -->
             {/each}
             <div class="text-wrap">
-                =====================================================
+                ===================================================
             </div>
             <div class="flex justify-between my-2">
 
@@ -771,7 +771,7 @@
             </div>
             {/if}
             <div class="text-wrap">
-                =====================================================
+                ===================================================
             </div>
             <div class="flex justify-center my-2">
               Tgl. <DateConverter value={transaction_struk.transaction_timestamp} date={true} hour={true} second={true} ampm={false} monthNumber={true} dash={true} dateFirst={true}/>
