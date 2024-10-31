@@ -47,6 +47,7 @@
     let suppliers = [];
     let stock_card_product = [];
     $: current_stock = [];
+    $: all_bundling = [];
 
     // STOCK HISTORY
     let stock_card_history = [];
@@ -180,32 +181,9 @@
         console.log(all_produk);
     }
 
-  async function fetchStockCard(product_id) {
-    console.log(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${product_id}/${store_warehouse_id}/0/0`);
-      const response = await fetch(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${product_id}/${store_warehouse_id}/0/0`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-
-      if (!response.ok) {
-          console.error('get all produk fetch failed', response);
-          return;
-      }
-
-      const data = await response.json();
-
-      if (data.status !== 200) {
-          console.error('Invalid fetch last', data);
-          return;
-      }
-
-      stock_card_product = [...data.data];  
-  }
-
-  async function fetchProductCategory() {
-        const response = await fetch(`http://${$uri}:8888/products/category`, {
+    async function fetchStockCard(product_id) {
+      console.log(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${product_id}/${store_warehouse_id}/0/0`);
+        const response = await fetch(`http://${$uri}:8888/products/stock/card/product/store_warehouse/${product_id}/${store_warehouse_id}/0/0`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -213,20 +191,43 @@
         });
 
         if (!response.ok) {
-            console.error('get all product category fetch failed', response);
+            console.error('get all produk fetch failed', response);
             return;
         }
 
         const data = await response.json();
 
         if (data.status !== 200) {
-            console.error('Invalid fetch product category', data);
+            console.error('Invalid fetch last', data);
             return;
         }
- 
-        product_category = data.data;
-        filtered_product_category = structuredClone(product_category);
-        // console.log("product_category",product_category)
+
+        stock_card_product = [...data.data];  
+    }
+
+    async function fetchProductCategory() {
+          const response = await fetch(`http://${$uri}:8888/products/category`, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          });
+
+          if (!response.ok) {
+              console.error('get all product category fetch failed', response);
+              return;
+          }
+
+          const data = await response.json();
+
+          if (data.status !== 200) {
+              console.error('Invalid fetch product category', data);
+              return;
+          }
+  
+          product_category = data.data;
+          filtered_product_category = structuredClone(product_category);
+          // console.log("product_category",product_category)
     }
   
     async function fetchSuppliers() {
@@ -426,6 +427,10 @@
         if (files && (files.length > 0 || files !== '')){
           await addProductPhoto(data.data[0].product_detail_id, files);
         }
+        files = '';
+        buy_price = '';
+        sell_price = '';
+        min_stock = '';
       }
     
     async function addProductPhoto(product_id, files) {
@@ -691,6 +696,40 @@
       return URL.createObjectURL(blob);
   }
 
+  async function fetchProdukBundling() {
+        const response = await fetch(`http://${$uri}:8888/products/detail/category/6/0/0`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('get all produk fetch failed', response);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 200) {
+            console.error('Invalid fetch last', data);
+            return;
+        }
+        console.log(data.data);
+
+        totalRows = data.total_rows;
+        totalPages = Math.ceil(totalRows/limit);
+
+        all_bundling = [...data.data];
+        for(let i = 0; i < all_bundling.length; i++){
+          if(all_bundling[i].ProductDetails.product_photo != "-"){
+            all_bundling[i].photo = await fetchProductPhotos(all_bundling[i].ProductDetails.product_photo)
+          } else {
+            all_bundling[i].photo = "-";
+          }
+        }
+    }
+
   function clearVariable(){
         start_date = '';
         end_date = '';
@@ -759,12 +798,13 @@
       }
     }
     onMount(async () => {
-      fetchProduk();
+      await fetchProduk();
       // fetchAddVerify();
       // fetchSubtractVerify();
       // fetchStockCardHistory();
-      fetchProductCategory();
-      fetchSuppliers();
+      await fetchProductCategory();
+      await fetchSuppliers();
+
       // fetchAssign();
       sw_name_print = await getStoreWarehouse(store_warehouse_id);
   });
@@ -813,6 +853,11 @@
                 <button on:click={async() => {tampilan = "product_category"; tampilan = tampilan;}} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Product Category</button>
             {:else}
                 <button on:click={async() => {tampilan = "product_category"; tampilan = tampilan; goToPage(1)}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Product Category</button>
+            {/if}
+            {#if tampilan == "add_bundling"}
+                <button on:click={async() => {tampilan = "add_bundling"; tampilan = tampilan; }} class=" bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add Bundling</button>
+            {:else}
+                <button on:click={async() => {await fetchProdukBundling(); tampilan = "add_bundling"; tampilan = tampilan; goToPage(1)}} class=" bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add Bundling</button>
             {/if}
         </div>    
     </div>
@@ -1365,6 +1410,47 @@
           {/if}
           </div>
         </div>
+      {:else if tampilan == "add_bundling"}
+      <div class="w-[96%] my-5 font-roboto">
+        <div class="relative overflow-x-auto sm:rounded-lg">
+        {#if all_bundling.length > 0 }
+          {#each all_bundling as product}
+              <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3">                        
+                  <div class="m-4 w-1/12 flex">
+                  {#if product.photo != "-"}
+                    <img class="rounded-lg " src={product.photo} alt="">
+                  {:else}
+                    <img class="rounded-lg " src={img_produk} alt="">
+                  {/if}
+                  </div>
+                      <div class="py-4 w-8/12">
+                          <div class="font-bold text-[#f2b082] whitespace-nowrap text-lg">
+                          #{product.ProductDetails.product_detail_id}
+                          </div>
+                          <div class="font-semibold text-xl">
+                          {product.ProductDetails.product_name}
+                          </div>
+                      </div>
+                  <div class=" py-4 font-semibold w-3/12 flex flex-col items-center self-center">
+                    <button 
+                    on:click={() => {goto(`/manage_inventory/${store_warehouse_id}/bundling/${product.ProductDetails.product_detail_id}`)}} type="button" 
+                    class="h-24 px-4 w-40 flex flex-col items-center justify-center font-bold rounded-xl bg-[#3d4c52] text-[#f2b082] hover:shadow-2xl">
+                    <div class="text-lg text-white font-semibold w-full">View</div>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-8">
+                          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                          <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+              </div>
+          {/each}
+        {:else}
+          <div class="flex justify-center w-full">
+            <span>No Product Found</span>
+          </div>
+        {/if}
+        </div>
+    </div>
       {/if}
         
       {#if tampilan != "add_product"}
