@@ -335,7 +335,7 @@
   
     function addStoreToList(sw){
       if (sw == "all"){
-        if (sw_id_list.length > 0){
+        if (sw_id_list.length == storeWarehouse.length){
           sw_id_list = [];
           console.log("sw_id",sw_id_list);
         } else {
@@ -1387,12 +1387,12 @@
           <ul class="font-semibold text-white ml-2">
             <li class="mb-1">
               <div class="flex items-center">
-                {#if swListAll == false && (sw_id_list.find((id) => id == store.store_warehouse_id) == null)}
+                {#if (sw_id_list.find((id) => id == store.store_warehouse_id) == null)}
                   <input on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
-                {:else if swListAll == false && (sw_id_list.find((id) => id == store.store_warehouse_id) != null)}
+                {:else if (sw_id_list.find((id) => id == store.store_warehouse_id) != null)}
                   <input checked on:change={() => {addStoreToList(store.store_warehouse_id)}} class="border border-white bg-darkGray  mr-2" type="checkbox">
-                {:else if swListAll == true}
-                  <input checked disabled class="border border-white bg-darkGray disabled:opacity-75 mr-2" type="checkbox">
+                <!-- {:else if swListAll == true}
+                  <input checked disabled class="border border-white bg-darkGray disabled:opacity-75 mr-2" type="checkbox"> -->
                 {/if}
                   <span class="">{store.store_warehouse_name}</span>
               </div>
