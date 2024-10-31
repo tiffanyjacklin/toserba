@@ -728,6 +728,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
   @override
   void dispose() {
     // TODO: implement dispose
+    _searchController.dispose();
     super.dispose();
   }
 }
@@ -1401,24 +1402,32 @@ class TableInventoryTaking extends StatelessWidget {
                 ),
                 TableCell(
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(6.0),
                     child: Text('UNIT TYPE',
                         style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('FILL', style: TableContentTextStyle.textStyle),
+                    padding: EdgeInsets.all(0.0),
+                    child:
+                        Text('SECTION', style: TableContentTextStyle.textStyle),
                   ),
                 ),
                 TableCell(
                   child: Padding(
-                    padding: EdgeInsets.all(6.0),
-                    child:
-                        Text('DETAIL', style: TableContentTextStyle.textStyle),
+                    padding: EdgeInsets.all(10.0),
+                    child: Text('FILL', style: TableContentTextStyle.textStyle),
                   ),
                 ),
+                // TableCell(
+                //   child: Padding(
+                //     padding: EdgeInsets.all(6.0),
+                //     child:
+                //         Text('DETAIL', style: TableContentTextStyle.textStyle),
+                //   ),
+                // ),
+
               ],
             ),
 
@@ -1480,10 +1489,14 @@ class TableInventoryTaking extends StatelessWidget {
                           // >> note : BELUM DI LIMIT
                           child: TextField(
                             onChanged: (value) {
+                              // check if can
+                              controllerQty[index].text = int.tryParse(controllerQty[index].text) == null ? '0' : int.parse(controllerQty[index].text).toString();
                               if (value.isNotEmpty) {
                                 providerInventory.addToCart(startIndex + index,
                                     quantity:
-                                        int.parse(controllerQty[index].text));
+                                        int.parse(controllerQty[index].text)
+                                        );
+                                        
                               } else {
                                 providerInventory
                                     .removeFromCart(startIndex + index);
@@ -1518,6 +1531,15 @@ class TableInventoryTaking extends StatelessWidget {
                       ),
                     ),
 
+                    // section
+                    TableCell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${contentTable[index].sectionPlacement!}',
+                            style: TableContentTextStyle.textStyleBody),
+                      ),
+                    ),
+
                     // action button
                     TableCell(
                       child: Padding(
@@ -1546,42 +1568,42 @@ class TableInventoryTaking extends StatelessWidget {
                         ),
                       ),
                     ),
-                    TableCell(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 8.0, right: 8.0, top: 2, bottom: 2),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.all(0),
-                            backgroundColor: ColorPalleteLogin.PrimaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.remove_red_eye_outlined,
-                            color: ColorPalleteLogin.OrangeColor,
-                          ),
-                          onPressed: () async {
-                            // keluarin popup detail
-                            var data = await showDialog(
-                              barrierDismissible: false,
-                              context: context,
-                              builder: (context) =>
-                                  DetailProductInventoryTakingPopup(
-                                data: contentTable[index],
-                                notesPrev: providerInventory
-                                    .getNotes(contentTable[index]),
-                              ),
-                            );
-                            if (data != null) {
-                              providerInventory.addToCart(startIndex + index,
-                                  notes: data.toString());
-                            }
-                          },
-                        ),
-                      ),
-                    ),
+                    // TableCell(
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.only(
+                    //         left: 8.0, right: 8.0, top: 2, bottom: 2),
+                    //     child: ElevatedButton(
+                    //       style: ElevatedButton.styleFrom(
+                    //         padding: EdgeInsets.all(0),
+                    //         backgroundColor: ColorPalleteLogin.PrimaryColor,
+                    //         shape: RoundedRectangleBorder(
+                    //           borderRadius: BorderRadius.circular(15.0),
+                    //         ),
+                    //       ),
+                    //       child: Icon(
+                    //         Icons.remove_red_eye_outlined,
+                    //         color: ColorPalleteLogin.OrangeColor,
+                    //       ),
+                    //       onPressed: () async {
+                    //         // keluarin popup detail
+                    //         var data = await showDialog(
+                    //           barrierDismissible: false,
+                    //           context: context,
+                    //           builder: (context) =>
+                    //               DetailProductInventoryTakingPopup(
+                    //             data: contentTable[index],
+                    //             notesPrev: providerInventory
+                    //                 .getNotes(contentTable[index]),
+                    //           ),
+                    //         );
+                    //         if (data != null) {
+                    //           providerInventory.addToCart(startIndex + index,
+                    //               notes: data.toString());
+                    //         }
+                    //       },
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 );
                 return tableRow;
