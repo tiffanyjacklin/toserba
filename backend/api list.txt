@@ -576,6 +576,8 @@ e.GET("/products/detail", controller.GetAllProductDetail)
 // Mengambil semua produk dari supplier tertentu, tanpa stok, exp, batch
 e.GET("/products/supplier/:supplier_id", controller.GetAllProductDetailFromSupplier) 
 
+e.GET("/products/detail/category/:category_id/:limit/:offset", controller.GetAllProductDetailFromCategory) 
+
 // Mengambil data produk berdasarkan lokasi store/warehouse user. product id dan product name untuk search
 e.GET("/products/store_warehouse/:user_id/:role_id/:product_name_id/:limit/:offset", controller.GetAllProductsInSW) 
 
@@ -788,7 +790,9 @@ e.POST("/products/stock/bundle/:sw_id", controller.InsertStockBundle)
     "buy_price": 25000,
     "sell_price": 100000,
     "product_bundle_detail_id": 60,
-    "product_details": [
+    "section_placement": "A3",
+    "display": 1, // 0 == bukan display; 1 == display
+    "product_bundling": [
         {
             "product_detail_id": 1
             "expiry_date" : "2025-09-11",

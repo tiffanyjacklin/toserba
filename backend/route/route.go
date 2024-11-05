@@ -171,8 +171,11 @@ func Init() *echo.Echo {
 	e.GET("/products/store_warehouse/:user_id/:role_id/:product_name_id/:limit/:offset", controller.GetAllProductsInSW) 
 	e.GET("/products/store_warehouse/:user_id/:role_id/:sw_id/:start_price/:end_price/:product_name_id_code/:category/:unit_type/:product_sort/:asc/:limit/:offset", controller.GetAllProductsInSWFilter) 
 	e.GET("/products/supplier/:supplier_id/:limit/:offset", controller.GetAllProductDetailFromSupplier) 
+	e.GET("/products/detail/category/:category_id/:limit/:offset", controller.GetAllProductDetailFromCategory) 
 	e.POST("/products/add", controller.InsertProductDetails)
 	e.PUT("/products/edit/:product_id", controller.UpdateProductDetails)
+	e.POST("/products/placement/:sw_id/:product_id/:placement/:display", controller.InsertSWProducts)
+	e.GET("/products/placement/:sw_id/:placement", controller.GetAllSWProducts)
 
 	e.GET("/promos/type/all/:limit/:offset", controller.GetAllPromoType)
 	e.POST("/promos/type/add", controller.InsertPromoType)
