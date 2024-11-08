@@ -779,7 +779,7 @@ e.PUT("/products/stock/subtract/verify/:subtract_id/:status", controller.VerifyS
 
 e.PUT("/products/stock/subtract/update/stock/:subtract_id", controller.UpdateStockInSubtractStock)
 {
-    "subtract_quantity": 50,
+    "subtract_quantity": 50, 
     "notes": "APA"
 }
 
