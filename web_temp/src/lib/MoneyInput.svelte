@@ -2,6 +2,7 @@
     export let value = 0;
     export let shadow = true;
     export let koma = false;
+    export let end = true;
     $: displayValue = formatCurrency(value);
     function formatCurrency(value) {
         return "Rp " + Number(value).toLocaleString('en-US', {
@@ -34,7 +35,7 @@
 
 <div class="">
     <input type="text"
-           class={` ${shadow === true ? 'shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)]' : ''} text-[#3d4c52] text-end bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] block w-full px-2.5 py-0.5`}
+           class={` ${shadow === true ? 'shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)]' : ''} text-[#3d4c52] ${end === true ? 'text-end' : 'text-start'} bg-white text-md rounded-lg focus:ring-[#f7d4b2] focus:border-[#f7d4b2] block w-full px-2.5 py-0.5 h-8 `}
            placeholder={`Rp 0.00`}
            bind:value={displayValue}
            on:input={handleInput}

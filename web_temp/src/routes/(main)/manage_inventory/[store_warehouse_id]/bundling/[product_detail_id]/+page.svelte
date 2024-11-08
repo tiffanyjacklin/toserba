@@ -48,6 +48,15 @@
     let showIDList = false;
     let showNameList = false;
     let pd_id = 0;
+    
+
+    let questions = [
+      { id: 1, text: `Yes.` },
+      { id: 2, text: `No.` }
+    ];
+    let section_placement = '';
+	  let selected = '';
+    
     function toggleIDList() {
       showIDList = !showIDList;
       showNameList = false;
@@ -451,7 +460,7 @@
       }
     }
     async function fetchExpiredDate(product_idNya, quantityNya, unit_typeNya) {
-
+      console.log(`http://${$uri}:8888/orders/transfer/notes/check/${product_idNya}/${store_warehouse_id}/${quantityNya}`);
       const response = await fetch(`http://${$uri}:8888/orders/transfer/notes/check/${product_idNya}/${store_warehouse_id}/${quantityNya}`, {
           method: 'GET',
           headers: {
@@ -557,7 +566,10 @@
           buy_price: Number(buy_price),
           sell_price: Number(sell_price),
           product_bundle_detail_id: Number(product_id),
-          product_bundling: []
+          product_bundling: [],
+          display: 0,
+          section_placement: section_placement,
+
       };
 
       for (const product of products) {
@@ -629,7 +641,6 @@
       await fetchProducts();
       await fetchWarehouse();
     });
-   
   </script>
 
   <div class="mt-[90px] mx-8 mb-10 pb-10 p-3 flex flex-col items-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
@@ -1026,57 +1037,58 @@
         </tbody>
       </table>
       {#if products_to_transfer.length > 0}
-      <div class="w-[28rem]">
-        <div class="px-1 py-2 flex items-center justify-between">
-          <span class="text-base px-4">Stock for This Bundle Product: </span>
+      <div class="w-[32rem] my-4">
+        <div class="px-1 py-2 w-full grid grid-cols-3 items-center">
+          <span class="text-base px-4 col-span-2">Stock for This Bundle Product: </span>
           <input 
             type="text"
             bind:value={stock_bundle}
             max={maxstock_bundleQty} 
             min={1} 
-            class="rounded-lg w-20 h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"
-            
+            class="rounded-lg h-8 w-full text-end py-1"
             on:input={(e) => {
               const input = e.target;
-        
-              // Store the current cursor position
               const cursorPos = input.selectionStart;
-        
-              // Remove all characters except digits and decimal points
               let cleanedValue = input.value.replace(/[^0-9.]/g, '');
-        
-              // If there's more than one decimal point, keep only the first
               const parts = cleanedValue.split('.');
               if (parts.length > 2) {
                 cleanedValue = parts[0] + '.' + parts.slice(1).join('');
               }
-        
-              // Update the product quantity with the cleaned value
               stock_bundle = cleanedValue;
-        
-              // Ensure the value doesn't exceed expected_stock or go below 0
               const numericValue = parseFloat(cleanedValue);
               if (numericValue > maxstock_bundleQty) {
-                stock_bundle = maxstock_bundleQty.toString(); // Set to max
+                stock_bundle = maxstock_bundleQty.toString();
               } else if (numericValue < 1) {
-                stock_bundle = '1'; // Set to min
+                stock_bundle = '1'; 
               } else {
-                stock_bundle = numericValue ? numericValue.toString() : ''; // Set to valid value or empty if NaN
+                stock_bundle = numericValue ? numericValue.toString() : ''; 
               }
-        
-              // Restore cursor position
               input.setSelectionRange(cursorPos, cursorPos);
             }}
           />
         </div>
-        <div class="px-1 py-2 flex items-center justify-between">
-          <span class="text-base px-4">Total Buy Price: </span>
-          <span class="text-base"><MoneyConverter value={buy_price} currency={true} decimal={true}></MoneyConverter></span>
+        <div class="px-1 py-2 w-full grid grid-cols-3 items-center">
+          <span class="text-base px-4 col-span-2">Total Buy Price: </span>
+          <span class="text-base w-full pr-3 text-end py-2"><MoneyConverter value={buy_price} currency={true} decimal={false} ></MoneyConverter></span>
         </div>
-        <div class="px-1 py-2 flex items-center justify-between">
-          <span class="text-base px-4">Total Sell Price: </span>
-          <MoneyInput bind:value={sell_price} shadow={false}/>
+        <div class="px-1 py-2 w-full grid grid-cols-3 text-left items-center">
+          <span class="text-base px-4 col-span-2">Total Sell Price: </span>
+          <MoneyInput bind:value={sell_price} shadow={false} end={true}/>
         </div>
+        <div class="px-1 py-2 w-full grid grid-cols-3  items-center">
+          <span class="text-base px-4 col-span-2">Section Placement: </span>
+          <input bind:value={section_placement} type="text" class="rounded-lg font-semibold text-sm w-full h-8 text-end py-1" />
+        </div>
+        <!-- <div class="px-1 py-2 flex items-center justify-between">
+          <span class="text-base px-4">Display: </span>
+          <select class="px-2 font-semibold text-sm rounded-lg w-20 h-8 shadow-[inset_0_2px_3px_rgba(0,0,0,0.3)]"  bind:value={selected} onchange={() => (answer = '')}>
+            {#each questions as question}
+              <option class="" value={question}>
+                {question.text}
+              </option>
+            {/each}
+          </select>
+        </div> -->
       </div>
       {/if}
     </div>

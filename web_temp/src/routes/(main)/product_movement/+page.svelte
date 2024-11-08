@@ -194,6 +194,7 @@
         console.log(categories);
     }
 
+    
     async function fetchProductPhotos(product_photo_fetched){
       const response = await fetch(`http://${$uri}:8888/file/${product_photo_fetched}`, {
           method: 'GET',
@@ -249,13 +250,15 @@
         totalPages = Math.ceil(totalNotes/limit);
         products = [...data.data];
         console.log("products",products)
-        // for(let i = 0; i < products.length; i++){
-        //   if(products[i].ProductDetails.product_photo != "-"){
-        //     products[i].photo = await fetchProductPhotos(products[i].ProductDetails.product_photo)
-        //   } else {
-        //     products[i].photo = "-";
-        //   }
-        // }
+        
+        
+        for(let i = 0; i < products.length; i++){
+          if(products[i].ProductDetails.product_photo != "-"){
+            products[i].photo = await fetchProductPhotos(products[i].ProductDetails.product_photo)
+          } else {
+            products[i].photo = "-";
+          }
+        }
         
     }
     
@@ -634,20 +637,24 @@
             {#each products as product}
                   <div class="flex border-2 rounded-xl ml-auto border-gray-700 m-3">                        
                       <div class="m-4 w-1/12 flex">
-                      <img class="rounded-lg " src={img_produk} alt="">
+                          {#if product.photo != "-"}
+                            <img class="rounded-lg " src={product.photo} alt="">
+                          {:else}
+                            <img class="rounded-lg " src={img_produk} alt="">
+                          {/if}
                       </div>
-                          <div class="py-4 w-8/12">
-                              <div class="font-bold text-[#f2b082] whitespace-nowrap text-lg flex divide-x-2 divide-[#f2b082]">
-                                <div class="pr-2">ID: #{product.ProductDetails.product_detail_id}</div>
-                                <div class="pl-2">Code: {product.ProductDetails.product_code}</div>
-                              </div>
-                              <div class="font-semibold text-xl">
-                              {product.ProductDetails.product_name}
-                              </div>
-                              <div class="font-bold text-[#f2b082]  text-lg">
-                                {product.TransactionDetails.quantity} {product.ProductDetails.product_unit} sold 
-                              </div>
+                      <div class="py-4 w-8/12">
+                          <div class="font-bold text-[#f2b082] whitespace-nowrap text-lg flex divide-x-2 divide-[#f2b082]">
+                            <div class="pr-2">ID: #{product.ProductDetails.product_detail_id}</div>
+                            <div class="pl-2">Code: {product.ProductDetails.product_code}</div>
                           </div>
+                          <div class="font-semibold text-xl">
+                          {product.ProductDetails.product_name}
+                          </div>
+                          <div class="font-bold text-[#f2b082]  text-lg">
+                            {product.TransactionDetails.quantity} {product.ProductDetails.product_unit} sold 
+                          </div>
+                      </div>
                       <div class="px-6 py-4 font-semibold w-3/12 flex flex-col items-center self-center">
                           <div class="flex justify-center text-xl">
                               Stock: {product.ProductDetails.product_stock} {product.ProductDetails.product_unit}
