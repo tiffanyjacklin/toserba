@@ -254,9 +254,13 @@
                 promo_product_id = promo_product_id;
                 let quantity = checkout[i].jumlah;
                 let sell_price = promos[index]["ProductDetail"].sell_price;
-                let discount_price = ((promos[index]["ProductDetail"].sell_price)-(checkout[i]["ProductDetails"].sell_price))*quantity;
-                // let total_price = (sell_price-discount_price)*quantity;
-                let total_price = checkout[i]["ProductDetails"].sell_price*quantity;
+                // let discount_price = ((promos[index]["ProductDetail"].sell_price)-(checkout[i]["ProductDetails"].sell_price))*quantity;
+                let discount_price = 0;
+                if (checkout[i].promo_applied == true){
+                    discount_price = checkout[i].discount;
+                }
+                let total_price = (sell_price*quantity)-discount_price;
+                // let total_price = checkout[i]["ProductDetails"].sell_price*quantity;
                 let quantity_free = 0;
                 if (promos[index]["Promo"].promo_type_id == 1){
                     quantity_free = (parseInt(quantity/promos[index]["Promo"].x_amount)*promos[index]["Promo"].y_amount);
@@ -498,7 +502,7 @@
         payment_method = data.data.PaymentMethod;
         user = data.data.UserData;
         cashier_id = data.data.UserData.user_id;
-        // console.log("Transaction_Struk : ", transaction_struk)
+        console.log("Transaction_Struk : ", transaction_struk)
         // console.log("cashier id",cashier_id)
     }
 

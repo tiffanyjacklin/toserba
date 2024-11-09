@@ -410,6 +410,7 @@
       promo_term_and_cond = "";
       x_amount = 0;
       y_amount = 0;
+      min_price = 0;
 
       sw_id_list = [];
 
@@ -720,6 +721,8 @@
                         RPDISCOUNT
                       {:else if promo["Promo"].promo_type_id == 4}
                         BUYXDISCOUNT%
+                      {:else if promo["Promo"].promo_type_id == 5}
+                        MINTRANS%DISCOUNT
                       {/if}
                     </span>
                     <span class="mx-1">Promo End : {promo["Promo"].promo_end_date}</span>
@@ -919,8 +922,7 @@
       </div>
       <div class="flex flex-col my-1 mb-2">
         <span class="text-peach font-semibold mb-1">Product Promo</span>
-        <!-- <div class="w-full grid grid-cols-2 gap-2"> -->
-        <div class="w-2/3 grid grid-cols-2 gap-2">
+        <div class="w-full grid grid-cols-2 gap-2">
           {#if showPromoInput == "1"}
             <button on:click={() => {showPromoInput = "0"}} class="w-full py-2 bg-peach text-darkGray border border-peach rounded-2xl font-semibold">BUYXGETY</button>
           {:else}
@@ -941,11 +943,11 @@
           {:else}
             <button on:click={() => {showPromoInput = "4"; promo_type_id = 4; promo_type_id = promo_type_id}} class="w-full py-2 bg-darkGray text-peach border border-peach rounded-2xl font-semibold">BUYXDISCOUNT%</button>
           {/if}
-          <!-- {#if showPromoInput == "5"}
+          {#if showPromoInput == "5"}
             <button on:click={() => {showPromoInput = "0"}} class="w-full py-2 bg-peach text-darkGray border border-peach rounded-2xl font-semibold">MINTRANS%DISCOUNT</button>
           {:else}
             <button on:click={() => {showPromoInput = "5"; promo_type_id = 5; promo_type_id = promo_type_id}} class="w-full py-2 bg-darkGray text-peach border border-peach rounded-2xl font-semibold">MINTRANS%DISCOUNT</button>
-          {/if} -->
+          {/if}
         </div>
       </div>
 
@@ -991,7 +993,7 @@
           <input bind:value={promo_percentage} type="number" class="w-32 rounded-xl mb-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
         </div>
        
-        <!-- {:else if showPromoInput == "5"}
+        {:else if showPromoInput == "5"}
 
         <div class="flex items-center my-1">
           <span class="text-peach font-semibold mb-1 mr-2">Minimum Transaction</span>
@@ -1000,7 +1002,7 @@
         <div class="flex items-center my-1">
           <span class="text-peach font-semibold mb-1 mr-2">Discount Percentage (%) </span>
           <input bind:value={promo_percentage} type="number" class="w-32 rounded-xl mb-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-        </div> -->
+        </div>
         {/if}
 
 

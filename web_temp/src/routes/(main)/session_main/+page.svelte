@@ -179,6 +179,8 @@
     $: checkout = [];
     $: promos = [];
     $: total = 0;
+    $: total_discount = 0;
+    $: total_after_disc = total-total_discount;
     $: count_promo_app = 0;
     $: transactionByID = [];
     $: window = "payment";
@@ -221,31 +223,36 @@
             let index = all_promo.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
             // console.log("id promo : ", all_promo[index]["Promo"].promo_type_id)
             
-            // type 2 discount
-            if (all_promo[index]["Promo"].promo_type_id == 2){
-                produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price - (produk_checkout["ProductDetails"].sell_price*(all_promo[index]["Promo"].promo_percentage)/100)
-                produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price
-                produk_checkout.promo_applied = true;
-                produk_checkout.promo_applied = produk_checkout.promo_applied;
-            } else if (all_promo[index]["Promo"].promo_type_id == 3){
-                produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price - (all_promo[index]["Promo"].promo_discount)
-                produk_checkout["ProductDetails"].sell_price = produk_checkout["ProductDetails"].sell_price
-                produk_checkout.promo_applied = true;
-                produk_checkout.promo_applied = produk_checkout.promo_applied;
-            } else {
-                produk_checkout.promo_applied = false;
-                produk_checkout.promo_applied = produk_checkout.promo_applied;
-                // console.log("produk_checkout.promo_applied", produk_checkout.promo_applied)
-            }
+                // type 2 discount
+                if (all_promo[index]["Promo"].promo_type_id == 2){
+                    produk_checkout.discount = produk_checkout["ProductDetails"].sell_price*((all_promo[index]["Promo"].promo_percentage)/100)*produk_checkout.jumlah
+                    produk_checkout.discount = produk_checkout.discount
+                    produk_checkout.promo_applied = true;
+                    produk_checkout.promo_applied = produk_checkout.promo_applied;
+                } else if (all_promo[index]["Promo"].promo_type_id == 3){
+                    produk_checkout.discount = all_promo[index]["Promo"].promo_discount*produk_checkout.jumlah
+                    produk_checkout.discount = produk_checkout.discount
+                    produk_checkout.promo_applied = true;
+                    produk_checkout.promo_applied = produk_checkout.promo_applied;
+                } else {
+                    produk_checkout.promo_applied = false;
+                    produk_checkout.promo_applied = produk_checkout.promo_applied;
+                    // console.log("produk_checkout.promo_applied", produk_checkout.promo_applied)
+                }
+            
         }
         return produk_checkout;
     }
     
     function countPromoApplied(){
+        total_discount = 0;
         let count = 0;
         for (let i = 0; i < promos.length; i++) {
             if (promos[i].promo_applied == true){
                 count += 1
+                let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_detail_id == promos[i]["ProductDetail"].product_detail_id);
+                total_discount += checkout[index].discount;
+                total_discount = total_discount;
             }
         }
         count_promo_app = count;
@@ -253,18 +260,20 @@
     }
 
     function checkPromoAppliedType1_4(){
+        let max_discount_type5 = 0;
+        let index_max_discount = null;
         // WARNING SEMUA PROMO TERKENA CEK, PROMO TYPE 2,3 SUDAH TRUE DARI AWAL
         for (let i = 0; i < checkout.length; i++) {
             if (promos.find((produk) => produk["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id) != null){
                 // jika ada, ambil index di array all promo
                 let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[i]["ProductDetails"].product_detail_id);
                 // CEK KALO BUKAN PROMO TYPE 2 ATAU 3
-                // if (promos[index].Promo.promo_type_id != 2 || promos[index].Promo.promo_type_id != 3){
+                if (promos[index].Promo.promo_type_id != 2 && promos[index].Promo.promo_type_id != 3){
                     //jika promo type = 1 atau 4 dimana BUY X ...
-                    // if (checkout[i].jumlah >= promos[index]["Promo"].x_amount && (promos[index].Promo.promo_type_id == 4 || promos[index].Promo.promo_type_id == 1)){
-                    if (checkout[i].jumlah >= promos[index]["Promo"].x_amount){
+                    if (checkout[i].jumlah >= promos[index]["Promo"].x_amount && (promos[index].Promo.promo_type_id == 4 || promos[index].Promo.promo_type_id == 1)){
+                    // if (checkout[i].jumlah >= promos[index]["Promo"].x_amount){
                         if (promos[index].Promo.promo_type_id == 4 && checkout[i].promo_applied == false){
-                            checkout[i].ProductDetails.sell_price = checkout[i].ProductDetails.sell_price - (checkout[i].ProductDetails.sell_price*(promos[index].Promo.promo_percentage)/100)
+                            checkout[i].discount = checkout[i].ProductDetails.sell_price*((promos[index].Promo.promo_percentage)/100)*checkout[i].jumlah;
 
                             console.log("promo type 4")
                         }
@@ -276,46 +285,63 @@
                         promos[index].promo_applied = promos[index].promo_applied;
                         
                     } 
-                    // // jika promo type = 5
-                    // else if (promos[index].Promo.promo_type_id == 5 && checkout[i].promo_applied == false && (total >= promos[index]["Promo"].min_price)){
-                    //     checkout[i].ProductDetails.sell_price = checkout[i].ProductDetails.sell_price - (checkout[i].ProductDetails.sell_price*(promos[index].Promo.promo_percentage)/100)                        
+                    // jika promo type = 5
+                    else if (promos[index].Promo.promo_type_id == 5 && (total >= promos[index]["Promo"].min_price)){
+                        checkout[i].discount = checkout[i].ProductDetails.sell_price*((promos[index].Promo.promo_percentage)/100)*checkout[i].jumlah;                    
 
-                    //     checkout[i].promo_applied = true;
-                    //     checkout[i].promo_applied = checkout[i].promo_applied;
-
-                    //     promos[index].promo_applied = true;
-                    //     promos[index].promo_applied = promos[index].promo_applied;
-                        
-                    //     console.log("promo type 5");
-                    // }
-                    // else if (promos[index].Promo.promo_type_id == 2 || promos[index].Promo.promo_type_id == 3){
-                    //     checkout[i].promo_applied = true;
-                    //     checkout[i].promo_applied = checkout[i].promo_applied;
-
-                    //     promos[index].promo_applied = true;
-                    //     promos[index].promo_applied = promos[index].promo_applied;
-                    // } 
-                    else {
                         checkout[i].promo_applied = false;
                         checkout[i].promo_applied = checkout[i].promo_applied;
 
                         promos[index].promo_applied = false;
                         promos[index].promo_applied = promos[index].promo_applied;
 
-                        // if (promos[index].Promo.promo_type_id == 4 || promos[index].Promo.promo_type_id == 5){
-                        if (promos[index].Promo.promo_type_id == 4){
-                            let index_all_pro = all_produk.findIndex(produk => produk.ProductDetails.product_detail_id == checkout[i].ProductDetails.product_detail_id);
+                        //Cek MAX DISCOUNT TYPE 5
+                        if (checkout[i].discount > max_discount_type5){
+                            max_discount_type5 = checkout[i].discount;
+                            max_discount_type5 = max_discount_type5;
 
-                            checkout[i].ProductDetails.sell_price = all_produk[index_all_pro].ProductDetails.sell_price
+                            console.log("max_discount_type5", max_discount_type5);
+                            console.log("i max = ", i)
+                            index_max_discount = i;
+                            index_max_discount = index_max_discount;
+                        }
+
+                        console.log("promo type 5");
+
+                    } else {
+                        checkout[i].promo_applied = false;
+                        checkout[i].promo_applied = checkout[i].promo_applied;
+
+                        promos[index].promo_applied = false;
+                        promos[index].promo_applied = promos[index].promo_applied;
+
+                        if (promos[index].Promo.promo_type_id == 4 || promos[index].Promo.promo_type_id == 5){
+                        // if (promos[index].Promo.promo_type_id == 4){
+                            // let index_all_pro = all_produk.findIndex(produk => produk.ProductDetails.product_detail_id == checkout[i].ProductDetails.product_detail_id);
+
+                            // checkout[i].ProductDetails.sell_price = all_produk[index_all_pro].ProductDetails.sell_price
+                            checkout[i].discount = 0;
                             console.log("reset harga promo type 4/5")
                         }
                     }
-                // } else{
-                //     console.log("promo type 2/3")
-                // }
+                } else{
+                    console.log("promo type 2/3")
+                }
         
             }
         }
+        
+        if (index_max_discount != null){
+            checkout[index_max_discount].promo_applied = true;
+            checkout[index_max_discount].promo_applied = checkout[index_max_discount].promo_applied;
+
+            let index = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == checkout[index_max_discount]["ProductDetails"].product_detail_id);
+            promos[index].promo_applied = true;
+            promos[index].promo_applied = promos[index].promo_applied;
+        }
+
+        max_discount_type5 = 0;
+        index_max_discount = null;
     }
 
     function sumTotal(){
@@ -376,9 +402,11 @@
         if (checkout.find(( product ) => product["ProductDetails"].product_name == produk["ProductDetails"].product_name) != null){
             let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_name == produk["ProductDetails"].product_name);
             checkout[index].jumlah+=1;
+            promoType2_3(checkout[index]);
         } else{
-            promoType2_3(produk);
+            produk.discount = 0;
             produk.jumlah = 1;
+            promoType2_3(produk);
             checkout.push(produk)
         }
         all_produk = all_produk;
@@ -389,7 +417,7 @@
     function pay(){
         sessionStorage.setItem('checkout', JSON.stringify(checkout));
         sessionStorage.setItem('promos', JSON.stringify(promos));
-        totalAmount.set(String(total));
+        totalAmount.set(String(total_after_disc));
         goto(`/payment`);
     }
 
@@ -898,25 +926,35 @@
                                 {:else}
                                     <p class="font-semibold ml-8 text-peach2">This item has a promo! Promo not yet applied.</p>
                                 {/if}
-                            <!-- {:else if (promo_produk["Promo"].promo_type_id == 5)}
-                                {#if (total >= promo_produk["Promo"].min_price)}
+                            {:else if (promo_produk["Promo"].promo_type_id == 5)}
+                                {#if (total >= promo_produk["Promo"].min_price && produk_checkout.promo_applied == true)}
                                 <p class="font-semibold ml-8">{"Discount " + promo_produk["Promo"].promo_percentage + "% off"}</p>                                    
                                 <p class="font-semibold ml-8 text-peach2">Promo Applied.</p>
+                                {:else if (total >= promo_produk["Promo"].min_price && produk_checkout.promo_applied == false)}
+                                    <p class="font-semibold ml-8 text-peach2">Promo not applied, requirements not met.</p>
                                 {:else}
                                     <p class="font-semibold ml-8 text-peach2">This item has a promo! Promo not yet applied.</p>
-                                {/if} -->
+                                {/if}
                             {/if}
                        {/if}
                         
                     </div>
                     <div class="w-3/12 text-center">
-                        <span class="text-peach font-semibold"><MoneyConverter value={produk_checkout["ProductDetails"].sell_price*produk_checkout.jumlah} currency={true} decimal={true}></MoneyConverter></span>
+                        {#if (promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id) != null) && produk_checkout.discount > 0 && produk_checkout.promo_applied == true}
+                            <span class="text-gray-400 font-semibold line-through"><MoneyConverter value={produk_checkout["ProductDetails"].sell_price*produk_checkout.jumlah} currency={true} decimal={true}></MoneyConverter></span>
+                            <span class="text-peach font-semibold"><MoneyConverter value={(produk_checkout["ProductDetails"].sell_price*produk_checkout.jumlah)-produk_checkout.discount} currency={true} decimal={true}></MoneyConverter></span>
+                        {:else if ((promos.find((produk) => produk["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id) != null) && produk_checkout.discount > 0 && produk_checkout.promo_applied == false)}
+                            <span class="text-peach font-semibold"><MoneyConverter value={(produk_checkout["ProductDetails"].sell_price*produk_checkout.jumlah)} currency={true} decimal={true}></MoneyConverter></span>
+                        {:else}
+                            <span class="text-peach font-semibold"><MoneyConverter value={(produk_checkout["ProductDetails"].sell_price*produk_checkout.jumlah)-produk_checkout.discount} currency={true} decimal={true}></MoneyConverter></span>
+                        {/if}
                         <div class="flex">
                             <button on:click={() => {
                                 let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
                                 let index_promo = promos.findIndex(produk_p => produk_p["ProductDetail"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
                                 if (checkout[index].jumlah > 1){
                                     checkout[index].jumlah-=1;
+                                    promoType2_3(checkout[index]);
                                 } else{
                                     checkout.splice(index,1);
                                     checkout = checkout;
@@ -927,7 +965,7 @@
                                         promos = promos;
                                     }
                                     console.log(checkout);
-                                    // console.log("promos-",promos);
+                                    console.log("promos-",promos);
                                 }
                                 sumTotal();
                                 checkPromoAppliedType1_4();
@@ -938,7 +976,8 @@
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
                                 </svg>
                             </button>
-                            <input on:change={() =>{ sumTotal(); checkPromoAppliedType1_4();countPromoApplied();}} 
+                            <input on:change={() =>{let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
+                                promoType2_3(checkout[index]); sumTotal(); checkPromoAppliedType1_4();countPromoApplied();}} 
                             on:keyup={()=> {
                             if (produk_checkout.jumlah >= produk_checkout.ProductDetails.product_stock){
                                     produk_checkout.jumlah = produk_checkout.ProductDetails.product_stock;
@@ -949,10 +988,12 @@
                                 let index = checkout.findIndex(produk_c => produk_c["ProductDetails"].product_detail_id == produk_checkout["ProductDetails"].product_detail_id);
                                 if(checkout[index].jumlah < checkout[index].ProductDetails.product_stock){
                                     checkout[index].jumlah+=1;
+                                    promoType2_3(checkout[index]);
                                     sumTotal(); 
                                     checkPromoAppliedType1_4();
                                     countPromoApplied();
                                     console.log(checkout)
+                                    console.log("promos+",promos)
                                 }
                             }} 
                             type="button" class="bg-peach rounded-e-xl h-8 p-2">
@@ -968,8 +1009,15 @@
 
         </div>
 
-        <div class="text-end mr-4"> 
-            <span class="text-peach font-semibold "><MoneyConverter bind:value={total} currency={true} decimal={true}></MoneyConverter></span>
+        <div class="text-end mx-4">
+            <div class="flex w-full justify-between">
+                <span class="text-peach font-semibold ">Total Sebelum Disc.</span>
+                <span class="text-peach font-semibold "><MoneyConverter bind:value={total} currency={true} decimal={true}></MoneyConverter></span>
+            </div> 
+            <div class="flex w-full justify-between">
+                <span class="text-peach2 font-semibold ">Total Sesudah Disc.</span>
+                <span class="text-peach2 font-semibold "><MoneyConverter bind:value={total_after_disc} currency={true} decimal={true}></MoneyConverter></span>
+            </div> 
         </div>
         <button on:click={() => handleClick(3)} class="w-auto bg-peach2 text-darkGray p-2 px-auto rounded-2xl mx-3 my-2 font-semibold">{promos.length} item(s) with promo, {count_promo_app} promo(s) applied</button>
         

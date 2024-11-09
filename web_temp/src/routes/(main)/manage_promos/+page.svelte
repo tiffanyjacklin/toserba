@@ -46,6 +46,7 @@
   let promo_term_and_cond = "";
   let x_amount = 0;
   let y_amount = 0;
+  let min_price = 0;
 
   //ADD PROMO TO STORE
   $: sw_id_list = [];
@@ -268,7 +269,9 @@
           promo_discount,
           promo_term_and_cond,
           x_amount,
-          y_amount
+          y_amount,
+          min_price,
+          user_id : Number($userId)
         }])
     });
 
@@ -329,6 +332,7 @@
         await insertNotif(description,18)
       }
 
+      await verifyPromo(last_promo_id,parseInt(choosen_product_id),1);
       
       choosen_product_id = "";
       choosen_product_name = "";
@@ -342,6 +346,7 @@
       promo_term_and_cond = "";
       x_amount = 0;
       y_amount = 0;
+      min_price = 0;
 
       sw_id_list = [];
 
@@ -356,6 +361,25 @@
           confirmButtonColor: '#F2AA7E'
         });
   }
+
+  async function verifyPromo(promo_id,product_id,status) {
+      const response = await fetch(`http://${$uri}:8888/promos/verify/${promo_id}/${product_id}/${status}`, {
+          method: 'PUT',
+      });
+
+      if (!response.ok) {
+          console.error('PUT verify promo gagal', response);
+          return;
+      }
+
+      const data = await response.json();
+
+      if (data.status !== 200) {
+          console.error('Invalid put verify promo', data);
+          return;
+      }
+      console.log("verify promo berhasil")
+    }
 
   function navigateToStorePage(store_warehouse_id) {
       const url = `/manage_promos/${store_warehouse_id}`;
@@ -668,7 +692,7 @@
     </div>
     <div class="flex flex-col my-1 mb-2">
       <span class="text-peach font-semibold mb-1">Product Promo</span>
-      <div class="w-2/3 grid grid-cols-2 gap-2">
+      <div class="w-full grid grid-cols-2 gap-2">
         {#if showPromoInput == "1"}
           <button on:click={() => {showPromoInput = "0"}} class="w-full py-2 bg-peach text-darkGray border border-peach rounded-2xl font-semibold">BUYXGETY</button>
         {:else}
@@ -688,6 +712,11 @@
           <button on:click={() => {showPromoInput = "0"}} class="w-full py-2 bg-peach text-darkGray border border-peach rounded-2xl font-semibold">BUYXDISCOUNT%</button>
         {:else}
           <button on:click={() => {showPromoInput = "4"; promo_type_id = 4; promo_type_id = promo_type_id}} class="w-full py-2 bg-darkGray text-peach border border-peach rounded-2xl font-semibold">BUYXDISCOUNT%</button>
+        {/if}
+        {#if showPromoInput == "5"}
+          <button on:click={() => {showPromoInput = "0"}} class="w-full py-2 bg-peach text-darkGray border border-peach rounded-2xl font-semibold">MINTRANS%DISCOUNT</button>
+        {:else}
+          <button on:click={() => {showPromoInput = "5"; promo_type_id = 5; promo_type_id = promo_type_id}} class="w-full py-2 bg-darkGray text-peach border border-peach rounded-2xl font-semibold">MINTRANS%DISCOUNT</button>
         {/if}
       </div>
     </div>
@@ -733,6 +762,17 @@
         <span class="text-peach font-semibold mb-1 mr-2">Discount Percentage (%) </span>
         <input bind:value={promo_percentage} type="number" class="w-32 rounded-xl mb-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
       </div>
+      
+      {:else if showPromoInput == "5"}
+
+        <div class="flex items-center my-1">
+          <span class="text-peach font-semibold mb-1 mr-2">Minimum Transaction</span>
+          <input bind:value={min_price} type="number" class="w-32 rounded-xl mb-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+        </div>
+        <div class="flex items-center my-1">
+          <span class="text-peach font-semibold mb-1 mr-2">Discount Percentage (%) </span>
+          <input bind:value={promo_percentage} type="number" class="w-32 rounded-xl mb-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+        </div>
       {/if}
 
 
