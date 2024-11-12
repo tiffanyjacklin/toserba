@@ -649,12 +649,10 @@
     </div>
     <span class="text-4xl font-bold font-roboto text-[#364445] my-10">{ProductDetails.product_name}</span>      
     <div class="w-full  justify-start items-center mb-4 px-8 flex gap-x-2 gap-y-4">
-      {#if tampilan == "edit" }
-          <button on:click={async() => {tampilan = ""; tampilan = tampilan; editMode = false; }} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Cancel Edit</button>
-      {:else if tampilan == "add_stock"}
+      {#if tampilan == "add_stock"}
           <button on:click={async() => {tampilan = ""; tampilan = tampilan; editMode = false; }} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">View</button>
       {:else}
-          <button on:click={async() => {tampilan = "edit"; tampilan = tampilan; editMode = true; }} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Edit</button>
+      <button on:click={async() => {tampilan = ""; tampilan = tampilan; editMode = false; }} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">View</button>
       {/if}
       {#if tampilan == "add_stock"}
           <button on:click={async() => {tampilan = "add_stock"; tampilan = tampilan; editMode = false; }} class="bg-peach2 text-darkGray font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">Add Stock</button>
@@ -689,7 +687,7 @@
             <span class="text-peach2">Date Added</span>
             <DateConverter value={ProductDetails.product_timestamp} date={true} hour={false} second={false} ampm={false} monthNumber={true} dash={false} dateFirst={false}/>
           </div>
-          <!-- <div class="">
+          <div class="">
             <div class="text-peach2 my-2">Current Stock
               <button on:click={() => toggleTable1(ProductDetails.product_detail_id)} class="ml-2">
                 {#if showTable1}
@@ -739,7 +737,7 @@
               </table>
             </div>
           {/if}
-          </div> -->
+          </div>
           <!-- <div class="my-2">
             <div class="text-peach2">Last Inventory Taking</div>
             <div class="">{ProductDetails.product_name}</div>
