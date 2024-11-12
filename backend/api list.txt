@@ -451,7 +451,7 @@ e.GET("/orders/delivery/last", controller.GetLastDeliveryOrder)
 e.GET("/orders/delivery/warehouse/from/:sw_from_id/:limit/:offset", controller.GetDeliveryOrderBySWFromID)
 
 // Mengambil data surat jalan berdasarkan tujuan pengiriman
-e.GET("/orders/delivery/warehouse/to/:sw_to_id/:status_accept/:start_date/:end_date/:limit/:offset", controller.GetDeliveryOrderBySWToID)
+e.GET("/orders/delivery/warehouse/to/:sw_to_id/:status_accept/:deliveryorder_id/:start_date/:end_date/:limit/:offset", controller.GetDeliveryOrderBySWToID)
 
 // Mengambil data surat jalan berdasarkan asal dan tujuan pengiriman
 e.GET("/orders/delivery/storewarehouse/:sw_from_id/:sw_to_id", controller.GetDOFromSWIDToSWID)

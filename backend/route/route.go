@@ -134,7 +134,7 @@ func Init() *echo.Echo {
 	e.GET("/orders/delivery/:delivery_order_id", controller.GetDeliveryOrderByID)
 	e.GET("/orders/delivery/last", controller.GetLastDeliveryOrder)
 	e.GET("/orders/delivery/warehouse/from/:sw_from_id/:limit/:offset", controller.GetDeliveryOrderBySWFromID)
-	e.GET("/orders/delivery/warehouse/to/:deliveryorder_id/:sw_to_id/:status_accept/:start_date/:end_date/:limit/:offset", controller.GetDeliveryOrderBySWToID)
+	e.GET("/orders/delivery/warehouse/to/:sw_to_id/:status_accept/:deliveryorder_id/:start_date/:end_date/:limit/:offset", controller.GetDeliveryOrderBySWToID)
 	e.GET("/orders/delivery/storewarehouse/:sw_from_id/:sw_to_id", controller.GetDOFromSWIDToSWID)
 	e.GET("/orders/delivery/transfernote/:transfernote_id", controller.GetDeliveryOrderByTNID)
 	e.GET("/orders/delivery/detail/:delivery_order_id", controller.GetDeliveryOrderDetailByDOID)
