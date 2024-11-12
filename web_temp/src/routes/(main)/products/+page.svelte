@@ -177,7 +177,13 @@
       await fetchProductCategory();
       await fetchProductSort();
   });
-
+  async function img_get(barcode, product_code) {
+    const barcodeSrc = barcode;
+    const downloadLink = document.createElement("a");
+    downloadLink.href = barcodeSrc;
+    downloadLink.download = `${product_code}_barcode.png`; // Dynamically name the file based on the product code
+    downloadLink.click();
+  }
   async function fetchProduk() {
     console.log(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}`);
       const response = await fetch(`http://${$uri}:8888/products/store_warehouse/${$userId}/${$roleId}////${searchQuery}/${category}/${unit_type}/${sort_type}/${sorting}/${limit}/${offset}`, {
@@ -204,9 +210,11 @@
 
       for(let i = 0; i < products.length; i++){
         if(products[i].ProductDetails.product_photo != "-"){
-          products[i].photo = await fetchProductPhotos(products[i].ProductDetails.product_photo)
+          products[i].photo = await fetchProductPhotos(products[i].ProductDetails.product_photo);
+          products[i].barcode = await fetchProductBarcode(products[i].ProductDetails.product_code);
         } else {
           products[i].photo = "-";
+          products[i].barcode = "-";
         }
       }
 
@@ -223,6 +231,25 @@
 
     if (!response.ok) {
         console.error('fetch user pp failed', response);
+        return;
+    }
+
+      // Instead of expecting a JSON response, we handle the image as a blob
+      const blob = await response.blob();
+
+      // Convert the blob to an object URL so it can be used as the image source
+      return URL.createObjectURL(blob);
+  }
+  async function fetchProductBarcode(product_code){
+    const response = await fetch(`http://${$uri}:8888/barcode/generate/${product_code}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('fetch barcode failed', response);
         return;
     }
 
@@ -567,12 +594,36 @@
       <form class=" mt-8 p-4 md:p-5">
           <div class="grid gap-3 font-roboto font-semibold">
             <div class="">
+                <div class="text-[#f7d4b2]">Product Photo</div>
+                <div class="text-white">
+                  {#if product.photo != "-"}
+                    <img class="rounded-lg w-40" src={product.photo} alt="">
+                  {:else}
+                    <img class="rounded-lg w-40" src={img_produk} alt="">
+                  {/if}
+              </div>
+            </div>
+                  
+            <div class="">
                 <div class="text-[#f7d4b2]">Product ID</div>
                 <div class="text-white">{product.ProductDetails.product_detail_id}</div>
             </div>
             <div class="">
               <div class="text-[#f7d4b2]">Product Code</div>
               <div class="text-white">{product.ProductDetails.product_code}</div>
+              
+              {#if product.barcode != "-"}
+              <div class="flex items-center">
+                <div class="w-fit rounded-lg bg-white py-2">
+                  <img class="" src={product.barcode} alt=""> 
+                </div>
+                <button 
+                on:click={() => img_get(product.barcode, product.ProductDetails.product_code)}
+                class="ml-4 w-12 h-12 flex items-center justify-center text-[#f7d4b2] hover:text-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
+                  <i class="fa-solid fa-download fa-lg"></i>
+                </button>
+              </div>
+              {/if}
             </div>
             <div class="">
               <div class="text-[#f7d4b2]">Product Name</div>
