@@ -200,6 +200,8 @@ func Init() *echo.Echo {
 	e.PUT("/orders/transfer/detail/update/product/:transfernote_id/:product_id/:quantity", controller.UpdateProductQtyTransferNote)
 	e.DELETE("/orders/transfer/detail/delete/product/:transfernote_id/:product_id/:batch/:exp_date", controller.DelProductFromTransferNote)
 
+	e.PUT("/orders/delivery/verify/:deliveryorder_id", controller.VerifyDeliveryOrder)
+
 	e.GET("/orders/supplier/verify/:status/:sw_name/:limit/:offset", controller.GetNotVerifiedAddStock)
 	e.PUT("/orders/supplier/verify/:addstock_id/:status", controller.VerifyAddStock)
 	e.PUT("/orders/supplier/update/stock/:addstock_id", controller.UpdateStockInAddStock)
