@@ -21,6 +21,7 @@ func Init() *echo.Echo {
 	e.POST("/file/upload", controller.UploadFile)
 	e.GET("/file", controller.GetFile)
 	e.GET("/file/:photo_path", controller.GetFilePath)
+	e.GET("/barcode/generate/:code", controller.GenerateBarcode)
 
 	// User
 	e.PUT("/user/login", controller.GetUser) // body form-data username & password
