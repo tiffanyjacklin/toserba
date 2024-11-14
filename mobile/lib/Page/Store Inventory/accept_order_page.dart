@@ -37,12 +37,12 @@ class AcceptOrderPage extends StatefulWidget {
 
 class _AcceptOrderPageState extends State<AcceptOrderPage> {
   final NumberPaginatorController _controller = NumberPaginatorController();
+  TextEditingController _searchController = TextEditingController();
   // var _currentPage = 1;
 
   @override
   Widget build(BuildContext context) {
     var provider = Provider.of<AcceptOrderProvider>(context);
-    TextEditingController _searchController = TextEditingController();
     // List<deliveryStore.Data> listPerPage = provider.listPerPage;
     provider.currentPage = _controller.currentPage;
 
@@ -89,6 +89,7 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
                     ),
                     suffixIcon: IconButton(
                         onPressed: () {
+                          provider.isFiltering = !provider.isFiltering;
                           provider.filter(_searchController.text);
                           _controller.currentPage = 0;
                         },
@@ -107,400 +108,441 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
               // pagination nya
               provider.isLoading
                   ? CircularProgressIndicator()
-                  : provider.isFiltering ? 
-                  Container(
-                      height: 350,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Center(
-                              child: Container(
-                                // height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          blurRadius: 4,
-                                          color: Colors.grey,
-                                          offset: Offset(0, 1)),
-                                    ]),
-                                width: MediaQuery.of(context).size.width *
-                                    0.8 *
-                                    0.98,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            provider.resetFilter();
-                                          },
-                                          child: Text(
-                                            'Reset',
+                  : provider.isFiltering
+                      ? Container(
+                          height: 350,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Center(
+                                  child: Container(
+                                    // height: 200,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 4,
+                                              color: Colors.grey,
+                                              offset: Offset(0, 1)),
+                                        ]),
+                                    width: MediaQuery.of(context).size.width *
+                                        0.8 *
+                                        0.98,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                provider.resetFilter();
+                                              },
+                                              child: Text(
+                                                'Reset',
+                                                style: TextStyle(
+                                                    color: ColorPalleteLogin
+                                                        .OrangeDarkColor,
+                                                    fontSize: fontSizeBody,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+
+                                          // Status
+                                          Text(
+                                            'Status',
                                             style: TextStyle(
-                                                color: ColorPalleteLogin
-                                                    .OrangeDarkColor,
-                                                fontSize: fontSizeBody,
+                                                fontSize: 22,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                        ),
-                                      ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Wrap(
+                                            children: List.generate(
+                                                provider.listChecked.keys
+                                                    .length, (index) {
+                                              return Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    horizontal: 2),
+                                                child: provider.listChecked.keys
+                                                            .toList()[index] ==
+                                                        provider
+                                                            .listChecked.keys
+                                                            .firstWhere(
+                                                                (k) =>
+                                                                    provider
+                                                                        .listChecked[
+                                                                            k]
+                                                                        .toString() ==
+                                                                    provider
+                                                                        .checkStatus,
+                                                                orElse: () =>
+                                                                    '')
+                                                    ? OutlinedButton(
+                                                        onPressed: () {
+                                                          provider
+                                                              .setCheckStatus(
+                                                                  '');
+                                                        },
+                                                        child: Text(
+                                                          provider
+                                                              .listChecked.keys
+                                                              .toList()[index],
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  fontSizeBody,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: ColorPalleteLogin
+                                                                  .OrangeDarkColor),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color: ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor),
+                                                      )
+                                                    : OutlinedButton(
+                                                        onPressed: () {
+                                                          provider.setCheckStatus(
+                                                              provider.listChecked
+                                                                      .keys
+                                                                      .toList()[
+                                                                  index]);
+                                                        },
+                                                        child: Text(
+                                                          provider
+                                                              .listChecked.keys
+                                                              .toList()[index],
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  fontSizeBody,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.black),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            side: BorderSide(
+                                                                strokeAlign: 2,
+                                                                color:
+                                                                    Colors.grey[
+                                                                        300]!),
+                                                            overlayColor:
+                                                                ColorPalleteLogin
+                                                                    .OrangeDarkColor,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .grey[300]),
+                                                      ),
+                                              );
+                                            }),
+                                          ),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
 
-                                      // Status
-                                      Text(
-                                        'Status',
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Wrap(
-                                        children: List.generate(
-                                            provider.listChecked.keys.length,
-                                            (index) {
-                                          return Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 2),
-                                            child: provider.listChecked.keys.toList()[index]
-                                                      ==
-                                                    provider.listChecked.keys.firstWhere((k) => provider.listChecked[k].toString() == provider.checkStatus, orElse: () => '')
-                                                ? OutlinedButton(
-                                                    onPressed: () {
-                                                      provider
-                                                          .setCheckStatus('');
-                                                    },
-                                                    child: Text(
-                                                      provider.listChecked.keys.toList()[index],
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              fontSizeBody,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: ColorPalleteLogin
-                                                              .OrangeDarkColor),
+                                          // time period
+                                          Text(
+                                            'Time Period',
+                                            style: TextStyle(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 12.0),
+                                            child: Wrap(
+                                              crossAxisAlignment:
+                                                  WrapCrossAlignment.center,
+                                              spacing: 10.0,
+                                              children: [
+                                                Text(
+                                                  'From',
+                                                  style: TextStyle(
+                                                      fontSize: fontSizeBody,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    final DateTime? dateTime =
+                                                        await showDatePicker(
+                                                      context: context,
+                                                      initialDate: provider
+                                                          .rangeDate.first,
+                                                      firstDate: DateTime(2000),
+                                                      lastDate: DateTime.now(),
+                                                    );
+
+                                                    if (dateTime != null) {
+                                                      provider.setRangeDate(
+                                                          dateTime, true);
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    width: 160,
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: Colors.black,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20.0),
                                                     ),
-                                                    style: OutlinedButton.styleFrom(
-                                                        side: BorderSide(
-                                                            strokeAlign: 2,
-                                                            color: ColorPalleteLogin
-                                                                .OrangeDarkColor),
-                                                        overlayColor:
-                                                            ColorPalleteLogin
-                                                                .OrangeDarkColor),
-                                                  )
-                                                : OutlinedButton(
-                                                    onPressed: () {
-                                                      provider.setCheckStatus(
-                                                          provider.listChecked.keys.toList()[index]
-                                                      );
-                                                    },
-                                                    child: Text(
-                                                      provider.listChecked.keys.toList()[index],
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              fontSizeBody,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.black),
+                                                    child: Center(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceEvenly,
+                                                          children: [
+                                                            Text(
+                                                              '${DateFormat('dd/MM/yyyy').format(provider.rangeDate.first.toLocal())}',
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      fontSizeBody,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                            Icon(
+                                                              Icons
+                                                                  .date_range_outlined,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     ),
-                                                    style: OutlinedButton.styleFrom(
-                                                        side: BorderSide(
-                                                            strokeAlign: 2,
-                                                            color: Colors
-                                                                .grey[300]!),
-                                                        overlayColor:
-                                                            ColorPalleteLogin
-                                                                .OrangeDarkColor,
-                                                        backgroundColor:
-                                                            Colors.grey[300]),
                                                   ),
-                                          );
-                                        }),
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
+                                                ),
+                                                Text(
+                                                  'To',
+                                                  style: TextStyle(
+                                                      fontSize: fontSizeBody,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    final DateTime? dateTime =
+                                                        await showDatePicker(
+                                                      context: context,
+                                                      initialDate: provider
+                                                          .rangeDate.last,
+                                                      firstDate: provider
+                                                          .rangeDate.last,
+                                                      lastDate: DateTime.now(),
+                                                    );
 
-                                      // time period
-                                      Text(
-                                        'Time Period',
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
+                                                    if (dateTime != null) {
+                                                      provider.setRangeDate(
+                                                          dateTime, false);
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    width: 160,
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: Colors.black,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20.0),
+                                                    ),
+                                                    child: Center(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceEvenly,
+                                                          children: [
+                                                            Text(
+                                                              '${DateFormat('dd/MM/yyyy').format(provider.rangeDate.last.toLocal())}',
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      fontSizeBody,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                            Icon(
+                                                              Icons
+                                                                  .date_range_outlined,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
 
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12.0),
-                                        child: Wrap(
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.center,
-                                          spacing: 10.0,
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Container(
+                                              height: 50,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.55 *
+                                                  0.3,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      ColorPalleteLogin
+                                                          .OrangeLightColor,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20.0),
+                                                  ),
+                                                ),
+                                                child: Wrap(
+                                                  spacing: 12,
+                                                  children: [
+                                                    Text(
+                                                      'Apply',
+                                                      style: TextStyle(
+                                                        color: ColorPalleteLogin
+                                                            .PrimaryColor,
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                onPressed: () {
+                                                  provider.isFiltering = !provider.isFiltering;
+                                                  provider.filter(
+                                                      _searchController.text);
+                                                  _controller.currentPage = 0;
+                                                },
+                                              ),
+                                            ),
+                                          ),
+
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : provider.items.isEmpty
+                          ? Container(
+                              child: Text('No Data'),
+                            )
+                          : ListenableBuilder(
+                              listenable: provider,
+                              builder: (BuildContext context, Widget? child) {
+                                return Column(children: [
+                                  Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.70,
+                                    child: NumberPaginator(
+                                      config: NumberPaginatorUIConfig(
+                                        buttonUnselectedForegroundColor:
+                                            Colors.black,
+                                        buttonSelectedBackgroundColor:
+                                            Colors.black,
+                                        buttonSelectedForegroundColor:
+                                            Colors.white,
+                                      ),
+                                      // by default, the paginator shows numbers as center content
+                                      numberPages: provider.getMaxPage(),
+                                      onPageChange: (int index) {},
+                                      controller: _controller,
+
+                                      // show/hide the prev/next buttons
+                                      showPrevButton: true,
+                                      showNextButton: true, // defaults to true
+                                      // custom content of the prev/next buttons, maintains their behavior
+                                      nextButtonBuilder: (context) =>
+                                          TextButton(
+                                        onPressed: _controller.currentPage <
+                                                provider.getMaxPage() - 1
+                                            ? () => {_controller.next()}
+                                            : null, // _controller must be passed to NumberPaginator
+                                        child: const Row(
                                           children: [
-                                            Text(
-                                              'From',
-                                              style: TextStyle(
-                                                  fontSize: fontSizeBody,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () async {
-                                                final DateTime? dateTime =
-                                                    await showDatePicker(
-                                                  context: context,
-                                                  initialDate: provider.rangeDate.first,
-                                                  firstDate: DateTime(2000),
-                                                  lastDate: DateTime.now(),
-                                                );
-
-                                                if (dateTime != null) {
-                                                  provider.setRangeDate(
-                                                      dateTime, true);
-                                                }
-                                              },
-                                              child: Container(
-                                                width: 160,
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                    color: Colors.black,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0),
-                                                ),
-                                                child: Center(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            10.0),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceEvenly,
-                                                      children: [
-                                                        Text(
-                                                          '${DateFormat('dd/MM/yyyy').format(provider.rangeDate.first.toLocal())}',
-                                                          style: TextStyle(
-                                                              fontSize:
-                                                                  fontSizeBody,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                        Icon(
-                                                          Icons
-                                                              .date_range_outlined,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Text(
-                                              'To',
-                                              style: TextStyle(
-                                                  fontSize: fontSizeBody,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () async {
-                                                final DateTime? dateTime =
-                                                    await showDatePicker(
-                                                  context: context,
-                                                  initialDate: provider.rangeDate.last,
-                                                  firstDate: provider
-                                                      .rangeDate.last,
-                                                  lastDate: DateTime.now(),
-                                                );
-
-                                                if (dateTime != null) {
-                                                  provider.setRangeDate(
-                                                      dateTime, false);
-                                                }
-                                              },
-                                              child: Container(
-                                                width: 160,
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                    color: Colors.black,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0),
-                                                ),
-                                                child: Center(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceEvenly,
-                                                      children: [
-                                                        Text(
-                                                          '${DateFormat('dd/MM/yyyy').format(provider.rangeDate.last.toLocal())}',
-                                                          style: TextStyle(
-                                                              fontSize:
-                                                                  fontSizeBody,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                        Icon(
-                                                          Icons
-                                                              .date_range_outlined,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                            Text("Next"),
+                                            Icon(Icons.chevron_right),
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 10,),
-
-                                       Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Container(
-                                            height: 50,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.55 *
-                                                0.3,
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: ColorPalleteLogin
-                                                    .OrangeLightColor,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(20.0),
-                                                ),
-                                              ),
-                                              child: Wrap(
-                                                spacing: 12,
-                                                children: [
-                                                  Text(
-                                                    'Apply',
-                                                    style: TextStyle(
-                                                      color: ColorPalleteLogin
-                                                          .PrimaryColor,
-                                                      fontSize: 20,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              onPressed: () {
-                                                provider.filter(_searchController.text);
-                                                _controller.currentPage = 0;
-                                              },
-                                            ),
-                                          ),
+                                      // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
+                                      prevButtonBuilder: (context) =>
+                                          TextButton(
+                                        onPressed: _controller.currentPage > 0
+                                            ? () => _controller.prev()
+                                            : null, // _controller must be passed to NumberPaginator
+                                        child: const Row(
+                                          children: [
+                                            Icon(Icons.chevron_left),
+                                            Text("Previous"),
+                                          ],
                                         ),
-
-                                      SizedBox(
-                                        height: 20,
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  : provider.items.isEmpty
-                      ? Container(
-                          child: Text('No Data'),
-                        )
-                      : ListenableBuilder(
-                          listenable: provider,
-                          builder: (BuildContext context, Widget? child) {
-                            return Column(children: [
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.70,
-                                child: NumberPaginator(
-                                  config: NumberPaginatorUIConfig(
-                                    buttonUnselectedForegroundColor: Colors.black,
-                                    buttonSelectedBackgroundColor: Colors.black,
-                                    buttonSelectedForegroundColor: Colors.white, 
-                                  ),
-                                  // by default, the paginator shows numbers as center content
-                                  numberPages: provider.getMaxPage(),
-                                  onPageChange: (int index) {},
-                                  controller: _controller,
-
-                                  // show/hide the prev/next buttons
-                                  showPrevButton: true,
-                                  showNextButton: true, // defaults to true
-                                  // custom content of the prev/next buttons, maintains their behavior
-                                  nextButtonBuilder: (context) => TextButton(
-                                    onPressed: _controller.currentPage <
-                                            provider.getMaxPage() - 1
-                                        ? () => {_controller.next()}
-                                        : null, // _controller must be passed to NumberPaginator
-                                    child: const Row(
-                                      children: [
-                                        Text("Next"),
-                                        Icon(Icons.chevron_right),
-                                      ],
                                     ),
                                   ),
-                                  // custom prev/next buttons using builder (ignored if showPrevButton/showNextButton is false)
-                                  prevButtonBuilder: (context) => TextButton(
-                                    onPressed: _controller.currentPage > 0
-                                        ? () => _controller.prev()
-                                        : null, // _controller must be passed to NumberPaginator
-                                    child: const Row(
-                                      children: [
-                                        Icon(Icons.chevron_left),
-                                        Text("Previous"),
-                                      ],
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+
+                                  // with api run
+                                  Container(
+                                    // height: 400,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: provider.listPerPage.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return DeliveryOrderChild(
+                                            data: provider.listPerPage[index]);
+                                      },
                                     ),
                                   ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-
-                              // with api run
-                              Container(
-                                // height: 400,
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: provider.listPerPage.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return DeliveryOrderChild(
-                                        data: provider.listPerPage[index]);
-                                  },
-                                ),
-                              ),
-                            ]);
-                          }),
+                                ]);
+                              }),
             ],
           ),
         ),
@@ -609,24 +651,25 @@ class DeliveryOrderChild extends StatelessWidget {
                         barrierDismissible: false,
                         context: context,
                         builder: (context) => PopScope(
-                          onPopInvokedWithResult: (didPop, result) {
-                            if(didPop){
-                              if(result.toString().isNotEmpty){
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                          backgroundColor: Colors.green[400],
-                                          content: Text(
-                                            '${result.toString()}',
-                                            style: TableContentTextStyle
-                                                .textStyleBody,
-                                          ),
-                                        ),
-                              );
-                              provider.refresh();
+                            onPopInvokedWithResult: (didPop, result) {
+                              if (didPop) {
+                                if (result.toString().isNotEmpty &&
+                                    result.toString().toLowerCase() != 'null') {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: result.toString() == 'Berhasil' ? Colors.green[400] : Colors.red[400] ,
+                                      content: Text(
+                                        '${result.toString()}',
+                                        style:
+                                            TableContentTextStyle.textStyleBody,
+                                      ),
+                                    ),
+                                  );
+                                  provider.refresh();
+                                }
                               }
-                            }
-                          },
-                          child: MultiProvider(
+                            },
+                            child: MultiProvider(
                               providers: [
                                 ChangeNotifierProvider(
                                   create: (context) =>
@@ -639,8 +682,7 @@ class DeliveryOrderChild extends StatelessWidget {
                               ],
                               child:
                                   DeliveryOrderDetailPopUp(dataDelivery: data),
-                            ))
-                        );
+                            )));
                   },
                   child: Container(
                     height: double.maxFinite,

@@ -498,3 +498,24 @@ class InventoryTakingProvider extends ChangeNotifier {
     _paginatorController.dispose();
   }
 }
+
+
+//   e.PUT("/store/orders/delivery/accept/:deliveryorder_id/:user_id", controller.AcceptDeliveryOrders)
+// [
+//     {
+//         "product_detail_id": 1,
+//         "expired_date": 2025-03-22,
+//         "batch": 1,
+//         "actual_quantity": 10,
+//         "section_placement": A1,
+//         "notes": "dimakan naga"
+//     },
+//     {
+//         "product_detail_id": 2,
+//         "expired_date": 2025-03-22,
+//         "batch": 2,
+//         "actual_quantity": 5,
+//         "section_placement": A2,
+//         "notes": "terbang"
+//     }
+// ]

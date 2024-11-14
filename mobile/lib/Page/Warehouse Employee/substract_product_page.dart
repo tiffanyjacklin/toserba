@@ -516,7 +516,7 @@ class TableSubstractProduct extends StatelessWidget {
                                   }
                                 }
                                 else{
-                                  controllerInputList[index].text = '0';
+                                  controllerInputList[index].text = '1';
                                 }
                               },
                               keyboardType: TextInputType.number,

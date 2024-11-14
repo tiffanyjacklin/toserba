@@ -1,17 +1,19 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_all/Page/Store%20Inventory/accept_order_accepting_page.dart';
 import 'package:flutter_app_all/TableTemplate/TableSuratJalan.dart';
-// import 'package:flutter_app_all/Tambahan/Provider/AcceptFormCart.dart';
 import 'package:flutter_app_all/Tambahan/Provider/AcceptOrderDelivery.dart';
+import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
+import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
 import 'package:flutter_app_all/Template.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:share_plus/share_plus.dart';
 import 'package:flutter_app_all/Model/DeliveryOrderStore.dart' as deliveryStore;
 import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
@@ -191,7 +193,7 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                       title: Text(
                         'Stock Card',
                         style: TextStyle(
-                            fontSize: 16,
+                            fontSize: fontSizeBody,
                             color: ColorPalleteLogin.OrangeLightColor,
                             fontWeight: FontWeight.bold),
                       ),
@@ -233,7 +235,7 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                                       'Print Stock Card',
                                       style: TextStyle(
                                         color: ColorPalleteLogin.PrimaryColor,
-                                        fontSize: 14,
+                                        fontSize: fontSizeSmall,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -268,49 +270,141 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
                   SizedBox(
                     height: 20,
                   ),
+                  
                   // Button Save
-                  Row(
-                    children: [
-                      Center(
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width * 0.55 * 0.5,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorPalleteLogin.OrangeLightColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
+                  deliveryList.isAccepted
+                      ? Row(
+                          children: [
+                            Center(
+                              child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width *
+                                    0.55 *
+                                    0.5,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        ColorPalleteLogin.OrangeLightColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                  ),
+                                  child: Wrap(
+                                    spacing: 12,
+                                    children: [
+                                      Text(
+                                        'Save',
+                                        style: TextStyle(
+                                          color: ColorPalleteLogin.PrimaryColor,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    // input barang yang diterima
+
+                                    if (!deliveryList.isAccepted) {
+                                      // sementara masih close popup
+                                      fetchAcceptOrder(widget
+                                              .dataDelivery.deliveryOrderId!)
+                                          .then((onValue) => {
+                                                Navigator.pop(context,
+                                                    'Success'),
+                                              });
+                                    } else {
+                                      Navigator.pop(context, '');
+                                    }
+                                  },
+                                ),
                               ),
                             ),
-                            child: Wrap(
-                              spacing: 12,
-                              children: [
-                                Text(
-                                  'Save',
-                                  style: TextStyle(
-                                    color: ColorPalleteLogin.PrimaryColor,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Center(
+                              child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width *
+                                    0.55 *
+                                    0.5,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        ColorPalleteLogin.OrangeLightColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
                                   ),
+                                  child: Wrap(
+                                    spacing: 12,
+                                    children: [
+                                      Text(
+                                        'Close',
+                                        style: TextStyle(
+                                          color: ColorPalleteLogin.PrimaryColor,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(context, '');
+                                  }
                                 ),
-                              ],
+                              ),
                             ),
-                            onPressed: () {
-                              if(!deliveryList.isAccepted){
-                              // sementara masih close popup
-                              fetchAcceptOrder(widget.dataDelivery.deliveryOrderId!).then((onValue) => {
-                                Navigator.pop(context, 'Success Accepting Delivery Order'),
-                              });
-                              }
-                              else{
-                                Navigator.pop(context, '');
-                              }
-                            },
-                          ),
+
+                            SizedBox(
+                              width: 30,
+                            ),
+
+                            Center(
+                              child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width *
+                                    0.55 *
+                                    0.5,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        ColorPalleteLogin.OrangeLightColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                  ),
+                                  child: Wrap(
+                                    spacing: 12,
+                                    children: [
+                                      Text(
+                                        'Accept',
+                                        style: TextStyle(
+                                          color: ColorPalleteLogin.PrimaryColor,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () async {
+                                    // pindah halaman selanjutnya
+                                    // tinggal navigator push -> pindah ke selanjutnya
+                                    final result  = await Navigator.push(context, MaterialPageRoute(
+                                      builder: (context) => AcceptingPage(dataDelivery: deliveryList.items, userId : Provider.of<AuthState>(context).userId!)));
+
+                                    if(result.toString().isNotEmpty){
+                                      // balik ke halaman awal, tanpa popup
+                                      Navigator.pop(context, result.toString());
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),

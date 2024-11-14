@@ -18,6 +18,7 @@ class ColorPalleteLogin {
 }
 
 var fontSizeBody = 18.0;
+var fontSizeSmall = 14.0;
 
 class bodyText extends StatelessWidget {
   String judul;
@@ -113,12 +114,14 @@ class TitlePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      '$name',
-      style: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-          color: ColorPalleteLogin.PrimaryColor),
+    return Center(
+      child: Text(
+        '$name',
+        style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: ColorPalleteLogin.PrimaryColor),
+      ),
     );
   }
 }

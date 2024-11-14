@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -264,50 +265,46 @@ class _LoginTabletState extends State<LoginTablet> {
 
   // CEK USER
   Future _fetchUser() async {
-  //    try {
-  //   return await get(
-  //       'http://192.168.0.100:8080/login',
-  //       headers: {
-  //         HttpHeaders.AUTHORIZATION: authHeader,
-  //       },
-  //     );
-  // } catch (e) {
-  //   print(e);
-  //   return null;
-  // }
-  
     final link =
         'http://leap.crossnet.co.id:8888/user/login?username=${usernameController.text}&password=${passwordController.text}';
 
-    // call api (method PUT)
-    final response = await http.put(Uri.parse(link));
-    print('---> response ' + response.statusCode.toString());
+    try {
+      // call api (method PUT)
+      final response = await http.put(Uri.parse(link));
+      print('---> response ' + response.statusCode.toString());
 
-    // cek status
-    if (response.statusCode == 200) {
-      // misal oke berati masuk
-      // json
-      Map<String, dynamic> temp = json.decode(response.body);
-      // decode?
-      print(response.body);
-      if (temp['status'] == 200) {
-        print(temp);
+      // cek status
+      if (response.statusCode == 200) {
+        // misal oke berati masuk
+        // json
+        Map<String, dynamic> temp = json.decode(response.body);
+        // decode?
+        print(response.body);
+        if (temp['status'] == 200) {
+          print(temp);
 
-        return temp['data']['user_id'];
+          return temp['data']['user_id'];
+        } else {
+          return -1;
+        }
       } else {
+        print('login Failed');
         return -1;
       }
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      // throw Exception('Login Failed, Try Again');
-      print('login Failed');
-      return -1;
+    } catch (e) {
+      if (e is SocketException) {
+        //treat SocketException
+        print("Socket exception: ${e.toString()}");
+        return -1;
+      } else {
+        print("Unhandled exception : ${e.toString()}");
+        return -1;
+      }
     }
   }
 
   // LOGIN
-  void _login(AuthState providerAuth,LoginProvider provider) async {
+  void _login(AuthState providerAuth, LoginProvider provider) async {
     // cek semua apakah ada yang belum diisi
     var belumDiisi = '';
     if (usernameController.text == '') {
@@ -335,9 +332,9 @@ class _LoginTabletState extends State<LoginTablet> {
       _fetchUser().then((hasil) => {
             if (hasil != -1)
               {
-              //  // berati berhasil login
-              providerAuth.userId = hasil.toString(),
-              provider.chooseRole = true,
+                //  // berati berhasil login
+                providerAuth.userId = hasil.toString(),
+                provider.chooseRole = true,
               }
             else
               {

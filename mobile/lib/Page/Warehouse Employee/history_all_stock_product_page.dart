@@ -108,17 +108,8 @@ class _HistoryAllStockProductPageState
               // paginate
               provider.isFiltering
                   ? Container(
-                      height: 350,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Center(
-                              child: Container(
-                                // height: 200,
-                                decoration: BoxDecoration(
+                      height: MediaQuery.of(context).size.height * 0.30,
+                      decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),
                                     boxShadow: [
@@ -127,6 +118,15 @@ class _HistoryAllStockProductPageState
                                           color: Colors.grey,
                                           offset: Offset(0, 1)),
                                     ]),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Center(
+                              child: Container(
+                                // height: 200
                                 width: MediaQuery.of(context).size.width *
                                     0.8 *
                                     0.98,

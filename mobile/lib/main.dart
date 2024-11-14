@@ -28,6 +28,7 @@ class MainApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSwatch().copyWith(
           primary: ColorPalleteLogin.OrangeDarkColor,
           secondary: ColorPalleteLogin.OrangeLightColor,
+          
         ),
           fontFamily: "Helvetica"
         ),

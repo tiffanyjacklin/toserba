@@ -1568,42 +1568,6 @@ class TableInventoryTaking extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // TableCell(
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.only(
-                    //         left: 8.0, right: 8.0, top: 2, bottom: 2),
-                    //     child: ElevatedButton(
-                    //       style: ElevatedButton.styleFrom(
-                    //         padding: EdgeInsets.all(0),
-                    //         backgroundColor: ColorPalleteLogin.PrimaryColor,
-                    //         shape: RoundedRectangleBorder(
-                    //           borderRadius: BorderRadius.circular(15.0),
-                    //         ),
-                    //       ),
-                    //       child: Icon(
-                    //         Icons.remove_red_eye_outlined,
-                    //         color: ColorPalleteLogin.OrangeColor,
-                    //       ),
-                    //       onPressed: () async {
-                    //         // keluarin popup detail
-                    //         var data = await showDialog(
-                    //           barrierDismissible: false,
-                    //           context: context,
-                    //           builder: (context) =>
-                    //               DetailProductInventoryTakingPopup(
-                    //             data: contentTable[index],
-                    //             notesPrev: providerInventory
-                    //                 .getNotes(contentTable[index]),
-                    //           ),
-                    //         );
-                    //         if (data != null) {
-                    //           providerInventory.addToCart(startIndex + index,
-                    //               notes: data.toString());
-                    //         }
-                    //       },
-                    //     ),
-                    //   ),
-                    // ),
                   ],
                 );
                 return tableRow;

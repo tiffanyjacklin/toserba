@@ -322,13 +322,15 @@ class _MenuPageState extends State<MenuPage> {
     RouteProvider providerRoute = Provider.of<RouteProvider>(context);
     return Expanded(
       flex: 8,
-      child: Container(
-        decoration: BoxDecoration(color: Colors.grey[100]),
-        child: providerRoute.isLoading || providerRoute.sidebarMenu.isEmpty
-            ? Center(
-                child: Text('Please Wait , Still Loading Page'),
-              )
-            : providerRoute.getPage(),
+      child: SingleChildScrollView(
+        child: Container(
+          decoration: BoxDecoration(color: Colors.grey[100]),
+          child: providerRoute.isLoading || providerRoute.sidebarMenu.isEmpty
+              ? Center(
+                  child: Text('Please Wait , Still Loading Page'),
+                )
+              : providerRoute.getPage(),
+        ),
       ),
     );
   }

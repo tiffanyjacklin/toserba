@@ -16,7 +16,6 @@ class AcceptOrderProvider extends ChangeNotifier {
 
   // >> store id
   int storeIdProvider = 0;
-
   // >> for filter
   bool isFiltering = false;
   List<DateTime> rangeDate = [DateTime(2000), DateTime.now()];
@@ -84,7 +83,7 @@ class AcceptOrderProvider extends ChangeNotifier {
   }
 
   void filter(String name) {
-    isFiltering = !isFiltering;
+    // isFiltering = !isFiltering;
     if (!isFiltering) {
       _fetchDeliveryOrderStore(storeIdProvider,
           search: name,
@@ -122,13 +121,13 @@ class AcceptOrderProvider extends ChangeNotifier {
     try {
       // /to/:sw_to_id/:status_accept/:start_date/:end_date/:limit/:offset
       final link =
-          'http://leap.crossnet.co.id:8888/orders/delivery/warehouse/to/$search/$storeId/$statusAccept/$startDate/$endDate/$limit/$offset'; // NOTE : diganti nanti kalo udah ada
+          'http://leap.crossnet.co.id:8888/orders/delivery/warehouse/to/$storeId/$statusAccept//$search/$startDate/$endDate/$limit/$offset';
       // NOTE : 3 = limit row yang diambil, 0 = start index,
 
       // call api
       final response = await http.get(Uri.parse(link));
       print('---> response ' + response.statusCode.toString());
-
+      print(link);
       // cek status
       if (response.statusCode == 200) {
         // misal oke berati masuk
