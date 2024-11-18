@@ -20,8 +20,8 @@
       showModal = true;
     }
     function backToManageCashier(){
-      console.log("Navigating to manage cashier.."); // For debugging
-      goto(`/manage_cashier/${store_warehouse_id}`);
+      console.log("Navigating to manage stores.."); // For debugging
+      goto(`/manage_stores/${store_warehouse_id}`);
     }
 
     let transaction_detail = [];

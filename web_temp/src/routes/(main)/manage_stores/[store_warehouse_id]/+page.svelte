@@ -75,7 +75,7 @@
    }
 
     function navigateToTransaction(transactionId) {
-        const url = `/manage_cashier/${store_warehouse_id}/${transactionId}`;
+        const url = `/manage_stores/${store_warehouse_id}/${transactionId}`;
         goto(url);
     }
 
