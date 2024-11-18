@@ -647,7 +647,7 @@
     <div class="w-full flex justify-start">
         <button on:click={backToAddStock} class="text-xl font-bold self-start p-4 hover:bg-gray-300 rounded-xl"><i class="fa-solid fa-less-than mr-2"></i>Back</button>  
     </div>
-    <span class="text-4xl font-bold font-roboto text-[#364445] my-10">{ProductDetails.product_name}</span>      
+    <span class="text-4xl font-bold font-roboto text-[#364445] my-4">{ProductDetails.product_name}</span>      
     <div class="w-full  justify-start items-center mb-4 px-8 flex gap-x-2 gap-y-4">
       {#if tampilan == "add_stock"}
           <button on:click={async() => {tampilan = ""; tampilan = tampilan; editMode = false; }} class="bg-darkGray text-white font-semibold text-xl w-56 py-2 rounded-3xl border-2 border-darkGray">View</button>
