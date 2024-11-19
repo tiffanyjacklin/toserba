@@ -11,6 +11,7 @@ import 'package:flutter_app_all/Template.dart';
 import 'package:flutter_app_all/Model/AllProduct.dart';
 import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
     as stock;
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
@@ -84,6 +85,13 @@ Future _fetchProductStockCard(int productId, int storeWarehouseId) async {
   }
 }
 
+Future<String> scanBarcodeNormal() async{
+  String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", false, ScanMode.BARCODE);
+  debugPrint(barcodeScanRes);
+
+  return barcodeScanRes;
+}
+
 class ProductPages extends StatelessWidget {
   const ProductPages({super.key});
 
@@ -142,39 +150,74 @@ class _ProductPageState extends State<ProductPage> {
 
               Container(
                 width: MediaQuery.of(context).size.width * 0.8,
-                child: TextField(
-                  style: TextStyle(
-                    fontSize: fontSizeBody,
-                  ),
-                  controller: controllerSearch,
-                  onSubmitted: (value) {
-                    providerProduct.clickFilter2(
-                        providerAuth.userData.userId!,
-                        providerAuth.userData.roleId!,
-                        providerAuth.userData.storeWarehouseId!,
-                        controllerSearch.text);
-                  },
-                  decoration: InputDecoration(
-                    fillColor: Colors.white,
-                    focusColor: ColorPalleteLogin.OrangeColor,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      borderSide: const BorderSide(
-                        color: Colors.grey,
-                        width: 2.0,
-                      ),
-                    ),
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          providerProduct.clickFilter(
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 8,
+                      child: TextField(
+                        style: TextStyle(
+                          fontSize: fontSizeBody,
+                        ),
+                        controller: controllerSearch,
+                        onSubmitted: (value) {
+                          providerProduct.clickFilter2(
                               providerAuth.userData.userId!,
                               providerAuth.userData.roleId!,
                               providerAuth.userData.storeWarehouseId!,
                               controllerSearch.text);
                         },
-                        icon: Icon(Icons.filter_list)),
-                  ),
+                        decoration: InputDecoration(
+                          fillColor: Colors.white,
+                          focusColor: ColorPalleteLogin.OrangeColor,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                            borderSide: const BorderSide(
+                              color: Colors.grey,
+                              width: 2.0,
+                            ),
+                          ),
+                          suffixIcon: IconButton(
+                              onPressed: () {
+                                providerProduct.clickFilter(
+                                    providerAuth.userData.userId!,
+                                    providerAuth.userData.roleId!,
+                                    providerAuth.userData.storeWarehouseId!,
+                                    controllerSearch.text);
+                              },
+                              icon: Icon(Icons.filter_list)),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 5,),
+                    Expanded(
+                      flex: 1,
+                      child: GestureDetector(
+                        onTap: () {
+                          scanBarcodeNormal().then((onValue) => {
+                            controllerSearch.text = onValue,
+
+                            providerProduct.resetFilter(),
+                           providerProduct.clickFilter2(
+                              providerAuth.userData.userId!,
+                              providerAuth.userData.roleId!,
+                              providerAuth.userData.storeWarehouseId!,
+                              controllerSearch.text),
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.0),
+                            color: ColorPalleteLogin.OrangeLightColor,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(Icons.barcode_reader),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -1001,7 +1044,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                   Theme(
                     data: Theme.of(context)
                         .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(    
+                    child: ExpansionTile(
                       trailing: Icon(
                         _customTileExpanded
                             ? Icons.arrow_drop_down_circle
@@ -1027,7 +1070,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                                 // do something
                                 if (snapshot.hasData) {
                                   // TableStockCardProducts(listStockCard: stock.FetchStockCardProductStoreWarehouse.fromJson(jsonSpinachStockCard).data!);
-                  
+
                                   // jika sudah ada data
                                   return TableStockCardProducts(
                                       listStockCard: snapshot.data);
@@ -1041,7 +1084,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                         SizedBox(
                           height: 10,
                         ),
-                  
+
                         // button print table
                         Container(
                           // height: 50,
@@ -1081,7 +1124,8 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                                   .then((bytes) {
                                 if (bytes != null) {
                                   // panggil woe
-                                  saveImage(bytes, 'StockCard-${widget.productData.productDetails!.productName}');
+                                  saveImage(bytes,
+                                      'StockCard-${widget.productData.productDetails!.productName}');
                                   // saveAndShare(bytes, 'DeliveryOrder');
                                 }
                               }).catchError((onError) {

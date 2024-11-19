@@ -35,6 +35,7 @@ class _AcceptingPage1State extends State<AcceptingPage1> {
     var providerAcceptForm = Provider.of<AcceptFormCart>(context);
     return Scaffold(
       body: SafeArea(
+
         child: Container(
             child: Padding(
           padding: const EdgeInsets.all(12.0),
