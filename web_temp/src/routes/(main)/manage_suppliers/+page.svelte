@@ -237,17 +237,43 @@
       });
   
       if (!response.ok) {
-        console.error('POST suppliers gagal', response);
+        
+        Swal.fire({
+          title: "Error",
+          text: "POST suppliers gagal",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E'
+        });
+        // console.error('POST suppliers gagal', response);
         return;
       }
   
       const data = await response.json();
   
       if (data.status !== 200) {
-        console.error('Invalid post suppliers', data);
+        
+        Swal.fire({
+          title: "Error",
+          text: "Invalid post suppliers",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E'
+        });
+        // console.error('Invalid post suppliers', data);
         return;
       }
       console.log("insert suppliers detail",data);
+      Swal.fire({
+        title: "Supplier berhasil ditambahkan.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E',
+        timer: 2000,
+      });
       closeModal();
       sw_name = '';
       phone_number = '';
@@ -270,17 +296,43 @@
       });
   
       if (!response.ok) {
-        console.error('PUT store_warehouses gagal', response);
+        
+        Swal.fire({
+          title: "Error",
+          text: "PUT Supplier gagal",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E'
+        });
+        // console.error('PUT Supplier gagal', response);
         return;
       }
   
       const data = await response.json();
   
       if (data.status !== 200) {
-        console.error('Invalid PUT store_warehouses', data);
+        
+        Swal.fire({
+          title: "Error",
+          text: "Invalid PUT Supplier",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E'
+        });
+        // console.error('Invalid PUT Supplier', data);
         return;
       }
-      console.log("update store_warehouses detail",data);
+      console.log("update Supplier detail",data);
+      Swal.fire({
+        title: "Supplier berhasil diperbarui.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E',
+        timer: 2000,
+      });
       closeModal();
       sw_name = '';
       phone_number = '';

@@ -238,17 +238,44 @@
       });
   
       if (!response.ok) {
-        console.error('POST store_warehouses gagal', response);
+        
+        Swal.fire({
+          title: "Error",
+          text: "POST store_warehouses gagal",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E'
+        });
+        // console.error('POST store_warehouses gagal', response);
         return;
       }
   
       const data = await response.json();
   
       if (data.status !== 200) {
-        console.error('Invalid post store_warehouses', data);
+        
+        Swal.fire({
+          title: "Error",
+          text: "Invalid post store_warehouses",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E'
+        });
+        // console.error('Invalid post store_warehouses', data);
         return;
       }
       console.log("insert store_warehouses detail",data);
+      
+      Swal.fire({
+        title: "Store/Warehouse berhasil ditambahkan.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E',
+        timer: 2000,
+      });
       closeModal();
       sw_type = '';
       sw_name = '';
@@ -276,17 +303,41 @@
       });
   
       if (!response.ok) {
-        console.error('PUT store_warehouses gagal', response);
+        Swal.fire({
+          title: "Error",
+          text: "PUT store_warehouses gagal",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E'
+        });
+        // console.error('PUT store_warehouses gagal', response);
         return;
       }
   
       const data = await response.json();
   
       if (data.status !== 200) {
-        console.error('Invalid PUT store_warehouses', data);
+        Swal.fire({
+          title: "Error",
+          text: "Invalid PUT store_warehouses",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E'
+        });
+        // console.error('Invalid PUT store_warehouses', data);
         return;
       }
       console.log("update store_warehouses detail",data);
+      Swal.fire({
+        title: "Store/Warehouses berhasil diperbarui.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E',
+        timer: 2000,
+      });
       closeModal();
       sw_name = '';
       phone_number = '';

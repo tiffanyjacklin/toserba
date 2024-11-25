@@ -151,17 +151,43 @@
          });
 
          if (!response.ok) {
-               console.error('PUT send otp gagal', response);
-               return;
+            
+            Swal.fire({
+               title: "PUT send otp gagal",
+               icon: "error",
+               color: "white",
+               background: "#364445",
+               timer: 1000,
+               showConfirmButton: false,
+            });
+            // console.error('PUT send otp gagal', response);
+            return;
          }
 
          const data = await response.json();
 
          if (data.status !== 200) {
-               console.error('Invalid PUT send otp', data);
+            
+               Swal.fire({
+                  title: "Invalid PUT send otp",
+                  icon: "error",
+                  color: "white",
+                  background: "#364445",
+                  timer: 1000,
+                  showConfirmButton: false,
+               });
+               // console.error('Invalid PUT send otp', data);
                return;
          }
          console.log(data);
+         Swal.fire({
+            title: "OTP terkirim. Tolong cek email anda.",
+            icon: "success",
+            color: "white",
+            background: "#364445",
+            confirmButtonColor: '#F2AA7E',
+            timer: 2000,
+         });
    }
    async function VerifOTP(session_id) {
       //   console.log("Sending OTP:", user_otp);  // Log the OTP value
@@ -176,14 +202,22 @@
         });
 
         if (!response.ok) {
-            console.error('PUT verif otp gagal', response);
+            Swal.fire({
+               title: "PUT verif otp gagal",
+               icon: "error",
+               color: "white",
+               background: "#364445",
+               timer: 1000,
+               showConfirmButton: false,
+            });
+            // console.error('PUT verif otp gagal', response);
             return;
         }
 
         const data = await response.json();
 
         if (data.status !== 200) {
-            console.error('Invalid PUT verif otp', data);
+            // console.error('Invalid PUT verif otp', data);
             Swal.fire({
                title: "Invalid OTP",
                text: "The inputted OTP is wrong. Please try again.",
@@ -199,6 +233,15 @@
         showModal12 = session_id;
 
         console.log(data);
+        Swal.fire({
+            title: "Verifikasi sukses.",
+            icon: "success",
+            color: "white",
+            background: "#364445",
+            confirmButtonColor: '#F2AA7E',
+            timer: 2000,
+         });
+
    }
    function validateAndSubmit(id) {
       if (actual_closing_cash <= 0) {

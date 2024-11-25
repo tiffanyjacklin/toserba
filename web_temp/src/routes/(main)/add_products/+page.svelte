@@ -236,6 +236,14 @@
 
     all_stocks = [...stocks];
     closeModal();
+    Swal.fire({
+        title: "Produk berhasil ditambahkan.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        timer: 1000,
+        showConfirmButton: false,
+    });
   }
   $: if (supplier_name != searchQuery){
     fetchSupplier();
@@ -265,11 +273,19 @@
   function deleteProductFromList(product_id, expired_dateNya, batchNya) {
     console.log(products_to_be_added);
     console.log(product_id, expired_dateNya, batchNya);
-      products_to_be_added = products_to_be_added.filter(stock => 
-        !(stock.product_detail_id === product_id && 
-          stock.expired_date === expired_dateNya && 
-          stock.batch === batchNya)
-      );
+    products_to_be_added = products_to_be_added.filter(stock => 
+      !(stock.product_detail_id === product_id && 
+        stock.expired_date === expired_dateNya && 
+        stock.batch === batchNya)
+    );
+    Swal.fire({
+      title: "Produk berhasil dihapus.",
+      icon: "success",
+      color: "white",
+      background: "#364445",
+      timer: 1000,
+      showConfirmButton: false,
+    });
   }
   function filterProductForSubtract(products){
     return products.map(product => ({
@@ -333,14 +349,32 @@
     });
 
     if (!response2.ok) {
-      console.error('PUT add products failed', response2);
+      Swal.fire({
+          title: "PUT add products failed",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E',
+          timer: 2000,
+
+      });
+      // console.error('PUT add products failed', response2);
       return;
     }
 
     const data2 = await response2.json();
 
     if (data2.status !== 200) {
-      console.error('Invalid put add products', data2);
+      Swal.fire({
+          title: "Produk dari supplier gagal ditambahkan.",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E',
+          timer: 2000,
+
+      });
+      // console.error('Invalid put add products', data2);
       return;
     }
 
@@ -351,6 +385,14 @@
     delivery_order_supplier = '';
     supplier_id = '';
     products_to_be_added = [];
+    Swal.fire({
+        title: "Produk dari supplier berhasil ditambahkan. Mohon tunggu verifikasi dari admin.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E',
+        timer: 2000,
+    });
     // goto(`/products`);
   }
   
@@ -524,14 +566,7 @@
               </td>
               <td class="px-1 py-2 text-center">
                 <button on:click={() => {deleteProductFromList(product.product_detail_id, product.expired_date, product.batch) 
-                  Swal.fire({
-                    title: "Produk berhasil dihapus.",
-                    icon: "success",
-                    color: "white",
-                    background: "#364445",
-                    timer: 1000,
-                    showConfirmButton: false,
-                  });
+                  
                 }} type="button" 
                   class="mt-2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] hover:bg-[#F2AA7E] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg outline outline-[1px] px-3 py-3 text-center">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -600,14 +635,7 @@
 </div>
     
     <div class="flex items-center justify-center my-2">
-      <button on:click={async() => {await addProducts(); Swal.fire({
-        title: "Produk dari supplier berhasil ditambahkan. Mohon tunggu verifikasi dari admin.",
-        icon: "success",
-        color: "white",
-        background: "#364445",
-        confirmButtonColor: '#F2AA7E',
-        timer: 2000,
-    });}
+      <button on:click={async() => {await addProducts(); }
       } type="button" 
         class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] flex items-center justify-center text-black bg-[#f7d4b2] hover:bg-[#F2AA7E] outline outline-[1px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-lg rounded-2xl px-16 py-1 my-3 text-center"
         disabled={products_to_be_added.length === 0}>
@@ -727,14 +755,7 @@
               <button type="button" on:click={() => handleClick(1, false)} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Back
               </button>
-              <button type="button" on:click={() => { addProductToProductList(); Swal.fire({
-                title: "Produk berhasil ditambahkan.",
-                icon: "success",
-                color: "white",
-                background: "#364445",
-                timer: 1000,
-                showConfirmButton: false,
-            });
+              <button type="button" on:click={() => { addProductToProductList(); 
             }} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Submit
               </button>

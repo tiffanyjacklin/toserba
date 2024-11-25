@@ -299,12 +299,30 @@
     productId = ''; 
     productName = '';
     updateFilteredStock();
+    Swal.fire({
+        title: "Produk berhasil ditambahkan.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        timer: 1000,
+        showConfirmButton: false,
+    });
+
   }
   function deleteProductFromList(product_id) {
       products_to_transfer = products_to_transfer.filter(stock => 
           stock.ProductDetails.product_detail_id !== product_id
       );
       updateFilteredStock();
+      Swal.fire({
+        title: "Produk berhasil dihapus.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        timer: 1000,
+        showConfirmButton: false,
+      });
+
   }
   async function prepareProductsForSending(products) {
       let preparedProducts = [];
@@ -346,14 +364,36 @@
       });
 
       if (!response.ok) {
-          console.error('POST transfer note failed', response);
+        
+          Swal.fire({
+              title: "POST transfer note failed",
+              icon: "error",
+              color: "white",
+              background: "#364445",
+              confirmButtonColor: '#F2AA7E',
+              timer: 2000,
+
+          });
+
+          // console.error('POST transfer note failed', response);
           return;
       }
 
       const data = await response.json();
 
       if (data.status !== 200) {
-          console.error('Invalid POST transfer note response', data);
+        
+          Swal.fire({
+              title: "Invalid POST transfer note response",
+              icon: "error",
+              color: "white",
+              background: "#364445",
+              confirmButtonColor: '#F2AA7E',
+              timer: 2000,
+
+          });
+
+          // console.error('Invalid POST transfer note response', data);
           return;
       }
 
@@ -372,14 +412,35 @@
       });
 
       if (!response2.ok) {
-          console.error('PUT transfer note update failed', response2);
+        
+          Swal.fire({
+              title: "PUT transfer note update failed",
+              icon: "error",
+              color: "white",
+              background: "#364445",
+              confirmButtonColor: '#F2AA7E',
+              timer: 2000,
+
+          });
+
+          // console.error('PUT transfer note update failed', response2);
           return;
       }
 
       const data2 = await response2.json();
 
       if (data2.status !== 200) {
-          console.error('Invalid PUT transfer note update response', data2);
+        
+          Swal.fire({
+              title: "Invalid PUT transfer note update response",
+              icon: "error",
+              color: "white",
+              background: "#364445",
+              confirmButtonColor: '#F2AA7E',
+              timer: 2000,
+
+          });
+          // console.error('Invalid PUT transfer note update response', data2);
           return;
       }
       console.log("ab",data2.data);
@@ -388,7 +449,14 @@
       let description = "User ID "+$userId+" membuat transfer note baru dengan ID Transfer Note "+data.data[0].transfer_note_id;
       await insertNotif(description);
 
-
+      Swal.fire({
+          title: "Produk untuk dikirim ke toko berhasil ditambahkan. Mohon tunggu verifikasi dari admin.",
+          icon: "success",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E',
+          timer: 2000,
+      });
       prev_path.set('assign_products_to_store');
       goto('/stock_transfer_notes');
   }
@@ -839,14 +907,7 @@
                 </td>
                 <td class="px-1 py-2 text-center">
                   <button on:click={() => {deleteProductFromList(product.ProductDetails.product_detail_id); 
-                  Swal.fire({
-                    title: "Produk berhasil dihapus.",
-                    icon: "success",
-                    color: "white",
-                    background: "#364445",
-                    timer: 1000,
-                    showConfirmButton: false,
-                  });
+                  
                 }} type="button" 
                     class="mt-2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] hover:bg-[#F2AA7E] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg outline outline-[1px] px-3 py-3 text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -925,14 +986,7 @@
             {/if}
           </div>
           <div class="flex justify-center">
-            <button on:click={() => {addProductToProductList(productId, productName); Swal.fire({
-              title: "Produk berhasil ditambahkan.",
-              icon: "success",
-              color: "white",
-              background: "#364445",
-              timer: 1000,
-              showConfirmButton: false,
-          });}} type="button" 
+            <button on:click={() => {addProductToProductList(productId, productName); }} type="button" 
               class="w-1/2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#F2AA7E] outline outline-[1px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg px-3 py-1 my-3 text-center">
               Add
             </button>
@@ -965,14 +1019,7 @@
               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Back
               </button>
-              <button type="button" on:click={async () => {await sendProducts(); Swal.fire({
-                title: "Produk untuk dikirim ke toko berhasil ditambahkan. Mohon tunggu verifikasi dari admin.",
-                icon: "success",
-                color: "white",
-                background: "#364445",
-                confirmButtonColor: '#F2AA7E',
-                timer: 2000,
-            });
+              <button type="button" on:click={async () => {await sendProducts(); 
             }} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Submit
               </button>

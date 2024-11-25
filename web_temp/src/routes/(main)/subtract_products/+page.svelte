@@ -257,6 +257,14 @@
     );
     products_to_subtract = [...products_to_subtract, ...temp];
     resetVariables();
+    Swal.fire({
+        title: "Produk berhasil ditambahkan.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        timer: 1000,
+        showConfirmButton: false,
+    });
   }
   function deleteProductFromList(product_id, expired_dateNya, batchnya) {
     products_to_subtract = products_to_subtract.filter(stock =>
@@ -264,6 +272,14 @@
         stock.expired_date === expired_dateNya &&
         stock.batch === batchnya)
     );
+    Swal.fire({
+      title: "Produk berhasil dihapus.",
+      icon: "success",
+      color: "white",
+      background: "#364445",
+      timer: 1000,
+      showConfirmButton: false,
+    });
   }
   function filterProductForSubtract(products){
     return products.map(product => ({
@@ -284,14 +300,32 @@
     });
 
     if (!response.ok) {
-      console.error('POST subtract product gagal', response);
+      Swal.fire({
+          title: "POST subtract product gagal.",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E',
+          timer: 2000,
+
+      });
+      // console.error('POST subtract product gagal', response);
       return;
     }
 
     const data = await response.json();
 
     if (data.status !== 200) {
-      console.error('Invalid post subtract product', data);
+      Swal.fire({
+          title: "Subtract produk gagal ditambahkan.",
+          icon: "error",
+          color: "white",
+          background: "#364445",
+          confirmButtonColor: '#F2AA7E',
+          timer: 2000,
+
+      });
+      // console.error('Invalid post subtract product', data);
       return;
     }
     console.log("insert subtract product detail",data);
@@ -301,6 +335,15 @@
     products_to_subtract = [];
     resetVariables();
     closeModal();
+    Swal.fire({
+        title: "Produk dari supplier berhasil ditambahkan. Mohon tunggu verifikasi dari admin.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E',
+        timer: 2000,
+
+    });
   }
   async function resetVariables(){
     productId = '';
@@ -451,14 +494,7 @@
                 </td>
                 <td class="px-1 py-2 text-center">
                   <button on:click={() => {deleteProductFromList(product.product_detail_id, product.expired_date, product.batch) 
-                    Swal.fire({
-                      title: "Produk berhasil dihapus.",
-                      icon: "success",
-                      color: "white",
-                      background: "#364445",
-                      timer: 1000,
-                      showConfirmButton: false,
-                    });}
+                    }
                   } type="button" 
                     class="mt-2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] hover:bg-[#F2AA7E] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg outline outline-[1px] px-3 py-3 text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -544,14 +580,7 @@
           </div>
 
           <div class="flex justify-center">
-            <button on:click={() => {addProductToProductList(productId, productName, expired_date, batch); Swal.fire({
-              title: "Produk berhasil ditambahkan.",
-              icon: "success",
-              color: "white",
-              background: "#364445",
-              timer: 1000,
-              showConfirmButton: false,
-          });}
+            <button on:click={() => {addProductToProductList(productId, productName, expired_date, batch); }
           } type="button" 
               disabled={productId === '' || productName === '' || expired_date === '' || batch === ''}
               class="w-1/2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#F2AA7E] outline outline-[1px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg px-3 py-1 my-3 text-center">
@@ -584,15 +613,7 @@
               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Back
               </button>
-              <button type="button" on:click={() => {subtractProducts(); Swal.fire({
-                title: "Produk dari supplier berhasil ditambahkan. Mohon tunggu verifikasi dari admin.",
-                icon: "success",
-                color: "white",
-                background: "#364445",
-                confirmButtonColor: '#F2AA7E',
-                timer: 2000,
-
-            });
+              <button type="button" on:click={() => {subtractProducts(); 
             }} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Submit
               </button>

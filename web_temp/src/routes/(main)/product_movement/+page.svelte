@@ -368,17 +368,41 @@
       });
 
       if (!response.ok) {
-          console.error('PUT product details gagal', response);
+          Swal.fire({
+            title: "Error",
+            text: "PUT product details gagal",
+            icon: "error",
+            color: "white",
+            background: "#364445",
+            confirmButtonColor: '#F2AA7E'
+          });
+          // console.error('PUT product details gagal', response);
           return;
       }
 
       const data = await response.json();
 
       if (data.status !== 200) {
-          console.error('Invalid put product details', data);
+          Swal.fire({
+            title: "Error",
+            text: "Invalid put product details",
+            icon: "error",
+            color: "white",
+            background: "#364445",
+            confirmButtonColor: '#F2AA7E'
+          });
+          // console.error('Invalid put product details', data);
           return;
       }
-      console.log("product details :",data);
+      Swal.fire({
+        title: "Produk berhasil diperbarui.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E',
+        timer: 2000,
+      });
+      // console.log("product details :",data);
     }
     async function fetchSuppliers() {
         const response = await fetch(`http://${$uri}:8888/suppliers/all/''/0/0`, {

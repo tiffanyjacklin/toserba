@@ -219,6 +219,14 @@
   function resetLoad(){
     transfer_notes_details = tf_notes_details;
     notes = '';
+    Swal.fire({
+      title: "Daftar produk berhasil direset.",
+      icon: "success",
+      color: "white",
+      background: "#364445",
+      timer: 1000,
+      showConfirmButton: false,
+    });
   }
   async function saveLoad(transfer_note_id){
     products_to_send_fix = filterBeforeLoadToDeliveryOrder(transfer_notes_details);
@@ -230,14 +238,30 @@
     });
 
     if (!response.ok) {
-      console.error('POST add delivery order details gagal', response);
+      Swal.fire({
+        title: "Error",
+        text: "POST add delivery order details gagal.",
+        icon: "error",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E'
+      });
+      // console.error('POST add delivery order details gagal', response);
       return;
     }
 
     const data = await response.json();
 
     if (data.status !== 200) {
-      console.error('Invalid post add delivery order details', data);
+      Swal.fire({
+        title: "Error",
+        text: "Invalid post add delivery order details",
+        icon: "error",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E'
+      });
+      // console.error('Invalid post add delivery order details', data);
       return;
     }
     // console.log("insert delivery order detail",data);
@@ -260,19 +284,47 @@
     });
 
     if (!response2.ok) {
-      console.error('PUT add delivery order details failed', response2);
+      Swal.fire({
+        title: "Error",
+        text: "PUT add delivery order details failed",
+        icon: "error",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E'
+      });
+      // console.error('PUT add delivery order details failed', response2);
+      return;
     }
 
     const data2 = await response2.json();
 
     if (data2.status !== 200) {
-      console.error('Invalid put add delivery order details', data2);
+      Swal.fire({
+        title: "Error",
+        text: "Invalid put add delivery order details",
+        icon: "error",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E'
+      });
+      // console.error('Invalid put add delivery order details', data2);
+      return;
     }
 
     // console.log("Updated add delivery order details", data2);
     notes = '';
     transfer_notes_details = [];
+    Swal.fire({
+        title: "Delivery Order berhasil dibuat.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E',
+        timer: 2000,
+    });
     closeModal();
+    await fetchTransferNotes();
+
     // goto(`/products`);
   }
     
@@ -314,6 +366,14 @@
     transfer_notes_details = transfer_notes_details.filter(note => !((note.product_detail_id === product_detail_id)
       && (note.batch === batche) && (note.expired_date === expired_datee))
     );
+    Swal.fire({
+      title: "Produk berhasil dihapus.",
+      icon: "success",
+      color: "white",
+      background: "#364445",
+      timer: 1000,
+      showConfirmButton: false,
+    });
   }
   async function filterTransferNotesWithDeliveryOrder(transfer_notes_details, delivery_orders) {
     const sentQuantities = {};
@@ -890,14 +950,7 @@
                             </td>
                             <td class="px-1 py-2 text-center">
                               <button on:click={() => {deleteProductFromList(detail.product_detail_id, detail.batch, detail.expired_date)
-                                Swal.fire({
-                                  title: "Produk berhasil dihapus.",
-                                  icon: "success",
-                                  color: "white",
-                                  background: "#364445",
-                                  timer: 1000,
-                                  showConfirmButton: false,
-                                });}} type="button" 
+                                }} type="button" 
                                 class="flex items-center justify-center text-black hover:text-[#3d4c52] font-semibold text-lg rounded-lg px-3 py-2 text-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                   <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -915,14 +968,7 @@
                 </div>
                 <div class="flex items-center justify-start">
                   <button type="button" on:click={() => {resetLoad(); 
-                    Swal.fire({
-                      title: "Daftar produk berhasil direset.",
-                      icon: "success",
-                      color: "white",
-                      background: "#364445",
-                      timer: 1000,
-                      showConfirmButton: false,
-                    });}} class="mt-2 flex w-1/5 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
+                    }} class="mt-2 flex w-1/5 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
                     <div class="w-5/12 flex justify-center">
                       <i class="fa-solid fa-repeat"></i>
                     </div>
@@ -937,16 +983,8 @@
                 <button type="button" on:click={() => toggleModalView(note.transfer_note_id)} class="mt-2 flex w-1/3 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline outline-[1px] hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-xl px-4 py-1.5 text-center">
                   Back
                 </button>
-                <button type="button" on:click={async () => {await saveLoad(note.transfer_note_id);
-                    Swal.fire({
-                      title: "Delivery Order berhasil dibuat.",
-                      icon: "success",
-                      color: "white",
-                      background: "#364445",
-                      confirmButtonColor: '#F2AA7E',
-                      timer: 2000,
-      
-                  });
+                <button type="button" on:click={() => {saveLoad(note.transfer_note_id);
+                    
               }} class="mt-2 flex w-1/3 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-xl px-4 py-1.5 text-center">
                     Confirm
                 </button>

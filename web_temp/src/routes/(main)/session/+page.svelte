@@ -83,18 +83,43 @@
       });
 
       if (!response.ok) {
-         console.error('POST new session gagal', response);
+         
+         Swal.fire({
+            title: "Error",
+            text: "POST new session gagal",
+            icon: "error",
+            color: "white",
+            background: "#364445",
+            confirmButtonColor: '#F2AA7E'
+         });
+         // console.error('POST new session gagal', response);
          return;
       }
 
       const data = await response.json();
 
       if (data.status !== 200) {
-         console.error('Invalid post new session', data);
+         Swal.fire({
+            title: "Error",
+            text: "Invalid post new session",
+            icon: "error",
+            color: "white",
+            background: "#364445",
+            confirmButtonColor: '#F2AA7E'
+         });
+         // console.error('Invalid post new session', data);
          return;
       }
       console.log(data);
       sessionId.set(String(data.data.session_id));
+      Swal.fire({
+         title: "Session berhasil dimulai.",
+         icon: "success",
+         color: "white",
+         background: "#364445",
+         timer: 1000,
+         showConfirmButton: false,
+      });
       closeModal();
       goto(`/session_main`);
       // goto(`/session_main`);

@@ -123,7 +123,14 @@
                 });
                 return;
             }
-
+            Swal.fire({
+                title: "Session berhasil ditutup.",
+                icon: "success",
+                color: "white",
+                background: "#364445",
+                confirmButtonColor: '#F2AA7E',
+                timer: 2000,
+            });
             console.log('Session closed successfully');
 
             closeModal();
