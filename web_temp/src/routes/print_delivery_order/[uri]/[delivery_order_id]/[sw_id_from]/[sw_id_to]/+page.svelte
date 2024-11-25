@@ -12,10 +12,10 @@
       </div>
       <hr class="w-full border-t-[0.5px] my-2 border-black "/>
       <div class="flex justify-between">
-        <div class="w-4/12 items-start">
-          <div class="font-bold text-4xl">LOGO</div>
+        <div class="w-4/12 flex items-center text-4xl">
+          <div class="font-bold ">LOGO</div>
         </div>
-        <div class="w-6/12 ">
+        <div class="w-6/12">
           <div class="font-normal">{from.store_warehouse_name}</div>
           <div class="font-normal">{from.store_warehouse_address}</div>
         </div>
@@ -35,12 +35,12 @@
         </div>
       </div>
       <hr class="w-full border-t-[0.5px] my-2 border-black "/>
-      <div>
+      <div class="pb-4">
         <div class="font-semibold">Penerima</div>
         <div class="font-normal">{to.store_warehouse_name}</div>
         <div class="font-normal">{to.store_warehouse_address}</div>
       </div>
-      <div>
+      <div class="">
         <table class="border-collapse w-full text-sm text-left rtl:text-right printable-table">
           <thead class="text-xs text-gray-700 uppercase ">
             <tr class="border border-black text-xs font-bold uppercase text-center">

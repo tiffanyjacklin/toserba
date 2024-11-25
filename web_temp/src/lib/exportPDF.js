@@ -60,3 +60,5 @@ export default function exportToPDF(url, filename, width) {
 
      iframe.src = urlToExport;
  }
+
+ 

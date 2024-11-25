@@ -9,8 +9,9 @@
     import Switch from '$lib/Switch.svelte';
     import LineChart from '$lib/LineChart.svelte';
     import { getFormattedDateNow, getThirtyDaysBefore, getFormattedDateForPrint } from '$lib/DateNow';
-	import { goto } from '$app/navigation';
-  import exportPDF from '$lib/exportPDF.js';
+    import { goto } from '$app/navigation';
+    import exportPDF from '$lib/exportPDF.js';
+    import viewPDF from '$lib/viewPDF.js';
 
     let switchValue;
     let sliderValue;
@@ -1022,7 +1023,7 @@
                 </div>
                 <div class="flex items-center justify-start">
                   <button type="button" 
-                  on:click={() => exportPDF(window.location.origin+`/print_stock_card/${$uri}/${product.ProductDetails.product_detail_id}/-`, `StockCard_${product.ProductDetails.product_detail_id}_AllSW_PrintedOn${getFormattedDateForPrint()}`, 190)}
+                  on:click={() => viewPDF(window.location.origin+`/print_stock_card/${$uri}/${product.ProductDetails.product_detail_id}/-`, `StockCard_${product.ProductDetails.product_detail_id}_AllSW_PrintedOn${getFormattedDateForPrint()}`, 190)}
                   class="mt-2 flex w-40 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
                     <div class="w-2/12 flex justify-center ml-2">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">

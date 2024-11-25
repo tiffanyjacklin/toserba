@@ -1,12 +1,9 @@
 <script>
-	// @ts-nocheck
-	import { enhance } from '$app/forms';
+    import { enhance } from '$app/forms';
+
 </script>
 
-<svelte:head>
-    <title>Toserba | Login</title>
-</svelte:head>
-
+<!-- HTML Structure for Login -->
 <div id="cover" class="flex h-screen w-screen">
     <figure class="font-roboto shadow-xl container bg-[#3d4c52] w-11/12 max-w-3xl m-auto rounded-xl p-1 sm:p-2">
         <div class="flex flex-col sm:flex-row">
@@ -20,14 +17,21 @@
                 </div>
             </div>
             <form action="?/login"
-			method="post"
-			use:enhance={() => {
-				return async ({ result, update }) => {
-					await update({ reset: false });
-					// alert(result.data.data);
-				};
-			}} 
-		class="flex-auto sm:p-4 sm:pr-2  max-[640px]:p-6  w-full sm:w-1/2 flex flex-col space-y-1">
+                    method="post"
+                    use:enhance={() => {
+                        // return async ({ result, update }) => {
+                        //     await update({ reset: false });
+                        //     // alert(result.data.data);
+                        // };
+                        return async ({ result, update }) => {
+                            if (result.type === 'failure') {
+                                alert(result.data.message); // Show the error message from server
+                            } else {
+                                await update({ reset: false });
+                            }
+                        };
+                    }} 
+                    class="flex-auto sm:p-4 sm:pr-2  max-[640px]:p-6  w-full sm:w-1/2 flex flex-col space-y-1">
                 <div class="relative flex justify-center items-center pb-6 pt-6 select-none ">
                     <svg width="120" height="38" viewBox="0 0 239 76" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g filter="url(#filter0_i_313_11)">
@@ -46,8 +50,6 @@
                             </filter>
                         </defs>
                     </svg>
-                        
-                    <!-- <h1 class="relative text-6xl uppercase font-semibold text-[#f7d4b2] mb-6 drop-shadow-2xl select-none ">Login</h1> -->
                 </div>
                 <div class="w-full">
                     <label for="username" class="select-none text-sm leading-6 text-white block no-underline mt-1 font-medium">Username</label>
@@ -68,7 +70,7 @@
                     </div>
                 </div>
                 <div>
-                    <a href="/forgot-password" class="text-white block no-underline mt-1 font-medium text-sm  text-right mb-6">Forgot Password?</a>
+                    <a href="/forgot-password" class="text-white block no-underline mt-1 font-medium text-sm text-right mb-6">Forgot Password?</a>
                 </div>
                 <div  class="flex items-center justify-center pb-6 pt-6 ">
                     <button type="submit" class="h-10 w-1/2 px-6 inline-flex items-center justify-center font-bold rounded-md bg-f2b082 text-white hover:shadow-2xl">
@@ -78,32 +80,14 @@
                         </svg>
                     </button>
                 </div>
-                
             </form>
         </div>
     </figure>
 </div>
+
 <style lang="postcss">
-	#cover{
-		background: linear-gradient(45deg, #3d4c52 0%, #3d4c52 44%, #f7d4b2 44%, #f7d4b2 100%);
-	}	
+    #cover {
+        background: linear-gradient(45deg, #3d4c52 0%, #3d4c52 44%, #f7d4b2 44%, #f7d4b2 100%);
+    }
 </style>
 
-
-<!-- 
-<style lang="postcss">
-	@tailwind components;
-	@layer components {
-		label {
-			@apply block text-sm font-semibold;
-		}
-
-		input {
-			@apply p-1 rounded border;
-		}
-
-		button {
-			@apply bg-teal-500 text-white p-1 rounded w-full my-1;
-		}
-	}
-</style> -->

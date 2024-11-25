@@ -20,7 +20,7 @@ export const actions = {
 				'Content-Type': 'application/json'
 			}
 		});		if (!response.ok) {
-            return fail(response.status, { message: 'Login failed.' });
+            return fail(response.status, { message: 'Invalid username or password.' });
         }
 
         const data = await response.json();

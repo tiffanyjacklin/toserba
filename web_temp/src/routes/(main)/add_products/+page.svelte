@@ -523,7 +523,16 @@
                 {product.section_placement}
               </td>
               <td class="px-1 py-2 text-center">
-                <button on:click={() => deleteProductFromList(product.product_detail_id, product.expired_date, product.batch)} type="button" 
+                <button on:click={() => {deleteProductFromList(product.product_detail_id, product.expired_date, product.batch) 
+                  Swal.fire({
+                    title: "Produk berhasil dihapus.",
+                    icon: "success",
+                    color: "white",
+                    background: "#364445",
+                    timer: 1000,
+                    showConfirmButton: false,
+                  });
+                }} type="button" 
                   class="mt-2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] hover:bg-[#F2AA7E] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg outline outline-[1px] px-3 py-3 text-center">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -591,7 +600,15 @@
 </div>
     
     <div class="flex items-center justify-center my-2">
-      <button on:click={() => addProducts()} type="button" 
+      <button on:click={async() => {await addProducts(); Swal.fire({
+        title: "Produk dari supplier berhasil ditambahkan. Mohon tunggu verifikasi dari admin.",
+        icon: "success",
+        color: "white",
+        background: "#364445",
+        confirmButtonColor: '#F2AA7E',
+        timer: 2000,
+    });}
+      } type="button" 
         class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] flex items-center justify-center text-black bg-[#f7d4b2] hover:bg-[#F2AA7E] outline outline-[1px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-lg rounded-2xl px-16 py-1 my-3 text-center"
         disabled={products_to_be_added.length === 0}>
         Submit
@@ -710,7 +727,15 @@
               <button type="button" on:click={() => handleClick(1, false)} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Back
               </button>
-              <button type="button" on:click={() => addProductToProductList()} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+              <button type="button" on:click={() => { addProductToProductList(); Swal.fire({
+                title: "Produk berhasil ditambahkan.",
+                icon: "success",
+                color: "white",
+                background: "#364445",
+                timer: 1000,
+                showConfirmButton: false,
+            });
+            }} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Submit
               </button>
           </div>
