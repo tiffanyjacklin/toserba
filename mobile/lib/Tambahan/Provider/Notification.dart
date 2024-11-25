@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_app_all/Model/NotificationsByRoles.dart';
+import 'package:Toserba_App/Model/NotificationsByRoles.dart';
 import 'package:http/http.dart' as http;
 
 class NotificationProvider extends ChangeNotifier{

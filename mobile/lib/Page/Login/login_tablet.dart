@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
-import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
-import 'package:flutter_app_all/Template.dart';
+import 'package:Toserba_App/Tambahan/Provider/Auth.dart';
+import 'package:Toserba_App/Tambahan/Provider/LoginProvider.dart';
+import 'package:Toserba_App/Template.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
@@ -22,11 +22,11 @@ class _LoginTabletState extends State<LoginTablet> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // cek layar tablet atau hp
-  bool isTablet(BuildContext context) =>
-      MediaQuery.of(context).size.width >= 767;
-  bool isMobile(BuildContext context) =>
-      MediaQuery.of(context).size.width < 767;
+  // // cek layar tablet atau hp
+  // bool isTablet(BuildContext context) =>
+  //     MediaQuery.of(context).size.width >= 767;
+  // bool isMobile(BuildContext context) =>
+  //     MediaQuery.of(context).size.width < 767;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +34,7 @@ class _LoginTabletState extends State<LoginTablet> {
     AuthState providerAuth = Provider.of<AuthState>(context);
     return OrientationBuilder(builder: (context, orientation) {
       return Scaffold(
+        resizeToAvoidBottomInset: false,
         body: CustomPaint(
           painter: DiagonalBackgroundPainter(),
           child: Center(
@@ -45,8 +46,7 @@ class _LoginTabletState extends State<LoginTablet> {
                 padding: const EdgeInsets.all(12.0),
                 child: Row(
                   children: [
-                    if (isTablet(context) &&
-                        orientation == Orientation.landscape)
+                    if (!isPhone())
                       Expanded(
                         flex: 4,
                         // ini kolom 1
@@ -73,15 +73,27 @@ class _LoginTabletState extends State<LoginTablet> {
                                       'Welcome',
                                       maxLines: 1,
                                       style: TextStyle(
-                                          fontSize: 74,
+                                          fontSize: (fontSizeBody * 7.0),
                                           fontWeight: FontWeight.bold,
                                           color:
                                               ColorPalleteLogin.PrimaryColor),
                                     ),
+
+                                    
                                   ],
+                                  
                                 ),
                               ),
                             ),
+                            // AutoSizeText(
+                                  //     'Welcome',
+                                  //     maxLines: 1,
+                                  //     style: TextStyle(
+                                  //         fontSize: (fontSizeBody * 3.0),
+                                  //         fontWeight: FontWeight.bold,
+                                  //         color:
+                                  //             ColorPalleteLogin.PrimaryColor),
+                                  //   ),
                             SizedBox(
                               height: 10,
                             ),
@@ -105,7 +117,7 @@ class _LoginTabletState extends State<LoginTablet> {
                                       maxLines: 1,
                                       'Back.',
                                       style: TextStyle(
-                                          fontSize: 100,
+                                          fontSize: (fontSizeBody * 5.0),
                                           fontWeight: FontWeight.bold,
                                           color:
                                               ColorPalleteLogin.PrimaryColor),
@@ -149,7 +161,7 @@ class _LoginTabletState extends State<LoginTablet> {
                                 child: Text(
                               'LOGIN',
                               style: TextStyle(
-                                  fontSize: 64,
+                                  fontSize: (fontSizeBody * 3.0),
                                   fontWeight: FontWeight.bold,
                                   color: ColorPalleteLogin.SecondaryColor),
                             )),
@@ -161,7 +173,7 @@ class _LoginTabletState extends State<LoginTablet> {
                               ' Username',
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: fontSizeBody,
                                   fontWeight: FontWeight.bold),
                             ),
                             TextField(
@@ -184,7 +196,7 @@ class _LoginTabletState extends State<LoginTablet> {
                               ' Password',
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: fontSizeBody,
                                   fontWeight: FontWeight.bold),
                             ),
                             TextField(
@@ -244,11 +256,14 @@ class _LoginTabletState extends State<LoginTablet> {
                                         Icons.logout,
                                         color: ColorPalleteLogin.PrimaryColor,
                                       ),
+
                                     ],
                                   ),
                                 ),
                               ),
                             ),
+
+                            SizedBox(height: 20),
                           ],
                         ),
                       ),

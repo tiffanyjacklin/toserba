@@ -17,8 +17,8 @@ class ColorPalleteLogin {
   static const TableColor = Color(0xFFfff2cc);
 }
 
-var fontSizeBody = 18.0;
-var fontSizeSmall = 14.0;
+var fontSizeBody = 16.0;
+var fontSizeSmall = 12.0;
 
 class bodyText extends StatelessWidget {
   String judul;
@@ -159,7 +159,7 @@ class TableTitlePage extends StatelessWidget {
     return Text(
       '$name',
       style: TextStyle(
-          fontSize: 32,
+          fontSize: 24,
           fontWeight: FontWeight.bold,
           color: Colors.white,
           shadows: [
@@ -171,11 +171,11 @@ class TableTitlePage extends StatelessWidget {
 
 class TableContentTextStyle {
   static const TextStyle textStyle = TextStyle(
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: FontWeight.bold,
   );
   static const TextStyle textStyleBody = TextStyle(
-    fontSize: 16,
+    fontSize: 12,
   );
 }
 
@@ -221,3 +221,10 @@ Future<void> saveAndShare(Uint8List bytes, String name1) async {
       ? await getExternalStorageDirectory()
       : await getApplicationDocumentsDirectory();
 }
+
+
+// get if tablet or phone
+  bool isPhone() {
+    final data = MediaQueryData.fromView(WidgetsBinding.instance.window);
+    return data.size.shortestSide <= 550 ? true :false;
+  }

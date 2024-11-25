@@ -1,23 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/FetchApi/TransferNote+Delivery.dart';
-import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
+import 'package:Toserba_App/FetchApi/TransferNote+Delivery.dart';
+import 'package:Toserba_App/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
-import 'package:flutter_app_all/Model/DeliveryTransferNote.dart'
+import 'package:Toserba_App/Model/DeliveryTransferNote.dart'
     as deliveryTrasnfer;
-import 'package:flutter_app_all/Model/StockTransferNotesWarehouse.dart'
+import 'package:Toserba_App/Model/StockTransferNotesWarehouse.dart'
     as transfer;
-import 'package:flutter_app_all/TableTemplate/TableSuratJalan.dart';
-import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
-import 'package:flutter_app_all/Tambahan/Provider/ProductTruckCart.dart';
-import 'package:flutter_app_all/Tambahan/Provider/TransferNotesProvider.dart';
-import 'package:flutter_app_all/Template.dart';
+import 'package:Toserba_App/TableTemplate/TableSuratJalan.dart';
+import 'package:Toserba_App/Tambahan/Provider/Auth.dart';
+import 'package:Toserba_App/Tambahan/Provider/ProductTruckCart.dart';
+import 'package:Toserba_App/Tambahan/Provider/TransferNotesProvider.dart';
+import 'package:Toserba_App/Template.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:stroke_text/stroke_text.dart';
-import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
+import 'package:Toserba_App/Model/StockCardProductStoreWarehouse.dart'
     as stock;
 
 class TransferNotesPage extends StatelessWidget {
@@ -617,7 +617,7 @@ class StockTransferNotesChild extends StatelessWidget {
                       style: TextStyle(
                         color: ColorPalleteLogin.PrimaryColor,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: fontSizeBody,
                       ),
                     ),
                     Text(
@@ -625,7 +625,7 @@ class StockTransferNotesChild extends StatelessWidget {
                       style: TextStyle(
                         color: ColorPalleteLogin.PrimaryColor,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: fontSizeBody,
                       ),
                     ),
 

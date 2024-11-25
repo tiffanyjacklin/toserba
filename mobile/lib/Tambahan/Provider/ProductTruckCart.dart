@@ -1,13 +1,10 @@
 import 'dart:collection';
 import 'dart:convert';
-// import 'dart:ffi';
-import 'package:flutter_app_all/Model/ResponsePostTransferNotes.dart'
+import 'package:Toserba_App/Model/ResponsePostTransferNotes.dart'
     as responseTransfer;
-import 'package:flutter_app_all/Model/StockTransferNotesDetailWarehouse.dart'
+import 'package:Toserba_App/Model/StockTransferNotesDetailWarehouse.dart'
     as transferDetail;
-import 'package:flutter_app_all/Model/UpdateDeliveryOrder.dart';
-import 'package:flutter_app_all/Model/UserData.dart' as user;
-// import 'package:flutter_app_all/Page/Login/login_tablet.dart';
+import 'package:Toserba_App/Model/UserData.dart' as user;
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
@@ -234,7 +231,6 @@ Future<void> _updateDeliveryOrderDetails(
     // decode?
     print(response.body);
     if (temp['status'] == 200) {
-      var response2 = UpdateDeliveryOrder.fromJson(temp);
       _fetchNotification(deliveryId);
       print('berhasil update');
     } else {

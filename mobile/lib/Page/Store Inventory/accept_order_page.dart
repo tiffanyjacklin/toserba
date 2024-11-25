@@ -1,19 +1,15 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Model/DeliveryOrderStore.dart' as deliveryStore;
-import 'package:flutter_app_all/Tambahan/Provider/AcceptFormCart.dart';
-import 'package:flutter_app_all/Tambahan/Provider/AcceptOrderDelivery.dart';
-import 'package:flutter_app_all/Tambahan/Provider/AcceptOrderProvider.dart';
-import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
-import 'package:flutter_app_all/Template.dart';
-import 'package:flutter_app_all/Page/Store%20Inventory/accept_order_popup_page.dart';
+import 'package:Toserba_App/Model/DeliveryOrderStore.dart' as deliveryStore;
+import 'package:Toserba_App/Tambahan/Provider/AcceptOrderDelivery.dart';
+import 'package:Toserba_App/Tambahan/Provider/AcceptOrderProvider.dart';
+import 'package:Toserba_App/Tambahan/Provider/Auth.dart';
+import 'package:Toserba_App/Template.dart';
+import 'package:Toserba_App/Page/Store%20Inventory/accept_order_popup_page.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
 import 'package:stroke_text/stroke_text.dart';
-import 'package:http/http.dart' as http;
 
 class AcceptOrderPage2 extends StatelessWidget {
   const AcceptOrderPage2({super.key});
@@ -411,11 +407,6 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
                                             alignment: Alignment.centerRight,
                                             child: Container(
                                               height: 50,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.55 *
-                                                  0.3,
                                               child: ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:
@@ -428,7 +419,6 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
                                                   ),
                                                 ),
                                                 child: Wrap(
-                                                  spacing: 12,
                                                   children: [
                                                     Text(
                                                       'Apply',
@@ -559,7 +549,7 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
 }
 
 class DeliveryOrderChild extends StatelessWidget {
-  deliveryStore.Data data;
+  final deliveryStore.Data data;
 
   DeliveryOrderChild({
     required this.data,

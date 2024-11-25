@@ -3,7 +3,7 @@ import 'dart:convert';
 // import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
+import 'package:Toserba_App/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
 import 'package:http/http.dart' as http;
 

@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_app_all/Model/AllProduct.dart';
+import 'package:Toserba_App/Model/AllProduct.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_app_all/Model/AllCategory.dart' as category;
-import 'package:flutter_app_all/Model/AllSort.dart' as sort;
+import 'package:Toserba_App/Model/AllCategory.dart' as category;
+import 'package:Toserba_App/Model/AllSort.dart' as sort;
 import 'package:number_paginator/number_paginator.dart';
 
 
@@ -238,9 +237,7 @@ class ProductProvider extends ChangeNotifier {
   }
 
   Future<void> fetchAllSorting() async {
-
     try{
-    // http://leap.crossnet.co.id:8888/products/category
     final link = 'http://leap.crossnet.co.id:8888/products/sorting';
 
     // call api (method PUT)

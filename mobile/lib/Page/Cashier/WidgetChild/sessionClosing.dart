@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Template.dart';
+import 'package:Toserba_App/Template.dart';
 
 class SessionPopup extends StatelessWidget {
   const SessionPopup({super.key});

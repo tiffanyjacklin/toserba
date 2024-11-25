@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_app_all/Page/auth_page.dart';
-import 'package:flutter_app_all/Page/main_page.dart';
-import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
-import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
-import 'package:flutter_app_all/Tambahan/Provider/RouteProvider.dart';
-import 'package:flutter_app_all/Template.dart';
+import 'package:Toserba_App/Page/auth_page.dart';
+import 'package:Toserba_App/Page/main_page.dart';
+import 'package:Toserba_App/Tambahan/Provider/Auth.dart';
+import 'package:Toserba_App/Tambahan/Provider/LoginProvider.dart';
+import 'package:Toserba_App/Tambahan/Provider/RouteProvider.dart';
+import 'package:Toserba_App/Template.dart';
 import 'package:provider/provider.dart';
 
 void main() {

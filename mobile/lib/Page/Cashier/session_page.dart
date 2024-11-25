@@ -2,10 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Template.dart';
-import 'package:flutter_app_all/Model/Session.dart';
-import 'package:flutter_app_all/Model/SessionList.dart';
-import 'package:flutter_app_all/Page/Cashier/WidgetChild/sessionClosing.dart';
+import 'package:Toserba_App/Template.dart';
+import 'package:Toserba_App/Model/Session.dart';
+import 'package:Toserba_App/Page/Cashier/WidgetChild/sessionClosing.dart';
 import 'package:http/http.dart' as http;
 
 class SessionPage extends StatefulWidget {
@@ -75,7 +74,7 @@ class _SessionPageState extends State<SessionPage> {
 
 class CardSession extends StatelessWidget {
   // all variable check?
-  Session? session;
+  final Session? session;
 
   CardSession({
     required this.session

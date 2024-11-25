@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Model/NotificationsByRoles.dart';
-import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
-import 'package:flutter_app_all/Tambahan/Provider/Notification.dart';
-import 'package:flutter_app_all/Template.dart';
+import 'package:Toserba_App/Model/NotificationsByRoles.dart';
+import 'package:Toserba_App/Tambahan/Provider/Auth.dart';
+import 'package:Toserba_App/Tambahan/Provider/Notification.dart';
+import 'package:Toserba_App/Template.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_app_all/Model/UserData.dart' as users;
+import 'package:Toserba_App/Model/UserData.dart' as users;
 
 class NotificationPage2 extends StatelessWidget {
   const NotificationPage2({super.key});

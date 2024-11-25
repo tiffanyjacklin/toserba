@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Tambahan/Provider/AcceptFormCart.dart';
-import 'package:flutter_app_all/Tambahan/Provider/InventoryTakingProvider.dart';
-import 'package:flutter_app_all/Template.dart';
-import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart';
+import 'package:Toserba_App/Tambahan/Provider/AcceptFormCart.dart';
+import 'package:Toserba_App/Template.dart';
+import 'package:Toserba_App/Model/DeliveryTransferDetail.dart';
 import 'package:provider/provider.dart';
 
 class AcceptingPage extends StatelessWidget {

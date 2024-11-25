@@ -1,13 +1,11 @@
-// import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Tambahan/Provider/HistoryAllProductProvider.dart';
-import 'package:flutter_app_all/Template.dart';
+import 'package:Toserba_App/Tambahan/Provider/HistoryAllProductProvider.dart';
+import 'package:Toserba_App/Template.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
-import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
+import 'package:Toserba_App/Model/StockCardProductStoreWarehouse.dart'
     as stock;
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class HistoryAllProductPage extends StatefulWidget {
@@ -642,7 +640,7 @@ class _HistoryAllStockProductPageState
                                       (BuildContext context, Widget? child) {
                                     return Container(
                                       width: MediaQuery.of(context).size.width *
-                                          0.5,
+                                          0.7,
                                       child: NumberPaginator(
                                         config: NumberPaginatorUIConfig(
                                           buttonSelectedForegroundColor:

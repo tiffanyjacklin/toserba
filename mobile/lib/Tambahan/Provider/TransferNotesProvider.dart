@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_app_all/Model/StockTransferNotesWarehouse.dart'
+import 'package:Toserba_App/Model/StockTransferNotesWarehouse.dart'
     as transfer;
-import 'package:flutter_app_all/Template.dart';
+import 'package:Toserba_App/Template.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:http/http.dart' as http;
 

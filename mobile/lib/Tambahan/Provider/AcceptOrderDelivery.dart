@@ -1,8 +1,8 @@
 import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_app_all/FetchApi/TransferNote+Delivery.dart';
-import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
+import 'package:Toserba_App/FetchApi/TransferNote+Delivery.dart';
+import 'package:Toserba_App/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
 import 'package:http/http.dart' as http;
 

@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
-import 'package:flutter_app_all/Tambahan/Provider/RouteProvider.dart';
-import 'package:flutter_app_all/Template.dart';
+import 'package:Toserba_App/Tambahan/Provider/Auth.dart';
+import 'package:Toserba_App/Tambahan/Provider/RouteProvider.dart';
+import 'package:Toserba_App/Template.dart';
 import 'package:provider/provider.dart';
 
 class MainPage extends StatelessWidget {

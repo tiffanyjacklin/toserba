@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
+import 'package:Toserba_App/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
-import 'package:flutter_app_all/Model/DeliveryTransferNote.dart'
+import 'package:Toserba_App/Model/DeliveryTransferNote.dart'
     as deliveryTrasnfer;
-import 'package:flutter_app_all/Model/StockTransferNotesWarehouse.dart'
-    as transfer;
 
 
 // fetch delivery transfer notes

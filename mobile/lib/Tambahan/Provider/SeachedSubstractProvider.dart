@@ -4,12 +4,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Model/AllProduct.dart';
-import 'package:flutter_app_all/Model/StockOpname.dart' as opname;
-import 'package:flutter_app_all/Model/SubstractProductResponse.dart' as subsResponse;
-import 'package:flutter_app_all/Template.dart';
+import 'package:Toserba_App/Model/AllProduct.dart';
+import 'package:Toserba_App/Model/StockOpname.dart' as opname;
+import 'package:Toserba_App/Model/SubstractProductResponse.dart' as subsResponse;
+import 'package:Toserba_App/Template.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_app_all/Model/UserData.dart' as user;
+import 'package:Toserba_App/Model/UserData.dart' as user;
 
 class SubstractProductProvider extends ChangeNotifier {
   SubstractProductProvider(user.Data user){

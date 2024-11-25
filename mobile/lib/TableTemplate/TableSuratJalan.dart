@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Model/DeliveryTransferDetail.dart'
+import 'package:Toserba_App/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
-import 'package:flutter_app_all/Template.dart';
-import 'package:intl/intl.dart';
+import 'package:Toserba_App/Template.dart';
 
 class NoteDeliveryOrder extends StatelessWidget {
   List<deliveryDetail.Data> listItemDelivery = [];

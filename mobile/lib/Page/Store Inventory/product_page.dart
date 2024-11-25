@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_all/Model/StockOpname.dart' as opname;
-import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
-import 'package:flutter_app_all/Tambahan/Provider/ProductProvider.dart';
+import 'package:Toserba_App/Model/StockOpname.dart' as opname;
+import 'package:Toserba_App/Tambahan/Provider/Auth.dart';
+import 'package:Toserba_App/Tambahan/Provider/ProductProvider.dart';
 // import 'package:flutter_app_all/Page/Login/login_tablet.dart';
-import 'package:flutter_app_all/Template.dart';
-import 'package:flutter_app_all/Model/AllProduct.dart';
-import 'package:flutter_app_all/Model/StockCardProductStoreWarehouse.dart'
+import 'package:Toserba_App/Template.dart';
+import 'package:Toserba_App/Model/AllProduct.dart';
+import 'package:Toserba_App/Model/StockCardProductStoreWarehouse.dart'
     as stock;
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
@@ -627,11 +627,6 @@ class _ProductPageState extends State<ProductPage> {
                                             alignment: Alignment.centerRight,
                                             child: Container(
                                               height: 50,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.55 *
-                                                  0.3,
                                               child: ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:
@@ -644,7 +639,7 @@ class _ProductPageState extends State<ProductPage> {
                                                   ),
                                                 ),
                                                 child: Wrap(
-                                                  spacing: 12,
+                                                  
                                                   children: [
                                                     Text(
                                                       'Apply',

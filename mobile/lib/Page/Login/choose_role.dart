@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_app_all/Tambahan/Provider/Auth.dart';
-import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
-import 'package:flutter_app_all/Template.dart';
-import 'package:flutter_app_all/Model/PrivilegesData.dart';
-import 'package:flutter_app_all/Model/UserData.dart';
-import 'package:flutter_app_all/Model/RolesPerUser.dart' as roles;
+import 'package:Toserba_App/Tambahan/Provider/Auth.dart';
+import 'package:Toserba_App/Tambahan/Provider/LoginProvider.dart';
+import 'package:Toserba_App/Template.dart';
+import 'package:Toserba_App/Model/PrivilegesData.dart';
+import 'package:Toserba_App/Model/UserData.dart';
+import 'package:Toserba_App/Model/RolesPerUser.dart' as roles;
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 

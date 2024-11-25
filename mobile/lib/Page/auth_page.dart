@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_app_all/Page/Login/choose_role.dart';
-import 'package:flutter_app_all/Page/Login/login_tablet.dart';
-import 'package:flutter_app_all/Tambahan/Provider/LoginProvider.dart';
+import 'package:Toserba_App/Page/Login/choose_role.dart';
+import 'package:Toserba_App/Page/Login/login_tablet.dart';
+import 'package:Toserba_App/Tambahan/Provider/LoginProvider.dart';
 import 'package:provider/provider.dart';
 
 class AuthenticationPage extends StatefulWidget {
