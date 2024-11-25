@@ -67,7 +67,7 @@
         }
 
         last_session = data.data;
-      //   console.log(last_session);
+        console.log("last_session",last_session);
     }
 
     async function NewSession() {

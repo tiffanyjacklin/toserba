@@ -7,6 +7,9 @@
     import { uri, userId, roleId, sessionId } from '$lib/uri.js';
     import img_toko from "$lib/assets/store.png";
   
+    import { loading } from '$lib/loading';
+	import Loading from '$lib/Loading.svelte';
+    
     let storeWarehouse = [];
     let filtered_sw = [];
 
@@ -34,7 +37,9 @@
     }
   
     onMount(async () => {
+        $loading = true;
         await getAllStoreWarehouse();
+        $loading = false;
     });
   
     async function getAllStoreWarehouse(){
@@ -66,11 +71,13 @@
     }
 
     async function goToPage(page) {
+        $loading = true;
         if (page < 1 || page > Math.ceil(totalRows / limit)) return;
 
         currentPage = page;
         offset = (currentPage - 1) * limit;
-        await getAllStoreWarehouse()
+        await getAllStoreWarehouse();
+        $loading = false;
     }
 
     $: if ((searchQuery_temp !== searchQuery) ){

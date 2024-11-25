@@ -1,6 +1,9 @@
 <script>
-    import { enhance } from '$app/forms';
-
+	// @ts-nocheck
+	import { enhance } from '$app/forms';
+    import { loading } from '$lib/loading';
+	import Loading from '$lib/Loading.svelte';
+    $: $loading = false;
 </script>
 
 <!-- HTML Structure for Login -->
@@ -18,7 +21,7 @@
             </div>
             <form action="?/login"
                     method="post"
-                    use:enhance={() => {
+                    use:enhance={() => {$loading = true;
                         // return async ({ result, update }) => {
                         //     await update({ reset: false });
                         //     // alert(result.data.data);
@@ -26,8 +29,10 @@
                         return async ({ result, update }) => {
                             if (result.type === 'failure') {
                                 alert(result.data.message); // Show the error message from server
+                                $loading = false;
                             } else {
                                 await update({ reset: false });
+                                $loading = false;
                             }
                         };
                     }} 

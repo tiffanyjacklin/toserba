@@ -6,6 +6,10 @@
     import { get } from 'svelte/store';
     import { getFormattedDate } from '$lib/DateNow.js';
 
+    import { loading } from '$lib/loading';
+	import Loading from '$lib/Loading.svelte';
+    $: $loading = false;
+
     export let data;
     let json;
     let roles = [];
@@ -18,6 +22,8 @@
     // console.log("user id : " + $userId);
 
     async function fetchRoles() {
+        $loading = true;
+        $loading = $loading;
         const response = await fetch(`http://${$uri}:8888/user/roles/${$userId}`, {
             method: 'GET',
             headers: {
@@ -54,16 +60,19 @@
         console.log(roles);
     }
 
-    onMount(() => {
-        fetchRoles();
+    onMount(async() => {
+        await fetchRoles();
+        $loading = false;
     });
 
     function ChooseRole(role_id, role_name) {
+        $loading = true;
         selectedRole = role_id;
         roleId.set(String(role_id));
         roleId.subscribe(async value => {
             let description = "User ID "+$userId+" login sebagai "+role_name+" pada "+getFormattedDate();
             await insertNotif(description);
+            $loading = false;
             if (value === String(1)){
                 goto(`/session`);
             }

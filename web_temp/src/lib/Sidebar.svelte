@@ -8,6 +8,10 @@
 
     import { uri, userId, roleId, sessionId, privileges, user, totalAmount, prev_path, storeId, sw_name, transactionId } from '$lib/uri.js';
 
+    import { loading } from '$lib/loading';
+	import Loading from '$lib/Loading.svelte';
+    // $: $loading = false;
+
     export let pathname = "";
     let full_name = "Loading...";
     let role_name = "Loading...";
@@ -89,14 +93,17 @@
         user_pp_fetched_sidebar = URL.createObjectURL(blob);
     }
     onMount(async () => {
+        $loading = true;
         await fetchPrivileges();
         await fetchUser();
         if (file_name !== '-'){
             await fetchUserPP();
         }
+        $loading = false;
     });
 
     async function handleLogout() {
+        $loading = true;
         let description = "User ID "+$userId+" logout pada "+getFormattedDate();
         await insertNotif(description);
         userId.set('');
@@ -110,6 +117,7 @@
         sw_name.set('');
         prev_path.set('');
         goto('/login');
+        $loading = false;
 
     }
     async function insertNotif(descriptionnya){

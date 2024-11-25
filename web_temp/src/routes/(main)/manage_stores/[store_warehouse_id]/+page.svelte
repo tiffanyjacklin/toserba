@@ -8,6 +8,10 @@
     import { onMount } from 'svelte';
     import { uri, userId, roleId, sessionId } from '$lib/uri.js';
 
+    import { loading } from '$lib/loading';
+	import Loading from '$lib/Loading.svelte';
+    $: $loading = false;
+
     export let data;
     let store_warehouse_id = data.store_warehouse_id;
 
@@ -309,18 +313,23 @@
     }
 
     async function goToPage(page) {
+        $loading = true;
         if (page < 1 || page > Math.ceil(totalRows / limit)) return;
 
         currentPage = page;
         offset = (currentPage - 1) * limit;
         if (tampilan == "session"){
             await fetchSessionNotVerified();
+            $loading = false;
         } else if (tampilan == "session_all"){
             await fetchAllSWSession();
+            $loading = false;
         } else if (tampilan == "transaction"){
             await fetchTransactions();
+            $loading = false;
         } else if (tampilan == "verify_delivery"){
             await fetchDeliveryOrder();
+            $loading = false;
         }
     }
 
@@ -350,17 +359,20 @@
     }
 
     onMount(async () => {
-        fetchCashiers();
+        await fetchCashiers();
         await fetchSessionNotVerified();
         goToPage(1);
+        
+
         // await fetchSessionNotVerified();
     //   await fetchTransactions();
     //   await fetchAllSWSession();
     });
 
   </script>
-  
-   <div class="mt-[90px] mx-8  mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
+
+
+<div class="mt-[90px] mx-8  mb-10 pb-10 p-3 flex flex-col items-center justify-center bg-white shadow-[inset_0_2px_3px_rgba(0,0,0,0.2)] rounded-lg">
     <div class="w-full flex justify-start">
         <button on:click={() => goto('/manage_stores')} class="text-xl font-bold self-start p-4 hover:bg-gray-300 rounded-xl"><i class="fa-solid fa-less-than mr-2"></i>Back</button>  
     </div>
@@ -1125,3 +1137,6 @@
         </nav>
        
    </div>
+
+  
+   
