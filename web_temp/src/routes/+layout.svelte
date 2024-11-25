@@ -7,7 +7,7 @@
 	import { loading } from '$lib/loading';
 	import Loading from '$lib/Loading.svelte';
 
-	$: $loading = !!$navigating;
+	$: $loading = false;
 </script>
 
 <!-- <svelte:head>

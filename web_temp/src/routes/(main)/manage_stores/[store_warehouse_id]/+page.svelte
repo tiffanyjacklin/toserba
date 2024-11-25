@@ -10,7 +10,6 @@
 
     import { loading } from '$lib/loading';
 	import Loading from '$lib/Loading.svelte';
-    $: $loading = false;
 
     export let data;
     let store_warehouse_id = data.store_warehouse_id;
@@ -359,6 +358,7 @@
     }
 
     onMount(async () => {
+        $loading = true;
         await fetchCashiers();
         await fetchSessionNotVerified();
         goToPage(1);

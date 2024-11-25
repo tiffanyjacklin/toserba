@@ -1,7 +1,7 @@
 <script>
     import {loading} from '$lib/loading';
 
-    $: $loading = $loading;
+    $loading = $loading;
 </script>
 
 {#if $loading}
