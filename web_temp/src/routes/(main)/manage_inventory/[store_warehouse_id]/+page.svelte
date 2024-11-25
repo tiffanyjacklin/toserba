@@ -12,6 +12,8 @@
     import exportPDF from '$lib/exportPDF.js';
     import viewPDF from '$lib/viewPDF.js';
 
+    import { loading } from '$lib/loading';
+
     export let data;
 
     let store_warehouse_id = data.store_warehouse_id;
@@ -771,6 +773,7 @@
     }
 
     async function goToPage(page) {
+        $loading = true;
         if (page < 1 || page > Math.ceil(totalRows / limit)) return;
 
         currentPage = page;
@@ -778,17 +781,23 @@
 
         if(tampilan == "products"){
           await fetchProduk();
+          $loading = false;
         } else if (tampilan == "stock_history"){
           await fetchStockCardHistory()
+          $loading = false;
         } else if (tampilan == "verify_add"){
           await fetchAddVerify();
+          $loading = false;
         }else if (tampilan == "verify_subtract"){
           await fetchSubtractVerify();
+          $loading = false;
         }else if (tampilan == "assign_product"){
           await fetchAssign();
+          $loading = false;
         }else if (tampilan == "product_category"){
           await fetchProductCategory();
           totalRows = product_category.length;
+          $loading = false;
         }
     }
 
@@ -799,15 +808,18 @@
       }
     }
     onMount(async () => {
-      await fetchProduk();
+      $loading = true;
+      // await fetchProduk();
       // fetchAddVerify();
       // fetchSubtractVerify();
       // fetchStockCardHistory();
-      await fetchProductCategory();
+      // await fetchProductCategory();
       await fetchSuppliers();
-
+      
       // fetchAssign();
       sw_name_print = await getStoreWarehouse(store_warehouse_id);
+      goToPage(1);
+      $loading = false;
   });
 
   </script>

@@ -10,6 +10,8 @@
     import exportPDF from '$lib/exportPDF.js';
     import { getFormattedDateForPrint } from '$lib/DateNow.js';
     import viewPDF from '$lib/viewPDF.js';
+
+    import { loading } from '$lib/loading';
   
     console.log("sessionId", $sessionId);
 
@@ -44,9 +46,11 @@
     $: total_discount = 0;
 
     onMount(async () => {
+      $loading = true;
       await fetchTransaction();
       await fetchTransactionDetail();
       await getStoreWarehouse();
+      $loading = false;
     });
     async function fetchTransactionDetail() {
         let response;

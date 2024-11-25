@@ -9,6 +9,8 @@
     import user_pp from "$lib/assets/user.png";
 	import { json } from '@sveltejs/kit';
 
+  import { loading } from '$lib/loading';
+
     export let data;
     let user_id = data.user_id;
     let role_id = data.role_id;
@@ -323,11 +325,13 @@
 
     $: editMode = false;
     onMount(async () => {
+      $loading = true;
       await fetchUser();
       await fetchUserPP();
       await fetchSW();
       await fetchRoleUser();
       await fetchRoleReassign();
+      $loading = false;
     });
    
   </script>

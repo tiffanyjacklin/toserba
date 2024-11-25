@@ -7,6 +7,9 @@
 	import { goto } from '$app/navigation';
    import { onMount } from 'svelte';
    import { uri, userId, roleId, sessionId, totalAmount } from '$lib/uri.js';
+
+   import { loading } from '$lib/loading';
+
    $: limit = 10; 
    $: offset = 0; 
    $: totalNotes = 10; 
@@ -96,11 +99,13 @@
    }
 
    async function goToPage(page) {
+      $loading = true;
       if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
 
       currentPage = page;
       offset = (currentPage - 1) * limit;
       await fetchSession();
+      $loading = false;
     }
    $: if ((searchQuery_temp !== searchQuery) ){
       console.log(searchQuery);
@@ -111,8 +116,10 @@
     }
 
    onMount(async () => {
+      $loading = true;
       await fetchSession();
       await fetchCashiers();
+      $loading = false;
    });
    // INI BUTUH DIGANTI BUAT REDIRECT BALIK KE PAGE TRANSAKSI YA BOS!! BUTUH UPDATE
    async function backToTransaction(last_session){

@@ -7,6 +7,8 @@
   import { uri, userId, roleId, sessionId } from '$lib/uri.js';
   import img_toko from "$lib/assets/store.png";
 
+  import { loading } from '$lib/loading';
+
   let storeWarehouse = [];
   let filtered_sw = [];
 
@@ -387,7 +389,9 @@
   }
 
   onMount(async () => {
+      $loading = true;
       await getAllStoreWarehouse();
+      $loading = false;
   });
 
   async function getAllStoreWarehouse(){

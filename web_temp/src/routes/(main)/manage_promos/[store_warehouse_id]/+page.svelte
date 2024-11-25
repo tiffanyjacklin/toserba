@@ -9,6 +9,8 @@
     import { uri, userId, roleId, sessionId, user } from '$lib/uri.js';
 	import { read } from '$app/server';
 
+    import { loading } from '$lib/loading';
+
     export let data;
     let store_warehouse_id = data.store_warehouse_id;
     
@@ -496,18 +498,22 @@
 
 
     async function goToPage(page) {
+        $loading = true;
         if (page < 1 || page > Math.ceil(totalRows / limit)) return;
 
         currentPage = page;
         offset = (currentPage - 1) * limit;
-        fetchPromos();
+        await fetchPromos();
+        $loading = false;
     }
 
     
     onMount(async () => {
+      $loading = true;
       await fetchPromos();
       await fetchProduk();
       await fetchPromoCategory();
+      $loading = false;
     });
 
     //SEARCH BAR

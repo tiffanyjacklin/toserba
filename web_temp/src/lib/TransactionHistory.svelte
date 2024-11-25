@@ -9,6 +9,8 @@
   import { uri, userId, roleId, sessionId, transactionId } from '$lib/uri.js';
   console.log("sessionId", $sessionId);
 
+  import { loading } from '$lib/loading';
+
   export let session_main_or_not = false;
   $: limit = 10; 
   $: offset = 0; 
@@ -53,11 +55,13 @@
     }
   }
   async function goToPage(page) {
+    $loading = true;
     if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
 
     currentPage = page;
     offset = (currentPage - 1) * limit;
     await fetchTransactions();
+    $loading = false;
   }
   $: if ((searchQuery_temp !== searchQuery) ){
     console.log(searchQuery);
@@ -67,8 +71,10 @@
     searchQuery_temp = '';
   }
   onMount(async () => {
+    $loading = true;
     await fetchTransactions();
     await fetchCashiers();
+    $loading = false;
   });
   async function fetchCashiers() {
       const response = await fetch(`http://${$uri}:8888/user/roles/data/1`, {

@@ -9,6 +9,8 @@
     import { uri, userId, roleId, sessionId, user } from '$lib/uri.js';
     import user_pp from "$lib/assets/user.png";
 
+    import { loading } from '$lib/loading';
+
     let searchQuery = '';
     // $: tampilan = "manage";
     $: showModal = null;
@@ -384,18 +386,22 @@
     }
 
   async function goToPage(page) {
+        $loading = true;
         if (page < 1 || page > Math.ceil(totalRows / limit)) return;
 
         currentPage = page;
         offset = (currentPage - 1) * limit;
         users = [];
         await fetchUsers()
+        $loading = false;
     }
 
     onMount(async () => {
-      await fetchSW();
-      await fetchUsers();
-      await fetchRoletoAssign();
+        $loading = true;
+        await fetchSW();
+        await fetchUsers();
+        await fetchRoletoAssign();
+        $loading = false;
     });
 
     $: if (searchQuery.length > 0) {
