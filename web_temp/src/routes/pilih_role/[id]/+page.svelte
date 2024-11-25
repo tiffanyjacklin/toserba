@@ -71,7 +71,7 @@
                 goto(`/products`);
             }
             else if (value === String(5)){
-                goto(`/manage_cashier`);
+                goto(`/manage_stores`);
             }
             else if (value === String(6)){
                 goto(`/dashboard`);
