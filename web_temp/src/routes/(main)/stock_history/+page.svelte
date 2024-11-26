@@ -9,6 +9,7 @@
     import { onMount } from 'svelte';
     import { uri, userId, roleId, sessionId } from '$lib/uri.js';
     import img_produk from "$lib/assets/produk.png";
+    import { loading } from '$lib/loading';
     export let data;
     
     $: limit = 10; 
@@ -37,23 +38,29 @@
     }
     $: if ((searchQuery_temp !== searchQuery) ){
         console.log(searchQuery);
+        $loading = true;
         fetchStockHistory();
+        $loading = false;
         searchQuery_temp = searchQuery;
     } else{
         searchQuery_temp = '';
     }
     async function goToPage(page) {
+        $loading = true;
         if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
 
         currentPage = page;
         offset = (currentPage - 1) * limit;
         await fetchStockHistory();
+        $loading = false;
     }
     onMount(async () => {
+        $loading = true;
         await fetchWarehouse();
         await fetchStockHistory();
         await fetchProductCategory();
         await fetchStockDescriptions();
+        $loading = false;
     });
     async function fetchProductCategory() {
         const response = await fetch(`http://${$uri}:8888/products/category`, {
@@ -201,7 +208,7 @@
             </div>
             <div class="flex justify-between font-semibold mt-4">
                 <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { unit_type = ''; category = ''; reason = ''; endDate = ''; startDate = ''; }}>Clear</button>
-                <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchStockHistory(); toggleFilter();  currentPage = 1;}}>Apply</button>
+                <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async () => {$loading = true; await fetchStockHistory(); toggleFilter();  currentPage = 1; $loading = false;}}>Apply</button>
             </div>
             </div>
         {/if}

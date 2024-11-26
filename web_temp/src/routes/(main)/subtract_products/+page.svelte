@@ -6,6 +6,7 @@
   import { uri, userId, roleId, sw_name } from '$lib/uri.js';
   import { get } from 'svelte/store';
   import { goto } from '$app/navigation';
+  import { loading } from '$lib/loading';
 
   let warehouse = [];
   $: products = [];
@@ -33,10 +34,12 @@
   let products_to_send_fix = [];
   
   onMount(async () => {
+      $loading = true;
       await fetchWarehouse();
       await fetchProducts();
       await fetchStockOpname();
-  });
+      $loading = false;
+    });
   async function fetchWarehouse() {
     const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/''/0/0`, {
         method: 'GET',
@@ -127,6 +130,7 @@
     showIDList = false;
   }
   async function selectProduct(stock) {
+    $loading = true;
     productId = stock.ProductDetails.product_detail_id;
     productName = stock.ProductDetails.product_name;
     expired_date = '';
@@ -135,22 +139,28 @@
     showIDList = false;
     showNameList = false;
     autoFillIfOnlyOneStock();
+    $loading = false;
   } 
   async function toggleExpiredDateList() {
+    $loading = true;
     if (productId && productName) {
       autoFillIfOnlyOneStock();
       showExpiredDateList = !showExpiredDateList;
       showBatchList = false;
     }
+    $loading = false;
   }
   async function toggleBatchList() {
+    $loading = true;
     if (productId && productName) {
       autoFillIfOnlyOneStock();
       showBatchList = !showBatchList;
       showExpiredDateList = false;
     }
+    $loading = false;
   }
   async function autoFillIfOnlyOneStock() {
+    $loading = true;
     await fetchStockOpname();
     filterUniqueExpiredDates(); 
     filterUniqueBatches(); 
@@ -162,6 +172,7 @@
         expired_date = batchOfSelectedProduct[0].expired_date;
       }
     }
+    $loading = false;
   }
   async function selectProductExp(stock) {
     expired_date = stock.expired_date;
@@ -613,7 +624,7 @@
               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Back
               </button>
-              <button type="button" on:click={() => {subtractProducts(); 
+              <button type="button" on:click={async () => {$loading = true; await subtractProducts(); $loading = false;
             }} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Submit
               </button>

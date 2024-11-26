@@ -7,6 +7,7 @@
   import img_produk from "$lib/assets/produk.png";
   import exportPDF from '$lib/exportPDF.js';
   import viewPDF from '$lib/viewPDF.js';
+  import { loading } from '$lib/loading';
 
   import { getFormattedDateForPrint } from '$lib/DateNow.js';
   $: limit = 10; 
@@ -38,12 +39,14 @@
       showFilter = !showFilter;
   }
   function handleClick(product_id) {
+      $loading = true;
       showModal = product_id;
       sw_id = warehouse.StoreWarehouses.store_warehouse_id;
       
       console.log(product_id)
       fetchStockCard(product_id);
       fetchCurrentStock(product_id, sw_id);
+      $loading = false;
   }
   function closeModal() {
     showModal = null;
@@ -174,10 +177,13 @@
   }
 
   onMount(async () => {
+      $loading = true;
       await fetchProduk();
       await fetchWarehouse();
       await fetchProductCategory();
       await fetchProductSort();
+      $loading = false;
+
   });
   async function img_get(barcode, product_code) {
     const barcodeSrc = barcode;
@@ -264,17 +270,21 @@
 
   $: if ((searchQuery_temp !== searchQuery) ){
     console.log(searchQuery);
+    $loading = true;
     fetchProduk();
+    $loading = false;
     searchQuery_temp = searchQuery;
   } else{
     searchQuery_temp = '';
   }
   async function goToPage(page) {
+    $loading = true;
     if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
 
     currentPage = page;
     offset = (currentPage - 1) * limit;
     await fetchProduk();
+    $loading = false;
   }
 </script>
 
@@ -322,7 +332,7 @@
           
           <div class="flex justify-between font-semibold mt-4">
               <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { sort_type = ''; sorting = 'asc'; unit_type = ''; category = ''; }}>Clear</button>
-              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchProduk(); toggleFilter();  currentPage = 1;}}>Apply</button>
+              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async () => {$loading = true; await fetchProduk(); toggleFilter();  currentPage = 1; $loading = false;}}>Apply</button>
           </div>
         </div>
       {/if}

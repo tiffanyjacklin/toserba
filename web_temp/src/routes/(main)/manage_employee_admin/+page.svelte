@@ -392,7 +392,7 @@
         currentPage = page;
         offset = (currentPage - 1) * limit;
         users = [];
-        await fetchUsers()
+        await fetchUsers();
         $loading = false;
     }
 

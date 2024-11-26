@@ -5,6 +5,7 @@
     import { onMount } from 'svelte';
     import { uri, userId, roleId } from '$lib/uri.js';
     import { goto } from '$app/navigation';
+    import { loading } from '$lib/loading';
     $: limit = 10; 
     $: offset = 0; 
     $: totalNotes = 10; 
@@ -24,7 +25,10 @@
     }
 
     onMount(async () => {
+        $loading = true;
         fetchMembers();
+        $loading = false;
+
     });
     async function fetchMembers() {
         const response = await fetch(`http://${$uri}:8888/cashier/members/${startDate}/${endDate}/${searchQuery}/${limit}/${offset}`, {
@@ -58,11 +62,12 @@
       searchQuery_temp = '';
     }
     async function goToPage(page) {
-      if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
-
-      currentPage = page;
-      offset = (currentPage - 1) * limit;
-      await fetchMembers();
+        $loading = true;
+        if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
+        currentPage = page;
+        offset = (currentPage - 1) * limit;
+        await fetchMembers();
+        $loading = false;
     }
 
 

@@ -7,6 +7,8 @@
   import { uri, userId, roleId, storeId, sw_name } from '$lib/uri.js';
   import { get } from 'svelte/store';
   import { goto } from '$app/navigation';
+  import { loading } from '$lib/loading';
+
   storeId.set('');
   let dateNow = getFormattedDateSpecial({
     date: true,
@@ -80,8 +82,10 @@
     showSupplier = !showSupplier;
   }
   onMount(async () => {
+    $loading = true;
     await fetchWarehouse(); 
     await fetchSupplier();
+    $loading = false;
   });
   async function fetchSupplier() {
       const response = await fetch(`http://${$uri}:8888/suppliers/all/${supplier_name}/0/0`, {
@@ -168,7 +172,10 @@
     supplier_name = supplier.supplier_name;
     back = false;
     products_to_be_added = [];
+    $loading = true;
     await fetchAllProductsFromSupplier();
+    $loading = false;
+
   }
   function selectProduct(stock) {
     productId = stock.ProductDetails.product_detail_id;
@@ -635,7 +642,7 @@
 </div>
     
     <div class="flex items-center justify-center my-2">
-      <button on:click={async() => {await addProducts(); }
+      <button on:click={async() => {$loading = true; await addProducts(); $loading = false;}
       } type="button" 
         class="shadow-[0_2px_3px_rgba(0,0,0,0.3)] flex items-center justify-center text-black bg-[#f7d4b2] hover:bg-[#F2AA7E] outline outline-[1px] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] focus:ring-4 focus:outline-none font-semibold text-lg rounded-2xl px-16 py-1 my-3 text-center"
         disabled={products_to_be_added.length === 0}>

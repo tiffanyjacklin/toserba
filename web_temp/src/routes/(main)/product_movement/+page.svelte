@@ -12,6 +12,7 @@
     import { goto } from '$app/navigation';
     import exportPDF from '$lib/exportPDF.js';
     import viewPDF from '$lib/viewPDF.js';
+    import { loading } from '$lib/loading';
 
     let switchValue;
     let sliderValue;
@@ -74,15 +75,17 @@
         showFilter = !showFilter;
     }
     function handleClick(product_id) {
-        showModal = product_id;
-        
-        console.log(product_id)
-        fetchProduk(product_id);
-        fetchTransactions(product_id);
-        
-        fetchStockCard(product_id);
-        fetchCurrentStock(product_id, sw_id);
-        fetchSuppliers();
+      $loading = true;
+      showModal = product_id;
+      
+      console.log(product_id)
+      fetchProduk(product_id);
+      fetchTransactions(product_id);
+      
+      fetchStockCard(product_id);
+      fetchCurrentStock(product_id, sw_id);
+      fetchSuppliers();
+      $loading = false;
     }
     function closeModal() {
       showModal = null;
@@ -218,9 +221,11 @@
     
   
     onMount(async () => {
+        $loading = true;
         await fetchProducts();
         await fetchWarehouses();
         await fetchProductCategory();
+        $loading = false;
     });
   
     async function fetchProducts() {
@@ -272,17 +277,21 @@
 
     $: if ((searchQuery_temp !== searchQuery) ){
       console.log(searchQuery);
+      $loading = true;
       fetchProducts();
+      $loading = false;
       searchQuery_temp = searchQuery;
     } else{
       searchQuery_temp = '';
     }
     async function goToPage(page) {
-      if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
+        $loading = true;
+        if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
 
       currentPage = page;
       offset = (currentPage - 1) * limit;
       await fetchProducts();
+      $loading = false;
     }
     async function fetchProduk(product_id) {
         const response = await fetch(`http://${$uri}:8888/products/all/${product_id}`, {
@@ -546,7 +555,7 @@
             
             <div class="flex justify-between font-semibold mt-4">
                 <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { sort_type = ''; sorting = '0'; unit_type = ''; category = ''; store_name = ''; sw_id = 0; startDate = ''; endDate = ''; selectedDay= 0; selectedMonth = 0; selectedYear = 0; }}>Clear</button>
-                <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchProducts(); toggleFilter();  currentPage = 1;}}>Apply</button>
+                <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async () => {$loading = true; await fetchProducts(); toggleFilter();  currentPage = 1; $loading = false;}}>Apply</button>
             </div>
           </div>
         {/if}
@@ -1101,7 +1110,7 @@
                   </button>
                 {:else}
                   <button type="button" on:click={async() => 
-                  { let product_code = product.ProductDetails.product_code;
+                  { $loading = true; let product_code = product.ProductDetails.product_code;
                     let product_category_id = getCategoryId(product.ProductCategories.product_category_name);
                     let product_name = product.ProductDetails.product_name;
                     let supplier_id =  getSupplierId(product.ProductDetails.supplier_name);
@@ -1121,13 +1130,14 @@
                       product_unit,
                       product_timestamp
                     };await editProduct(product.ProductDetails.product_detail_id,atribut); console.log(JSON.stringify(atribut));
+                    $loading = false;
                     Swal.fire({
                         title: "Produk Berhasil terupdate",
                         icon: "success",
                         color: "white",
                         background: "#364445",
                         confirmButtonColor: '#F2AA7E'
-                      }); closeModal(); editMode = false; editMode = editMode; fetchProducts()}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+                      }); closeModal(); editMode = false; editMode = editMode; $loading = true; await fetchProducts(); $loading = false;}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                     Save
                   </button>
                 {/if}

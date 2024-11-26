@@ -8,6 +8,7 @@
   import img_produk from "$lib/assets/produk.png";
   import { get } from 'svelte/store';
   import { goto } from '$app/navigation';
+  import { loading } from '$lib/loading';
 
   $: limit = 10;
   $: offset = 0; 
@@ -70,7 +71,9 @@
     searchQueryStore_temp = '';
     showAssignProduct = true;
     prev_path.set('assign_products_to_store');
+    $loading = true;
     await fetchProducts();
+    $loading = false;
     
   }
   function handleClick() {
@@ -83,6 +86,8 @@
     showAddProduct = !showAddProduct;
   }
   onMount(async () => {
+    $loading = true;
+
     if ($storeId && $prev_path === 'assign_products_to_store') {
       showAssignProduct = true; 
       await fetchProducts();
@@ -93,6 +98,7 @@
 
     await fetchStore();
     await fetchWarehouse();
+    $loading = false;
   });
   async function fetchStore() {
     const response = await fetch(`http://${$uri}:8888/store_warehouses/type/store/${searchQueryStore}/${limit}/${offset}`, {
@@ -144,11 +150,14 @@
     searchQueryStore_temp = '';
   }
   async function goToPage(page) {
-      if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
+        $loading = true;
+        if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
 
       currentPage = page;
       offset = (currentPage - 1) * limit;
       await fetchStore();
+      $loading = false;
+
     }
   async function fetchWarehouse() {
       const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/''/0/0`, {
@@ -1019,8 +1028,10 @@
               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Back
               </button>
-              <button type="button" on:click={async () => {await sendProducts(); 
-            }} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+              <button type="button" 
+                on:click={
+                  async () => {$loading = true; await sendProducts(); $loading = false;}
+                } class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Submit
               </button>
           </div>

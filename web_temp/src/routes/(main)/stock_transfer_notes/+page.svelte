@@ -9,6 +9,7 @@
   import exportPDF from '$lib/exportPDF.js';
   import viewPDF from '$lib/viewPDF.js';
   import { formatDate, getFormattedDateForPrint } from '$lib/DateNow.js';
+  import { loading } from '$lib/loading';
   
   let warehouse = [];
   
@@ -45,8 +46,10 @@
   let products_to_send_fix = [];
   
   onMount(async () => {
+    $loading = true;
     await fetchWarehouse();
     await fetchTransferNotes();
+    $loading = false;
   });
   async function fetchWarehouse() {
     const response = await fetch(`http://${$uri}:8888/store_warehouses/${$userId}/${$roleId}/''/0/0`, {
@@ -138,9 +141,11 @@
     } else {
         showSuratJalan = true;
         idSuratJalan = id;
-        fetchDeliveryOrderDetails(delivery_order.delivery_order_id);
+        $loading = true;
+        await fetchDeliveryOrderDetails(delivery_order.delivery_order_id);
         from = await fetchStoreWarehouses(delivery_order.store_warehouse_from);
         to = await fetchStoreWarehouses(delivery_order.store_warehouse_to);
+        $loading = false;
     }
   }
   async function fetchDeliveryOrder(transfer_note_id) {
@@ -229,6 +234,7 @@
     });
   }
   async function saveLoad(transfer_note_id){
+    $loading = true;
     products_to_send_fix = filterBeforeLoadToDeliveryOrder(transfer_notes_details);
     console.log(products_to_send_fix);
 
@@ -324,6 +330,7 @@
     });
     closeModal();
     await fetchTransferNotes();
+    $loading = false;
 
     // goto(`/products`);
   }
@@ -396,18 +403,22 @@
   $: if (searchQuery_temp !== searchQuery){
     console.log('aaaa', searchQuery);
     console.log('temp', searchQuery_temp);
+    $loading = true;
     fetchTransferNotes();
+    $loading = false;
     searchQuery_temp = searchQuery;
   } else{
     searchQuery_temp = '';
   }
 
   async function goToPage(page) {
+    $loading = true;
     if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
 
     currentPage = page;
     offset = (currentPage - 1) * limit;
     await fetchTransferNotes();
+    $loading = false;
   }
 </script>
 
@@ -456,7 +467,7 @@
           </div>
           <div class="flex justify-between font-semibold mt-4">
               <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { send_status = ''; verify_status = ''; endDate = ''; startDate = ''; }}>Clear</button>
-              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchTransferNotes(); toggleFilter();  currentPage = 1;}}>Apply</button>
+              <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async () => {$loading = true; await fetchTransferNotes(); toggleFilter();  currentPage = 1; $loading = false;}}>Apply</button>
           </div>
         </div>
       {/if}
@@ -611,7 +622,7 @@
               <!-- Stock: {product.ProductDetails.product_detail} {product.ProductDetails.product_unit} -->
             </div>
             <button 
-            on:click={() => {handleClick(note.transfer_note_id); fetchTransferNotesDetails(note.transfer_note_id);}}
+            on:click={async () => {$loading = true; handleClick(note.transfer_note_id); await fetchTransferNotesDetails(note.transfer_note_id); $loading = false;}}
             type="button" 
             class="flex items-center rounded-r-lg justify-center py-2 w-full h-full px-4 font-bold bg-[#3d4c52] text-[#f2b082] hover:bg-darkGray ">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="size-10">
@@ -770,7 +781,7 @@
                     <div class="w-4/12">{delivery_order.quantity_total} loaded</div>
                   </div>
                   <div class="w-2/12 flex justify-end mr-4">
-                    <button on:click={() => toggleDeliveryOrderByID(delivery_order, delivery_order.delivery_order_id)} type="button" 
+                    <button on:click={ $loading = true; () => toggleDeliveryOrderByID(delivery_order, delivery_order.delivery_order_id); $loading = false;} type="button" 
                       class="my-2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] hover:bg-[#F2AA7E] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg outline outline-[1px] px-3 py-3 text-center">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
@@ -862,7 +873,7 @@
                   </div>
                   <div class="flex items-center justify-start">
                     <button type="button" 
-                    on:click={() => viewPDF(window.location.origin+`/print_delivery_order/${$uri}/${delivery_order.delivery_order_id}/${from.store_warehouse_id}/${to.store_warehouse_id}`, `DeliveryOrder_${delivery_order.delivery_order_id}_${formatDate(delivery_order.order_timestamp)}_PrintedOn${getFormattedDateForPrint()}`, 190)}   
+                    on:click={() => $loading = true; viewPDF(window.location.origin+`/print_delivery_order/${$uri}/${delivery_order.delivery_order_id}/${from.store_warehouse_id}/${to.store_warehouse_id}`, `DeliveryOrder_${delivery_order.delivery_order_id}_${formatDate(delivery_order.order_timestamp)}_PrintedOn${getFormattedDateForPrint()}`, 190); $loading = false;}   
                     class="mt-2 flex w-40 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
                       <div class="w-2/12 flex justify-center ml-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">

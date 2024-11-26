@@ -12,6 +12,7 @@
 	import { goto } from '$app/navigation';
    import exportPDF from '$lib/exportPDF.js';
    import viewPDF from '$lib/viewPDF.js';
+   import { loading } from '$lib/loading';
 
    let showDateRange = false;
 
@@ -44,7 +45,10 @@
    $: laba_kotor = 0;
 
    onMount(async () => {
+      $loading = true;
       await changeDate(startDate, endDate);
+      $loading = false;
+
    });
    $: if ((searchQuery_temp !== searchQuery) ){
       console.log(searchQuery);

@@ -2,6 +2,8 @@
     import DateConverter from '$lib/DateConverter.svelte';
     import { onMount } from 'svelte';
     import { uri, roleId } from '$lib/uri.js';
+    import { loading } from '$lib/loading';
+    
     $: limit = 20;
     $: offset = 0; 
     $: totalNotes = 10;
@@ -58,26 +60,33 @@
     }
     
     onMount(async () => {
+        $loading = true;
         await fetchUsers();
         await fetchNotificationsType();
+        $loading = false;
     });
     async function selectType(type){
+        $loading = true;
         notif_type_id = type.notification_type_id; 
         notif_type_namenya = type.notification_type_name;
         toggleTypes();
+        $loading = false;
     }
     
     async function selectUser(user){
+        $loading = true;
         search_user_id = user.user_id; 
         search_user_name = user.user_fullname;
         toggleUsers();
+        $loading = false;
     }
     async function goToPage(page) {
+        $loading = true;
         if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
-
         currentPage = page;
         offset = (currentPage - 1) * limit;
         await fetchNotifications();
+        $loading = false;
     }
 
     async function fetchUsers() {
@@ -185,7 +194,7 @@
                 {#each Object.keys(notificationMap) as notifType}
                     {#if !(Number($roleId) === 5 && notificationMap[notifType] === 6)}
                         <button 
-                            on:click={async () => { whatNotif = notifType; role_id_notif = notificationMap[notifType]; notif_type_id = ""; notif_type_namenya = ""; start_date = ""; end_date = ""; search_user_id = ""; search_user_name = ""; currentPage = 1; offset = 0; await fetchNotifications();}} 
+                            on:click={async () => {$loading = true; whatNotif = notifType; role_id_notif = notificationMap[notifType]; notif_type_id = ""; notif_type_namenya = ""; start_date = ""; end_date = ""; search_user_id = ""; search_user_name = ""; currentPage = 1; offset = 0; await fetchNotifications(); $loading = false;}} 
                             class={`font-medium text-xl w-56 py-2 rounded-lg border ${whatNotif === notifType ? "bg-peach2 text-darkGray" : "bg-darkGray text-white hover:bg-[#3d4c52]"}`}>
                             {notifType.replace(/_/g, ' ')}
                         </button>
@@ -247,7 +256,7 @@
         
                         <div class="flex justify-between font-semibold mt-4">
                             <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={async () => { notif_type_id = ""; notif_type_namenya = ""; start_date = ""; end_date = ""; search_user_id = ""; search_user_name = ""; await fetchNotifications(); showFilter = false;}}>Clear</button>
-                            <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async () => {await fetchNotifications(); showFilter = false;  currentPage = 1;}}>Apply</button>
+                            <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async () => {$loading = true; await fetchNotifications(); showFilter = false;  currentPage = 1; $loading = false;}}>Apply</button>
                         </div>
                     </div>
                 {/if}

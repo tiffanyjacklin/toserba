@@ -8,6 +8,8 @@
     import { onMount } from 'svelte';
     import { uri, userId, roleId, sessionId } from '$lib/uri.js';
     import supermarket from "$lib/assets/supermarket.jpg";
+    import { loading } from '$lib/loading';
+
     $: limit = 10; 
     $: offset = 0; 
     $: totalNotes = 10; 
@@ -52,9 +54,9 @@
         showModal = sessionId;
     }
     function closeModal() {
-          showModal = null;
-          sw_specific = [];
-          sw_specific_temp = [];
+      showModal = null;
+      sw_specific = [];
+      sw_specific_temp = [];
 
     }
     async function selectProvince(province){
@@ -62,7 +64,9 @@
       province_id = province.location_id;
       city_name = '';
       location_idnya = '';      
+      $loading = true;
       await fetchCity();
+      $loading = false;
       showProvince = false;
     }
     function selectCity(city){
@@ -99,7 +103,10 @@
     }
   
     onMount(async () => {
-      await fetchSuppliers();
+        $loading = true;
+        await fetchSuppliers();
+        $loading = false;
+
     });
     $: if ((searchQuery_temp !== searchQuery) ){
       console.log(searchQuery);
@@ -350,11 +357,13 @@
     //   showCity = false;
     // }
     async function goToPage(page) {
+      $loading = true;
       if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
-
       currentPage = page;
       offset = (currentPage - 1) * limit;
       await fetchSuppliers();
+      $loading = false;
+
     }
   </script>
   
@@ -664,7 +673,7 @@
     </div>
     <div class="flex mt-8 items-center justify-center text-lg">
       <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => closeModal()}>Discard</button>
-      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold"on:click={() => addSW()}>Add</button>
+      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold"on:click={async () => {$loading = true; await addSW(); $loading = false;}}>Add</button>
     </div>
   </div>
 </TaskModal> 
@@ -758,7 +767,7 @@
     </div>
     <div class="flex mt-8 items-center justify-center text-lg">
       <button class="w-48 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold" on:click={() => {tampilan = 'View'; sw_specific = { ...sw_specific_temp };; console.log(sw_specific); console.log(sw_specific_temp);}}>Discard</button>
-      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold" on:click={() => {editSW(sw_specific); tampilan = 'View'}}>Save</button>
+      <button class="w-48 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold" on:click={async () => {$loading = true; await editSW(sw_specific); tampilan = 'View'; $loading = false;}}>Save</button>
     </div>
     {/if}
    
