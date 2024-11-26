@@ -444,7 +444,7 @@
         
                     <div class="flex justify-between font-semibold mt-4">
                         <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { start_date = ""; end_date = ""; cashier_name = ""; }}>Clear</button>
-                        <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {console.log(cashier_name); fetchAllSWSession(); showFilter = false;  currentPage = 1;}}>Apply</button>
+                        <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async() => {$loading = true; console.log(cashier_name); await fetchAllSWSession(); showFilter = false;  currentPage = 1; $loading = false;}}>Apply</button>
                     </div>
                 </div>
             {/if}
@@ -488,7 +488,7 @@
 
                 <div class="flex justify-between font-semibold mt-4">
                     <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 ease-in-out px-4 py-2 rounded" on:click={() => { startDate = ""; endDate = ""; cashier_name = ""; startPrice = 0; endPrice = 999999999;}}>Clear</button>
-                    <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={() => {fetchTransactions(); showFilter = false;  currentPage = 1;}}>Apply</button>
+                    <button class="bg-[#f2b082] hover:bg-[#f7d4b2] transition-colors duration-200 ease-in-out text-[#364445] px-4 py-2 rounded" on:click={async() => {$loading = true; await fetchTransactions(); showFilter = false;  currentPage = 1; $loading = false;}}>Apply</button>
                 </div>
                 </div>
             {/if}

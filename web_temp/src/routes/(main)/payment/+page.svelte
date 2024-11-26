@@ -14,6 +14,8 @@
     import { getFormattedDateForPrint } from '$lib/DateNow.js';
     import viewPDF from '$lib/viewPDF.js';
 
+    import { loading } from '$lib/loading';
+
     // export let data
     // let sessionId = data.sessionId;
     // let roleId = data.roleId;
@@ -576,7 +578,9 @@
     }
 
     onMount(async () => {
+        $loading = true;
         await getUserName();
+        $loading = false;
     });
 
     function handleInput(e) {
@@ -861,7 +865,7 @@
             <div class="h-full flex justify-center items-center">
                 {#if tampilan != "awal"}
                     {#if tampilan == "cash" && (received >=  (get(totalAmount)-member_points)) || tampilan == "qr"}
-                        <button on:click={() => {validate(); tampilan = "validasi"; tampilan = tampilan;}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">        
+                        <button on:click={async() => {$loading = true; await validate(); tampilan = "validasi"; tampilan = tampilan; $loading = false;}} class=" p-2 h-full flex flex-col justify-center items-center rounded-lg hover:border-4 hover:border-peach">        
                             <span class="text-white text-6xl font-bold">Validate</span>
                             <i class="fa-regular fa-circle-check fa-5x" style="color: #ffffff;"></i>       
                         </button>

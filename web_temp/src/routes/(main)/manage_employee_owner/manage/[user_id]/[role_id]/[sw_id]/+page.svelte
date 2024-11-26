@@ -10,6 +10,8 @@
   import { json } from '@sveltejs/kit';
   import { formatDate } from '$lib/DateNow.js';
 
+  import { loading } from '$lib/loading';
+
   export let data;
   let user_id = data.user_id;
   let role_id = data.role_id;
@@ -688,6 +690,7 @@
 
   $: editMode = false;
   onMount(async () => {
+    $loading = true;
     await fetchUser();
     if (user.user_photo_profile.String !== '-'){
       await fetchUserPP();
@@ -699,6 +702,7 @@
     await fetchAllPrivilege();
     await fetchTemplatePriv();
     await fetchUserPrivilege();
+    $loading = false;
   });
  
 </script>
@@ -838,6 +842,7 @@
   <div class="flex mb-10">
       {#if editMode == true}
           <button on:click={async() => {
+            $loading = true;
             let atribut = {
             user_fullname: user.user_fullname,
             user_address: user.user_address,
@@ -859,7 +864,7 @@
               color: "white",
               background: "#364445",
               confirmButtonColor: '#F2AA7E'
-            }); editMode = false; editMode = editMode;
+            }); editMode = false; editMode = editMode; $loading = false;
           }} class="w-48 py-3 bg-peach text-darkGray font-semibold border border-darkGray rounded-2xl text-xl hover:bg-[#F2AA7E]">Save</button>
       {/if}
   </div>

@@ -10,6 +10,9 @@
     import { read } from '$app/server';
     import { getFormattedDateNow, getThirtyDaysBefore } from '$lib/DateNow';
     import LineChart from '$lib/LineChart.svelte';
+
+    import { loading } from '$lib/loading';
+
     $: limit = 10; 
     $: offset = 0; 
     $: totalNotes = 10; 
@@ -629,6 +632,7 @@
     }
 
     onMount(async () => {
+      $loading = true;
       await fetchPromos();
       await fetchProduk();
       end_date = getFormattedDateNow();
@@ -651,6 +655,7 @@
         disc_sum += profit.TransactionDetails.discount_price;
       });
       await fetchPromoCategory();
+      $loading = false;
     });
     
     //SEARCH BAR
@@ -767,7 +772,7 @@
                   {/if}
             </div>
             <div class="relative w-3/12 shadow-[0_2px_3px_rgba(0,0,0,0.3)] rounded-xl">
-                <button on:click={async() => {await fetchProduk(); showModal = "choose_product"}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Promo</button>
+                <button on:click={async() => {$loading = true; await fetchProduk(); showModal = "choose_product"; $loading = false;}} class="w-full py-4 rounded-xl bg-peach font-semibold text-lg text-darkGray border-2 border-darkGray"><i class="fa-solid fa-plus mr-2"></i>Add New Promo</button>
             </div>
         </div>
         <!-- {:else if tampilan == "promo_req"}
@@ -1446,7 +1451,7 @@
 
       <div class="flex mt-8 items-center justify-center">
         <button on:click={() => {showModal = "choose_product"}} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
-        <button on:click={async() => {await addProductPromo(); closeModal()}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
+        <button on:click={async() => {$loading = true; await addProductPromo(); closeModal() $loading = false;}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
       </div>
     </div>
   </TaskModal> 
@@ -1562,7 +1567,7 @@
             <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
               Back
             </button>
-            <button type="button" on:click={async() => {await deletePromoProduk(promo.Promo.promo_id,promo.ProductDetail.product_detail_id); 
+            <button type="button" on:click={async() => {$loading = true; await deletePromoProduk(promo.Promo.promo_id,promo.ProductDetail.product_detail_id); 
             await fetchPromos();
             Swal.fire({
               title: "Berhasil Menghapus Promo Ditambahkan",
@@ -1570,7 +1575,7 @@
               color: "white",
               background: "#364445",
               confirmButtonColor: '#F2AA7E'
-            }); closeModal();}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+            }); closeModal(); $loading = false;}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
               Delete
             </button>
         </div>

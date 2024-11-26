@@ -8,6 +8,7 @@
     import { privileges, uri } from '$lib/uri.js';
     import user_pp from "$lib/assets/user.png";
 	// import { npm_execpath } from '$env/static/private';
+    import { loading } from '$lib/loading';
 
     export let data;
     let role_id = parseInt(data.role_id);
@@ -208,9 +209,11 @@
   }
 
     onMount(async () => {
-      await getRoleName();
-      await fetchAllPrivilege();
-      await fetchTemplatePriv();
+        $loading = true;
+        await getRoleName();
+        await fetchAllPrivilege();
+        await fetchTemplatePriv();
+        $loading = false;
     });
    
   </script>
@@ -278,7 +281,7 @@
             <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
               Back
             </button>
-            <button type="button" on:click={async() => {await saveDefaultPrivilege(); closeModal()}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+            <button type="button" on:click={async() => {$loading = true; await saveDefaultPrivilege(); closeModal(); $loading = false;}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
               Save
             </button>
         </div>

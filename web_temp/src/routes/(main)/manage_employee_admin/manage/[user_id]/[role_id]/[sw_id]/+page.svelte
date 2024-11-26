@@ -463,6 +463,7 @@
     <div class="flex mb-10">
         {#if editMode == true}
             <button on:click={async() => {
+              $loading = true;
               let atribut = {
               user_fullname: user.user_fullname,
               user_address: user.user_address,
@@ -482,7 +483,7 @@
                 color: "white",
                 background: "#364445",
                 confirmButtonColor: '#F2AA7E'
-              }); editMode = false; editMode = editMode;
+              }); editMode = false; editMode = editMode; $loading = false;
             }} class="w-48 py-3 bg-peach text-darkGray font-semibold border border-darkGray rounded-2xl text-xl hover:bg-[#F2AA7E]">Save</button>
         {/if}
     </div>
@@ -528,7 +529,7 @@
       </div>
       <div class="flex mt-8 items-center justify-center">
         <button on:click={() => closeModal()} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
-        <button on:click={() => reassignEmployee()} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Reassign</button>
+        <button on:click={async() => {$loading = true; await reassignEmployee(); $loading = false;}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Reassign</button>
       </div>
     </div>
   </TaskModal> 
@@ -548,14 +549,14 @@
               <button type="button" on:click={() => closeModal()} class="mt-2 flex w-1/4 items-center justify-center bg-[#3d4c52] hover:bg-darkGray outline  hover:outline-[#f2b082] hover:text-[#f2b082] outline-[#f7d4b2] text-[#f7d4b2]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Back
               </button>
-              <button type="button" on:click={() => {deleteRoleUser(); 
+              <button type="button" on:click={async () => {$loading = true; await deleteRoleUser(); 
               Swal.fire({
                 title: "Produk Berhasil Ditambahkan",
                 icon: "success",
                 color: "white",
                 background: "#364445",
                 confirmButtonColor: '#F2AA7E'
-              }); closeModal(); goto(`/manage_employee_admin`)}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
+              }); closeModal(); $loading = false; goto(`/manage_employee_admin`)}} class="mt-2 flex w-1/4 items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-2xl px-6 py-1.5 text-center">
                 Delete
               </button>
           </div>

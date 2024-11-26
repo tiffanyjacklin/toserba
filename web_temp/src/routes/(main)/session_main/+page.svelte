@@ -15,6 +15,8 @@
     import { uri, userId, roleId, sessionId, totalAmount, prev_path, transactionId } from '$lib/uri.js';
     import { get } from 'svelte/store';
 
+    import { loading } from '$lib/loading';
+
     console.log("sessionId", $sessionId);
     // export let data;
     // let sessionId = data.sessionId;
@@ -398,11 +400,13 @@
     }
 
     async function goToPage(page) {
+        $loading = true;
         if (page < 1 || page > Math.ceil(totalNotes / limit)) return;
 
         currentPage = page;
         offset = (currentPage - 1) * limit;
         await fetchProduk();
+        $loading = false;
     }
 
     function addtoCheckout(produk){
@@ -540,12 +544,14 @@
     }
 
     onMount(async () => {
+        $loading = true;
         checkCheckout()
         await fetchProduk();
         await thisSession();
         await fetchAllPromo();
         await fetchProductCategory();
         await fetchProductSort();
+        $loading = false;
 
     });
 
