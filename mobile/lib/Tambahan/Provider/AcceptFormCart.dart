@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 // import 'dart:convert';
 
+import 'package:Toserba_App/Template.dart';
 import 'package:flutter/material.dart';
 import 'package:Toserba_App/Model/DeliveryTransferDetail.dart'
     as deliveryDetail;
@@ -95,7 +96,7 @@ class AcceptFormCart extends ChangeNotifier {
 
   Future<bool> _fetchAcceptOrder() async {
     int deliveryId = _items[0].deliveryOrderId!;
-    final link = 'http://leap.crossnet.co.id:8888/store/orders/delivery/accept/$deliveryId/$userId';
+    final link = 'https://leap.crossnet.co.id:8888/store/orders/delivery/accept/$deliveryId/$userId';
 
     // buat isi nya dulu
     List<Map<String, dynamic>> bodyContent = List.generate(

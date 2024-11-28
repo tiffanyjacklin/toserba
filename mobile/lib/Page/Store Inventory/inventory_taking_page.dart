@@ -544,8 +544,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                             : Column(
                                 children: [
                                   Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.7,
+                                      width: MediaQuery.of(context).size.width * 0.70 > 400 ? MediaQuery.of(context).size.width * 0.70 : 400,
                                     child: NumberPaginator(
                                       config: NumberPaginatorUIConfig(
                                         buttonUnselectedForegroundColor:
@@ -624,9 +623,9 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                           Center(
                             child: Container(
                               height: 50,
-                              width: MediaQuery.of(context).size.width *
-                                  0.55 *
-                                  0.3,
+                              // width: MediaQuery.of(context).size.width *
+                              //     0.55 *
+                              //     0.3,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
@@ -636,7 +635,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                   ),
                                 ),
                                 child: Wrap(
-                                  spacing: 12,
+                                  // spacing: 12,
                                   children: [
                                     Text(
                                       'Discard',
@@ -671,9 +670,9 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                           Center(
                             child: Container(
                               height: 50,
-                              width: MediaQuery.of(context).size.width *
-                                  0.55 *
-                                  0.3,
+                              // width: MediaQuery.of(context).size.width *
+                              //     0.55 *
+                              //     0.3,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
@@ -683,7 +682,7 @@ class _InventoryTakingPageState extends State<InventoryTakingPage> {
                                   ),
                                 ),
                                 child: Wrap(
-                                  spacing: 12,
+                                  // spacing: 12,
                                   children: [
                                     Text(
                                       'Save',
@@ -1068,8 +1067,8 @@ class _InventoryTakingFormPopUpState extends State<InventoryTakingFormPopUp> {
                         Center(
                           child: Container(
                             height: 50,
-                            width:
-                                MediaQuery.of(context).size.width * 0.55 * 0.3,
+                            // width:
+                            //     MediaQuery.of(context).size.width * 0.55 * 0.3,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: ColorPalleteLogin.PrimaryColor,
@@ -1244,7 +1243,7 @@ class DiscardPopup extends StatelessWidget {
                   Center(
                     child: Container(
                       height: 50,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      // width: MediaQuery.of(context).size.width * 0.55 * 0.3,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: ColorPalleteLogin.PrimaryColor,
@@ -1278,7 +1277,7 @@ class DiscardPopup extends StatelessWidget {
                   Center(
                     child: Container(
                       height: 50,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.3,
+                      // width: MediaQuery.of(context).size.width * 0.55 * 0.3,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: ColorPalleteLogin.OrangeLightColor,

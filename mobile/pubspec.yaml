@@ -10,7 +10,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
-  # auto_size_text: ^3.0.0
   mysql_client: ^0.0.27
   http: ^1.2.0
   flutter_dotenv: ^5.1.0
@@ -31,13 +30,11 @@ dependencies:
   flutter_native_splash: ^2.4.1
   flutter_typeahead: ^5.2.0
   flutter_barcode_scanner: ^2.0.0
-  connectivity_plus: ^6.0.5
-  device_info_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   
 flutter:
   uses-material-design: true
@@ -79,12 +76,12 @@ flutter_native_splash:
 
   # The image parameter allows you to specify an image used in the splash screen.  It must be a
   # png file and should be sized for 4x pixel density.
-  #image: assets/splash.png
+  image: assets/logo2.png
 
   # The branding property allows you to specify an image used as branding in the splash screen.
   # It must be a png file. It is supported for Android, iOS and the Web.  For Android 12,
   # see the Android 12 section below.
-  branding: assets/logo2.png
+  # branding: assets/logo2.png
 
   # To position the branding image at the bottom of the screen you can use bottom, bottomRight,
   # and bottomLeft. The default values is bottom if not specified or specified something else.

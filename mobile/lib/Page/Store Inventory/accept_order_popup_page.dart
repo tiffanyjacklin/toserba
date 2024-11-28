@@ -437,7 +437,7 @@ class _DeliveryOrderDetailPopUpState extends State<DeliveryOrderDetailPopUp> {
     final userId = 1;
 
     final link =
-        'http://leap.crossnet.co.id:8888/store/orders/delivery/accept/$deliveryOrder/$userId'; // NOTE : diganti nanti kalo udah ada
+        'https://leap.crossnet.co.id:8888/store/orders/delivery/accept/$deliveryOrder/$userId'; // NOTE : diganti nanti kalo udah ada
 
     // call api
     final response = await http.put(Uri.parse(link));

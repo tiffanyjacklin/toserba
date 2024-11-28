@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:Toserba_App/Template.dart';
 import 'package:flutter/material.dart';
 import 'package:Toserba_App/Model/AllCategory.dart' as category;
 import 'package:Toserba_App/Model/AllSort.dart' as sort;
@@ -314,7 +315,7 @@ class InventoryTakingProvider extends ChangeNotifier {
 
   // API
   Future<void> SubmitInventoryTaking() async {
-    final link = 'http://leap.crossnet.co.id:8888/products/stock/opname/add';
+    final link = 'https://leap.crossnet.co.id:8888/products/stock/opname/add';
 
     List<itemSubmit> listItemSubmited = listItemSubmit;
     
@@ -400,7 +401,7 @@ class InventoryTakingProvider extends ChangeNotifier {
     // products/stock/opname/data/store_warehouse/:sw_id/:product_name/:batch/:unit_type/:product_id/:expired_date/:category/:asc/:limit/:offset /:category/:product_sort/:asc/:limit/:offset
     var startIndex = (currentPage) * _lengthPerPage;
     final link =
-        'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/${this._storeId}/$name/$batch/$unitType/$productId/$expDate/$category/$order/$asc/0/$startIndex';
+        'https://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/${this._storeId}/$name/$batch/$unitType/$productId/$expDate/$category/$order/$asc/0/$startIndex';
 
     // call api
     final response = await http.get(Uri.parse(link));
@@ -431,7 +432,7 @@ class InventoryTakingProvider extends ChangeNotifier {
   // future for intial value
   Future<void> fetchAllProductCategories() async {
     // http://leap.crossnet.co.id:8888/products/category
-    final link = 'http://leap.crossnet.co.id:8888/products/category';
+    final link = 'https://leap.crossnet.co.id:8888/products/category';
 
     // call api (method PUT)
     final response = await http.get(Uri.parse(link));
@@ -459,7 +460,7 @@ class InventoryTakingProvider extends ChangeNotifier {
 
   Future<void> fetchAllSorting() async {
     // http://leap.crossnet.co.id:8888/products/category
-    final link = 'http://leap.crossnet.co.id:8888/products/sorting';
+    final link = 'https://leap.crossnet.co.id:8888/products/sorting';
 
     // call api (method PUT)
     final response = await http.get(Uri.parse(link));

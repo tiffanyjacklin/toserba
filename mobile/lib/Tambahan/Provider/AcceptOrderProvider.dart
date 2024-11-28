@@ -91,6 +91,7 @@ class AcceptOrderProvider extends ChangeNotifier {
           startDate: formatOnlyDateSQL(rangeDate.first),
           endDate: formatOnlyDateSQL(rangeDate.last),
           isSearch: true);
+      
     }
     notifyListeners();
   }
@@ -121,7 +122,7 @@ class AcceptOrderProvider extends ChangeNotifier {
     try {
       // /to/:sw_to_id/:status_accept/:start_date/:end_date/:limit/:offset
       final link =
-          'http://leap.crossnet.co.id:8888/orders/delivery/warehouse/to/$storeId/$statusAccept//$search/$startDate/$endDate/$limit/$offset';
+          'https://leap.crossnet.co.id:8888/orders/delivery/warehouse/to/$storeId/$statusAccept//$search/$startDate/$endDate/$limit/$offset';
       // NOTE : 3 = limit row yang diambil, 0 = start index,
 
       // call api

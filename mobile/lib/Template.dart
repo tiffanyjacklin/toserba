@@ -3,10 +3,15 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+
+
+var hostname = dotenv.env['DB_LINK'];
 
 class ColorPalleteLogin {
   static const PrimaryColor = Color(0xFF3e4e50);
@@ -171,11 +176,11 @@ class TableTitlePage extends StatelessWidget {
 
 class TableContentTextStyle {
   static const TextStyle textStyle = TextStyle(
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: FontWeight.bold,
   );
   static const TextStyle textStyleBody = TextStyle(
-    fontSize: 12,
+    fontSize: 16,
   );
 }
 

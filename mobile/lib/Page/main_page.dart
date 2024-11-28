@@ -93,7 +93,7 @@ class MainPage extends StatelessWidget {
                   ),
                 ]),
             child: Padding(
-              padding: const EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -121,7 +121,7 @@ class MainPage extends StatelessWidget {
                                                 decoration: BoxDecoration(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            5),
+                                                            8),
                                                     color: ColorPalleteLogin
                                                         .OrangeLightColor),
                                               ),
@@ -131,7 +131,7 @@ class MainPage extends StatelessWidget {
                                                 decoration: BoxDecoration(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            5),
+                                                            8),
                                                     color: ColorPalleteLogin
                                                         .OrangeDarkColor),
                                               ),
@@ -140,7 +140,7 @@ class MainPage extends StatelessWidget {
                                         ),
                                       ),
                                       Divider(
-                                        thickness: 5,
+                                        thickness: 8,
                                         color: ColorPalleteLogin.PrimaryColor,
                                       ),
                                       Align(
@@ -150,15 +150,15 @@ class MainPage extends StatelessWidget {
                                                   .size
                                                   .width *
                                               0.1 *
-                                              0.5,
+                                              0.7,
                                           height: MediaQuery.of(context)
                                                   .size
                                                   .height *
                                               0.1 *
-                                              0.5,
+                                              0.6,
                                           decoration: BoxDecoration(
                                               borderRadius:
-                                                  BorderRadius.circular(4),
+                                                  BorderRadius.circular(8),
                                               color: const Color.fromARGB(
                                                   210, 248, 190, 127)),
                                         ),
@@ -168,7 +168,7 @@ class MainPage extends StatelessWidget {
                                         radius:
                                             MediaQuery.of(context).size.height *
                                                 0.1 *
-                                                0.45,
+                                                0.5,
                                       
                                       ),
                                       CircleAvatar(
@@ -176,7 +176,7 @@ class MainPage extends StatelessWidget {
                                         radius:
                                             MediaQuery.of(context).size.height *
                                                 0.1 *
-                                                0.40,
+                                                0.45,
                             
                                       ),
                                       CircleAvatar(
@@ -184,9 +184,9 @@ class MainPage extends StatelessWidget {
                                         radius:
                                             MediaQuery.of(context).size.height *
                                                 0.1 *
-                                                0.35,
+                                                0.40,
                                         backgroundImage: NetworkImage(
-                                                authProvider.userData.userPhotoProfile!.string!.isEmpty ? 'https://cdn-icons-png.freepik.com/256/1077/1077114.png?semt=ais_hybrid' : 'http://leap.crossnet.co.id:8888/file/${authProvider.userData.userPhotoProfile!.string}',
+                                                authProvider.userData.userPhotoProfile!.string!.isEmpty ? 'https://cdn-icons-png.freepik.com/256/1077/1077114.png?semt=ais_hybrid' : 'https://leap.crossnet.co.id:8888/file/${authProvider.userData.userPhotoProfile!.string}',
                                               ),
                                       ),
                                     ],
@@ -195,22 +195,25 @@ class MainPage extends StatelessWidget {
                               ),
                               Expanded(
                                   flex: 1,
-                                  child: Text(
-                                    '${authProvider.userData.userFullname}',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: fontSizeBody,
-                                        color: Colors.white),
-                                  )),
-                              Expanded(
-                                  flex: 1,
-                                  child: Text(
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '${authProvider.userData.userFullname}',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: fontSizeBody,
+                                            color: Colors.white),
+                                      ),
+                                      Text(
                                     '${authProvider.userData.rolesName}',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: fontSizeBody,
                                         color: Colors.white54),
-                                  ))
+                                  )
+                                    ],
+                                  )),
+                            
                             ],
                           ),
                         ),

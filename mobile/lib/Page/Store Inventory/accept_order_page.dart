@@ -466,8 +466,7 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
                               builder: (BuildContext context, Widget? child) {
                                 return Column(children: [
                                   Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.70,
+                                    width: MediaQuery.of(context).size.width * 0.70 > 400 ? MediaQuery.of(context).size.width * 0.70 : 400,
                                     child: NumberPaginator(
                                       config: NumberPaginatorUIConfig(
                                         buttonUnselectedForegroundColor:
@@ -520,7 +519,8 @@ class _AcceptOrderPageState extends State<AcceptOrderPage> {
 
                                   // with api run
                                   Container(
-                                    // height: 400,
+                                    height: 400,
+                                    width: MediaQuery.of(context).size.width * 0.70 > 400 ? MediaQuery.of(context).size.width * 0.70 : 400,
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       itemCount: provider.listPerPage.length,
@@ -563,7 +563,7 @@ class DeliveryOrderChild extends StatelessWidget {
       children: [
         Container(
           width: MediaQuery.of(context).size.width * 0.70,
-          height: 80,
+          height: 88,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
@@ -577,60 +577,63 @@ class DeliveryOrderChild extends StatelessWidget {
           child: Row(
             children: [
               // leading
-              Expanded(
+              isPhone() ? SizedBox() : Expanded(
                 flex: 1,
                 child: Icon(
                   Icons.insert_drive_file_outlined,
                   size: 40,
                 ),
               ),
-
+          
               // center
               Expanded(
                 flex: 6,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Delivery Order ${data.deliveryOrderId}',
-                      style: TextStyle(
-                        color: ColorPalleteLogin.PrimaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Delivery Order ${data.deliveryOrderId}',
+                        style: TextStyle(
+                          color: ColorPalleteLogin.PrimaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: fontSizeBody,
+                        ),
                       ),
-                    ),
-                    Text(
-                      getDateWithTime(data.orderTimestamp!),
-                      style: TextStyle(
-                        color: ColorPalleteLogin.PrimaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      Text(
+                        getDateWithTime(data.orderTimestamp!),
+                        style: TextStyle(
+                          color: ColorPalleteLogin.PrimaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: fontSizeBody,
+                        ),
                       ),
-                    ),
-
-                    // cek status accepted
-                    data.statusAccept == 0
-                        ? StrokeText(
-                            text: 'Unchecked !!',
-                            textStyle: TextStyle(
-                              color: ColorPalleteLogin.OrangeLightColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                            
+                      // cek status accepted
+                      data.statusAccept == 0
+                          ? StrokeText(
+                              text: 'Unchecked !!',
+                              textStyle: TextStyle(
+                                color: ColorPalleteLogin.OrangeLightColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: fontSizeBody,
+                              ),
+                            )
+                          : Text(
+                              'Checked',
+                              style: TextStyle(
+                                color: ColorPalleteLogin.PrimaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: fontSizeBody,
+                              ),
                             ),
-                          )
-                        : Text(
-                            'Checked',
-                            style: TextStyle(
-                              color: ColorPalleteLogin.PrimaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-
+          
               // trailing
               Expanded(
                 flex: 1,

@@ -377,7 +377,7 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                                                   child: Padding(
                                                     padding:
                                                         const EdgeInsets.all(
-                                                            10.0),
+                                                            8.0),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -515,7 +515,9 @@ class _StockTransferNotesPageState extends State<StockTransferNotesPage> {
                                               .paginatorController.currentPage <
                                           provider.getMaxPage() - 1
                                       ? () =>
-                                          {provider.paginatorController.next()}
+                                          {
+                                            provider.paginatorController.next()
+                                            }
                                       : null, // _controller must be passed to NumberPaginator
                                   child: const Row(
                                     children: [

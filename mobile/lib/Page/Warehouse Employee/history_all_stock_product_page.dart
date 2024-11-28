@@ -107,6 +107,9 @@ class _HistoryAllStockProductPageState
               provider.isFiltering
                   ? Container(
                       height: MediaQuery.of(context).size.height * 0.30,
+                       width: MediaQuery.of(context).size.width *
+                                    0.8 *
+                                    0.98,
                       decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),
@@ -539,11 +542,11 @@ class _HistoryAllStockProductPageState
                                           alignment: Alignment.centerRight,
                                           child: Container(
                                             height: 50,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.55 *
-                                                0.3,
+                                            // width: MediaQuery.of(context)
+                                            //         .size
+                                            //         .width *
+                                            //     0.55 *
+                                            //     0.3,
                                             child: ElevatedButton(
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: ColorPalleteLogin
@@ -591,10 +594,12 @@ class _HistoryAllStockProductPageState
                   : provider.isLoading
                       ? CircularProgressIndicator()
                       : provider.resultSearched.isEmpty
-                          ? Text(
-                              'Data Tidak Ditemukan',
-                              style: notFoundData,
-                            )
+                          ? Center(
+                          child: Text(
+                            'Data Tidak Ditemukan',
+                            style: TextStyle(fontSize: fontSizeBody),
+                          ),
+                        )
                           : Column(
                               children: [
                                 // Container(

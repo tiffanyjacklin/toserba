@@ -13,7 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 Future<List<roles.Data>> _fetchRolePerUser(int userId) async {
-  final link = 'http://leap.crossnet.co.id:8888/user/roles/$userId';
+  final link = 'https://leap.crossnet.co.id:8888/user/roles/$userId';
   print(link);
 
   // call api

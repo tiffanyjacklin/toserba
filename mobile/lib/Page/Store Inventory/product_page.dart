@@ -23,7 +23,7 @@ Future<List<opname.Data>> _fetchProductStockOpname(
   // link localhost -> http://localhost:8888/user/
 
   final link =
-      'http://leap.crossnet.co.id:8888/products/stock/opname/data/store_warehouse/$productId/$storeWarehouseId/0/0';
+      '$hostname/products/stock/opname/data/store_warehouse/$productId/$storeWarehouseId/0/0';
 
   // call api
   final response = await http.get(Uri.parse(link));
@@ -57,7 +57,7 @@ Future _fetchProductStockCard(int productId, int storeWarehouseId) async {
   // link localhost -> http://localhost:8888/user/
 
   final link =
-      'http://leap.crossnet.co.id:8888/products/stock/card/product/store_warehouse/$productId/$storeWarehouseId/0/0';
+      '$hostname/products/stock/card/product/store_warehouse/$productId/$storeWarehouseId/0/0';
 
   // call api
   final response = await http.get(Uri.parse(link));
@@ -689,8 +689,8 @@ class _ProductPageState extends State<ProductPage> {
                               children: [
                                 // paginator
                                 Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.70,
+                                  width: MediaQuery.of(context).size.width * 0.70 > 400 ? MediaQuery.of(context).size.width * 0.70 : 400,
+                                      
                                   child: NumberPaginator(
                                     config: NumberPaginatorUIConfig(
                                       buttonUnselectedForegroundColor:
@@ -788,7 +788,7 @@ class ProductTile extends StatelessWidget {
         leading: CachedNetworkImage(
           imageUrl: dataProduct.productDetails!.productPhoto == '-'
               ? 'https://user-images.githubusercontent.com/24848110/33519396-7e56363c-d79d-11e7-969b-09782f5ccbab.png'
-              : 'http://leap.crossnet.co.id:8888/file/${dataProduct.productDetails!.productPhoto!}',
+              : '$hostname/file/${dataProduct.productDetails!.productPhoto!}',
           width: 50,
           height: 50,
           placeholder: (context, url) => CircularProgressIndicator(),

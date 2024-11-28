@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
+import 'package:Toserba_App/Template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:Toserba_App/Model/UserData.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -131,7 +130,7 @@ class AuthState extends ChangeNotifier {
   // API Function
   Future<List> _roleValidate() async {
     // link api
-    final link = 'http://leap.crossnet.co.id:8888/user/$_userId/$_roleId';
+    final link = 'https://leap.crossnet.co.id:8888/user/$_userId/$_roleId';
 
     // call api (method GET)
     final response = await http.get(Uri.parse(link));

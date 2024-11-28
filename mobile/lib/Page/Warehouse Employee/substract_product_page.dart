@@ -18,7 +18,7 @@ Future<List<product.Data>> fetchProduct(
 
   try {
     final link =
-        'http://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId/$swId///$search/////10/0';
+        'https://leap.crossnet.co.id:8888/products/store_warehouse/$userId/$roleId/$swId///$search/////10/0';
 
     print(link);
 
@@ -253,9 +253,9 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
                             Center(
                               child: Container(
                                 height: 50,
-                                width: MediaQuery.of(context).size.width *
-                                    0.55 *
-                                    0.3,
+                                // width: MediaQuery.of(context).size.width *
+                                //     0.55 *
+                                //     0.3,
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
@@ -306,7 +306,7 @@ class _SubstractProductPageState extends State<SubstractProductPage> {
               providerSubstract.cartItems.length != 0
                   ? Container(
                       height: 55,
-                      width: MediaQuery.of(context).size.width * 0.55 * 0.4,
+                      // width: MediaQuery.of(context).size.width * 0.55 * 0.4,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: ColorPalleteLogin.PrimaryColor,

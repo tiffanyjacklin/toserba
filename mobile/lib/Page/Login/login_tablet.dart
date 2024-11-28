@@ -73,7 +73,7 @@ class _LoginTabletState extends State<LoginTablet> {
                                       'Welcome',
                                       maxLines: 1,
                                       style: TextStyle(
-                                          fontSize: (fontSizeBody * 7.0),
+                                          fontSize: (fontSizeBody * 4.0),
                                           fontWeight: FontWeight.bold,
                                           color:
                                               ColorPalleteLogin.PrimaryColor),
@@ -281,7 +281,7 @@ class _LoginTabletState extends State<LoginTablet> {
   // CEK USER
   Future _fetchUser() async {
     final link =
-        'http://leap.crossnet.co.id:8888/user/login?username=${usernameController.text}&password=${passwordController.text}';
+        'https://leap.crossnet.co.id:8888/user/login?username=${usernameController.text}&password=${passwordController.text}';
 
     try {
       // call api (method PUT)

@@ -270,7 +270,7 @@ class HistoryAllProductProvider extends ChangeNotifier {
     try {
       // http://leap.crossnet.co.id:8888/products/stock/card/description
       final link =
-          'http://leap.crossnet.co.id:8888/products/stock/card/description';
+          'https://leap.crossnet.co.id:8888/products/stock/card/description';
 
       // call api (method PUT)
       final response = await http.get(Uri.parse(link));

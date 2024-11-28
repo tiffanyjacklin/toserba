@@ -40,7 +40,7 @@ class _SessionPageState extends State<SessionPage> {
   // buat api function getting all session?
   Future _getLastSession() async {
     // link api
-    final link = 'http://leap.crossnet.co.id:8888/cashier/session/last';
+    final link = '$hostname/cashier/session/last';
 
     // panggil 
     // call api (method GET)
