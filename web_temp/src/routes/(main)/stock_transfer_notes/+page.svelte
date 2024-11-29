@@ -781,7 +781,7 @@
                     <div class="w-4/12">{delivery_order.quantity_total} loaded</div>
                   </div>
                   <div class="w-2/12 flex justify-end mr-4">
-                    <button on:click={ $loading = true; () => toggleDeliveryOrderByID(delivery_order, delivery_order.delivery_order_id); $loading = false;} type="button" 
+                    <button on:click={  () => {$loading = true; toggleDeliveryOrderByID(delivery_order, delivery_order.delivery_order_id); $loading = false;}} type="button" 
                       class="my-2 flex items-center justify-center text-[#3d4c52] bg-[#f7d4b2] hover:shadow-[0_2px_3px_rgba(0,0,0,0.5)] hover:bg-[#F2AA7E] focus:ring-4 focus:outline-none font-semibold text-lg rounded-lg outline outline-[1px] px-3 py-3 text-center">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
@@ -873,7 +873,7 @@
                   </div>
                   <div class="flex items-center justify-start">
                     <button type="button" 
-                    on:click={() => $loading = true; viewPDF(window.location.origin+`/print_delivery_order/${$uri}/${delivery_order.delivery_order_id}/${from.store_warehouse_id}/${to.store_warehouse_id}`, `DeliveryOrder_${delivery_order.delivery_order_id}_${formatDate(delivery_order.order_timestamp)}_PrintedOn${getFormattedDateForPrint()}`, 190); $loading = false;}   
+                    on:click={() => {$loading = true; viewPDF(window.location.origin+`/print_delivery_order/${$uri}/${delivery_order.delivery_order_id}/${from.store_warehouse_id}/${to.store_warehouse_id}`, `DeliveryOrder_${delivery_order.delivery_order_id}_${formatDate(delivery_order.order_timestamp)}_PrintedOn${getFormattedDateForPrint()}`, 190); $loading = false;}}   
                     class="mt-2 flex w-40 items-center justify-start text-[#3d4c52] bg-[#f7d4b2] hover:bg-[#f2b082]  focus:outline-none font-semibold rounded-lg text-md py-1.5 text-center">
                       <div class="w-2/12 flex justify-center ml-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">

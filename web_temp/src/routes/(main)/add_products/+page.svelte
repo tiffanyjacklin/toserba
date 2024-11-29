@@ -178,9 +178,11 @@
 
   }
   function selectProduct(stock) {
+    $loading = true;
     productId = stock.ProductDetails.product_detail_id;
     productName = stock.ProductDetails.product_name;
     unit_type = stock.ProductDetails.product_unit;
+    $loading = false;
   }
   // function selectProductExp(stock) {
   //     expired_date = stock.expired_date;

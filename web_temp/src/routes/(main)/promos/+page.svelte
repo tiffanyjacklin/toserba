@@ -1451,7 +1451,7 @@
 
       <div class="flex mt-8 items-center justify-center">
         <button on:click={() => {showModal = "choose_product"}} class="w-36 py-2 bg-darkGray text-peach border border-peach mx-4 rounded-xl font-semibold">Back</button>
-        <button on:click={async() => {$loading = true; await addProductPromo(); closeModal() $loading = false;}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
+        <button on:click={async() => {$loading = true; await addProductPromo(); closeModal(); $loading = false;}} class="w-36 py-2 bg-peach text-darkGray border border-peach mx-4 rounded-xl font-semibold">Add</button>
       </div>
     </div>
   </TaskModal> 

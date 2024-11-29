@@ -74,17 +74,17 @@
     function toggleFilter() {
         showFilter = !showFilter;
     }
-    function handleClick(product_id) {
+    async function handleClick(product_id) {
       $loading = true;
       showModal = product_id;
       
       console.log(product_id)
-      fetchProduk(product_id);
-      fetchTransactions(product_id);
+      await fetchProduk(product_id);
+      await fetchTransactions(product_id);
       
-      fetchStockCard(product_id);
-      fetchCurrentStock(product_id, sw_id);
-      fetchSuppliers();
+      await fetchStockCard(product_id);
+      await fetchCurrentStock(product_id, sw_id);
+      await fetchSuppliers();
       $loading = false;
     }
     function closeModal() {
